@@ -1,5 +1,5 @@
 #pragma once
-#include "../imgui/imgui.h"
+#include "imgui.h"
 
 struct alignas(16) UniversalShaderSettings {
     int textureWidth = 1600;

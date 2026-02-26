@@ -10,33 +10,68 @@ set(CMAKE_CXX_FLAGS_RELEASE " -O3")
 # force static linking for C/C++ runtime
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -static-libgcc -static-libstdc++")
 
-# Set GLEW variables manually for Windows build
-if(WIN32)
-    set(GLEW_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/../libraries/glew-2.2.0-win32/include)
-    set(GLEW_LIBRARY_RELEASE ${CMAKE_SOURCE_DIR}/../libraries/glew-2.2.0-win32/lib/Release/x64/glew32s.lib)
-    set(GLEW_LIBRARY_DEBUG ${CMAKE_SOURCE_DIR}/../libraries/glew-2.2.0-win32/lib/Release/x64/glew32s.lib)
-    set(GLEW_LIBRARIES ${GLEW_LIBRARY_RELEASE})
+#====== Dependency Management =====
 
-    # Add definition for static GLEW
-    add_definitions(-DGLEW_STATIC)
-endif()
+include(FetchContent)
 
+#----- Glew ----- 
 
-# Set SDL3 variables manually for Windows build
-if(WIN32)
-    set(SDL3_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/../libraries/SDL3-3.2.8-mingw/x86_64-w64-mingw32/include)
-    set(SDL3_LIBRARY_RELEASE ${CMAKE_SOURCE_DIR}/../libraries/SDL3-3.2.8-mingw/x86_64-w64-mingw32/lib/libSDL3.dll.a)
-    set(SDL3_LIBRARY_DEBUG ${CMAKE_SOURCE_DIR}/../libraries/SDL3-3.2.8-mingw/x86_64-w64-mingw32/lib/libSDL3.dll.a)
-    set(SDL3_LIBRARIES ${SDL3_LIBRARY_RELEASE})
-endif()
+FetchContent_Declare(
+    glew
+    URL https://github.com/nigels-com/glew/releases/download/glew-2.2.0/glew-2.2.0.tgz
+)
+set(GLEW_STATIC ON CACHE BOOL "" FORCE)
+set(CMAKE_POLICY_VERSION_MINIMUM 3.5 CACHE STRING "" FORCE)
+FetchContent_MakeAvailable(glew)
+add_subdirectory(${glew_SOURCE_DIR}/build/cmake ${glew_BINARY_DIR})
+unset(CMAKE_POLICY_VERSION_MINIMUM CACHE)
 
-# Set FFTW3 variables manually for Windows build
-if(WIN32)
-    set(FFTW3_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/../libraries/fftw-3.3.5-win32)
-    set(FFTW3_LIBRARY_RELEASE ${CMAKE_SOURCE_DIR}/../libraries/fftw-3.3.5-win32/libfftw3-3.dll)
-    set(FFTW3_LIBRARY_DEBUG ${CMAKE_SOURCE_DIR}/../libraries/fftw-3.3.5-win32/libfftw3-3.dll)
-    set(FFTW3_LIBRARIES ${FFTW3_LIBRARY_RELEASE})
-endif()
+#----- SDL3 ----- 
+
+FetchContent_Declare(
+    SDL3
+    GIT_REPOSITORY https://github.com/libsdl-org/SDL
+    GIT_TAG release-3.2.8
+    GIT_SHALLOW TRUE
+    GIT_PROGRESS TRUE
+)
+set(SDL_SHARED OFF CACHE BOOL "" FORCE)
+set(SDL_STATIC ON CACHE BOOL "" FORCE)
+set(SDL_TEST OFF CACHE BOOL "" FORCE)
+FetchContent_MakeAvailable(SDL3)
+
+#----- FFTW3 ----- 
+
+FetchContent_Declare(
+    fftw3
+    URL      https://www.fftw.org/fftw-3.3.5.tar.gz
+)
+set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
+set(BUILD_TESTS OFF CACHE BOOL "" FORCE)
+set(ENABLE_FLOAT OFF CACHE BOOL "" FORCE)
+FetchContent_MakeAvailable(fftw3)
+
+#----- ImGui ----- 
+
+FetchContent_Declare(
+    imgui
+    GIT_REPOSITORY https://github.com/ocornut/imgui
+    GIT_TAG v1.91.9-docking
+    GIT_SHALLOW TRUE
+    GIT_PROGRESS TRUE
+)
+FetchContent_MakeAvailable(imgui)
+
+#----- ImPlot ----- 
+
+FetchContent_Declare(
+    implot
+    GIT_REPOSITORY https://github.com/epezent/implot
+    GIT_TAG v0.16
+    GIT_SHALLOW TRUE
+    GIT_PROGRESS TRUE
+)
+FetchContent_MakeAvailable(implot)
 
 # Add Windows-specific OpenGL libraries
 if(WIN32)
@@ -44,77 +79,72 @@ if(WIN32)
 endif()
 
 find_package(OpenGL REQUIRED)
-if(NOT WIN32)
-    find_package(SDL3 REQUIRED CONFIG REQUIRED COMPONENTS SDL3)
-    find_package(GLEW REQUIRED STATIC)
-    find_package(FFTW3 REQUIRED)
-endif()
 
 
 #Create symbolic link of resource folders for the executable in the build folder
 if(NOT WIN32)
-file(CREATE_LINK "${CMAKE_SOURCE_DIR}/res" "${CMAKE_SOURCE_DIR}/build/res" SYMBOLIC RESULT result)
-if(result)
-message(FATAL_ERROR "Failed to create symlink to Linux build directory")
-endif()
+    file(CREATE_LINK "${CMAKE_SOURCE_DIR}/res" "${CMAKE_SOURCE_DIR}/build/res" SYMBOLIC RESULT result)
+    if(result)
+        message(FATAL_ERROR "Failed to create symlink to Linux build directory")
+    endif()
 
-file(CREATE_LINK "${CMAKE_SOURCE_DIR}/presets" "${CMAKE_SOURCE_DIR}/build/presets" SYMBOLIC RESULT result)
-if(result)
-message(FATAL_ERROR "Failed to create symlink to Linux build directory")
-endif()
+    file(CREATE_LINK "${CMAKE_SOURCE_DIR}/presets" "${CMAKE_SOURCE_DIR}/build/presets" SYMBOLIC RESULT result)
+    if(result)
+        message(FATAL_ERROR "Failed to create symlink to Linux build directory")
+    endif()
 endif()
 
 if(WIN32)
-file(CREATE_LINK "${CMAKE_SOURCE_DIR}/res" "${CMAKE_SOURCE_DIR}/build_windows/res" SYMBOLIC RESULT result)
-if(result)
-message(FATAL_ERROR "Failed to create symlink to Windows build directory")
+    file(CREATE_LINK "${CMAKE_SOURCE_DIR}/res" "${CMAKE_SOURCE_DIR}/build_windows/res" SYMBOLIC RESULT result)
+    if(result)
+        message(FATAL_ERROR "Failed to create symlink to Windows build directory")
+    endif()
+
+    file(CREATE_LINK "${CMAKE_SOURCE_DIR}/presets" "${CMAKE_SOURCE_DIR}/build_windows/presets" SYMBOLIC RESULT result)
+    if(result)
+        message(FATAL_ERROR "Failed to create symlink to Windows build directory")
+    endif()
 endif()
 
-file(CREATE_LINK "${CMAKE_SOURCE_DIR}/presets" "${CMAKE_SOURCE_DIR}/build_windows/presets" SYMBOLIC RESULT result)
-if(result)
-message(FATAL_ERROR "Failed to create symlink to Windows build directory")
-endif()
-endif()
-
-# Set where the ImGui files are stored
-set(IMGUI_PATH  "./imgui/")
-
-# Compile as static library 
-#file(GLOB IMGUI_SOURCES ${IMGUI_PATH}/*.cpp) 
 
 set(IMGUI_HEADER_FILES
-    ${IMGUI_PATH}imconfig.h
-    ${IMGUI_PATH}imgui.h
-    ${IMGUI_PATH}imgui_impl_opengl3.h
-    ${IMGUI_PATH}imgui_impl_opengl3_loader.h
-    ${IMGUI_PATH}imgui_impl_sdl3.h
-    ${IMGUI_PATH}imgui_internal.h
-    ${IMGUI_PATH}imstb_rectpack.h
-    ${IMGUI_PATH}imstb_textedit.h
-    ${IMGUI_PATH}imstb_truetype.h
-    ${IMGUI_PATH}implot.h
-    ${IMGUI_PATH}implot_internal.h
+    ${imgui_SOURCE_DIR}/imconfig.h
+    ${imgui_SOURCE_DIR}/imgui.h
+    ${imgui_SOURCE_DIR}/backends/imgui_impl_opengl3.h
+    ${imgui_SOURCE_DIR}/backends/imgui_impl_opengl3_loader.h
+    ${imgui_SOURCE_DIR}/backends/imgui_impl_sdl3.h
+    ${imgui_SOURCE_DIR}/imgui_internal.h
+    ${imgui_SOURCE_DIR}/imstb_rectpack.h
+    ${imgui_SOURCE_DIR}/imstb_textedit.h
+    ${imgui_SOURCE_DIR}/imstb_truetype.h
+    ${implot_SOURCE_DIR}/implot.h
+    ${implot_SOURCE_DIR}/implot_internal.h
 )
 
 set(IMGUI_SOURCE_FILES
-    ${IMGUI_PATH}imgui.cpp
-    ${IMGUI_PATH}imgui_demo.cpp
-    ${IMGUI_PATH}imgui_draw.cpp
-    ${IMGUI_PATH}imgui_impl_opengl3.cpp
-    ${IMGUI_PATH}imgui_impl_sdl3.cpp
-    ${IMGUI_PATH}imgui_tables.cpp
-    ${IMGUI_PATH}imgui_widgets.cpp
-    ${IMGUI_PATH}implot.cpp
-    ${IMGUI_PATH}implot_items.cpp
-    ${IMGUI_PATH}implot_demo.cpp
+    ${imgui_SOURCE_DIR}/imgui.cpp
+    ${imgui_SOURCE_DIR}/imgui_demo.cpp
+    ${imgui_SOURCE_DIR}/imgui_draw.cpp
+    ${imgui_SOURCE_DIR}/backends/imgui_impl_opengl3.cpp
+    ${imgui_SOURCE_DIR}/backends/imgui_impl_sdl3.cpp
+    ${imgui_SOURCE_DIR}/imgui_tables.cpp
+    ${imgui_SOURCE_DIR}/imgui_widgets.cpp
+    ${implot_SOURCE_DIR}/implot.cpp
+    ${implot_SOURCE_DIR}/implot_items.cpp
+    ${implot_SOURCE_DIR}/implot_demo.cpp
 )
 
 add_library("ImGui" STATIC ${IMGUI_SOURCE_FILES})
-target_include_directories("ImGui" SYSTEM PUBLIC ${IMGUI_PATH} ${SDL3_INCLUDE_DIR})
+target_include_directories("ImGui" SYSTEM PUBLIC
+    ${imgui_SOURCE_DIR}
+    ${imgui_SOURCE_DIR}/backends
+    ${implot_SOURCE_DIR}
+    ${SDL3_INCLUDE_DIR}
+)
 
 # Add Windows-specific defines for ImGui
 if(WIN32)
-    target_compile_definitions("ImGui" PRIVATE 
+    target_compile_definitions("ImGui" PRIVATE
         -D_WIN32
         -DWIN32
         -DIMGUI_IMPL_WIN32_DISABLE_GAMEPAD
@@ -123,7 +153,7 @@ if(WIN32)
 endif()
 
 # Disable warnings for ImGui
-target_compile_options("ImGui" PRIVATE 
+target_compile_options("ImGui" PRIVATE
     -w
 )
 
@@ -132,7 +162,7 @@ add_compile_options(-Werror -Wall -Wextra -Wpedantic -Wfloat-equal -Wsign-conver
 
 set(GLM_INCLUDE_PATH PATH ${CMAKE_CURRENT_SOURCE_DIR}/glm)
 
-set(MY_HEADER_FILES 
+set(MY_HEADER_FILES
     source/canvas.h
     source/display.h
     source/ParticleData.h
@@ -177,16 +207,16 @@ include_directories(
     ${FFTW3_INCLUDE_DIR}
 )
 
-add_executable(Physarum 
+add_executable(Physarum
     ${MY_HEADER_FILES}
     ${MY_SOURCE_FILES}
 )
 
-target_link_libraries(Physarum 
+target_link_libraries(Physarum
     PUBLIC ImGui
     ${OPENGL_LIBRARY}
-    ${SDL3_LIBRARIES}
-    ${GLEW_LIBRARIES}
-    ${FFTW3_LIBRARIES}
+    SDL3::SDL3-static
+    glew_s
+    fftw3
     ${ADDITIONAL_WINDOWS_LIBS}  # Add the Windows libraries
 )

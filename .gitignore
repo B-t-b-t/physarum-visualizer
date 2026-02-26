@@ -40,8 +40,16 @@
 # debug information files
 *.dwo
 
-# VSCode files
+# VSCode files and directories
+.vscode/
+.VSCodeCounter/
 *.code-workspace
+CMakePresets.json
 
 # ImGui files
 imgui.ini
+
+# Ignored Directories
+
+build*/
+.github/

@@ -4,7 +4,7 @@
 #include <SDL3/SDL.h>
 #include <GL/glew.h>
 #include <string>
-#include "../imgui/imgui_impl_sdl3.h"
+#include "imgui_impl_sdl3.h"
 
 
 #define APIENTRY GLEWAPIENTRY
