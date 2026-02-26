@@ -1,0 +1,4 @@
+*.h linguist-language=C++
+*.vs linguist-language=GLSL
+*.fs linguist-language=GLSL
+*.cs linguist-language=GLSL
