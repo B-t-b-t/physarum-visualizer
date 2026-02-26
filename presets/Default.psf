@@ -1,0 +1,15 @@
+Name= Default
+UseMask= 0
+CollisionDetection= 0
+V= 1.5
+DepositionStrength= 1
+LockAngles= 1
+RotationAngle= 45
+Angle= 45
+SensorDistance= 9
+DiffusionWeight= 1
+Decay= 0.5
+LockSlimeColor= 0
+SlimeColor1= 1 0 0 1
+SlimeColor2= 0 1 0 1
+SlimeColor3= 0 0 1 1

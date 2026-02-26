@@ -1,0 +1,11 @@
+Name= Diffusion
+UseMask= 1
+CollisionDetection= 0
+V= 0.511
+DepositionStrength= 1
+LockAngles= 1
+RotationAngle= 45
+Angle= 45
+SensorDistance= 9
+DiffusionWeight= 1
+Decay= 0.5

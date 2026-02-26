@@ -1,0 +1,15 @@
+Name= Waves
+UseMask= 1
+CollisionDetection= 0
+V= 0.3
+DepositionStrength= 1
+LockAngles= 1
+RotationAngle= 180
+Angle= 180
+SensorDistance= 12
+DiffusionWeight= 1
+Decay= 0.5
+LockSlimeColor= 0
+SlimeColor1= 1 0.588235 0 1
+SlimeColor2= 0 0.205882 1 1
+SlimeColor3= 1 0.352941 0 1
