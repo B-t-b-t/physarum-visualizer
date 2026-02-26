@@ -100,8 +100,7 @@ AudioRecording::AudioRecording(std::string deviceName) : deviceName_(deviceName)
 	if (!mutex_) {
 		SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Couldn't create mutex\n");
 	}
-	SDL_UnlockMutex(mutex_);
-
+	
 	data_ = {stream_in_, Buf_, BUFFER_SIZE, mutex_, false};
 	audioTimer_ = 100;
 
