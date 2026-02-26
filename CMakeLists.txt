@@ -18,7 +18,7 @@ include(FetchContent)
 
 FetchContent_Declare(
     glew
-    URL https://github.com/nigels-com/glew/releases/download/glew-2.2.0/glew-2.2.0.tgz
+    URL https://github.com/nigels-com/glew/releases/download/glew-2.3.1/glew-2.3.1.tgz
 )
 set(GLEW_STATIC ON CACHE BOOL "" FORCE)
 set(CMAKE_POLICY_VERSION_MINIMUM 3.5 CACHE STRING "" FORCE)
@@ -31,7 +31,7 @@ unset(CMAKE_POLICY_VERSION_MINIMUM CACHE)
 FetchContent_Declare(
     SDL3
     GIT_REPOSITORY https://github.com/libsdl-org/SDL
-    GIT_TAG release-3.2.8
+    GIT_TAG release-3.4.2
     GIT_SHALLOW TRUE
     GIT_PROGRESS TRUE
 )
@@ -44,19 +44,21 @@ FetchContent_MakeAvailable(SDL3)
 
 FetchContent_Declare(
     fftw3
-    URL      https://www.fftw.org/fftw-3.3.5.tar.gz
+    URL      https://www.fftw.org/fftw-3.3.10.tar.gz
 )
 set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
 set(BUILD_TESTS OFF CACHE BOOL "" FORCE)
 set(ENABLE_FLOAT OFF CACHE BOOL "" FORCE)
+set(CMAKE_POLICY_VERSION_MINIMUM 3.5 CACHE STRING "" FORCE)
 FetchContent_MakeAvailable(fftw3)
+unset(CMAKE_POLICY_VERSION_MINIMUM CACHE)
 
 #----- ImGui ----- 
 
 FetchContent_Declare(
     imgui
     GIT_REPOSITORY https://github.com/ocornut/imgui
-    GIT_TAG v1.91.9-docking
+    GIT_TAG v1.92.6-docking
     GIT_SHALLOW TRUE
     GIT_PROGRESS TRUE
 )
@@ -67,7 +69,7 @@ FetchContent_MakeAvailable(imgui)
 FetchContent_Declare(
     implot
     GIT_REPOSITORY https://github.com/epezent/implot
-    GIT_TAG v0.16
+    GIT_TAG v0.17
     GIT_SHALLOW TRUE
     GIT_PROGRESS TRUE
 )
