@@ -62,9 +62,100 @@ layout(std140, binding = 1) uniform SlimeSettings {
     vec4 collisionColor;
 };
 
+//function declarations
+uint hash(uint state);
+float scaleToRange01(uint state);
+vec2 wrapCoordinates_f(vec2 pos, int textureWidth, int textureHeight);
+ivec2 wrapCoordinates_i(ivec2 pos, int textureWidth, int textureHeight);
+vec4 when_eq(vec4 x, vec4 y);
+vec4 when_gt(vec4 x, vec4 y);
+Particle moveParticle(Particle particle, float beatVel, float ds, vec3 speciesColor, vec3 particleColor);
+SensedTrail sensingTrail(Particle particle, float beatSensorDistance, float da, vec3 speciesColor, vec3 speciesMask);
+Particle rotateToNewDirection(Particle particle, SensedTrail sensedTrail, float ds);
+
+
+void main() {
+
+    float PI = 3.1415926535f;
+    float da = 2.0f * PI * ((angle + angleBassReaction) / 360.0f);
+    float ds = 2.0f * PI * ((rotationAngle + angleBassReaction) / 360.0f);
+
+    float beatVel = v + reactToAudio * velocityBassReaction * 0.3f;
+    int beatSensorDistance = sensorDistance;// + reactToAudio * velocityBassReaction;
+
+    uint invocationID = gl_GlobalInvocationID.x;
+
+    Particle particle = particleArray[invocationID];
+
+
+    vec3 speciesColor = vec3(0.0f, 0.0f, 0.0f);
+    vec3 particleColor = vec3(0.0f, 0.0f, 0.0f);
+    vec3 speciesMask = vec3(0.0f, 0.0f, 0.0f);
+
+    switch(int(particle.speciesID)) {
+        case 1:
+            speciesColor = slimeColor0.rgb;
+            particleColor = particleColor0.rgb;
+            speciesMask = vec3(1.0f, -1.0f, -1.0f);
+            break;
+        case 2:
+            speciesColor = slimeColor1.rgb;
+            particleColor = particleColor1.rgb;
+            speciesMask = vec3(-1.0f, 1.0f, -1.0f);
+            break;
+        case 3:
+            speciesColor = slimeColor2.rgb;
+            particleColor = particleColor2.rgb;
+            speciesMask = vec3(-1.0f, -1.0f, 1.0f);
+            break;
+    }
+
+    // int speciesIDInt = int(speciesID);
+    // speciesColor = slimeColor0 * step(0.9, speciesID) * step(-1.1 ,-speciesID) + slimeColor1 * step(1.9, speciesID) * step(-2.1 ,-speciesID) + slimeColor2 * step(2.9, speciesID) * step(-3.1 ,-speciesID);
+    // particleColor = particleColor0 * step(0.9, speciesID) * step(-1.1 ,-speciesID) + particleColor1 * step(1.9, speciesID) * step(-2.1 ,-speciesID) + particleColor2 * step(2.9, speciesID) * step(-3.1 ,-speciesID);
+    // speciesMask = vec4(1.0f, -1.0f, -1.0f, 0.0f) * step(0.9, speciesID) * step(-1.1 ,-speciesID) + vec4(-1.0f, 1.0f, -1.0f, 0.0f) * step(1.9, speciesID) * step(-2.1 ,-speciesID) + vec4(-1.0f, -1.0f, 1.0f, 0.0f) * step(2.9, speciesID) * step(-3.1 ,-speciesID);
+
+    // int speciesIDInt = int(speciesID);
+    // vec4 eq = when_eq(vec4(1.0f, 2.0f, 3.0f, 4.0f), vec4(speciesID));
+
+    // speciesColor = slimeColor0 * eq.x + slimeColor1 * eq.y + slimeColor2 * eq.z;
+    // particleColor = particleColor0 * eq.x + particleColor1 * eq.y + particleColor2 * eq.z;
+    // speciesMask = vec4(1.0f, -1.0f, -1.0f, 0.0f) * eq.x + vec4(-1.0f, 1.0f, -1.0f, 0.0f) * eq.y + vec4(-1.0f, -1.0f, 1.0f, 0.0f) * eq.z;
+
+
+
+    //---------------------------------Particle Movement---------------------------------
+
+    vec2 mousePos = vec2(mouseInputs.x, mouseInputs.y);
+    
+    mousePos.y = windowHeight - mousePos.y;
+    vec2 mouseVector = particle.position - vec2(mousePos.x * (textureWidth / float(windowWidth)), mousePos.y * (textureHeight / float(windowHeight)));
+
+    if(length(mouseVector) < 100.0f) {
+        if(mouseInputs.z > 0.0f) {
+            beatVel = 100.0f * beatVel;
+        }
+        if(mouseInputs.w > 0.0f) {
+            beatVel = 0.0 * beatVel;
+        }
+    }
+
+    Particle newParticle = moveParticle(particle, beatVel, ds, speciesColor, particleColor);
+
+    //---------------------------------Particle Sensing---------------------------------
+    //sense TrailMap
+    SensedTrail sensedTrail = sensingTrail(newParticle, beatSensorDistance, da, speciesColor, speciesMask);
+
+    //new direction
+    newParticle = rotateToNewDirection(newParticle, sensedTrail, ds);
+    newParticle.angle = mod(newParticle.angle, 2*PI);
+
+
+    particleArray[invocationID] = newParticle;
+}
+
 // Hash function www.cs.ubc.ca/~rbridson/docs/schechter-sca08-turbulence.pdf
-uint hash(uint state)
-{
+uint hash(uint state) {
     state ^= 2747636419u;
     state *= 2654435769u;
     state ^= state >> 16;
@@ -74,8 +165,7 @@ uint hash(uint state)
     return state;
 }
 
-float scaleToRange01(uint state)
-{
+float scaleToRange01(uint state) {
     return state/4294967295.0f;
 }
 
@@ -97,22 +187,24 @@ vec4 when_gt(vec4 x, vec4 y) {
   return max(sign(x - y), 0.0);
 }
 
-Particle moveParticle(Particle particle, float beatVel, float ds, vec4 speciesColor, vec4 particleColor) {
+Particle moveParticle(Particle particle, float beatVel, float ds, vec3 speciesColor, vec3 particleColor) {
 
     vec2 newParticleCoords = vec2(particle.position.x + beatVel * cos(particle.angle), particle.position.y + beatVel * sin(particle.angle));
 
     //move particle to the other side of the screen if it goes out of bounds
-
     newParticleCoords = wrapCoordinates_f(newParticleCoords, textureWidth, textureHeight);
 
     Particle updatedParticle = particle;
 
     int canMove = 1;
+    vec4 nextPixel = vec4(0.0f);
+    vec4 thisPixel = vec4(0.0f);
 
-    if(collisionDetection == 1) {
-        float nextPixel = length(imageLoad(oldTexParticles, ivec2(newParticleCoords)));
+    if(collisionDetection == 1 || renderParticles == 1) {
+        nextPixel = imageLoad(oldTexParticles, ivec2(newParticleCoords));
+        thisPixel = imageLoad(oldTexParticles, ivec2(particle.position));
 
-        if(nextPixel > 0.0f) {
+        if(length(nextPixel) > (1 * 1.0f)) {
             canMove = 0;
         }
     }
@@ -122,10 +214,11 @@ Particle moveParticle(Particle particle, float beatVel, float ds, vec4 speciesCo
         updatedParticle.position = newParticleCoords;
 
         //store pre multiplied alpha
-        imageStore(texTrailNonDiffused, ivec2(newParticleCoords), vec4(speciesColor.rgb * depositionStrength, depositionStrength));
+        imageStore(texTrailNonDiffused, ivec2(newParticleCoords), vec4(speciesColor * depositionStrength, 1.0f));
         
         if(collisionDetection == 1 || renderParticles == 1) {
-            imageStore(newTexParticles, ivec2(newParticleCoords), particleColor);
+            imageStore(newTexParticles, ivec2(newParticleCoords), nextPixel + vec4((10.0f / 255.0f) * particleColor, 1.0f));
+            imageStore(newTexParticles, ivec2(particle.position), thisPixel - vec4((10.0f / 255.0f) * particleColor, 1.0f));
         }
   
     } else {
@@ -142,14 +235,14 @@ Particle moveParticle(Particle particle, float beatVel, float ds, vec4 speciesCo
 
         //store at old position if collision is detected
         if(collisionDetection == 1 || renderParticles == 1) {
-            imageStore(newTexParticles, ivec2(particle.position), particleColor);
+            imageStore(newTexParticles, ivec2(particle.position), thisPixel);
         }
     }
 
     return updatedParticle;
 }
 
-SensedTrail sensingTrail(Particle particle, float beatSensorDistance, float da, vec4 speciesColor, vec3 speciesMask) {
+SensedTrail sensingTrail(Particle particle, float beatSensorDistance, float da, vec3 speciesColor, vec3 speciesMask) {
     SensedTrail sensedTrail = SensedTrail(0.0f, 0.0f, 0.0f);
     vec4 sensedPixelValue;
 
@@ -220,84 +313,4 @@ Particle rotateToNewDirection(Particle particle, SensedTrail sensedTrail, float 
     } else {
         return particle;
     }
-}
-
-void main() {
-
-    float PI = 3.1415926535f;
-    float da = 2.0f * PI * ((angle + angleBassReaction) / 360.0f);
-    float ds = 2.0f * PI * ((rotationAngle + angleBassReaction) / 360.0f);
-
-    float beatVel = v + reactToAudio * velocityBassReaction * 0.3f;
-    int beatSensorDistance = sensorDistance;// + reactToAudio * velocityBassReaction;
-
-    uint invocationID = gl_GlobalInvocationID.x;
-
-    Particle particle = particleArray[invocationID];
-
-
-    vec4 speciesColor = vec4(0.0f, 0.0f, 0.0f, 0.0f);
-    vec4 particleColor = vec4(0.0f, 0.0f, 0.0f, 0.0f);
-    vec3 speciesMask = vec3(0.0f, 0.0f, 0.0f);
-
-    switch(int(particle.speciesID)) {
-        case 1:
-            speciesColor = slimeColor0;
-            particleColor = particleColor0;
-            speciesMask = vec3(1.0f, -1.0f, -1.0f);
-            break;
-        case 2:
-            speciesColor = slimeColor1;
-            particleColor = particleColor1;
-            speciesMask = vec3(-1.0f, 1.0f, -1.0f);
-            break;
-        case 3:
-            speciesColor = slimeColor2;
-            particleColor = particleColor2;
-            speciesMask = vec3(-1.0f, -1.0f, 1.0f);
-            break;
-    }
-
-    // int speciesIDInt = int(speciesID);
-    // speciesColor = slimeColor0 * step(0.9, speciesID) * step(-1.1 ,-speciesID) + slimeColor1 * step(1.9, speciesID) * step(-2.1 ,-speciesID) + slimeColor2 * step(2.9, speciesID) * step(-3.1 ,-speciesID);
-    // particleColor = particleColor0 * step(0.9, speciesID) * step(-1.1 ,-speciesID) + particleColor1 * step(1.9, speciesID) * step(-2.1 ,-speciesID) + particleColor2 * step(2.9, speciesID) * step(-3.1 ,-speciesID);
-    // speciesMask = vec4(1.0f, -1.0f, -1.0f, 0.0f) * step(0.9, speciesID) * step(-1.1 ,-speciesID) + vec4(-1.0f, 1.0f, -1.0f, 0.0f) * step(1.9, speciesID) * step(-2.1 ,-speciesID) + vec4(-1.0f, -1.0f, 1.0f, 0.0f) * step(2.9, speciesID) * step(-3.1 ,-speciesID);
-
-    // int speciesIDInt = int(speciesID);
-    // vec4 eq = when_eq(vec4(1.0f, 2.0f, 3.0f, 4.0f), vec4(speciesID));
-
-    // speciesColor = slimeColor0 * eq.x + slimeColor1 * eq.y + slimeColor2 * eq.z;
-    // particleColor = particleColor0 * eq.x + particleColor1 * eq.y + particleColor2 * eq.z;
-    // speciesMask = vec4(1.0f, -1.0f, -1.0f, 0.0f) * eq.x + vec4(-1.0f, 1.0f, -1.0f, 0.0f) * eq.y + vec4(-1.0f, -1.0f, 1.0f, 0.0f) * eq.z;
-
-
-
-    //---------------------------------Particle Movement---------------------------------
-
-    vec2 mousePos = vec2(mouseInputs.x, mouseInputs.y);
-    
-    mousePos.y = windowHeight - mousePos.y;
-    vec2 mouseVector = particle.position - vec2(mousePos.x * (textureWidth / float(windowWidth)), mousePos.y * (textureHeight / float(windowHeight)));
-
-    if(length(mouseVector) < 100.0f) {
-        if(mouseInputs.z > 0.0f) {
-            beatVel = 100.0f * beatVel;
-        }
-        if(mouseInputs.w > 0.0f) {
-            beatVel = 0.0 * beatVel;
-        }
-    }
-
-    Particle newParticle = moveParticle(particle, beatVel, ds, speciesColor, particleColor);
-
-    //---------------------------------Particle Sensing---------------------------------
-    //sense TrailMap
-    SensedTrail sensedTrail = sensingTrail(newParticle, beatSensorDistance, da, speciesColor, speciesMask);
-
-    //new direction
-    newParticle = rotateToNewDirection(newParticle, sensedTrail, ds);
-    newParticle.angle = mod(newParticle.angle, 2*PI);
-
-
-    particleArray[invocationID] = newParticle;
 }
