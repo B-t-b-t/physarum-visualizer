@@ -176,6 +176,9 @@ void UserInterface::slimeGUI() {
 	ImGui::Checkbox("Use Particle Mask instead of Color", (bool*)&state_.slimeSettings.useMask);
 	
 	ImGui::Checkbox("Collision Detection", (bool*)&state_.universalShaderSettings.collisionDetection);
+	if(state_.universalShaderSettings.collisionDetection) {
+		ImGui::SliderInt("Density Limit", (int*)&state_.slimeSettings.densityLimit, 1, 20);
+	}
 
 	ImGui::End();
 	
@@ -534,7 +537,6 @@ void UserInterface::debugGUI(ImGuiIO& guiIO) {
 
 	ImGui::Checkbox("Render Collisions", (bool*)&state_.universalShaderSettings.renderCollisions);
 	if(state_.universalShaderSettings.renderCollisions) {
-		ImGui::SliderFloat("Collision Fraction", &state_.slimeSettings.collisionFraction, 0.0f, 1.0f);
 		ImGui::ColorEdit3("Collision Color", (float*)&state_.slimeSettings.collisionColor);
 	}
 

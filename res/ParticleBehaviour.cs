@@ -45,7 +45,7 @@ layout(std140, binding = 1) uniform SlimeSettings {
     int angle;
 
     int sensorDistance;
-    float collisionFraction;
+    uint densityLimit;
     int useMask;
     float velocityBassReaction;
 
@@ -200,7 +200,7 @@ Particle moveParticle(Particle particle, float beatVel, float ds, vec3 speciesCo
         if(collisionDetection == 1) {
             //read old particle count at the target position from previous frame
             uint oldCount = imageLoad(oldTexParticles, ivec2(newParticleCoords)).r;
-            if(oldCount >= 4u) {
+            if(oldCount >= densityLimit) {
                 //next pixel was already occupied last frame, therefore stay at old particle position
                 imageAtomicAdd(newTexParticles, ivec2(particle.position), 1u);
                 canMove = 0;
@@ -223,7 +223,7 @@ Particle moveParticle(Particle particle, float beatVel, float ds, vec3 speciesCo
         particle.angle = particle.angle + ds * 2 * (randomTurn - 0.5f);
         updatedParticle.angle = particle.angle;
 
-        if(collisionDetection == 1 && scaleToRange01(hash(uint(particle.position.x * particle.position.y + timeTicks))) < collisionFraction) {
+        if(collisionDetection == 1) {
             imageStore(texCollisions, ivec2(particle.position), collisionColor);
         }
     }

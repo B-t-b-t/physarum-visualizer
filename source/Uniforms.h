@@ -25,7 +25,7 @@ struct alignas(16) SlimeSettings {
     int angle = 20;
 
     int sensorDistance = 9;
-    float collisionFraction = 1.0f;
+    unsigned int densityLimit = 10;
     int useMask = false;
     float velocityBassReaction = 0.0f;
 
