@@ -197,15 +197,17 @@ Particle moveParticle(Particle particle, float beatVel, float ds, vec3 speciesCo
     Particle updatedParticle = particle;
 
     int canMove = 1;
-    vec4 nextPixel = vec4(0.0f);
-    vec4 thisPixel = vec4(0.0f);
+    vec3 nextPixel = vec3(0.0f);
+    vec3 thisPixel = vec3(0.0f);
 
-    if(collisionDetection == 1 || renderParticles == 1) {
-        nextPixel = imageLoad(oldTexParticles, ivec2(newParticleCoords));
-        thisPixel = imageLoad(oldTexParticles, ivec2(particle.position));
+    if(renderParticles == 1 || collisionDetection == 1) {
+        nextPixel = imageLoad(oldTexParticles, ivec2(newParticleCoords)).rgb;
+        thisPixel = imageLoad(oldTexParticles, ivec2(particle.position)).rgb;
 
-        if(length(nextPixel) > (1 * 1.0f)) {
-            canMove = 0;
+        if(collisionDetection == 1) {
+            if(length(nextPixel) >= (10.0f / 255.0f)) {
+                canMove = 0;
+            }
         }
     }
 
@@ -217,8 +219,8 @@ Particle moveParticle(Particle particle, float beatVel, float ds, vec3 speciesCo
         imageStore(texTrailNonDiffused, ivec2(newParticleCoords), vec4(speciesColor * depositionStrength, 1.0f));
         
         if(collisionDetection == 1 || renderParticles == 1) {
-            imageStore(newTexParticles, ivec2(newParticleCoords), nextPixel + vec4((10.0f / 255.0f) * particleColor, 1.0f));
-            imageStore(newTexParticles, ivec2(particle.position), thisPixel - vec4((10.0f / 255.0f) * particleColor, 1.0f));
+            imageStore(newTexParticles, ivec2(newParticleCoords), vec4(nextPixel + (1.0f / 255.0f) * particleColor, 1.0f));
+            imageStore(newTexParticles, ivec2(particle.position), vec4(thisPixel - (1.0f / 255.0f) * particleColor, 1.0f));
         }
   
     } else {
@@ -235,7 +237,7 @@ Particle moveParticle(Particle particle, float beatVel, float ds, vec3 speciesCo
 
         //store at old position if collision is detected
         if(collisionDetection == 1 || renderParticles == 1) {
-            imageStore(newTexParticles, ivec2(particle.position), thisPixel);
+            imageStore(newTexParticles, ivec2(particle.position), vec4(thisPixel, 1.0f));
         }
     }
 
