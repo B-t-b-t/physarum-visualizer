@@ -1,0 +1,11 @@
+Name= RGB-lite
+UseMask= 1
+CollisionDetection= 0
+V= 1.088
+DepositionStrength= 1
+LockAngles= 1
+RotationAngle= 45
+Angle= 45
+SensorDistance= 41
+DiffusionWeight= 1
+Decay= 0.9

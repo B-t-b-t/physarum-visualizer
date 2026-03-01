@@ -1,0 +1,11 @@
+Name= Hexagons
+UseMask= 1
+CollisionDetection= 1
+V= 3
+DepositionStrength= 1
+LockAngles= 1
+RotationAngle= 120
+Angle= 120
+SensorDistance= 45
+DiffusionWeight= 1
+Decay= 0.9
