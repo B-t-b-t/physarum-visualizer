@@ -47,7 +47,7 @@ static_assert(sizeof(SlimeSettings) % 16 == 0, "SlimeSettings size must be multi
 // Aligned for std140 layout
 struct alignas(16) TrailDiffusionSettings {
     float diffusionWeight = 1.0f;
-    float decay = 0.5f;
+    float decay = 0.9f;
     int _padding1; // Padding for alignment
     int _padding2; // Padding for alignment
 };
@@ -71,8 +71,8 @@ struct alignas(16) FragmentShaderSettings {
     int bloomBlendMode = 1; //0 = additive, 1 = screen, 2 = soft additive
 
     float bloomIntensity = 1.0f;
-    float bloomThreshold = 0.2f;
-    float bloomKnee = 0.0f; // soft knee width for bloom threshold
+    float bloomThreshold = 0.05f;
+    float bloomKnee = 0.01f; // soft knee width for bloom threshold
     float bloomBassReaction = 0.0f;
 
     float brightnessMultiplier = 0.0f;
