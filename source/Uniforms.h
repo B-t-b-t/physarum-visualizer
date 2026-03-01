@@ -21,12 +21,12 @@ static_assert(sizeof(UniversalShaderSettings) % 16 == 0, "UniversalShaderSetting
 struct alignas(16) SlimeSettings {
     float v = 1.5f;
     float depositionStrength = 1.0f;
-    int rotationAngle = 45;
-    int angle = 45;
+    int rotationAngle = 20;
+    int angle = 20;
 
     int sensorDistance = 9;
     float collisionFraction = 1.0f;
-    int useMask = true;
+    int useMask = false;
     float velocityBassReaction = 0.0f;
 
     int reactToAudio = false;
@@ -34,9 +34,9 @@ struct alignas(16) SlimeSettings {
     int _padding1; // Padding for alignment
     int _padding2; // Padding for alignment
 
-    ImVec4 slimeColor0 = ImVec4(1.0f, 0.0f, 0.0f, 1.0f);
-    ImVec4 slimeColor1 = ImVec4(0.0f, 1.0f, 0.0f, 1.0f);
-    ImVec4 slimeColor2 = ImVec4(0.0f, 0.0f, 1.0f, 1.0f);
+    ImVec4 slimeColor0 = ImVec4(0.0f, 1.0f, 1.0f, 1.0f);
+    ImVec4 slimeColor1 = ImVec4(0.0f, 1.0f, 1.0f, 1.0f);
+    ImVec4 slimeColor2 = ImVec4(0.0f, 1.0f, 1.0f, 1.0f);
     ImVec4 particleColor0 = ImVec4(1.0f, 0.0f, 0.0f, 1.0f);
     ImVec4 particleColor1 = ImVec4(0.0f, 1.0f, 0.0f, 1.0f);
     ImVec4 particleColor2 = ImVec4(0.0f, 0.0f, 1.0f, 1.0f);

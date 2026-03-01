@@ -10,10 +10,11 @@ ParticleData::ParticleData(unsigned int numParticles, unsigned int texWidth, uns
 }
 
 void ParticleData::createAndSend() {
-	int R = 400;//1700;
+	int R_Outer = 3200;
+	int R_Inner = 800;
 
 	for (unsigned int i = 0; i < numParticles_; i++) {
-		int r = R * sqrt((rand() % 10000) / 10000.0f);
+		int r = sqrt((R_Outer - R_Inner) * (rand() % 10000) / 10000.0f + R_Inner);	//sqrt() to maintain a even point distribution (circle area is proportional to the square of the radius)
 		float a = 2 * PI * (rand() % 10000) / 10000.0f;
 		float x = texWidth_ / 2.0f + r * cos(a);
 		float y = texHeight_ / 2.0f + r * sin(a);
