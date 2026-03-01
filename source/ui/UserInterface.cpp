@@ -87,6 +87,28 @@ void UserInterface::newModal() {
 		ImGui::InputInt("Number of Particles", &state_.newNumParticles, 8, 8, ImGuiInputTextFlags_CharsNoBlank);
 		state_.newNumParticles = state_.newNumParticles - (state_.newNumParticles % 8);
 		ImGui::PopStyleVar();
+		ImGui::Separator();
+
+		ImGui::SliderFloat("v", &state_.slimeSettings.v, 0.0f, 3.0f);
+		ImGui::SliderInt("Rotation Angle", &state_.slimeSettings.rotationAngle, 0, 180);
+		ImGui::SliderInt("Sensor Angle", &state_.slimeSettings.angle, 0, 180);
+		
+		ImGui::SliderInt("Sensor Distance", &state_.slimeSettings.sensorDistance, 1, 100);
+		ImGui::SliderFloat("Deposition Strength", &state_.slimeSettings.depositionStrength, 0.0f, 10.0f);
+		ImGui::SliderFloat("diffusionWeight", &state_.trailDiffusionSettings.diffusionWeight, 0.0f, 1.0f);
+		ImGui::SliderFloat("decay", &state_.trailDiffusionSettings.decay, 0.0f, 1.0f);
+
+		ImGui::Separator();
+		
+		ImGui::ColorEdit3("Slime Color 0", (float*)&state_.slimeSettings.slimeColor0);
+		ImGui::ColorEdit3("Slime Color 1", (float*)&state_.slimeSettings.slimeColor1);
+		ImGui::ColorEdit3("Slime Color 2", (float*)&state_.slimeSettings.slimeColor2);
+		
+		ImGui::Separator();
+		
+		ImGui::Checkbox("Use Particle Mask instead of Color", (bool*)&state_.slimeSettings.useMask);
+		
+		ImGui::Checkbox("Collision Detection", (bool*)&state_.universalShaderSettings.collisionDetection);
 
 		if (ImGui::Button("OK", ImVec2(120, 0))) {  showNew_ = false;
 													//state_.universalShaderSettings.textureWidth = state_.newTextureWidth;

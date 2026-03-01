@@ -28,13 +28,6 @@ void ParticleData::createAndSend() {
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, ssbo_);
 	glBufferData(GL_SHADER_STORAGE_BUFFER, static_cast<GLsizeiptr>(shaderData_.size() * sizeof(shader_data_t)), &shaderData_[0], GL_DYNAMIC_READ);
 
-	// shader_data_t* ptr;
-	// ptr = (shader_data_t*)glMapBuffer(GL_SHADER_STORAGE_BUFFER, GL_WRITE_ONLY);
-
-	// for (unsigned int i = 0; i < numParticles_; i++) {
-	// 	ptr[i] = shaderData_[i];
-	// }
-
 	glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 	glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
 }
@@ -45,9 +38,11 @@ void ParticleData::recreateAndSend(unsigned int numParticles, unsigned int texWi
 	texHeight_ = texHeight;
 	shaderData_.clear();
 	
-	int R = 400;
+	int R_Outer = 3200;
+	int R_Inner = 800;
+
 	for (unsigned int i = 0; i < numParticles_; i++) {
-		int r = R * sqrt((rand() % 10000) / 10000.0f);
+		int r = sqrt((R_Outer - R_Inner) * (rand() % 10000) / 10000.0f + R_Inner);	//sqrt() to maintain a even point distribution (circle area is proportional to the square of the radius)
 		float a = 2 * PI * (rand() % 10000) / 10000.0f;
 		float x = texWidth_ / 2.0f + r * cos(a);
 		float y = texHeight_ / 2.0f + r * sin(a);
