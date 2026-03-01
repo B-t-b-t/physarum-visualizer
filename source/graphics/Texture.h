@@ -1,12 +1,14 @@
 #pragma once
 #include <GL/glew.h>
 
-
-
-class Texture
-{
+class Texture {
 public:
-	Texture(int width, int height, GLuint textureUnit, bool generateMipmaps = true);
+	enum class TextureType {
+		RGBA_FLOAT,
+		R_UINT
+	};
+
+	Texture(int width, int height, TextureType textureType, GLuint textureUnit, bool generateMipmaps = true);
 	Texture(const Texture&) = delete; // Prevent copying because of OpenGL resource management
 	Texture& operator=(Texture&& other) noexcept;
 	Texture(Texture&& other) noexcept;
@@ -22,8 +24,17 @@ public:
 	void generateMipMap() { glBindTexture(GL_TEXTURE_2D, textureID_); glGenerateMipmap(GL_TEXTURE_2D); generateMipmaps_ = true; }
 
 private:
+	struct TextureFormats {
+		GLint internalFormat;
+		GLenum format;
+		GLenum type;
+	};
+
+	static TextureFormats resolveFormat(TextureType textureType);
+
 	GLuint textureID_;
 	GLuint textureUnit_;
+	TextureFormats textureFormat_;
 
 	int width_;
 	int height_;

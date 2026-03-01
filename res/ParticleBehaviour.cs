@@ -1,8 +1,8 @@
 layout(local_size_x = 8, local_size_y = 1) in;
 layout(rgba32f, binding = 0) uniform image2D texTrail;
 layout(rgba32f, binding = 1) uniform image2D texTrailNonDiffused;
-layout(rgba32f, binding = 2) uniform image2D newTexParticles;
-layout(rgba32f, binding = 3) uniform image2D oldTexParticles;
+layout(r32ui, binding = 2) uniform uimage2D newTexParticles;
+layout(r32ui, binding = 3) uniform uimage2D oldTexParticles;
 layout(rgba32f, binding = 4) uniform image2D texCollisions;
 /*layout(rgba32f, binding = 1) uniform image2D canvas;*/
 /*uniform sampler2D trails;*/
@@ -190,54 +190,41 @@ vec4 when_gt(vec4 x, vec4 y) {
 Particle moveParticle(Particle particle, float beatVel, float ds, vec3 speciesColor, vec3 particleColor) {
 
     vec2 newParticleCoords = vec2(particle.position.x + beatVel * cos(particle.angle), particle.position.y + beatVel * sin(particle.angle));
-
     //move particle to the other side of the screen if it goes out of bounds
     newParticleCoords = wrapCoordinates_f(newParticleCoords, textureWidth, textureHeight);
 
     Particle updatedParticle = particle;
-
     int canMove = 1;
-    vec3 nextPixel = vec3(0.0f);
-    vec3 thisPixel = vec3(0.0f);
 
     if(renderParticles == 1 || collisionDetection == 1) {
-        nextPixel = imageLoad(oldTexParticles, ivec2(newParticleCoords)).rgb;
-        thisPixel = imageLoad(oldTexParticles, ivec2(particle.position)).rgb;
-
         if(collisionDetection == 1) {
-            if(length(nextPixel) >= (10.0f / 255.0f)) {
+            //read old particle count at the target position from previous frame
+            uint oldCount = imageLoad(oldTexParticles, ivec2(newParticleCoords)).r;
+            if(oldCount >= 4u) {
+                //next pixel was already occupied last frame, therefore stay at old particle position
+                imageAtomicAdd(newTexParticles, ivec2(particle.position), 1u);
                 canMove = 0;
+            } else {
+                //next pixel is free to claim
+                imageAtomicAdd(newTexParticles, ivec2(newParticleCoords), 1u);
             }
+        } else {
+            // renderParticles only, just count without collision enforcement
+            imageAtomicAdd(newTexParticles, ivec2(newParticleCoords), 1u);
         }
     }
 
     if(canMove == 1) {
-
         updatedParticle.position = newParticleCoords;
-
-        //store pre multiplied alpha
         imageStore(texTrailNonDiffused, ivec2(newParticleCoords), vec4(speciesColor * depositionStrength, 1.0f));
-        
-        if(collisionDetection == 1 || renderParticles == 1) {
-            imageStore(newTexParticles, ivec2(newParticleCoords), vec4(nextPixel + (1.0f / 255.0f) * particleColor, 1.0f));
-            imageStore(newTexParticles, ivec2(particle.position), vec4(thisPixel - (1.0f / 255.0f) * particleColor, 1.0f));
-        }
-  
+
     } else {
         float randomTurn = scaleToRange01(hash(uint(particle.position.x * particle.position.y + timeTicks)));
-        particle.angle = particle.angle + ds * 2 * (randomTurn - 0.5f);  //turn random
-
+        particle.angle = particle.angle + ds * 2 * (randomTurn - 0.5f);
         updatedParticle.angle = particle.angle;
 
-        //the collision texture is for purely visual purposes (looks nice)
-        //stores position of collisions in a texture, collisionFraction is the threshold to store a collision to control the amount of visible collisions during rendering
-        if((collisionDetection == 1) && scaleToRange01(hash(uint(particle.position.x * particle.position.y + timeTicks))) < collisionFraction) {
+        if(collisionDetection == 1 && scaleToRange01(hash(uint(particle.position.x * particle.position.y + timeTicks))) < collisionFraction) {
             imageStore(texCollisions, ivec2(particle.position), collisionColor);
-        }
-
-        //store at old position if collision is detected
-        if(collisionDetection == 1 || renderParticles == 1) {
-            imageStore(newTexParticles, ivec2(particle.position), vec4(thisPixel, 1.0f));
         }
     }
 

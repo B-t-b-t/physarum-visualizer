@@ -214,6 +214,8 @@ add_executable(Physarum
     ${MY_SOURCE_FILES}
 )
 
+target_compile_definitions(Physarum PUBLIC $<$<CONFIG:Debug>:_DEBUG> $<$<CONFIG:Release>:NDEBUG>)
+
 target_link_libraries(Physarum
     PUBLIC ImGui
     ${OPENGL_LIBRARY}

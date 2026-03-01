@@ -96,6 +96,10 @@ int main(int argc, char* argv[]) {
 	int maxCombinedTextureUnits = 0;
 	glGetIntegerv(GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS, &maxCombinedTextureUnits);
 	std::cout << "Max Combined Texture Image Units: " << maxCombinedTextureUnits << std::endl;
+	int maxImageUnits = 0;
+	glGetIntegerv(GL_MAX_IMAGE_UNITS, &maxImageUnits);
+	std::cout << "Max Image Units: " << maxImageUnits << std::endl;
+	
 
 
 	//------------------------------------------------------
@@ -111,11 +115,11 @@ int main(int argc, char* argv[]) {
 
 	//------------------------------------------------------
 	//Initialize Textures and Texture Buffers
-	Texture TexTrail((int)textureWidth, (int)textureHeight, 0);		//Texture Unit 0
-	Texture TexTrailNonDiffused((int)textureWidth, (int)textureHeight, 1);	//Texture Unit 1
-	Texture NewTexParticles((int)textureWidth, (int)textureHeight, 2);		//Texture Unit 2
-	Texture OldTexParticles((int)textureWidth, (int)textureHeight, 3);		//Texture Unit 3
-	Texture TexCollisions((int)textureWidth, (int)textureHeight, 4);		//Texture Unit 4
+	Texture TexTrail((int)textureWidth, (int)textureHeight, Texture::TextureType::RGBA_FLOAT, 0);		//Texture Unit 0
+	Texture TexTrailNonDiffused((int)textureWidth, (int)textureHeight, Texture::TextureType::RGBA_FLOAT, 1);	//Texture Unit 1
+	Texture NewTexParticles((int)textureWidth, (int)textureHeight, Texture::TextureType::R_UINT, 2);		//Texture Unit 2
+	Texture OldTexParticles((int)textureWidth, (int)textureHeight, Texture::TextureType::R_UINT, 3);		//Texture Unit 3
+	Texture TexCollisions((int)textureWidth, (int)textureHeight, Texture::TextureType::RGBA_FLOAT, 4);		//Texture Unit 4
 
 	//------------------------------------------------------
 	//initialize Rasterizer Pipeline for Canvas

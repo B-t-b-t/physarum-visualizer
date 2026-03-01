@@ -5,8 +5,8 @@ out vec4 FragColor;
 in vec2 TexCoord;
 layout (binding = 0) uniform sampler2D texTrail;
 layout (binding = 1) uniform sampler2D texTrailNonDiffused;
-layout (binding = 2) uniform sampler2D newTexParticles;
-layout (binding = 3) uniform sampler2D oldTexParticles;
+layout (binding = 2) uniform usampler2D newTexParticles;
+layout (binding = 3) uniform usampler2D oldTexParticles;
 layout (binding = 4) uniform sampler2D texCollisions;
 layout (binding = 5) uniform sampler2D bloomTexture;
 layout (binding = 6) uniform sampler2D upSample1;
@@ -92,8 +92,17 @@ void main() {
 	}
 
 	if(renderParticles == 1) {
-		vec4 particleColor = vec4(texture(oldTexParticles, TexCoord));
-		debugOverlay = mix(debugOverlay, particleColor, particleColor.a);
+        uint particleCount = texture(newTexParticles, TexCoord).r;
+		float presence = min(float(particleCount) / 8.0f, 1.0f);
+		vec4 particleColor = vec4(presence, presence, presence, 1.0f);
+		if(particleCount == 0u) { particleColor = vec4(0.0f, 0.0f, 0.0f, 0.0f); }
+		else if(particleCount == 1u) { particleColor = vec4(0.0f, 0.0f, 1.0f, 1.0f); }  // 1 = blue
+		else if(particleCount == 2u) { particleColor = vec4(0.0f, 1.0f, 1.0f, 1.0f); }  // 2 = cyan
+		else if(particleCount == 3u) { particleColor = vec4(0.0f, 1.0f, 0.0f, 1.0f); }  // 3 = green
+		else if(particleCount <= 5u) { particleColor = vec4(1.0f, 1.0f, 0.0f, 1.0f); }  // 4-5 = yellow
+		else if(particleCount <= 7u) { particleColor = vec4(1.0f, 0.5f, 0.0f, 1.0f); }  // 6-7 = orange
+		else                        { particleColor = vec4(1.0f, 0.0f, 0.0f, 1.0f); }  // >8 = red
+        debugOverlay = mix(debugOverlay, particleColor, particleColor.a);
 	}
 
 	if(renderCollisions == 1) {
@@ -180,8 +189,8 @@ void main() {
 	//debug view of textures
 	if((gl_FragCoord.x / windowWidth <= 0.5) && (gl_FragCoord.y / windowHeight >= 0.5)) {
 		if(debugTextureMaskSelector == 1) {FragColor = vec4(texture(texTrail, TexCoord));}
-		if(debugTextureMaskSelector == 2) {FragColor = vec4(texture(newTexParticles, TexCoord));}
-		if(debugTextureMaskSelector == 3) {FragColor = vec4(texture(oldTexParticles, TexCoord));}
+		if(debugTextureMaskSelector == 2) {FragColor = vec4(vec3(min(float(texture(newTexParticles, TexCoord).r) / 100.0f, 1.0f)), 1.0f);}
+		if(debugTextureMaskSelector == 3) {FragColor = vec4(vec3(min(float(texture(oldTexParticles, TexCoord).r) / 100.0f, 1.0f)), 1.0f);}
 		if(debugTextureMaskSelector == 4) {FragColor = vec4(texture(texCollisions, TexCoord));}
 		if(debugTextureMaskSelector == 5) {FragColor = vec4(texture(bloomTexture, TexCoord));}
 		if(debugTextureMaskSelector == 6) {FragColor = vec4(texture(upSample1, TexCoord));}

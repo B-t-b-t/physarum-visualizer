@@ -94,7 +94,7 @@ Display::Display(int width, int height, const std::string& title, int workGroupS
 	GLenum status = glewInit();
 	if (status != GLEW_OK) {
 		std::cerr << "Glew failed to initialize!" << std::endl;
-		std::cerr << glewGetErrorString(status) << std::endl;
+		std::cerr << "Glew Error: " << glewGetErrorString(status) << std::endl;
 	}
 
 	m_isClosed = false;
@@ -103,11 +103,9 @@ Display::Display(int width, int height, const std::string& title, int workGroupS
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glEnable(GL_LINE_SMOOTH);
 
-/* #if _DEBUG
+	#if _DEBUG
 	setOpenGLDebugCallback();
-#endif */
-	setOpenGLDebugCallback();
-
+	#endif
 }
 
 Display::~Display() {

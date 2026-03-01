@@ -1,8 +1,8 @@
 layout(local_size_x = 8, local_size_y = 8) in;
 layout(rgba32f, binding = 0) uniform image2D texTrail;
 layout(rgba32f, binding = 1) uniform image2D texTrailNonDiffused;
-layout(rgba32f, binding = 2) uniform image2D newTexParticles;
-layout(rgba32f, binding = 3) uniform image2D oldTexParticles;
+layout(r32ui, binding = 2) uniform uimage2D newTexParticles;
+layout(r32ui, binding = 3) uniform uimage2D oldTexParticles;
 layout(rgba32f, binding = 4) uniform image2D texCollisions;
 
 layout(std140, binding = 0) uniform UniversalShaderSettings {
@@ -60,7 +60,7 @@ void main() {
   if(collisionDetection == 1 || renderParticles == 1) {
     imageStore(oldTexParticles, posPx, imageLoad(newTexParticles, posPx));
     memoryBarrier();
-    imageStore(newTexParticles, posPx, vec4(0.0f));
+    imageStore(newTexParticles, posPx, uvec4(0u));
   }
 
   if(collisionDetection == 1 && renderCollisions == 1) {
