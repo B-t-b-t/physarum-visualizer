@@ -80,5 +80,29 @@ struct alignas(16) FragmentShaderSettings {
     int _padding2; // Padding for alignment
     int _padding3; // Padding for alignment
 };
-static_assert(sizeof(FragmentShaderSettings) % 16 == 0, "FragmentShaderSettings size must be multiple of 16 for std140");   
+static_assert(sizeof(FragmentShaderSettings) % 16 == 0, "FragmentShaderSettings size must be multiple of 16 for std140");
+
+// Aligned for std140 layout
+struct alignas(16) ParameterSettings {
+    float p1 = 0.0f;
+    float p2 = 0.0f;
+    float p3 = 1.0f;
+    float p4 = 0.0f;
+
+    float p5 = 0.0f;
+    float p6 = 1.0f;
+    float p7 = 0.0f;
+    float p8 = 0.0f;
+    
+    float p9 = 1.0f;
+    float p10 = 0.0f;
+    float p11 = 0.0f;
+    float p12 = 1.0f;
+
+    int enableParameters = false;
+    int _padding1; // Padding for alignment
+    int _padding2; // Padding for alignment
+    int _padding3; // Padding for alignment
+};
+static_assert(sizeof(ParameterSettings) % 16 == 0, "ParameterSettings size must be multiple of 16 for std140");
     

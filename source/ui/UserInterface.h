@@ -47,6 +47,7 @@ public:
 	SlimeSettings slimeSettings;
 	TrailDiffusionSettings trailDiffusionSettings;
 	FragmentShaderSettings fragmentShaderSettings;
+	ParameterSettings parameterSettings;
 
 	static UIState& getInstance() {
 		static UIState instance;

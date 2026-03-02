@@ -180,6 +180,34 @@ void UserInterface::slimeGUI() {
 		ImGui::SliderInt("Density Limit", (int*)&state_.slimeSettings.densityLimit, 1, 20);
 	}
 
+	ImGui::Checkbox("Enable Parameters", (bool*)&state_.parameterSettings.enableParameters);
+	if(state_.parameterSettings.enableParameters) {
+
+		ImGui::Separator();
+		ImGui::Text("Sensor Distance");
+		ImGui::SliderFloat("p1", &state_.parameterSettings.p1, 0.0f, 30.0f);
+		ImGui::SliderFloat("p2", &state_.parameterSettings.p2, 0.0f, 30.0f);
+		ImGui::SliderFloat("p3", &state_.parameterSettings.p3, 0.0f, 30.0f);
+
+		ImGui::Separator();
+		ImGui::Text("Sensor Angle");
+		ImGui::SliderFloat("p4", &state_.parameterSettings.p4, 0.0f, 30.0f);
+		ImGui::SliderFloat("p5", &state_.parameterSettings.p5, 0.0f, 30.0f);
+		ImGui::SliderFloat("p6", &state_.parameterSettings.p6, 0.0f, 30.0f);
+
+		ImGui::Separator();
+		ImGui::Text("Rotation Angle");
+		ImGui::SliderFloat("p7", &state_.parameterSettings.p7, 0.0f, 30.0f);
+		ImGui::SliderFloat("p8", &state_.parameterSettings.p8, 0.0f, 30.0f);
+		ImGui::SliderFloat("p9", &state_.parameterSettings.p9, 0.0f, 30.0f);
+
+		ImGui::Separator();
+		ImGui::Text("Move Distance");
+		ImGui::SliderFloat("p10", &state_.parameterSettings.p10, 0.0f, 30.0f);
+		ImGui::SliderFloat("p11", &state_.parameterSettings.p11, 0.0f, 30.0f);
+		ImGui::SliderFloat("p12", &state_.parameterSettings.p12, 0.0f, 30.0f);
+	}
+
 	ImGui::End();
 	
 	if (state_.lockAngles) {

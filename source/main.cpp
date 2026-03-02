@@ -181,11 +181,14 @@ int main(int argc, char* argv[]) {
 	TrailDiffusionUBO.bindUniformBufferObject(uiState.trailDiffusionSettings);
 	UniformBufferObject FragmentShaderSettingsUBO(3);
 	FragmentShaderSettingsUBO.bindUniformBufferObject(uiState.fragmentShaderSettings);
+	UniformBufferObject ParameterSettingsUBO(4);
+	ParameterSettingsUBO.bindUniformBufferObject(uiState.parameterSettings);
 	
 
 
 	ParticleBehaviourProgram.attachUniformBufferObject(UniversalShaderSettingsUBO.getUniformBufferObjectID(), "UniversalShaderSettings", 0);
 	ParticleBehaviourProgram.attachUniformBufferObject(SlimeSettingsUBO.getUniformBufferObjectID(), "SlimeSettings", 1);
+	ParticleBehaviourProgram.attachUniformBufferObject(ParameterSettingsUBO.getUniformBufferObjectID(), "ParameterSettings", 4);
 
 	TrailDiffusionProgram.attachUniformBufferObject(UniversalShaderSettingsUBO.getUniformBufferObjectID(), "UniversalShaderSettings", 0);
 	TrailDiffusionProgram.attachUniformBufferObject(TrailDiffusionUBO.getUniformBufferObjectID(), "TrailDiffusionSettings", 2);
@@ -217,6 +220,7 @@ int main(int argc, char* argv[]) {
 		SlimeSettingsUBO.updateUniformBufferObject(uiState.slimeSettings);
 		TrailDiffusionUBO.updateUniformBufferObject(uiState.trailDiffusionSettings);
 		FragmentShaderSettingsUBO.updateUniformBufferObject(uiState.fragmentShaderSettings);
+		ParameterSettingsUBO.updateUniformBufferObject(uiState.parameterSettings);
 
 		//------------------------------------------------------
 		// Compute Shader Passes for Simulation Steps

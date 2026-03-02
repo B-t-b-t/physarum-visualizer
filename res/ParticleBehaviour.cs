@@ -62,6 +62,25 @@ layout(std140, binding = 1) uniform SlimeSettings {
     vec4 collisionColor;
 };
 
+layout(std140, binding = 4) uniform ParameterSettings {
+    float p1;
+    float p2;
+    float p3;
+    float p4;
+
+    float p5;
+    float p6;
+    float p7;
+    float p8;
+    
+    float p9;
+    float p10;
+    float p11;
+    float p12;
+
+    int enableParameters;
+};
+
 //function declarations
 uint hash(uint state);
 float scaleToRange01(uint state);
@@ -81,6 +100,7 @@ void main() {
     float ds = 2.0f * PI * ((rotationAngle + angleBassReaction) / 360.0f);
 
     float beatVel = v + reactToAudio * velocityBassReaction * 0.3f;
+
     int beatSensorDistance = sensorDistance;// + reactToAudio * velocityBassReaction;
 
     uint invocationID = gl_GlobalInvocationID.x;
@@ -138,6 +158,14 @@ void main() {
         if(mouseInputs.w > 0.0f) {
             beatVel = 0.0 * beatVel;
         }
+    }
+
+    if(enableParameters == 1) {
+        float trailDensity = length(imageLoad(texTrail, ivec2(particle.position)));
+        beatSensorDistance = int(p1 + p2 * pow(trailDensity , p3));
+        ds =  p4 + p5 * pow(trailDensity , p6);
+        da =  p7 + p8 * pow(trailDensity , p9);
+        beatVel = p10 + p11 * pow(trailDensity , p12);
     }
 
     Particle newParticle = moveParticle(particle, beatVel, ds, speciesColor, particleColor);
