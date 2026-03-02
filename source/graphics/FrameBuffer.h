@@ -15,7 +15,7 @@ public:
 
     GLuint getID() const { return framebufferID_; }
 
-    static bool checkFramebufferStatus();
+    bool checkFramebufferStatus();
 
 private:
     GLuint framebufferID_;

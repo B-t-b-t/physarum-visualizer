@@ -26,10 +26,11 @@ void ParticleData::createAndSend() {
 	glGenBuffers(1, &ssbo_);
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssbo_);
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, ssbo_);
-	glBufferData(GL_SHADER_STORAGE_BUFFER, static_cast<GLsizeiptr>(shaderData_.size() * sizeof(shader_data_t)), &shaderData_[0], GL_DYNAMIC_READ);
+	//usage hint GL_DYNAMIC_COPY, because it is modified and read by GPU, but triggers a harmless warning when buffer is modified by CPU
+	glBufferData(GL_SHADER_STORAGE_BUFFER, static_cast<GLsizeiptr>(shaderData_.size() * sizeof(shader_data_t)), &shaderData_[0], GL_DYNAMIC_COPY);
 
 	glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
-	glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
+	glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 }
 
 void ParticleData::recreateAndSend(unsigned int numParticles, unsigned int texWidth, unsigned int texHeight) {
@@ -51,7 +52,8 @@ void ParticleData::recreateAndSend(unsigned int numParticles, unsigned int texWi
 	}
 
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssbo_);
-	glBufferData(GL_SHADER_STORAGE_BUFFER, static_cast<GLsizeiptr>(shaderData_.size() * sizeof(shader_data_t)), &shaderData_[0], GL_DYNAMIC_READ);
+	//usage hint GL_DYNAMIC_COPY, because it is modified and read by GPU, but triggers a harmless warning when buffer is modified by CPU
+	glBufferData(GL_SHADER_STORAGE_BUFFER, static_cast<GLsizeiptr>(shaderData_.size() * sizeof(shader_data_t)), &shaderData_[0], GL_DYNAMIC_COPY);
 
 	shader_data_t* ptr = (shader_data_t*)glMapBuffer(GL_SHADER_STORAGE_BUFFER, GL_WRITE_ONLY);
 	for (unsigned int i = 0; i < numParticles_; i++) {
@@ -59,7 +61,7 @@ void ParticleData::recreateAndSend(unsigned int numParticles, unsigned int texWi
 	}
 
 	glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
-	glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
+	glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 }
 
 void ParticleData::printSSBO() {
