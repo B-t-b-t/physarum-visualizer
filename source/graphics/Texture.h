@@ -8,7 +8,7 @@ public:
 		R_UINT
 	};
 
-	Texture(int width, int height, TextureType textureType, GLuint textureUnit, bool generateMipmaps = true);
+	Texture(int width, int height, TextureType textureType, GLuint textureUnit, bool generateMipmaps = true, bool useImageBinding = true);
 	Texture(const Texture&) = delete; // Prevent copying because of OpenGL resource management
 	Texture& operator=(Texture&& other) noexcept;
 	Texture(Texture&& other) noexcept;

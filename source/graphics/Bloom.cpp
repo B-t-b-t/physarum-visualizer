@@ -1,7 +1,7 @@
 #include "Bloom.h"
 
 Bloom::Bloom(unsigned int textureWidth, unsigned int textureHeight, GLuint vertexShaderID)
-   :thresholdTexture_((int) textureWidth, (int) textureHeight, Texture::TextureType::RGBA_FLOAT, 15, false),
+   :thresholdTexture_((int) textureWidth, (int) textureHeight, Texture::TextureType::RGBA_FLOAT, 15, false, false),
     BloomTresholdShader_("./res/bloomThreshold.fs", ShaderType::FRAGMENT_SHADER),
 	BloomTresholdProgram_("BloomTresholdProgram"), 
     BloomDownsampleHShader_("./res/bloomDownsampleH.fs", ShaderType::FRAGMENT_SHADER),
@@ -24,11 +24,11 @@ Bloom::Bloom(unsigned int textureWidth, unsigned int textureHeight, GLuint verte
 	for(size_t i = 0; i < static_cast<size_t>(BLOOM_MIPS_); ++i) {
 		int w = (int) textureWidth >> (i + 1);
 		int h = (int) textureHeight >> (i + 1);
-		bloomTextures_.emplace_back(w, h, Texture::TextureType::RGBA_FLOAT, 5 + 2 * i, false); // Texture Units 5,7,9,11,13
+		bloomTextures_.emplace_back(w, h, Texture::TextureType::RGBA_FLOAT, 5 + 2 * i, false, false); // Texture Units 5,7,9,11,13
 		bloomFramebuffers_.emplace_back();			//emplace_back avoids copy constructor
 		bloomFramebuffers_[i].attachTexture(GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, bloomTextures_[i].getID(), 0);
 
-		upsampleTextures_.emplace_back(w, h, Texture::TextureType::RGBA_FLOAT, 6 + 2 * i, false);			// Texture Units 6,8,10,12,14
+		upsampleTextures_.emplace_back(w, h, Texture::TextureType::RGBA_FLOAT, 6 + 2 * i, false, false);			// Texture Units 6,8,10,12,14
 		upsampleFramebuffers_.emplace_back();
 		upsampleFramebuffers_[i].attachTexture(GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, upsampleTextures_[i].getID(), 0);
 	}

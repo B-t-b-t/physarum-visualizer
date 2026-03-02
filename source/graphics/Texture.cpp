@@ -1,6 +1,6 @@
 #include "Texture.h"
 
-Texture::Texture(int width, int height, TextureType textureType, GLuint textureUnit, bool generateMipmaps) {
+Texture::Texture(int width, int height, TextureType textureType, GLuint textureUnit, bool generateMipmaps, bool useImageBinding) {
 	width_ = width;
 	height_ = height;
 	textureFormat_ = resolveFormat(textureType);
@@ -28,7 +28,9 @@ Texture::Texture(int width, int height, TextureType textureType, GLuint textureU
 		glGenerateMipmap(GL_TEXTURE_2D);
 	}
 	
-	glBindImageTexture(textureUnit, textureID_, 0, GL_FALSE, 0, GL_READ_WRITE, static_cast<GLenum>(textureFormat_.internalFormat));
+	if(useImageBinding) {
+		glBindImageTexture(textureUnit, textureID_, 0, GL_FALSE, 0, GL_READ_WRITE, static_cast<GLenum>(textureFormat_.internalFormat));
+	}
 
 	textureUnit_ = textureUnit;
 }
