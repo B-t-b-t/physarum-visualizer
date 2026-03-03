@@ -173,6 +173,14 @@ set(MY_HEADER_FILES
     source/graphics/FrameBuffer.h
     source/graphics/Texture.h
     source/ui/UserInterface.h
+    source/ui/UIState.h
+    source/ui/UIHelpers.h
+    source/ui/elements/ImGuiWindow.h
+    source/ui/elements/SlimeConfigWindow.h
+    source/ui/elements/VisualSettingsWindow.h
+    source/ui/elements/PresetWindow.h
+    source/ui/elements/AudioWindow.h
+    source/ui/elements/DebugWindow.h
     source/audio/AudioRecording.h
     source/audio/AudioProcessor.h
     source/audio/MusicAnalysis.h
@@ -193,6 +201,12 @@ set(MY_SOURCE_FILES
     source/graphics/FrameBuffer.cpp
     source/graphics/Texture.cpp
     source/ui/UserInterface.cpp
+    source/ui/UIHelpers.cpp
+    source/ui/elements/SlimeConfigWindow.cpp
+    source/ui/elements/VisualSettingsWindow.cpp
+    source/ui/elements/PresetWindow.cpp
+    source/ui/elements/AudioWindow.cpp
+    source/ui/elements/DebugWindow.cpp
     source/audio/AudioRecording.cpp
     source/audio/AudioProcessor.cpp
     source/audio/MusicAnalysis.cpp

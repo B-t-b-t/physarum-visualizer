@@ -1,0 +1,25 @@
+#pragma once
+#include "ImGuiWindow.h"
+#include "../UserInterface.h"
+
+class PresetWindow : public ImGuiWindow {
+
+public:
+    void render(UIState &state) override;
+
+    void addPresetName(const std::string& presetName) { presetNames_.push_back(presetName); }
+	const char * getLastPresetName() { return presetNames_.back().c_str(); }
+	const char * getSelectedPresetName() { return presetNames_[selectedPresetName_].c_str(); }
+	void setSelectedPreset(unsigned int index) { selectedPresetName_ = index;  }
+
+	void addColorPresetName(const std::string& colorPresetName) { colorPresetNames_.push_back(colorPresetName); }
+	const char * getLastColorPresetName() { return colorPresetNames_.back().c_str(); }
+	const char * getSelectedColorPresetName() { return colorPresetNames_[selectedColorPresetName_].c_str(); }
+	void setSelectedColorPreset(unsigned int index) { selectedColorPresetName_ = index;  }
+
+private:
+	std::vector<std::string> presetNames_;
+	unsigned int selectedPresetName_ = 0;
+	std::vector<std::string> colorPresetNames_;
+	unsigned int selectedColorPresetName_ = 0;
+};

@@ -2,6 +2,7 @@
 #include <fstream>
 #include <iostream>
 #include <dirent.h>
+#include "ui/elements/PresetWindow.h"
 
 PresetSystem::PresetSystem(std::string presetFilePath, std::string fileExtension) : presetFilePath_(presetFilePath), fileExtension_(fileExtension) {}
 
@@ -89,6 +90,7 @@ void PresetSystem::loadPreset(std::string fileName) {
 void PresetSystem::loadPresetNames(UserInterface &ui) {
     DIR *dir;
     struct dirent *ent;
+    PresetWindow *window = dynamic_cast<PresetWindow*>(ui.getWindow("PresetWindow"));
     
     if ((dir = opendir(presetFilePath_.c_str())) != NULL) {
         while ((ent = readdir(dir)) != NULL) {
@@ -99,7 +101,7 @@ void PresetSystem::loadPresetNames(UserInterface &ui) {
                 // Remove .psf extension to get preset name
                 std::string presetName = fileName.substr(0, fileName.length() - 4);
                 loadPreset(presetName);
-                ui.addPresetName(presetName);
+                window->addPresetName(presetName);
             }
         }
         closedir(dir);
@@ -107,9 +109,11 @@ void PresetSystem::loadPresetNames(UserInterface &ui) {
 }
 
 void PresetSystem::loadRandomPreset(UserInterface &ui) {
+    PresetWindow *window = dynamic_cast<PresetWindow*>(ui.getWindow("PresetWindow"));
+
     unsigned int randomIndex = (unsigned int) (rand() % (int)presets.size());
-    ui.setSelectedPreset(randomIndex);
-    setUIState(ui.getState(), ui.getSelectedPresetName());
+    window->setSelectedPreset(randomIndex);
+    setUIState(ui.getState(), window->getSelectedPresetName());
 }
 
 void PresetSystem::setUIState(UIState &uiState, std::string presetName) {
@@ -127,19 +131,20 @@ void PresetSystem::setUIState(UIState &uiState, std::string presetName) {
     uiState.trailDiffusionSettings.decay = preset.decay;
 }
 
-void PresetSystem::handleUIRequests(UserInterface &UserInterface) {
-    UIState &uiState = UserInterface.getState();
+void PresetSystem::handleUIRequests(UserInterface &ui) {
+    UIState &uiState = ui.getState();
+    PresetWindow *window = dynamic_cast<PresetWindow*>(ui.getWindow("PresetWindow"));
 
     //Saving Presets to File
     if(uiState.saveToPreset) {
-        createPreset(std::string(UserInterface.getLastPresetName()), uiState);
-        savePreset(std::string(UserInterface.getLastPresetName()));
+        createPreset(std::string(window->getLastPresetName()), uiState);
+        savePreset(std::string(window->getLastPresetName()));
         uiState.saveToPreset = false;
     }
 
     //Loading Presets from File
     if(uiState.loadFromPreset) {
-        std::string presetName = std::string(UserInterface.getSelectedPresetName());
+        std::string presetName = std::string(window->getSelectedPresetName());
 
         loadPreset(presetName);
         setUIState(uiState, presetName);

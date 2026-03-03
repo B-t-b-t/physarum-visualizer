@@ -6,6 +6,7 @@
 #include "./graphics/FrameBuffer.h"
 #include "canvas.h"
 #include "./ui/UserInterface.h"
+#include "./ui/elements/AudioWindow.h"
 #include "./audio/AudioRecording.h"
 #include "./graphics/Shader.h"
 #include "./graphics/ShaderProgram.h"
@@ -161,8 +162,10 @@ int main(int argc, char* argv[]) {
 	// Initialize Audio Recording and Processing
 	AudioRecording audioRecording(deviceName);
 	std::vector<std::string> availableAudioHardwareNames = audioRecording.getAvailableHardwareDeviceNames();
+	AudioWindow* audioWindow = dynamic_cast<AudioWindow*>(UserInterface.getWindow("AudioWindow"));
+
 	for(unsigned int i = 0; i < availableAudioHardwareNames.size(); i++) {
-		UserInterface.addHardwareDevice(availableAudioHardwareNames[i]);
+		audioWindow->addHardwareDevice(availableAudioHardwareNames[i]);
 	}
 
 	//------------------------------------------------------
@@ -321,7 +324,7 @@ int main(int argc, char* argv[]) {
 
 		//Handle Audio Device Change TODO: Refactor to Audio Class!
 		if(uiState.selectAudioHardware) {
-			audioRecording.selectHardwareDevice(UserInterface.getSelectedHardwareDevice());
+			audioRecording.selectHardwareDevice(audioWindow->getSelectedHardwareDevice());
 			uiState.selectAudioHardware = false;
 		}
 
