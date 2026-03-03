@@ -27,7 +27,7 @@ private:
 	UIState& state_;
 	std::unordered_map<std::string, std::unique_ptr<ImGuiWindow>> windows_;
 
-	ImGuiIO guiIO_;
+	ImGuiIO *guiIO_;
 
 	bool showNew_ = false;
 	bool showImGUIDemo_ = false;

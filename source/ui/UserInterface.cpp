@@ -17,8 +17,8 @@ UserInterface::UserInterface(SDL_Window* window, SDL_GLContext glContext) : stat
 	ImGui_ImplSDL3_InitForOpenGL(window, glContext);
 	ImGui_ImplOpenGL3_Init();
 
-	guiIO_ = ImGui::GetIO();
-	guiIO_.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+	guiIO_ = &ImGui::GetIO();
+	guiIO_->ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 
 	initWindows();
 }
@@ -46,8 +46,8 @@ void UserInterface::display(std::vector<double>& audioBuffer, std::vector<double
 	ImGui_ImplSDL3_NewFrame();
 	ImGui::NewFrame();
 
-	if(!guiIO_.WantCaptureMouse) {
-		state_.universalShaderSettings.mouseInputs = ImVec4(guiIO_.MousePos.x, guiIO_.MousePos.y, ImGui::IsMouseDown(0), ImGui::IsMouseDown(1));
+	if(!guiIO_->WantCaptureMouse) {
+		state_.universalShaderSettings.mouseInputs = ImVec4(guiIO_->MousePos.x, guiIO_->MousePos.y, ImGui::IsMouseDown(0), ImGui::IsMouseDown(1));
 	}
 
 	mainMenuBarGUI();

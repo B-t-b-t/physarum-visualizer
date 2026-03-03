@@ -71,19 +71,19 @@ void DebugWindow::render(UIState& state) {
 	ImGui::Text("Fullscreen: %d", state.fullscreen);
 
 	if (ImGui::IsMousePosValid()) {
-		ImGui::Text("Mouse pos: (%g, %g)", guiIO_.MousePos.x, guiIO_.MousePos.y);
+		ImGui::Text("Mouse pos: (%g, %g)", guiIO_->MousePos.x, guiIO_->MousePos.y);
 	}
 	else{
 		ImGui::Text("Mouse pos: <INVALID>");
 	}
-	ImGui::Text("Mouse delta: (%g, %g)", guiIO_.MouseDelta.x, guiIO_.MouseDelta.y);
+	ImGui::Text("Mouse delta: (%g, %g)", guiIO_->MouseDelta.x, guiIO_->MouseDelta.y);
 	ImGui::Text("Mouse down:");
-	for (int i = 0; i < IM_ARRAYSIZE(guiIO_.MouseDown); i++) {
+	for (int i = 0; i < IM_ARRAYSIZE(guiIO_->MouseDown); i++) {
 		if (ImGui::IsMouseDown(i)) { 
-			ImGui::SameLine(); ImGui::Text("b%d (%.02f secs)", i, guiIO_.MouseDownDuration[i]); 
+			ImGui::SameLine(); ImGui::Text("b%d (%.02f secs)", i, guiIO_->MouseDownDuration[i]); 
 		}
 	}
-	ImGui::Text("Mouse wheel: %.1f", guiIO_.MouseWheel);
+	ImGui::Text("Mouse wheel: %.1f", guiIO_->MouseWheel);
 	
 	ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 
