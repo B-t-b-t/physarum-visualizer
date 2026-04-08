@@ -52,6 +52,10 @@ private:
 
 	SDL_Window* window_;
 	SDL_GLContext glContext_;
+
+	SDL_DisplayID* displays_;
+	int numberOfDisplays_;
+
 	int windowWidth_;
 	int windowHeight_;
 	float fractionalScalingFactor_;

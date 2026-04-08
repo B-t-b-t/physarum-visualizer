@@ -10,10 +10,9 @@ Window::Window(int width, int height, const std::string& title, bool customResol
 
 	if(!customResolution) {
 		// Display Stuff
-		int num_displays;
-		SDL_DisplayID *displays = SDL_GetDisplays(&num_displays);
+		displays_ = SDL_GetDisplays(&numberOfDisplays_);
 
-		const SDL_DisplayMode* displayMode = SDL_GetCurrentDisplayMode(*displays);
+		const SDL_DisplayMode* displayMode = SDL_GetCurrentDisplayMode(*displays_);
 		fractionalScalingFactor_ = displayMode->pixel_density;
 
 		std::cout << "Display Id: " << displayMode->displayID << " " << displayMode->w << "x" << displayMode->h << " " << displayMode->refresh_rate << "Hz" << std::endl;
@@ -21,7 +20,7 @@ Window::Window(int width, int height, const std::string& title, bool customResol
 
 		//set window to maximized non-fullscreen size
 		SDL_Rect usableBounds;
-		bool displayBoundSuccess = SDL_GetDisplayUsableBounds(*displays, &usableBounds);
+		bool displayBoundSuccess = SDL_GetDisplayUsableBounds(*displays_, &usableBounds);
 
 		if(displayBoundSuccess) {
 			windowWidth_ = usableBounds.w;
