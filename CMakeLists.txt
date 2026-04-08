@@ -85,24 +85,30 @@ find_package(OpenGL REQUIRED)
 
 #Create symbolic link of resource folders for the executable in the build folder
 if(NOT WIN32)
-    file(CREATE_LINK "${CMAKE_SOURCE_DIR}/res" "${CMAKE_SOURCE_DIR}/build/res" SYMBOLIC RESULT result)
-    if(result)
-        message(FATAL_ERROR "Failed to create symlink to Linux build directory")
-    endif()
-
-    file(CREATE_LINK "${CMAKE_SOURCE_DIR}/presets" "${CMAKE_SOURCE_DIR}/build/presets" SYMBOLIC RESULT result)
-    if(result)
-        message(FATAL_ERROR "Failed to create symlink to Linux build directory")
-    endif()
+    foreach(BUILD_DIR "build/debug" "build/release")
+        file(MAKE_DIRECTORY "${CMAKE_SOURCE_DIR}/${BUILD_DIR}")
+        if(NOT EXISTS "${CMAKE_SOURCE_DIR}/${BUILD_DIR}/res")
+            file(CREATE_LINK "${CMAKE_SOURCE_DIR}/res" "${CMAKE_SOURCE_DIR}/${BUILD_DIR}/res" SYMBOLIC RESULT result)
+            if(result)
+                message(FATAL_ERROR "Failed to create symlink to ${BUILD_DIR}/res")
+            endif()
+        endif()
+        if(NOT EXISTS "${CMAKE_SOURCE_DIR}/${BUILD_DIR}/presets")
+            file(CREATE_LINK "${CMAKE_SOURCE_DIR}/presets" "${CMAKE_SOURCE_DIR}/${BUILD_DIR}/presets" SYMBOLIC RESULT result)
+            if(result)
+                message(FATAL_ERROR "Failed to create symlink to ${BUILD_DIR}/presets")
+            endif()
+        endif()
+    endforeach()
 endif()
 
 if(WIN32)
-    file(CREATE_LINK "${CMAKE_SOURCE_DIR}/res" "${CMAKE_SOURCE_DIR}/build_windows/res" SYMBOLIC RESULT result)
+    file(CREATE_LINK "${CMAKE_SOURCE_DIR}/res" "${CMAKE_SOURCE_DIR}/build/windows/res" SYMBOLIC RESULT result)
     if(result)
         message(FATAL_ERROR "Failed to create symlink to Windows build directory")
     endif()
 
-    file(CREATE_LINK "${CMAKE_SOURCE_DIR}/presets" "${CMAKE_SOURCE_DIR}/build_windows/presets" SYMBOLIC RESULT result)
+    file(CREATE_LINK "${CMAKE_SOURCE_DIR}/presets" "${CMAKE_SOURCE_DIR}/build/windows/presets" SYMBOLIC RESULT result)
     if(result)
         message(FATAL_ERROR "Failed to create symlink to Windows build directory")
     endif()
@@ -166,7 +172,7 @@ set(GLM_INCLUDE_PATH PATH ${CMAKE_CURRENT_SOURCE_DIR}/glm)
 
 set(MY_HEADER_FILES
     source/canvas.h
-    source/display.h
+    source/window.h
     source/ParticleData.h
     source/graphics/Shader.h
     source/graphics/ShaderProgram.h
@@ -194,7 +200,7 @@ set(MY_HEADER_FILES
 set(MY_SOURCE_FILES
     source/main.cpp
     source/canvas.cpp
-    source/display.cpp
+    source/window.cpp
     source/ParticleData.cpp
     source/graphics/Shader.cpp
     source/graphics/ShaderProgram.cpp

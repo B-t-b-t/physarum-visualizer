@@ -1,5 +1,5 @@
-#ifndef DISPLAY_H
-#define DISPLAY_H
+#ifndef WINDOW_H
+#define WINDOW_H
 #define SDL_MAIN_HANDLED
 #include <SDL3/SDL.h>
 #include <GL/glew.h>
@@ -19,44 +19,44 @@ void APIENTRY openglCallbackFunction(GLenum source,
 	const GLchar* message,
 	const void* userParam);
 
-class Display
+class Window
 {
 public:
-	Display(int width, int height, const std::string& title, int workGroupSize, bool customResolution);
+	Window(int width, int height, const std::string& title, bool customResolution);
 
 	void setFullscreen(bool fullscreen);
 
 	void Clear(float r, float g, float b, float a);
 	void Update();
 	bool IsClosed();
-	SDL_Window* getWindow() { return m_window; }
-	virtual ~Display();
+	SDL_Window* getWindow() { return window_; }
+	virtual ~Window();
 
 	int getWindowWidth() { return windowWidth_; }
 	int getWindowHeight() { return windowHeight_; }
+	float getFractionalScalingFactor() { return fractionalScalingFactor_; }
 
 	void setWindowWidth(int width) { windowWidth_ = width; }
 	void setWindowHeight(int height) { windowHeight_ = height; }
 
-	bool getExitLock() { return m_exitLock; }
-	bool setIsClosed(bool closed) { if(!m_exitLock) {m_isClosed = closed; return true;} else {return false;} }
+	bool getExitLock() { return exitLock_; }
+	bool setIsClosed(bool closed) { if(!exitLock_) {isClosed_ = closed; return true;} else {return false;} }
 
 	void updateViewport();
 
 	void printOpenGLExtensions();
-	SDL_Window* getWindow() const { return m_window; }
-	SDL_GLContext getGLContext() const { return m_glContext; }
-
-protected:
+	SDL_Window* getWindow() const { return window_; }
+	SDL_GLContext getGLContext() const { return glContext_; }
 
 private:
 
-	SDL_Window* m_window;
-	SDL_GLContext m_glContext;
+	SDL_Window* window_;
+	SDL_GLContext glContext_;
 	int windowWidth_;
 	int windowHeight_;
-	bool m_isClosed;
-	bool m_exitLock = false;
+	float fractionalScalingFactor_;
+	bool isClosed_;
+	bool exitLock_ = false;
 };
 
-#endif // DISPLAY_H
+#endif // WINDOW_H

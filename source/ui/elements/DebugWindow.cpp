@@ -66,7 +66,7 @@ void DebugWindow::render(UIState& state) {
     }
 
 	ImGui::SeparatorText("Infos");
-
+	ImGui::Text("Number of Particles: %d", state.numParticles);
 	ImGui::Text("WindowWidth: %d TextureWidth: %d NewTextureWidth: %d Height: %d TextureHeight: %d NewTextureHeight: %d", state.universalShaderSettings.windowWidth, state.universalShaderSettings.textureWidth, state.newTextureWidth, state.universalShaderSettings.windowHeight, state.universalShaderSettings.textureHeight, state.newTextureHeight);
 	ImGui::Text("Fullscreen: %d", state.fullscreen);
 

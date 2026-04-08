@@ -1,9 +1,8 @@
-#include "display.h"
+#include "window.h"
 #include <iostream>
-//#include <glm/glm.hpp>
 
 
-Display::Display(int width, int height, const std::string& title, int workGroupSize, bool customResolution) {
+Window::Window(int width, int height, const std::string& title, bool customResolution) {
 	windowWidth_ = width;
 	windowHeight_ = height;
 
@@ -15,12 +14,25 @@ Display::Display(int width, int height, const std::string& title, int workGroupS
 		SDL_DisplayID *displays = SDL_GetDisplays(&num_displays);
 
 		const SDL_DisplayMode* displayMode = SDL_GetCurrentDisplayMode(*displays);
+		fractionalScalingFactor_ = displayMode->pixel_density;
 
 		std::cout << "Display Id: " << displayMode->displayID << " " << displayMode->w << "x" << displayMode->h << " " << displayMode->refresh_rate << "Hz" << std::endl;
 		std::cout << "Display Format: " << SDL_GetPixelFormatName(displayMode->format) << std::endl;
 
-		windowWidth_ = (displayMode->w) - (displayMode->w % workGroupSize);		//make sure width is multiple of workgroup size
-		windowHeight_ = (displayMode->h) - (displayMode->h % workGroupSize);	//make sure height is multiple of workgroup size
+		//set window to maximized non-fullscreen size
+		SDL_Rect usableBounds;
+		bool displayBoundSuccess = SDL_GetDisplayUsableBounds(*displays, &usableBounds);
+
+		if(displayBoundSuccess) {
+			windowWidth_ = usableBounds.w;
+			windowHeight_ = usableBounds.h;
+
+			std::cout << "Usable display area: " << usableBounds.w << "x" << usableBounds.h 
+			<< " at (" << usableBounds.x << ", " << usableBounds.y << ")" << std::endl;		
+		} else {
+			std::cout << "Error: Couldn't set display resolution!" << std::endl;
+		}
+
 	}
 
 	SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 8);
@@ -41,21 +53,21 @@ Display::Display(int width, int height, const std::string& title, int workGroupS
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, minorVersion_);
 	std::cout << "Requested OpenGL Version: " << majorVersion_ << "." << minorVersion_ << std::endl;
 
-	m_window = SDL_CreateWindow(title.c_str(), windowWidth_, windowHeight_, SDL_WINDOW_OPENGL);
-	m_glContext = SDL_GL_CreateContext(m_window);
+	window_ = SDL_CreateWindow(title.c_str(), windowWidth_, windowHeight_, SDL_WINDOW_OPENGL);
+	glContext_ = SDL_GL_CreateContext(window_);
 
 	//reducing OpenGL Version until it works
-	while(m_glContext == NULL && minorVersion_ >= 2) {
+	while(glContext_ == NULL && minorVersion_ >= 2) {
 		std::cerr << "Could not get requested OpenGL Version!" << std::endl;
 		
-		SDL_DestroyWindow(m_window);
+		SDL_DestroyWindow(window_);
 		
 		minorVersion_--;
 		SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, minorVersion_);
 		std::cerr << "Trying OpenGL Version: " << majorVersion_ << "." << minorVersion_ << std::endl;
 
-		m_window = SDL_CreateWindow(title.c_str(), windowWidth_, windowHeight_, SDL_WINDOW_OPENGL);
-		m_glContext = SDL_GL_CreateContext(m_window);
+		window_ = SDL_CreateWindow(title.c_str(), windowWidth_, windowHeight_, SDL_WINDOW_OPENGL);
+		glContext_ = SDL_GL_CreateContext(window_);
 	} 
 
 	//Measure of last resort using extensions for OpenGL Version 4.2
@@ -86,8 +98,9 @@ Display::Display(int width, int height, const std::string& title, int workGroupS
 		std::cout << "Using OpenGL Version: " << glGetString(GL_VERSION) << std::endl;
 	}
 
-	SDL_SetWindowResizable(m_window, true);		// Allow window resizing
+	SDL_SetWindowResizable(window_, true);		// Allow window resizing
 	SDL_GL_SetSwapInterval(1);					// Enable V-Sync
+	SDL_MaximizeWindow(window_);				// necessary, because SDL_GetDisplayUsableBounds() doesn't work with Wayland
 
 	glViewport(0, 0, windowWidth_, windowHeight_);
 
@@ -97,7 +110,7 @@ Display::Display(int width, int height, const std::string& title, int workGroupS
 		std::cerr << "Glew Error: " << glewGetErrorString(status) << std::endl;
 	}
 
-	m_isClosed = false;
+	isClosed_ = false;
 
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -108,39 +121,39 @@ Display::Display(int width, int height, const std::string& title, int workGroupS
 	#endif
 }
 
-Display::~Display() {
-	SDL_GL_DestroyContext(m_glContext);
-	SDL_DestroyWindow(m_window);
+Window::~Window() {
+	SDL_GL_DestroyContext(glContext_);
+	SDL_DestroyWindow(window_);
 	SDL_Quit();
 }
 
-void Display::updateViewport() {
+void Window::updateViewport() {
 
-    SDL_GetWindowSizeInPixels(m_window, &windowWidth_, &windowHeight_);   // Get the window size in pixels
+    SDL_GetWindowSizeInPixels(window_, &windowWidth_, &windowHeight_);   // Get the window size in pixels
     glViewport(0, 0, windowWidth_, windowHeight_);						  // Update viewport to match window size
 }
 
-void Display::setFullscreen(bool fullscreen){
+void Window::setFullscreen(bool fullscreen){
 	if (fullscreen) {
-		SDL_SetWindowFullscreen(m_window, SDL_WINDOW_FULLSCREEN);
+		SDL_SetWindowFullscreen(window_, SDL_WINDOW_FULLSCREEN);
 	} else {
-		SDL_SetWindowFullscreen(m_window, 0);
+		SDL_SetWindowFullscreen(window_, 0);
 	}
 
 	updateViewport();
 }
 
-void Display::Clear(float r, float g, float b, float a) {
+void Window::Clear(float r, float g, float b, float a) {
 	glClearColor(r, g, b, a);
 	glClear(GL_COLOR_BUFFER_BIT);
 }
 
-bool Display::IsClosed() {
-	return m_isClosed;
+bool Window::IsClosed() {
+	return isClosed_;
 }
 
-void Display::Update() {
-	SDL_GL_SwapWindow(m_window);
+void Window::Update() {
+	SDL_GL_SwapWindow(window_);
 
 	SDL_Event inputEvent;
 
@@ -149,11 +162,11 @@ void Display::Update() {
 
 		switch (inputEvent.type) {
 		case SDL_EVENT_KEY_DOWN:
-			if(inputEvent.key.key == SDLK_ESCAPE) { if(!m_exitLock) {m_isClosed = true;}}
-			if(inputEvent.key.key == SDLK_F11) { m_exitLock = m_exitLock ? false : true; }
+			if(inputEvent.key.key == SDLK_ESCAPE) { if(!exitLock_) {isClosed_ = true;}}
+			if(inputEvent.key.key == SDLK_F11) { exitLock_ = exitLock_ ? false : true; }
 			break;
 		case SDL_EVENT_QUIT:
-			if(!m_exitLock) {m_isClosed = true;}
+			if(!exitLock_) {isClosed_ = true;}
 			break;
 		default:
 			break;
@@ -161,7 +174,7 @@ void Display::Update() {
 	}
 }
 
-void Display::printOpenGLExtensions() {
+void Window::printOpenGLExtensions() {
 	GLint numExt = 0;
 	glGetIntegerv(GL_NUM_EXTENSIONS, &numExt);
 

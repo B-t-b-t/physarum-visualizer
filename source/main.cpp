@@ -1,6 +1,6 @@
 #include <iostream>
 #include <iomanip>
-#include "display.h"
+#include "window.h"
 #include "ParticleData.h"
 #include "./graphics/Texture.h"
 #include "./graphics/FrameBuffer.h"
@@ -22,10 +22,6 @@
 #include "./graphics/Bloom.h"
 #include "./audio/MusicAnalysis.h"
 
-//TODO: Kommentare schreiben
-//TODO: Code Refactoring
-//TODO: Fehlerbehandlung
-
 int main(int argc, char* argv[]) {
 
 	// Default values for starting without command line arguments
@@ -33,22 +29,26 @@ int main(int argc, char* argv[]) {
 	unsigned int textureHeight = 896;
 	unsigned int windowWidth = 1600;
 	unsigned int windowHeight = 896;
-	unsigned int numParticles = 300000;//215040;
+	float slimeRatio = 0.15f;
+	unsigned int numParticles = 300000;
 	unsigned int workGroupDivider = 8;
 	std::string deviceName = "";
-	bool customResolution = false;
 	
 	//helpMessage noch aktuell?
 	std::string helpMessage = "Usage: " + std::string(argv[0]) + " [options]\n"
-					  + "Options:\n"
-					  + "  --help | -h          Show this help message\n"
-					  + "  --width <pixels>     Set texture width (multiples of 32)(default: 1600)\n"
-					  + "  --height <pixels>    Set texture height (multiples of 32)(default: 896)\n"
-					  + "  --particles <count>  Set number of particles (default: 300000)\n"
-					  + "  --audioDevice <name> Set the audio device to use\n";
-
+	+ "Options:\n"
+	+ "  --help | -h          Show this help message\n"
+	+ "  --width <pixels>     Set texture width (multiples of " + std::to_string(workGroupDivider) + ")\n"
+	+ "  --height <pixels>    Set texture height (multiples of " + std::to_string(workGroupDivider) + ")\n"
+	+ "  --particles <count>  Set number of particles (multiples of " + std::to_string(workGroupDivider) + ") (overwrites --slimeRatio <float>)\n"
+	+ "  --slimeRatio <float> Set number of particles as a ratio of window area\n"
+	+ "  --audioDevice <name> Set the audio device to use\n";
+	
 	//------------------------------------------------------		  
 	// Parse command line arguments if any
+	bool customResolution = false;
+	bool customParticleCount = false;
+
 	for (int i = 1; i < argc; i++) {
 		if (strcmp(argv[i], "--width") == 0 && i + 1 < argc) {
 			textureWidth = windowWidth = static_cast<unsigned int>(atoi(argv[i + 1]));
@@ -62,6 +62,11 @@ int main(int argc, char* argv[]) {
 		}
 		else if (strcmp(argv[i], "--particles") == 0 && i + 1 < argc) {
 			numParticles = static_cast<unsigned int>(atoi(argv[i + 1]));
+			customParticleCount = true;
+			i++;
+		}
+		else if (strcmp(argv[i], "--slimeRatio") == 0 && i + 1 < argc) {
+			slimeRatio = static_cast<float>(atof(argv[i + 1]));
 			i++;
 		}
 		else if (strcmp(argv[i], "--audioDevice") == 0 && i + 1 < argc) {
@@ -79,12 +84,22 @@ int main(int argc, char* argv[]) {
 
 	//------------------------------------------------------
 	// Initialize Window
-	Display display((int)windowWidth, (int)windowHeight, "Physarum", (int) workGroupDivider, customResolution);
+	Window window((int)windowWidth, (int)windowHeight, "Physarum", customResolution);
 
-	windowWidth = (unsigned int)display.getWindowWidth();
-	windowHeight = (unsigned int)display.getWindowHeight();
-	textureWidth = windowWidth;
-	textureHeight = windowHeight;
+	windowWidth = (unsigned int)window.getWindowWidth();
+	windowHeight = (unsigned int)window.getWindowHeight();
+
+	float scaling = window.getFractionalScalingFactor();
+
+	textureWidth = windowWidth * scaling - ((unsigned int)(windowWidth * scaling) % workGroupDivider);		//make sure width is multiple of workgroup size
+	textureHeight = windowHeight * scaling - ((unsigned int)(windowHeight * scaling) % workGroupDivider);	//make sure height is multiple of workgroup size
+
+	if(!customParticleCount) {
+		numParticles = slimeRatio * textureWidth * textureHeight;
+		numParticles = numParticles - numParticles % workGroupDivider;
+	} else {
+		slimeRatio = numParticles / (float)(textureWidth * textureHeight);
+	}
 
 	Canvas drawCanvas;
 
@@ -100,12 +115,12 @@ int main(int argc, char* argv[]) {
 	int maxImageUnits = 0;
 	glGetIntegerv(GL_MAX_IMAGE_UNITS, &maxImageUnits);
 	std::cout << "Max Image Units: " << maxImageUnits << std::endl;
-	
+
 
 
 	//------------------------------------------------------
 	// Initialize User Interface
-	UserInterface UserInterface(display.getWindow(), display.getGLContext());
+	UserInterface UserInterface(window.getWindow(), window.getGLContext());
 	UIState& uiState = UserInterface.getState();
 	uiState.universalShaderSettings.textureWidth = (int)textureWidth;
 	uiState.universalShaderSettings.textureHeight = (int)textureHeight;
@@ -113,6 +128,9 @@ int main(int argc, char* argv[]) {
 	uiState.universalShaderSettings.windowHeight = (int)textureHeight;
 	uiState.newTextureWidth = (int)textureWidth;
 	uiState.newTextureHeight = (int)textureHeight;
+	uiState.numParticles = (int) (numParticles);
+	uiState.newNumParticles = (int) (numParticles);
+	uiState.slimeRatio = slimeRatio;
 
 	//------------------------------------------------------
 	//Initialize Textures and Texture Buffers
@@ -207,7 +225,7 @@ int main(int argc, char* argv[]) {
 	//======================================================================
 	// Main Loop
 	//======================================================================
-	while (!display.IsClosed()) {
+	while (!window.IsClosed()) {
 
 
 		Uint64 nowCounter = SDL_GetPerformanceCounter();
@@ -254,7 +272,7 @@ int main(int argc, char* argv[]) {
 
 		//------------------------------------------------------
 		// Display Clearing
-		display.Clear(uiState.clearColor.x, uiState.clearColor.y, uiState.clearColor.z, uiState.clearColor.w);
+		window.Clear(uiState.clearColor.x, uiState.clearColor.y, uiState.clearColor.z, uiState.clearColor.w);
 
 		//------------------------------------------------------
 		//OpenGL Draw Call
@@ -274,15 +292,15 @@ int main(int argc, char* argv[]) {
 		
 		//------------------------------------------------------
 		//process Key Presses from User
-		display.Update();	//TODO: badly named; RENAME!
+		window.Update();	//TODO: badly named; RENAME!
 
 
-		display.setFullscreen(uiState.fullscreen); //check if fullscreen mode changed in UI and set it
-		if(display.getExitLock()) { 				//if exit lock is active go to fullscreen
+		window.setFullscreen(uiState.fullscreen); //check if fullscreen mode changed in UI and set it
+		if(window.getExitLock()) { 				//if exit lock is active go to fullscreen
 			uiState.fullscreen = true;
 		}
-		uiState.universalShaderSettings.windowWidth = display.getWindowWidth();		//synchronize window size
-		uiState.universalShaderSettings.windowHeight = display.getWindowHeight();
+		uiState.universalShaderSettings.windowWidth = window.getWindowWidth();		//synchronize window size
+		uiState.universalShaderSettings.windowHeight = window.getWindowHeight();
 
 		//------------------------------------------------------
 		// Handle User Interface Changes that affect Simulation State
@@ -330,13 +348,13 @@ int main(int argc, char* argv[]) {
 
 		//Exit Program when requested from UI
 		if(uiState.exitProgram) {
-			if(!display.setIsClosed(true)) {
+			if(!window.setIsClosed(true)) {
 				uiState.exitProgram = false;
 			}
 		}
 	}
 
-	display.~Display(); //call destructor and pause to view console seperatly after closing the drawing window
+	window.~Window(); //call destructor and pause to view console seperatly after closing the drawing window
 	//system("pause");
 
 	return 0;

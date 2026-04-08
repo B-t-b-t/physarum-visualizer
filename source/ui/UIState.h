@@ -59,8 +59,9 @@ public:
 	bool selectAudioHardware = false;
 	int newTextureWidth = 1600;
 	int newTextureHeight = 896;
-	int numParticles = 300000*1;
-	int newNumParticles = 300000*1;
+	int numParticles = 300000;
+	int newNumParticles = 300000;
+	float slimeRatio = 0.15f;
 	int presetIntervall = 30;	//in seconds
 
 	TextureMask selectedTextureMask = TextureMask::TRAIL;

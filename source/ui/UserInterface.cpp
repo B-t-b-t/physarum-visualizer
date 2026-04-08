@@ -87,8 +87,11 @@ void UserInterface::newModal() {
 		state_.newTextureWidth = state_.newTextureWidth - (state_.newTextureWidth % 8);
 		ImGui::InputInt("New Texture Height", &state_.newTextureHeight, 8, 8, ImGuiInputTextFlags_CharsNoBlank);
 		state_.newTextureHeight = state_.newTextureHeight - (state_.newTextureHeight % 8);
+		state_.newNumParticles = state_.slimeRatio * state_.newTextureWidth * state_.newTextureHeight;
 		ImGui::InputInt("Number of Particles", &state_.newNumParticles, 8, 8, ImGuiInputTextFlags_CharsNoBlank);
 		state_.newNumParticles = state_.newNumParticles - (state_.newNumParticles % 8);
+		state_.slimeRatio = state_.newNumParticles / (float) (state_.newTextureWidth * state_.newTextureHeight);
+		ImGui::InputFloat("Slime Ratio", &state_.slimeRatio);
 		ImGui::PopStyleVar();
 		ImGui::Separator();
 
