@@ -183,10 +183,7 @@ int main(int argc, char* argv[]) {
 	AudioSystem audioSystem(deviceName);
 	std::vector<std::string> availableAudioHardwareNames = audioSystem.getAvailableHardwareDeviceNames();
 	AudioWindow* audioWindow = dynamic_cast<AudioWindow*>(UserInterface.getWindow("AudioWindow"));
-
-	for(unsigned int i = 0; i < availableAudioHardwareNames.size(); i++) {
-		audioWindow->addHardwareDevice(availableAudioHardwareNames[i]);
-	}
+	audioWindow->addHardwareDeviceNames(availableAudioHardwareNames);
 
 	//------------------------------------------------------
 	// Initialize Preset System

@@ -12,7 +12,7 @@ public:
 
     void update(std::vector<double>& audioBuffer, std::vector<double>& spectrum, std::vector<double>& spectrumDiff, int bufferSize, bool hasNewSpectrumData);
 
-    void addHardwareDevice(const std::string& deviceName) { availableHardwareDevices_.push_back(deviceName); }
+    void addHardwareDeviceNames(const std::vector<std::string>& deviceNames);
 	const char * getSelectedHardwareDevice() { return availableHardwareDevices_[selectedHardwareDevice_].c_str(); }
 
 private:

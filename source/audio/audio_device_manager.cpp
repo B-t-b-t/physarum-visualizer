@@ -20,7 +20,6 @@ void AudioDeviceManager::checkForAvailableDevices() {
 
     if(!rawDeviceArray || numDevices == 0) {
         SDL_Log("No recording devices found!");
-        availableDevices_.push_back({"No Recording Device Found", 0});
     } else {
         for (int i = 0; rawDeviceArray[i] != 0; i++) {
             const char* name = SDL_GetAudioDeviceName(rawDeviceArray[i]);

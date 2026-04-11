@@ -156,16 +156,14 @@ void AudioWindow::render(UIState& state) {
 	ImGui::Text("Brilliance Value: %.2f", state.brillianceValue);
 
 	ImGui::SliderFloat("Beat Divide", &state.beatDivide, 0, 100.0f);
-	ImGui::Checkbox("Beat Normalization", &state.normalizeBeat);
+	//ImGui::Checkbox("Beat Normalization", &state.normalizeBeat);
 	// ImGui::SeparatorText("Fringe Detection (non functional)");
 	// ImGui::SliderInt("Fringe Beginn", &state_.fringeBeginn, 0, state_.fringeEnd);
 	// ImGui::SliderInt("Fringe End", &state_.fringeEnd, state_.fringeBeginn, bufferSize / 2);
 	// ImGui::SliderInt("Fringe Divide", &state_.fringeDivide, 1, 1000);
 	
 	if (ImGui::BeginListBox("Audio Hardware")) {
-
-		for (unsigned int n = 0; n < availableHardwareDevices_.size(); n++)
-		{
+		for (unsigned int n = 0; n < availableHardwareDevices_.size(); n++) {
 			const bool is_selected = (selectedHardwareDevice_ == n);
 			if (ImGui::Selectable(availableHardwareDevices_[n].c_str(), is_selected)) {
 				selectedHardwareDevice_ = n;
@@ -181,6 +179,15 @@ void AudioWindow::render(UIState& state) {
 	}
 
 	ImGui::End();
+}
+
+void AudioWindow::addHardwareDeviceNames(const std::vector<std::string>& deviceNames) {
+	availableHardwareDevices_.clear();
+	availableHardwareDevices_.reserve(deviceNames.size());
+
+	for(unsigned int i = 0; i < deviceNames.size(); i++) {
+		availableHardwareDevices_.push_back(deviceNames[i]);
+	}
 }
 
 void AudioWindow::update(std::vector<double>& audioBuffer, std::vector<double>& spectrum, std::vector<double>& spectrumDiff, int bufferSize, bool hasNewSpectrumData) {
