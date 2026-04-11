@@ -1,5 +1,5 @@
-#ifndef AUDIO_RECORDING_H
-#define AUDIO_RECORDING_H
+#ifndef AUDIO_SYSTEM_H
+#define AUDIO_SYSTEM_H
 
 #include <iostream>
 #include <vector>
@@ -7,16 +7,10 @@
 #include <SDL3/SDL.h>
 
 #include "audio_processor.h"
+#include "audio_device_manager.h"
 #include "../ui/user_interface.h"
 
 #define BUFFER_SIZE 4096//2048 //65536
-
-struct RecordingDevice {
-    const char *name;
-	SDL_AudioDeviceID hardwareID;
-    SDL_AudioDeviceID logicalID;
-    bool selected;
-};
 
 struct AudioStreamData {
 	SDL_AudioStream *streamId;
@@ -26,21 +20,22 @@ struct AudioStreamData {
     bool hasNewAudioData;
 };
 
-class AudioRecording {
+class AudioSystem {
 public:
-    AudioRecording(std::string deviceName = "");
+    AudioSystem(std::string deviceName = "");
 
     void computeSpectrum();
 
-    int getAudioRate() const { return audioRate_; }
+    int getAudioRate() const { return inSpec_.freq; }
     Uint32 getAudioTimer() { return audioTimer_; }
     void setAudioTimer(Uint32 audioTimer) { audioTimer_ = audioTimer; }
     std::vector<double>& getAudioBuffer() { return audioBuffer_; }
     std::vector<double>& getSpectrum() { return spectrum_; }
     std::vector<double>& getSpectrumDiff() { return spectrumDiff_; }
     int getBufferSize() const { return bufferSize_; }
-    std::vector<std::string> getAvailableHardwareDeviceNames();
-    int getNumAvailableHardwareDevices() { return availableHardwareDevices_.size(); }
+
+    std::vector<std::string> getAvailableHardwareDeviceNames() { return deviceManager_.getAvailableDeviceNames(); }
+    int getNumAvailableHardwareDevices() { return deviceManager_.getNumAvailableDevices(); }
     void selectHardwareDevice(std::string deviceName);
 
     bool hasNewAudioData() const { return hasNewAudioData_; }
@@ -50,16 +45,11 @@ public:
     void setHasNewSpectrumData(bool hasNew) { hasNewSpectrumData_ = hasNew; }
 
 private:
-    std::string deviceName_ = "";
-    SDL_AudioSpec inspec_;
-	SDL_AudioSpec outspec_;
-	SDL_AudioStream *stream_in_;
-	SDL_AudioStream *stream_out_;
-	AudioStreamData data_;
-    int audioRate_;
+    AudioDeviceManager deviceManager_;
 
-    SDL_AudioDeviceID *recordingDevicesArray_ = NULL;
-    std::vector<RecordingDevice> availableHardwareDevices_;
+    SDL_AudioSpec inSpec_;
+	SDL_AudioStream *stream_in_;
+	AudioStreamData data_;
 
     int bufferSize_;
     std::vector<double> audioBuffer_;
@@ -80,4 +70,4 @@ private:
 
 Uint32 getAudioCallback (void *parameter, SDL_TimerID timerID, Uint32 intervall);
 
-#endif // AUDIO_RECORDING_H
+#endif // AUDIO_SYSTEM_H

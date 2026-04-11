@@ -187,7 +187,8 @@ set(MY_HEADER_FILES
     source/ui/elements/preset_window.h
     source/ui/elements/audio_window.h
     source/ui/elements/debug_window.h
-    source/audio/audio_recording.h
+    source/audio/audio_system.h
+    source/audio/audio_device_manager.h
     source/audio/audio_processor.h
     source/audio/music_analysis.h
     source/preset_system.h
@@ -213,7 +214,8 @@ set(MY_SOURCE_FILES
     source/ui/elements/preset_window.cpp
     source/ui/elements/audio_window.cpp
     source/ui/elements/debug_window.cpp
-    source/audio/audio_recording.cpp
+    source/audio/audio_system.cpp
+    source/audio/audio_device_manager.cpp
     source/audio/audio_processor.cpp
     source/audio/music_analysis.cpp
     source/preset_system.cpp

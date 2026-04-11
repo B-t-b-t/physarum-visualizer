@@ -12,7 +12,7 @@
 #include "particle_data.h"
 #include "preset_system.h"
 #include "window.h"
-#include "./audio/audio_recording.h"
+#include "./audio/audio_system.h"
 #include "./audio/audio_processor.h"
 #include "./audio/music_analysis.h"
 #include "./graphics/bloom.h"
@@ -180,8 +180,8 @@ int main(int argc, char* argv[]) {
 
 	//------------------------------------------------------
 	// Initialize Audio Recording and Processing
-	AudioRecording audioRecording(deviceName);
-	std::vector<std::string> availableAudioHardwareNames = audioRecording.getAvailableHardwareDeviceNames();
+	AudioSystem audioSystem(deviceName);
+	std::vector<std::string> availableAudioHardwareNames = audioSystem.getAvailableHardwareDeviceNames();
 	AudioWindow* audioWindow = dynamic_cast<AudioWindow*>(UserInterface.getWindow("AudioWindow"));
 
 	for(unsigned int i = 0; i < availableAudioHardwareNames.size(); i++) {
@@ -254,16 +254,16 @@ int main(int argc, char* argv[]) {
 		//------------------------------------------------------
 		// Audio Processing
 		if(uiState.slimeSettings.reactToAudio) {
-			audioRecording.computeSpectrum();
+			audioSystem.computeSpectrum();
 		}
 
 		//give UI access to audio data; Why Here?!
-		UserInterface.display(audioRecording.getAudioBuffer(), audioRecording.getSpectrum(), audioRecording.getSpectrumDiff(), audioRecording.getBufferSize(), audioRecording.hasNewSpectrumData());
-		audioRecording.setHasNewSpectrumData(false);
+		UserInterface.display(audioSystem.getAudioBuffer(), audioSystem.getSpectrum(), audioSystem.getSpectrumDiff(), audioSystem.getBufferSize(), audioSystem.hasNewSpectrumData());
+		audioSystem.setHasNewSpectrumData(false);
 
 		// Analyze the music data
 		if(uiState.slimeSettings.reactToAudio) {
-			musicAnalysis.analyzeMusic(audioRecording.getSpectrumDiff(), frameTime);
+			musicAnalysis.analyzeMusic(audioSystem.getSpectrumDiff(), frameTime);
 		}
 
 		//------------------------------------------------------
@@ -344,7 +344,7 @@ int main(int argc, char* argv[]) {
 
 		//Handle Audio Device Change TODO: Refactor to Audio Class!
 		if(uiState.selectAudioHardware) {
-			audioRecording.selectHardwareDevice(audioWindow->getSelectedHardwareDevice());
+			audioSystem.selectHardwareDevice(audioWindow->getSelectedHardwareDevice());
 			uiState.selectAudioHardware = false;
 		}
 

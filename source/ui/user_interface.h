@@ -12,7 +12,7 @@
 
 #include "ui_state.h"
 #include "../uniforms.h"
-#include "../audio/audio_recording.h"
+#include "../audio/audio_system.h"
 #include "elements/imgui_window.h"
 
 class UserInterface {
