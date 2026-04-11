@@ -1,13 +1,16 @@
 #ifndef WINDOW_H
 #define WINDOW_H
+
 #define SDL_MAIN_HANDLED
-#include <SDL3/SDL.h>
-#include <GL/glew.h>
+
 #include <string>
+
+#include <GL/glew.h>
 #include "imgui_impl_sdl3.h"
+#include <SDL3/SDL.h>
 
 
-#define APIENTRY GLEWAPIENTRY
+#define APIENTRY GLEWAPIENTRY	//tell OpenGL debug callback function to use GLEW's calling convention macro
 
 void setOpenGLDebugCallback();
 

@@ -1,7 +1,9 @@
 #include "canvas.h"
-#include <iostream>
-#include <GL/glew.h>
+
 #include <complex>
+#include <iostream>
+
+#include <GL/glew.h>
 
 Canvas::Canvas()
 {

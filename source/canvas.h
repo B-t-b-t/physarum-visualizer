@@ -2,6 +2,7 @@
 #define CANVAS_H
 
 #include <vector>
+
 #include <GL/glew.h>
 
 class Canvas

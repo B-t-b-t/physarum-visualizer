@@ -1,26 +1,28 @@
-#include <iostream>
+#include <algorithm>
+#include <deque>
 #include <iomanip>
-#include "window.h"
-#include "ParticleData.h"
-#include "./graphics/Texture.h"
-#include "./graphics/FrameBuffer.h"
-#include "canvas.h"
-#include "./ui/UserInterface.h"
-#include "./ui/elements/AudioWindow.h"
-#include "./audio/AudioRecording.h"
-#include "./graphics/Shader.h"
-#include "./graphics/ShaderProgram.h"
-#include <SDL3/SDL_main.h>
+#include <iostream>
+
 #include <fftw3.h>
 #include <SDL3/SDL_camera.h>
-#include "./audio/AudioProcessor.h"
-#include "PresetSystem.h"
-#include "ColorPresetSystem.h"
-#include "./graphics/UniformBufferObject.h"
-#include <deque>
-#include <algorithm>
-#include "./graphics/Bloom.h"
-#include "./audio/MusicAnalysis.h"
+#include <SDL3/SDL_main.h>
+
+#include "canvas.h"
+#include "color_preset_system.h"
+#include "particle_data.h"
+#include "preset_system.h"
+#include "window.h"
+#include "./audio/audio_recording.h"
+#include "./audio/audio_processor.h"
+#include "./audio/music_analysis.h"
+#include "./graphics/bloom.h"
+#include "./graphics/framebuffer.h"
+#include "./graphics/shader.h"
+#include "./graphics/shader_program.h"
+#include "./graphics/texture.h"
+#include "./graphics/uniform_buffer_object.h"
+#include "./ui/elements/audio_window.h"
+#include "./ui/user_interface.h"
 
 int main(int argc, char* argv[]) {
 

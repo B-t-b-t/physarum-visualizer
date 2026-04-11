@@ -173,53 +173,53 @@ set(GLM_INCLUDE_PATH PATH ${CMAKE_CURRENT_SOURCE_DIR}/glm)
 set(MY_HEADER_FILES
     source/canvas.h
     source/window.h
-    source/ParticleData.h
-    source/graphics/Shader.h
-    source/graphics/ShaderProgram.h
-    source/graphics/FrameBuffer.h
-    source/graphics/Texture.h
-    source/ui/UserInterface.h
-    source/ui/UIState.h
-    source/ui/UIHelpers.h
-    source/ui/elements/ImGuiWindow.h
-    source/ui/elements/SlimeConfigWindow.h
-    source/ui/elements/VisualSettingsWindow.h
-    source/ui/elements/PresetWindow.h
-    source/ui/elements/AudioWindow.h
-    source/ui/elements/DebugWindow.h
-    source/audio/AudioRecording.h
-    source/audio/AudioProcessor.h
-    source/audio/MusicAnalysis.h
-    source/PresetSystem.h
-    source/ColorPresetSystem.h
-    source/Uniforms.h
-    source/graphics/UniformBufferObject.h
-    source/graphics/Bloom.h
+    source/particle_data.h
+    source/graphics/shader.h
+    source/graphics/shader_program.h
+    source/graphics/framebuffer.h
+    source/graphics/texture.h
+    source/ui/user_interface.h
+    source/ui/ui_state.h
+    source/ui/ui_helpers.h
+    source/ui/elements/imgui_window.h
+    source/ui/elements/slime_config_window.h
+    source/ui/elements/visual_settings_window.h
+    source/ui/elements/preset_window.h
+    source/ui/elements/audio_window.h
+    source/ui/elements/debug_window.h
+    source/audio/audio_recording.h
+    source/audio/audio_processor.h
+    source/audio/music_analysis.h
+    source/preset_system.h
+    source/color_preset_system.h
+    source/uniforms.h
+    source/graphics/uniform_buffer_object.h
+    source/graphics/bloom.h
 )
 
 set(MY_SOURCE_FILES
     source/main.cpp
     source/canvas.cpp
     source/window.cpp
-    source/ParticleData.cpp
-    source/graphics/Shader.cpp
-    source/graphics/ShaderProgram.cpp
-    source/graphics/FrameBuffer.cpp
-    source/graphics/Texture.cpp
-    source/ui/UserInterface.cpp
-    source/ui/UIHelpers.cpp
-    source/ui/elements/SlimeConfigWindow.cpp
-    source/ui/elements/VisualSettingsWindow.cpp
-    source/ui/elements/PresetWindow.cpp
-    source/ui/elements/AudioWindow.cpp
-    source/ui/elements/DebugWindow.cpp
-    source/audio/AudioRecording.cpp
-    source/audio/AudioProcessor.cpp
-    source/audio/MusicAnalysis.cpp
-    source/PresetSystem.cpp
-    source/ColorPresetSystem.cpp
-    source/graphics/UniformBufferObject.cpp
-    source/graphics/Bloom.cpp
+    source/particle_data.cpp
+    source/graphics/shader.cpp
+    source/graphics/shader_program.cpp
+    source/graphics/framebuffer.cpp
+    source/graphics/texture.cpp
+    source/ui/user_interface.cpp
+    source/ui/ui_helpers.cpp
+    source/ui/elements/slime_config_window.cpp
+    source/ui/elements/visual_settings_window.cpp
+    source/ui/elements/preset_window.cpp
+    source/ui/elements/audio_window.cpp
+    source/ui/elements/debug_window.cpp
+    source/audio/audio_recording.cpp
+    source/audio/audio_processor.cpp
+    source/audio/music_analysis.cpp
+    source/preset_system.cpp
+    source/color_preset_system.cpp
+    source/graphics/uniform_buffer_object.cpp
+    source/graphics/bloom.cpp
 )
 
 include_directories(
