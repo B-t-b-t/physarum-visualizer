@@ -18,7 +18,8 @@ std::vector<char*> createArgv(const std::vector<std::string>& argStrings) {
 
 TEST_CASE("parseParameters default values", "[parameter_parser]") {
     Parameters params;
-    std::vector<char*> argv = createArgv({"Physarum"});
+    std::vector<std::string> testArgs = {"Physarum"};
+    std::vector<char*> argv = createArgv(testArgs);
 
     int result = parseParameters(argv.size(), argv.data(), params, 8);
 
@@ -55,7 +56,8 @@ TEST_CASE("parseParameters default values", "[parameter_parser]") {
 
 TEST_CASE("parseParameters parses --width", "[parameter_parser]") {
     Parameters params;
-    std::vector<char*> argv = createArgv({"Physarum", "--width"});
+    std::vector<std::string> testArgs = {"Physarum", "--width"};
+    std::vector<char*> argv = createArgv(testArgs);
 
     SECTION("normal value") {
         argv.push_back(const_cast<char*>("1920"));
@@ -107,7 +109,8 @@ TEST_CASE("parseParameters parses --width", "[parameter_parser]") {
 
 TEST_CASE("parseParameters parses --height", "[parameter_parser]") {
     Parameters params;
-    std::vector<char*> argv = createArgv({"Physarum", "--height", "1080"});
+    std::vector<std::string> testArgs = {"Physarum", "--height", "1080"};
+    std::vector<char*> argv = createArgv(testArgs);
 
     int result = parseParameters(argv.size(), argv.data(), params, 8);
 
@@ -119,7 +122,8 @@ TEST_CASE("parseParameters parses --height", "[parameter_parser]") {
 
 TEST_CASE("parseParameters parses --width and --height together", "[parameter_parser]") {
     Parameters params;
-    std::vector<char*> argv = createArgv({"Physarum", "--width", "2560", "--height", "1440"});
+    std::vector<std::string> testArgs = {"Physarum", "--width", "2560", "--height", "1440"};
+    std::vector<char*> argv = createArgv(testArgs);
 
     int result = parseParameters(argv.size(), argv.data(), params, 8);
 
@@ -131,8 +135,9 @@ TEST_CASE("parseParameters parses --width and --height together", "[parameter_pa
 
 TEST_CASE("parseParameters parses --particles", "[parameter_parser]") {
     Parameters params;
-    std::vector<char*> argv = createArgv({"Physarum", "--particles", "500000"});
-    
+    std::vector<std::string> testArgs = {"Physarum", "--particles", "500000"};
+    std::vector<char*> argv = createArgv(testArgs);
+
     int result = parseParameters(argv.size(), argv.data(), params, 8);
 
     REQUIRE(result == 0);
@@ -142,7 +147,8 @@ TEST_CASE("parseParameters parses --particles", "[parameter_parser]") {
 
 TEST_CASE("parseParameters parses --slimeRatio", "[parameter_parser]") {
     Parameters params;
-    std::vector<char*> argv = createArgv({"Physarum", "--slimeRatio"});
+    std::vector<std::string> testArgs = {"Physarum", "--slimeRatio"};
+    std::vector<char*> argv = createArgv(testArgs);
 
     SECTION("typical value") {
         argv.push_back(const_cast<char*>("0.5"));
@@ -173,7 +179,8 @@ TEST_CASE("parseParameters parses --slimeRatio", "[parameter_parser]") {
 
 TEST_CASE("parseParameters parses --audioDevice", "[parameter_parser]") {
     Parameters params;
-    std::vector<char*> argv = createArgv({"Physarum", "--audioDevice", "hw:0,0"});
+    std::vector<std::string> testArgs = {"Physarum", "--audioDevice", "hw:0,0"};
+    std::vector<char*> argv = createArgv(testArgs);
 
     int result = parseParameters(argv.size(), argv.data(), params, 8);
 
@@ -197,7 +204,8 @@ TEST_CASE("parseParameters returns -1 for --help", "[parameter_parser]") {
     Parameters params;
 
     SECTION("--help flag") {
-        std::vector<char*> argv = createArgv({"Physarum", "--help"});
+        std::vector<std::string> testArgs = {"Physarum", "--help"};
+        std::vector<char*> argv = createArgv(testArgs);
  
         int result = parseParameters(argv.size(), argv.data(), params, 8);
 
@@ -205,7 +213,8 @@ TEST_CASE("parseParameters returns -1 for --help", "[parameter_parser]") {
     }
 
     SECTION("-h flag") {
-        std::vector<char*> argv = createArgv({"Physarum", "-h"});
+        std::vector<std::string> testArgs = {"Physarum", "-h"};
+        std::vector<char*> argv = createArgv(testArgs);
 
         int result = parseParameters(argv.size(), argv.data(), params, 8);
 
@@ -215,7 +224,8 @@ TEST_CASE("parseParameters returns -1 for --help", "[parameter_parser]") {
 
 TEST_CASE("parseParameters returns -1 for unknown argument", "[parameter_parser]") {
     Parameters params;
-    std::vector<char*> argv = createArgv({"Physarum", "--unknown"});
+    std::vector<std::string> testArgs = {"Physarum", "--unknown"};
+    std::vector<char*> argv = createArgv(testArgs);
 
     int result = parseParameters(argv.size(), argv.data(), params, 8);
 
@@ -224,7 +234,8 @@ TEST_CASE("parseParameters returns -1 for unknown argument", "[parameter_parser]
 
 TEST_CASE("parseParameters --particles does not affect slimeRatio flag", "[parameter_parser]") {
     Parameters params;
-    std::vector<char*> argv = createArgv({"Physarum", "--particles", "200000"});
+    std::vector<std::string> testArgs = {"Physarum", "--particles", "200000"};
+    std::vector<char*> argv = createArgv(testArgs);
 
     parseParameters(argv.size(), argv.data(), params, 8);
     REQUIRE(params.customParticleCount == true);
