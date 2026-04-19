@@ -10,11 +10,11 @@
 
 class Bloom {
 public:
-    Bloom(unsigned int textureWidth, unsigned int textureHeight, GLuint vertexShaderID);
+    Bloom(int textureWidth, int textureHeight, GLuint vertexShaderID);
 
     void applyBloom(GLuint texTrailID, Canvas& drawCanvas, const UIState& uiState);
     void bindBloomTextures(GLuint texTrail, GLuint texTrailNonDiffused, GLuint newTexParticles, GLuint oldTexParticles, GLuint texCollisions);
-    void resizeBloomTextures(unsigned int textureWidth, unsigned int textureHeight);
+    void resizeBloomTextures(int textureWidth, int textureHeight);
 
 private:
 

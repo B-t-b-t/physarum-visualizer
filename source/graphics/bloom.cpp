@@ -1,7 +1,7 @@
 #include "bloom.h"
 
-Bloom::Bloom(unsigned int textureWidth, unsigned int textureHeight, GLuint vertexShaderID)
-   :thresholdTexture_((int) textureWidth, (int) textureHeight, Texture::TextureType::RGBA_FLOAT, 15, false, false),
+Bloom::Bloom(int textureWidth, int textureHeight, GLuint vertexShaderID)
+   :thresholdTexture_(textureWidth, textureHeight, Texture::TextureType::RGBA_FLOAT, 15, false, false),
     BloomTresholdShader_("./res/bloomThreshold.fs", ShaderType::FRAGMENT_SHADER),
 	BloomTresholdProgram_("BloomTresholdProgram"), 
     BloomDownsampleHShader_("./res/bloomDownsampleH.fs", ShaderType::FRAGMENT_SHADER),
@@ -22,8 +22,8 @@ Bloom::Bloom(unsigned int textureWidth, unsigned int textureHeight, GLuint verte
 	upsampleFramebuffers_.reserve(static_cast<size_t>(BLOOM_MIPS_));
 
 	for(size_t i = 0; i < static_cast<size_t>(BLOOM_MIPS_); ++i) {
-		int w = (int) textureWidth >> (i + 1);
-		int h = (int) textureHeight >> (i + 1);
+		int w = textureWidth >> (i + 1);
+		int h = textureHeight >> (i + 1);
 		bloomTextures_.emplace_back(w, h, Texture::TextureType::RGBA_FLOAT, 5 + 2 * i, false, false); // Texture Units 5,7,9,11,13
 		bloomFramebuffers_.emplace_back();			//emplace_back avoids copy constructor
 		bloomFramebuffers_[i].attachTexture(GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, bloomTextures_[i].getID(), 0);
@@ -169,12 +169,12 @@ void Bloom::bindBloomTextures(GLuint texTrail, GLuint texTrailNonDiffused, GLuin
 	glBindTexture(GL_TEXTURE_2D, thresholdTexture_.getID());
 }
 
-void Bloom::resizeBloomTextures(unsigned int textureWidth, unsigned int textureHeight) {
-	thresholdTexture_.resizeTexture((int)textureWidth, (int)textureHeight);
+void Bloom::resizeBloomTextures(int textureWidth, int textureHeight) {
+	thresholdTexture_.resizeTexture(textureWidth, textureHeight);
 
 	for(size_t i = 0; i < static_cast<size_t>(BLOOM_MIPS_); ++i) {
-		int mipWidth = std::max(1, static_cast<int>(textureWidth) >> static_cast<int>(i + 1));
-		int mipHeight = std::max(1, static_cast<int>(textureHeight) >> static_cast<int>(i + 1));
+		int mipWidth = std::max(1, textureWidth >> (i + 1));
+		int mipHeight = std::max(1, textureHeight >> (i + 1));
 		bloomTextures_[i].resizeTexture(mipWidth, mipHeight);
 		upsampleTextures_[i].resizeTexture(mipWidth, mipHeight);
 	}

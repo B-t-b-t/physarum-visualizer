@@ -9,17 +9,17 @@
 
 class ParticleData {
 public:
-	ParticleData(unsigned int numParticles, unsigned int texWidth, unsigned int texHeight);
+	ParticleData(int numParticles, int texWidth, int texHeight);
 
 	void createAndSend();
-	void recreateAndSend(unsigned int numParticles, unsigned int texWidth, unsigned int texHeight);
+	void recreateAndSend(int numParticles, int texWidth, int texHeight);
 	void printSSBO();
 	void writeToFile(const std::string& filename);
 
 private:
-	unsigned int numParticles_;
-	unsigned int texWidth_;
-	unsigned int texHeight_;
+	int numParticles_;
+	int texWidth_;
+	int texHeight_;
 
 	struct shader_data_t {
 		float position_x;

@@ -4,7 +4,7 @@
 
 #define PI 3.14159265f
 
-ParticleData::ParticleData(unsigned int numParticles, unsigned int texWidth, unsigned int texHeight) {
+ParticleData::ParticleData(int numParticles, int texWidth, int texHeight) {
 	numParticles_ = numParticles;
 	texWidth_ = texWidth;
 	texHeight_ = texHeight;
@@ -14,7 +14,7 @@ void ParticleData::createAndSend() {
 	int R_Outer = 3200;
 	int R_Inner = 800;
 
-	for (unsigned int i = 0; i < numParticles_; i++) {
+	for (int i = 0; i < numParticles_; i++) {
 		int r = sqrt((R_Outer - R_Inner) * (rand() % 10000) / 10000.0f + R_Inner);	//sqrt() to maintain a even point distribution (circle area is proportional to the square of the radius)
 		float a = 2 * PI * (rand() % 10000) / 10000.0f;
 		float x = texWidth_ / 2.0f + r * cos(a);
@@ -34,7 +34,7 @@ void ParticleData::createAndSend() {
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 }
 
-void ParticleData::recreateAndSend(unsigned int numParticles, unsigned int texWidth, unsigned int texHeight) {
+void ParticleData::recreateAndSend(int numParticles, int texWidth, int texHeight) {
 	numParticles_ = numParticles;
 	texWidth_ = texWidth;
 	texHeight_ = texHeight;
@@ -43,7 +43,7 @@ void ParticleData::recreateAndSend(unsigned int numParticles, unsigned int texWi
 	int R_Outer = 3200;
 	int R_Inner = 800;
 
-	for (unsigned int i = 0; i < numParticles_; i++) {
+	for (int i = 0; i < numParticles_; i++) {
 		int r = sqrt((R_Outer - R_Inner) * (rand() % 10000) / 10000.0f + R_Inner);	//sqrt() to maintain a even point distribution (circle area is proportional to the square of the radius)
 		float a = 2 * PI * (rand() % 10000) / 10000.0f;
 		float x = texWidth_ / 2.0f + r * cos(a);
@@ -57,8 +57,8 @@ void ParticleData::recreateAndSend(unsigned int numParticles, unsigned int texWi
 	glBufferData(GL_SHADER_STORAGE_BUFFER, static_cast<GLsizeiptr>(shaderData_.size() * sizeof(shader_data_t)), &shaderData_[0], GL_DYNAMIC_COPY);
 
 	shader_data_t* ptr = (shader_data_t*)glMapBuffer(GL_SHADER_STORAGE_BUFFER, GL_WRITE_ONLY);
-	for (unsigned int i = 0; i < numParticles_; i++) {
-		ptr[i] = shaderData_[i];
+	for (int i = 0; i < numParticles_; i++) {
+		ptr[i] = shaderData_[(unsigned int) i];
 	}
 
 	glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
@@ -80,26 +80,26 @@ void ParticleData::printSSBO() {
 	ptr = (shader_data_t*)glMapBuffer(GL_SHADER_STORAGE_BUFFER, GL_READ_ONLY);
 	shaderData_.clear();
 
-	for (unsigned int i = 0; i < numParticles_; i++) {
+	for (int i = 0; i < numParticles_; i++) {
 		shaderData_.push_back(ptr[i]);
 	}
 
 	glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
 
-	for (unsigned int i = 0; i < numParticles_; i++) {
-		std::cout << "p" << i << ": " << shaderData_[i].position_x << " , " << shaderData_[i].position_y << " , " << shaderData_[i].angle << std::endl;
+	for (int i = 0; i < numParticles_; i++) {
+		std::cout << "p" << i << ": " << shaderData_[(unsigned int) i].position_x << " , " << shaderData_[(unsigned int) i].position_y << " , " << shaderData_[(unsigned int) i].angle << std::endl;
 	}
 }
 
 void ParticleData::writeToFile(const std::string& filename) {
 	std::ofstream outFile(filename + ".txt");
 	if (outFile.is_open()) {
-		for (unsigned int i = 0; i < numParticles_; i++) {
+		for (int i = 0; i < numParticles_; i++) {
 			outFile << "p" << i << ": " 
-					<< shaderData_[i].position_x << " , " 
-					<< shaderData_[i].position_y << " , " 
-					<< shaderData_[i].angle << " , "
-					<< shaderData_[i].speciesID << std::endl;
+					<< shaderData_[(unsigned int) i].position_x << " , " 
+					<< shaderData_[(unsigned int) i].position_y << " , " 
+					<< shaderData_[(unsigned int) i].angle << " , "
+					<< shaderData_[(unsigned int) i].speciesID << std::endl;
 		}
 		outFile.close();
 		std::cout << "Data written to particle_data.txt" << std::endl;

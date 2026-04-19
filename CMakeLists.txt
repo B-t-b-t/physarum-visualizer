@@ -76,6 +76,18 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(implot)
 
+FetchContent_Declare(
+    Catch2
+    GIT_REPOSITORY https://github.com/catchorg/Catch2
+    GIT_TAG v3.14.0
+    GIT_SHALLOW TRUE
+    GIT_PROGRESS TRUE
+)
+FetchContent_MakeAvailable(Catch2)
+
+enable_testing()
+add_subdirectory(tests)
+
 # platform-specific libraries
 if(UNIX)
     set(ADDITIONAL_LINUX_LIBS dl X11)
@@ -170,56 +182,58 @@ set(GLM_INCLUDE_PATH PATH ${CMAKE_CURRENT_SOURCE_DIR}/glm)
 
 set(MY_HEADER_FILES
     source/canvas.h
-    source/window.h
+    source/color_preset_system.h
     source/particle_data.h
-    source/graphics/shader.h
-    source/graphics/shader_program.h
-    source/graphics/framebuffer.h
-    source/graphics/texture.h
-    source/ui/user_interface.h
-    source/ui/ui_state.h
-    source/ui/ui_helpers.h
-    source/ui/elements/imgui_window.h
-    source/ui/elements/slime_config_window.h
-    source/ui/elements/visual_settings_window.h
-    source/ui/elements/preset_window.h
-    source/ui/elements/audio_window.h
-    source/ui/elements/debug_window.h
-    source/audio/audio_system.h
+    source/preset_system.h
+    source/uniforms.h
+    source/window.h
     source/audio/audio_device_manager.h
     source/audio/audio_processor.h
+    source/audio/audio_system.h
     source/audio/music_analysis.h
-    source/preset_system.h
-    source/color_preset_system.h
-    source/uniforms.h
-    source/graphics/uniform_buffer_object.h
     source/graphics/bloom.h
+    source/graphics/framebuffer.h
+    source/graphics/shader.h
+    source/graphics/shader_program.h
+    source/graphics/texture.h
+    source/graphics/uniform_buffer_object.h
+    source/ui/ui_helpers.h
+    source/ui/ui_state.h
+    source/ui/user_interface.h
+    source/ui/elements/audio_window.h
+    source/ui/elements/debug_window.h
+    source/ui/elements/imgui_window.h
+    source/ui/elements/preset_window.h
+    source/ui/elements/slime_config_window.h
+    source/ui/elements/visual_settings_window.h
+    source/utility/parameter_parser.h
 )
 
 set(MY_SOURCE_FILES
     source/main.cpp
     source/canvas.cpp
-    source/window.cpp
+    source/color_preset_system.cpp
     source/particle_data.cpp
+    source/preset_system.cpp
+    source/window.cpp
+    source/audio/music_analysis.cpp
+    source/audio/audio_device_manager.cpp
+    source/audio/audio_system.cpp
+    source/audio/audio_processor.cpp
+    source/graphics/framebuffer.cpp
+    source/graphics/bloom.cpp
     source/graphics/shader.cpp
     source/graphics/shader_program.cpp
-    source/graphics/framebuffer.cpp
     source/graphics/texture.cpp
-    source/ui/user_interface.cpp
+    source/graphics/uniform_buffer_object.cpp
     source/ui/ui_helpers.cpp
-    source/ui/elements/slime_config_window.cpp
-    source/ui/elements/visual_settings_window.cpp
-    source/ui/elements/preset_window.cpp
+    source/ui/user_interface.cpp
     source/ui/elements/audio_window.cpp
     source/ui/elements/debug_window.cpp
-    source/audio/audio_system.cpp
-    source/audio/audio_device_manager.cpp
-    source/audio/audio_processor.cpp
-    source/audio/music_analysis.cpp
-    source/preset_system.cpp
-    source/color_preset_system.cpp
-    source/graphics/uniform_buffer_object.cpp
-    source/graphics/bloom.cpp
+    source/ui/elements/preset_window.cpp
+    source/ui/elements/slime_config_window.cpp
+    source/ui/elements/visual_settings_window.cpp
+    source/utility/parameter_parser.cpp
 )
 
 include_directories(

@@ -79,9 +79,9 @@ void ShaderProgram::use() {
     glUseProgram(programID_);
 }
 
-void ShaderProgram::dispatchCompute(unsigned int numWorkGroupsX, unsigned int numWorkGroupsY, unsigned int numWorkGroupsZ) {
+void ShaderProgram::dispatchCompute(int numWorkGroupsX, int numWorkGroupsY, int numWorkGroupsZ) {
 		glUseProgram(programID_);
-		glDispatchCompute(numWorkGroupsX, numWorkGroupsY, numWorkGroupsZ);
+		glDispatchCompute((unsigned int) numWorkGroupsX, (unsigned int) numWorkGroupsY, (unsigned int) numWorkGroupsZ);
 		glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
 		//glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 	

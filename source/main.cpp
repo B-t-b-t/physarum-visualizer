@@ -23,84 +23,54 @@
 #include "./graphics/uniform_buffer_object.h"
 #include "./ui/elements/audio_window.h"
 #include "./ui/user_interface.h"
+#include "./utility/parameter_parser.h"
 
 int main(int argc, char* argv[]) {
 
 	// Default values for starting without command line arguments
-	unsigned int textureWidth = 1600;
-	unsigned int textureHeight = 896;
-	unsigned int windowWidth = 1600;
-	unsigned int windowHeight = 896;
-	float slimeRatio = 0.15f;
-	unsigned int numParticles = 300000;
-	unsigned int workGroupDivider = 8;
+	int workGroupDivider = 8;
 	std::string deviceName = "";
 	
-	//helpMessage noch aktuell?
-	std::string helpMessage = "Usage: " + std::string(argv[0]) + " [options]\n"
-	+ "Options:\n"
-	+ "  --help | -h          Show this help message\n"
-	+ "  --width <pixels>     Set texture width (multiples of " + std::to_string(workGroupDivider) + ")\n"
-	+ "  --height <pixels>    Set texture height (multiples of " + std::to_string(workGroupDivider) + ")\n"
-	+ "  --particles <count>  Set number of particles (multiples of " + std::to_string(workGroupDivider) + ") (overwrites --slimeRatio <float>)\n"
-	+ "  --slimeRatio <float> Set number of particles as a ratio of window area\n"
-	+ "  --audioDevice <name> Set the audio device to use\n";
-	
-	//------------------------------------------------------		  
-	// Parse command line arguments if any
-	bool customResolution = false;
-	bool customParticleCount = false;
+	//Parse command line arguments
+	Parameters params;
 
-	for (int i = 1; i < argc; i++) {
-		if (strcmp(argv[i], "--width") == 0 && i + 1 < argc) {
-			textureWidth = windowWidth = static_cast<unsigned int>(atoi(argv[i + 1]));
-			customResolution = true;
-			i++;
-		}
-		else if (strcmp(argv[i], "--height") == 0 && i + 1 < argc) {
-			textureHeight = windowHeight = static_cast<unsigned int>(atoi(argv[i + 1]));
-			customResolution = true;
-			i++;
-		}
-		else if (strcmp(argv[i], "--particles") == 0 && i + 1 < argc) {
-			numParticles = static_cast<unsigned int>(atoi(argv[i + 1]));
-			customParticleCount = true;
-			i++;
-		}
-		else if (strcmp(argv[i], "--slimeRatio") == 0 && i + 1 < argc) {
-			slimeRatio = static_cast<float>(atof(argv[i + 1]));
-			i++;
-		}
-		else if (strcmp(argv[i], "--audioDevice") == 0 && i + 1 < argc) {
-			deviceName = std::string(argv[i + 1]);
-			i++;
-		}
-		else if (strcmp(argv[i], "--help") == 0 || strcmp(argv[i], "-h") == 0) {
-			std::cout << helpMessage << std::endl;
-			return 0;
-		} else {
-			std::cout << helpMessage << std::endl;
-  			return 0;
-		}
+	int parseSuccess = parseParameters(argc, argv, params, workGroupDivider);
+
+	if(parseSuccess == -1) {
+		printHelpMessage(argv, workGroupDivider);
+		return 0;
 	}
 
+	deviceName = params.audioDevice;
+	
+	
 	//------------------------------------------------------
 	// Initialize Window
-	Window window((int)windowWidth, (int)windowHeight, "Physarum", customResolution);
-
-	windowWidth = (unsigned int)window.getWindowWidth();
-	windowHeight = (unsigned int)window.getWindowHeight();
+	Window window((int)params.width, (int)params.height, "Physarum", params.customResolution);
+	
+	//------------------------------------------------------
+	// Initialize User Interface
+	UserInterface UserInterface(window.getWindow(), window.getGLContext());
+	UIState& uiState = UserInterface.getState();
+	
+	uiState.universalShaderSettings.windowWidth = window.getWindowWidth();
+	uiState.universalShaderSettings.windowHeight = window.getWindowHeight();
+	uiState.numParticles = params.numParticles;
+	uiState.newNumParticles = params.numParticles;
+	uiState.slimeRatio = params.slimeRatio;
 
 	float scaling = window.getFractionalScalingFactor();
 
-	textureWidth = windowWidth * scaling - ((unsigned int)(windowWidth * scaling) % workGroupDivider);		//make sure width is multiple of workgroup size
-	textureHeight = windowHeight * scaling - ((unsigned int)(windowHeight * scaling) % workGroupDivider);	//make sure height is multiple of workgroup size
+	uiState.universalShaderSettings.textureWidth = (int)(uiState.universalShaderSettings.windowWidth * scaling - ((int)(uiState.universalShaderSettings.windowWidth * scaling) % workGroupDivider));		//make sure width is multiple of workgroup size
+	uiState.universalShaderSettings.textureHeight = (int)(uiState.universalShaderSettings.windowHeight * scaling - ((int)(uiState.universalShaderSettings.windowHeight * scaling) % workGroupDivider));	//make sure height is multiple of workgroup size
+	uiState.newTextureWidth = uiState.universalShaderSettings.textureWidth;
+	uiState.newTextureHeight = uiState.universalShaderSettings.textureHeight;
 
-	if(!customParticleCount) {
-		numParticles = slimeRatio * textureWidth * textureHeight;
-		numParticles = numParticles - numParticles % workGroupDivider;
+	if(params.customParticleCount) {
+		uiState.slimeRatio = uiState.numParticles / (float)(uiState.universalShaderSettings.textureWidth * uiState.universalShaderSettings.textureHeight);
 	} else {
-		slimeRatio = numParticles / (float)(textureWidth * textureHeight);
+		uiState.numParticles = uiState.slimeRatio * uiState.universalShaderSettings.textureWidth * uiState.universalShaderSettings.textureHeight;
+		uiState.numParticles = uiState.numParticles - uiState.numParticles % workGroupDivider;	//ensure multiple of workgroup size
 	}
 
 	Canvas drawCanvas;
@@ -118,29 +88,13 @@ int main(int argc, char* argv[]) {
 	glGetIntegerv(GL_MAX_IMAGE_UNITS, &maxImageUnits);
 	std::cout << "Max Image Units: " << maxImageUnits << std::endl;
 
-
-
-	//------------------------------------------------------
-	// Initialize User Interface
-	UserInterface UserInterface(window.getWindow(), window.getGLContext());
-	UIState& uiState = UserInterface.getState();
-	uiState.universalShaderSettings.textureWidth = (int)textureWidth;
-	uiState.universalShaderSettings.textureHeight = (int)textureHeight;
-	uiState.universalShaderSettings.windowWidth = (int)textureWidth;
-	uiState.universalShaderSettings.windowHeight = (int)textureHeight;
-	uiState.newTextureWidth = (int)textureWidth;
-	uiState.newTextureHeight = (int)textureHeight;
-	uiState.numParticles = (int) (numParticles);
-	uiState.newNumParticles = (int) (numParticles);
-	uiState.slimeRatio = slimeRatio;
-
 	//------------------------------------------------------
 	//Initialize Textures and Texture Buffers
-	Texture TexTrail((int)textureWidth, (int)textureHeight, Texture::TextureType::RGBA_FLOAT, 0);		//Texture Unit 0
-	Texture TexTrailNonDiffused((int)textureWidth, (int)textureHeight, Texture::TextureType::RGBA_FLOAT, 1);	//Texture Unit 1
-	Texture NewTexParticles((int)textureWidth, (int)textureHeight, Texture::TextureType::R_UINT, 2);		//Texture Unit 2
-	Texture OldTexParticles((int)textureWidth, (int)textureHeight, Texture::TextureType::R_UINT, 3);		//Texture Unit 3
-	Texture TexCollisions((int)textureWidth, (int)textureHeight, Texture::TextureType::RGBA_FLOAT, 4);		//Texture Unit 4
+	Texture TexTrail((int)uiState.universalShaderSettings.textureWidth, (int)uiState.universalShaderSettings.textureHeight, Texture::TextureType::RGBA_FLOAT, 0);		//Texture Unit 0
+	Texture TexTrailNonDiffused((int)uiState.universalShaderSettings.textureWidth, (int)uiState.universalShaderSettings.textureHeight, Texture::TextureType::RGBA_FLOAT, 1);	//Texture Unit 1
+	Texture NewTexParticles((int)uiState.universalShaderSettings.textureWidth, (int)uiState.universalShaderSettings.textureHeight, Texture::TextureType::R_UINT, 2);		//Texture Unit 2
+	Texture OldTexParticles((int)uiState.universalShaderSettings.textureWidth, (int)uiState.universalShaderSettings.textureHeight, Texture::TextureType::R_UINT, 3);		//Texture Unit 3
+	Texture TexCollisions((int)uiState.universalShaderSettings.textureWidth, (int)uiState.universalShaderSettings.textureHeight, Texture::TextureType::RGBA_FLOAT, 4);		//Texture Unit 4
 
 	//------------------------------------------------------
 	//initialize Rasterizer Pipeline for Canvas
@@ -154,11 +108,11 @@ int main(int argc, char* argv[]) {
 	RasterizationPipeline.getUniformsFromGLSL();
 
 	// Initialize Bloom Effect
-	Bloom bloomEffect(textureWidth, textureHeight, VertexShader.getShaderID());
+	Bloom bloomEffect(uiState.universalShaderSettings.textureWidth, uiState.universalShaderSettings.textureHeight, VertexShader.getShaderID());
 
 	//------------------------------------------------------
 	// Initialize Physarum Particles
-	ParticleData ParticleData(numParticles, textureWidth, textureHeight);
+	ParticleData ParticleData(uiState.numParticles, uiState.universalShaderSettings.textureWidth, uiState.universalShaderSettings.textureHeight);
 	ParticleData.createAndSend();
 
 	//------------------------------------------------------
@@ -245,8 +199,8 @@ int main(int argc, char* argv[]) {
 		//------------------------------------------------------
 		// Compute Shader Passes for Simulation Steps
 
-		TrailDiffusionProgram.dispatchCompute(textureWidth / workGroupDivider, textureHeight / workGroupDivider, 1);	//calculate new trail texture
-		ParticleBehaviourProgram.dispatchCompute(numParticles / 8, (GLuint)1, 1);	//move Slime Particles
+		TrailDiffusionProgram.dispatchCompute(uiState.universalShaderSettings.textureWidth / workGroupDivider, uiState.universalShaderSettings.textureHeight / workGroupDivider, 1);	//calculate new trail texture
+		ParticleBehaviourProgram.dispatchCompute(uiState.numParticles / 8, (GLuint)1, 1);	//move Slime Particles
 
 		//------------------------------------------------------
 		// Audio Processing
@@ -304,26 +258,22 @@ int main(int argc, char* argv[]) {
 		//------------------------------------------------------
 		// Handle User Interface Changes that affect Simulation State
 		if(uiState.newCanvas) {
-			std::cout << "Creating new Canvas with " << numParticles << " particles and size " << textureWidth << "x" << textureHeight << std::endl;
+			std::cout << "Creating new Canvas with " << uiState.numParticles << " particles and size " << uiState.universalShaderSettings.textureWidth << "x" << uiState.universalShaderSettings.textureHeight << std::endl;
 			if(uiState.newTextureWidth != uiState.universalShaderSettings.textureWidth || uiState.newTextureHeight != uiState.universalShaderSettings.textureHeight) {
 				// Resize Textures and Framebuffers
-				textureWidth = (unsigned int)uiState.newTextureWidth;
-				textureHeight = (unsigned int)uiState.newTextureHeight;
-				uiState.universalShaderSettings.textureWidth = (int)textureWidth;
-				uiState.universalShaderSettings.textureHeight = (int)textureHeight;
+				uiState.universalShaderSettings.textureWidth = uiState.newTextureWidth;
+				uiState.universalShaderSettings.textureHeight = uiState.newTextureHeight;
 
-				TexTrail.resizeTexture((int)textureWidth, (int)textureHeight);
-				TexTrailNonDiffused.resizeTexture((int)textureWidth, (int)textureHeight);
-				NewTexParticles.resizeTexture((int)textureWidth, (int)textureHeight);
-				OldTexParticles.resizeTexture((int)textureWidth, (int)textureHeight);
-				TexCollisions.resizeTexture((int)textureWidth, (int)textureHeight);
+				TexTrail.resizeTexture((int)uiState.universalShaderSettings.textureWidth, (int)uiState.universalShaderSettings.textureHeight);
+				TexTrailNonDiffused.resizeTexture((int)uiState.universalShaderSettings.textureWidth, (int)uiState.universalShaderSettings.textureHeight);
+				NewTexParticles.resizeTexture((int)uiState.universalShaderSettings.textureWidth, (int)uiState.universalShaderSettings.textureHeight);
+				OldTexParticles.resizeTexture((int)uiState.universalShaderSettings.textureWidth, (int)uiState.universalShaderSettings.textureHeight);
+				TexCollisions.resizeTexture((int)uiState.universalShaderSettings.textureWidth, (int)uiState.universalShaderSettings.textureHeight);
 
-				bloomEffect.resizeBloomTextures(textureWidth, textureHeight);
+				bloomEffect.resizeBloomTextures(uiState.universalShaderSettings.textureWidth, uiState.universalShaderSettings.textureHeight);
 			}
 
-			numParticles = (unsigned int)uiState.numParticles;
-
-			ParticleData.recreateAndSend(numParticles, textureWidth, textureHeight);
+			ParticleData.recreateAndSend(uiState.numParticles, uiState.universalShaderSettings.textureWidth, uiState.universalShaderSettings.textureHeight);
 			UniversalShaderSettingsUBO.updateUniformBufferObject(uiState.universalShaderSettings);
 			uiState.newCanvas = false;
 		}

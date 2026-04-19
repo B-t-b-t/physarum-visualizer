@@ -24,7 +24,7 @@ public:
     void attachShader(GLuint shaderID);
     void link();
     void use();
-    void dispatchCompute(unsigned int numWorkGroupsX, unsigned int numWorkGroupsY, unsigned int numWorkGroupsZ);
+    void dispatchCompute(int numWorkGroupsX, int numWorkGroupsY, int numWorkGroupsZ);
 
     void attachUniformBufferObject(GLuint uniformBufferObjectID, const std::string& blockName, GLuint bindingPoint);
 

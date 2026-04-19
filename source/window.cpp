@@ -9,6 +9,7 @@ Window::Window(int width, int height, const std::string& title, bool customResol
 
 	SDL_Init(SDL_INIT_VIDEO | SDL_INIT_CAMERA | SDL_INIT_AUDIO);
 
+	//set to maximum display resolution if user provides none
 	if(!customResolution) {
 		// Display Stuff
 		displays_ = SDL_GetDisplays(&numberOfDisplays_);
