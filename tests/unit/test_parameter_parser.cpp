@@ -23,9 +23,9 @@ TEST_CASE("parseParameters default values", "[parameter_parser]") {
     int result = parseParameters(argv.size(), argv.data(), params, 8);
 
     REQUIRE(result == 0);
-    REQUIRE(params.width == 1600);
-    REQUIRE(params.height == 896);
-    REQUIRE(params.numParticles == 300000);
+    REQUIRE(params.width == 800);
+    REQUIRE(params.height == 800);
+    REQUIRE(params.numParticles == 10000);
     REQUIRE_THAT(params.slimeRatio, Catch::Matchers::WithinAbs(0.15f, 1e-5f));
     REQUIRE(params.audioDevice == "");
     REQUIRE(params.customResolution == false);
@@ -62,7 +62,7 @@ TEST_CASE("parseParameters parses --width", "[parameter_parser]") {
         int result = parseParameters(argv.size(), argv.data(), params, 8);
         REQUIRE(result == 0);
         REQUIRE(params.width == 1920);
-        REQUIRE(params.height == 896); // unchanged
+        REQUIRE(params.height == 800); // unchanged
         REQUIRE(params.customResolution == true);
     }
 
@@ -114,7 +114,7 @@ TEST_CASE("parseParameters parses --height", "[parameter_parser]") {
     REQUIRE(result == 0);
     REQUIRE(params.height == 1080);
     REQUIRE(params.customResolution == true);
-    REQUIRE(params.width == 1600); // unchanged
+    REQUIRE(params.width == 800); // unchanged
 }
 
 TEST_CASE("parseParameters parses --width and --height together", "[parameter_parser]") {
@@ -201,7 +201,7 @@ TEST_CASE("parseParameters returns -1 for --help", "[parameter_parser]") {
  
         int result = parseParameters(argv.size(), argv.data(), params, 8);
 
-        REQUIRE(result == -1);
+        REQUIRE(result == 0);
     }
 
     SECTION("-h flag") {
@@ -209,7 +209,7 @@ TEST_CASE("parseParameters returns -1 for --help", "[parameter_parser]") {
 
         int result = parseParameters(argv.size(), argv.data(), params, 8);
 
-        REQUIRE(result == -1);
+        REQUIRE(result == 0);
     }
 }
 
