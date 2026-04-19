@@ -4,7 +4,7 @@ project(Physarum VERSION 0.5.0 LANGUAGES CXX)
 cmake_policy(SET CMP0072 NEW)
 
 set(CMAKE_CXX_STANDARD 23)
-set(CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(CMAKE_CXX_FLAGS_RELEASE " -O3")
 # force static linking for C/C++ runtime
@@ -47,6 +47,7 @@ FetchContent_Declare(
     URL      https://www.fftw.org/fftw-3.3.10.tar.gz
 )
 set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
+set(BUILD_STATIC_LIBS ON CACHE BOOL "" FORCE)
 set(BUILD_TESTS OFF CACHE BOOL "" FORCE)
 set(ENABLE_FLOAT OFF CACHE BOOL "" FORCE)
 set(CMAKE_POLICY_VERSION_MINIMUM 3.5 CACHE STRING "" FORCE)
@@ -75,49 +76,39 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(implot)
 
-# Add Windows-specific OpenGL libraries
+# platform-specific libraries
+if(UNIX)
+    set(ADDITIONAL_LINUX_LIBS dl X11)
+endif()
+
 if(WIN32)
     set(ADDITIONAL_WINDOWS_LIBS opengl32 gdi32 setupapi version imm32)
 endif()
+
 
 find_package(OpenGL REQUIRED)
 
 
 #Create symbolic link of resource folders for the executable in the build folder
-if(NOT WIN32)
-    foreach(BUILD_DIR "build/debug" "build/release")
-        file(MAKE_DIRECTORY "${CMAKE_SOURCE_DIR}/${BUILD_DIR}")
-        if(NOT EXISTS "${CMAKE_SOURCE_DIR}/${BUILD_DIR}/res")
-            file(CREATE_LINK "${CMAKE_SOURCE_DIR}/res" "${CMAKE_SOURCE_DIR}/${BUILD_DIR}/res" SYMBOLIC RESULT result)
-            if(result)
-                message(FATAL_ERROR "Failed to create symlink to ${BUILD_DIR}/res")
-            endif()
-        endif()
-        if(NOT EXISTS "${CMAKE_SOURCE_DIR}/${BUILD_DIR}/presets")
-            file(CREATE_LINK "${CMAKE_SOURCE_DIR}/presets" "${CMAKE_SOURCE_DIR}/${BUILD_DIR}/presets" SYMBOLIC RESULT result)
-            if(result)
-                message(FATAL_ERROR "Failed to create symlink to ${BUILD_DIR}/presets")
-            endif()
-        endif()
-    endforeach()
-endif()
 
-if(WIN32)
-    file(MAKE_DIRECTORY "${CMAKE_SOURCE_DIR}/build/windows")
-    if(NOT EXISTS "${CMAKE_SOURCE_DIR}/build/windows/res")
-        file(CREATE_LINK "${CMAKE_SOURCE_DIR}/res" "${CMAKE_SOURCE_DIR}/build/windows/res" SYMBOLIC RESULT result)
+foreach(BUILD_DIR "build/linux/debug" "build/linux/release" "build/windows/debug" "build/windows/release")
+    file(MAKE_DIRECTORY "${CMAKE_SOURCE_DIR}/${BUILD_DIR}")
+    #res symlink
+    if(NOT EXISTS "${CMAKE_SOURCE_DIR}/${BUILD_DIR}/res")
+        file(CREATE_LINK "${CMAKE_SOURCE_DIR}/res" "${CMAKE_SOURCE_DIR}/${BUILD_DIR}/res" SYMBOLIC RESULT result)
         if(result)
-            message(FATAL_ERROR "Failed to create symlink to Windows build directory")
+            message(FATAL_ERROR "Failed to create symlink to ${BUILD_DIR}/res")
         endif()
     endif()
-
-    if(NOT EXISTS "${CMAKE_SOURCE_DIR}/build/windows/presets")
-        file(CREATE_LINK "${CMAKE_SOURCE_DIR}/presets" "${CMAKE_SOURCE_DIR}/build/windows/presets" SYMBOLIC RESULT result)
+    #presets symlink
+    if(NOT EXISTS "${CMAKE_SOURCE_DIR}/${BUILD_DIR}/presets")
+        file(CREATE_LINK "${CMAKE_SOURCE_DIR}/presets" "${CMAKE_SOURCE_DIR}/${BUILD_DIR}/presets" SYMBOLIC RESULT result)
         if(result)
-            message(FATAL_ERROR "Failed to create symlink to Windows build directory")
+            message(FATAL_ERROR "Failed to create symlink to ${BUILD_DIR}/presets")
         endif()
     endif()
-endif()
+endforeach()
+
 
 
 set(IMGUI_HEADER_FILES
@@ -148,12 +139,14 @@ set(IMGUI_SOURCE_FILES
 )
 
 add_library("ImGui" STATIC ${IMGUI_SOURCE_FILES})
+
 target_include_directories("ImGui" SYSTEM PUBLIC
     ${imgui_SOURCE_DIR}
     ${imgui_SOURCE_DIR}/backends
     ${implot_SOURCE_DIR}
-    ${SDL3_INCLUDE_DIR}
 )
+
+target_link_libraries("ImGui" PUBLIC SDL3::SDL3-static)
 
 # Add Windows-specific defines for ImGui
 if(WIN32)
@@ -234,6 +227,8 @@ include_directories(
     ${GLEW_INCLUDE_DIR}
     ${GLM_INCLUDE_PATH}
     ${FFTW3_INCLUDE_DIR}
+    ${fftw3_SOURCE_DIR}/api
+    ${glew_SOURCE_DIR}/include
 )
 
 add_executable(Physarum
@@ -250,4 +245,5 @@ target_link_libraries(Physarum
     glew_s
     fftw3
     ${ADDITIONAL_WINDOWS_LIBS}  # Add the Windows libraries
+    ${ADDITIONAL_LINUX_LIBS}    # Add the Linux libraries (dl, X11)
 )
