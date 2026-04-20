@@ -3,7 +3,6 @@
 #include <iostream>
 
 AudioDeviceManager::AudioDeviceManager() {
-    SDL_Log("Using audio driver: %s", SDL_GetCurrentAudioDriver());
 }
 
 AudioDeviceManager::~AudioDeviceManager() {
@@ -19,7 +18,7 @@ void AudioDeviceManager::checkForAvailableDevices() {
     rawDeviceArray = SDL_GetAudioRecordingDevices(&numDevices);
 
     if(!rawDeviceArray || numDevices == 0) {
-        SDL_Log("No recording devices found!");
+        SDL_Log("INFO: No recording devices found!");
     } else {
         for (int i = 0; rawDeviceArray[i] != 0; i++) {
             const char* name = SDL_GetAudioDeviceName(rawDeviceArray[i]);

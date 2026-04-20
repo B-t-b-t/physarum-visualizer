@@ -17,23 +17,16 @@ Window::Window(int width, int height, const std::string& title, bool customResol
 		const SDL_DisplayMode* displayMode = SDL_GetCurrentDisplayMode(*displays_);
 		fractionalScalingFactor_ = displayMode->pixel_density;
 
-		std::cout << "Display Id: " << displayMode->displayID << " " << displayMode->w << "x" << displayMode->h << " " << displayMode->refresh_rate << "Hz" << std::endl;
-		std::cout << "Display Format: " << SDL_GetPixelFormatName(displayMode->format) << std::endl;
-
 		//set window to maximized non-fullscreen size
 		SDL_Rect usableBounds;
 		bool displayBoundSuccess = SDL_GetDisplayUsableBounds(*displays_, &usableBounds);
 
 		if(displayBoundSuccess) {
 			windowWidth_ = usableBounds.w;
-			windowHeight_ = usableBounds.h;
-
-			std::cout << "Usable display area: " << usableBounds.w << "x" << usableBounds.h 
-			<< " at (" << usableBounds.x << ", " << usableBounds.y << ")" << std::endl;		
+			windowHeight_ = usableBounds.h;	
 		} else {
-			std::cout << "Error: Couldn't set display resolution!" << std::endl;
+			std::cerr << "Error: Couldn't set display resolution!" << std::endl;
 		}
-
 	}
 
 	SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 8);
@@ -52,14 +45,13 @@ Window::Window(int width, int height, const std::string& title, bool customResol
 	int minorVersion_ = 6;
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, majorVersion_);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, minorVersion_);
-	std::cout << "Requested OpenGL Version: " << majorVersion_ << "." << minorVersion_ << std::endl;
 
 	window_ = SDL_CreateWindow(title.c_str(), windowWidth_, windowHeight_, SDL_WINDOW_OPENGL);
 	glContext_ = SDL_GL_CreateContext(window_);
 
 	//reducing OpenGL Version until it works
 	while(glContext_ == NULL && minorVersion_ >= 2) {
-		std::cerr << "Could not get requested OpenGL Version!" << std::endl;
+		std::cerr << "Could not get newest OpenGL Version " << majorVersion_ << "." << minorVersion_ << "!" << std::endl;
 		
 		SDL_DestroyWindow(window_);
 		
@@ -73,20 +65,20 @@ Window::Window(int width, int height, const std::string& title, bool customResol
 
 	//Measure of last resort using extensions for OpenGL Version 4.2
 	if(minorVersion_ == 2) {
-		std::cout << "OpenGL Version 4.2 detected! Checking for necessary GL Extensions." << std::endl;
+		std::cerr << "OpenGL Version 4.2 detected! Checking for necessary GL Extensions." << std::endl;
 		if(!SDL_GL_ExtensionSupported("GL_ARB_compute_shader")) {
 			std::cerr << "Compute Shader Extension not supported!" << std::endl;
 			std::cerr << "Exiting Program!" << std::endl;
 			exit(1);
 		} else {
-			std::cout << "Compute Shader Extension supported!" << std::endl;
+			std::cerr << "Compute Shader Extension supported!" << std::endl;
 		}
 		if(!SDL_GL_ExtensionSupported("GL_ARB_shader_storage_buffer_object")) {
 			std::cerr << "Shader Storage Buffer Object Extension not supported!" << std::endl;
 			std::cerr << "Exiting Program!" << std::endl;
 			exit(1);
 		} else {
-			std::cout << "Shader Storage Buffer Object Extension supported!" << std::endl;
+			std::cerr << "Shader Storage Buffer Object Extension supported!" << std::endl;
 		}
 	}
 
@@ -95,8 +87,6 @@ Window::Window(int width, int height, const std::string& title, bool customResol
 		std::cerr << "Could not get required minimum OpenGL Version 4.2 for compute shaders!" << std::endl;
 		std::cerr << "Exiting Program!" << std::endl;
 		exit(1);
-	} else {
-		std::cout << "Using OpenGL Version: " << glGetString(GL_VERSION) << std::endl;
 	}
 
 	SDL_SetWindowResizable(window_, true);		// Allow window resizing
@@ -107,8 +97,7 @@ Window::Window(int width, int height, const std::string& title, bool customResol
 
 	GLenum status = glewInit();
 	if (status != GLEW_OK) {
-		std::cerr << "Glew failed to initialize!" << std::endl;
-		std::cerr << "Glew Error: " << glewGetErrorString(status) << std::endl;
+		std::cerr << "ERROR: Glew failed to initialize with error message: " << glewGetErrorString(status) << std::endl;
 	}
 
 	isClosed_ = false;
@@ -194,7 +183,6 @@ void Window::printOpenGLExtensions() {
 
 void setOpenGLDebugCallback() {
 	if (glDebugMessageCallback) {
-		std::cout << "Register OpenGL debug callback " << std::endl;
 		glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
 		glDebugMessageCallback(openglCallbackFunction, nullptr);
 		GLuint unusedIds = 0;

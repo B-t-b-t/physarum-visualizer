@@ -43,7 +43,7 @@ int main(int argc, char* argv[]) {
 
 	deviceName = params.audioDevice;
 	
-	
+
 	//------------------------------------------------------
 	// Initialize Window
 	Window window((int)params.width, (int)params.height, "Physarum", params.customResolution);
@@ -74,19 +74,6 @@ int main(int argc, char* argv[]) {
 	}
 
 	Canvas drawCanvas;
-
-	int maxVertexTextureUnits = 0;
-	glGetIntegerv(GL_MAX_VERTEX_TEXTURE_IMAGE_UNITS, &maxVertexTextureUnits);
-	std::cout << "Max Vertex Texture Image Units: " << maxVertexTextureUnits << std::endl;
-	int maxFragmentTextureUnits = 0;
-	glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &maxFragmentTextureUnits);
-	std::cout << "Max Texture Image Units: " << maxFragmentTextureUnits << std::endl;
-	int maxCombinedTextureUnits = 0;
-	glGetIntegerv(GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS, &maxCombinedTextureUnits);
-	std::cout << "Max Combined Texture Image Units: " << maxCombinedTextureUnits << std::endl;
-	int maxImageUnits = 0;
-	glGetIntegerv(GL_MAX_IMAGE_UNITS, &maxImageUnits);
-	std::cout << "Max Image Units: " << maxImageUnits << std::endl;
 
 	//------------------------------------------------------
 	//Initialize Textures and Texture Buffers
