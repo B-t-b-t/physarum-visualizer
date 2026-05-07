@@ -8,4 +8,4 @@ RotationAngle= 120
 Angle= 120
 SensorDistance= 45
 DiffusionWeight= 1
-Decay= 0.9
+Decay= 0.5

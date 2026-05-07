@@ -49,7 +49,7 @@ static_assert(sizeof(SlimeSettings) % 16 == 0, "SlimeSettings size must be multi
 // Aligned for std140 layout
 struct alignas(16) TrailDiffusionSettings {
     float diffusionWeight = 1.0f;
-    float decay = 0.9f;
+    float decay = 0.5f;
     int _padding1; // Padding for alignment
     int _padding2; // Padding for alignment
 };
