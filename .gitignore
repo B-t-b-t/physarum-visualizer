@@ -53,3 +53,9 @@ imgui.ini
 
 build*/
 .github/
+
+# Pictures
+
+*.png
+*.jpg
+*.jpeg
