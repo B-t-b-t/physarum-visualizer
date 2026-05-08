@@ -1,10 +1,10 @@
 #include "preset_system.h"
 
-#include <dirent.h>
 #include <fstream>
 #include <iostream>
 
 #include "ui/elements/preset_window.h"
+#include "utility/fileHandling.h"
 
 PresetSystem::PresetSystem(std::string presetFilePath, std::string fileExtension) : presetFilePath_(presetFilePath), fileExtension_(fileExtension) {}
 
@@ -90,23 +90,13 @@ void PresetSystem::loadPreset(std::string fileName) {
 }
 
 void PresetSystem::loadPresetNames(UserInterface &ui) {
-    DIR *dir;
-    struct dirent *ent;
+
     PresetWindow *window = dynamic_cast<PresetWindow*>(ui.getWindow("PresetWindow"));
-    
-    if ((dir = opendir(presetFilePath_.c_str())) != NULL) {
-        while ((ent = readdir(dir)) != NULL) {
-            std::string fileName = ent->d_name;
-            // Check if file has .psf extension
-            if (fileName.length() > 4 && 
-                fileName.substr(fileName.length() - 4) == fileExtension_) {
-                // Remove .psf extension to get preset name
-                std::string presetName = fileName.substr(0, fileName.length() - 4);
-                loadPreset(presetName);
-                window->addPresetName(presetName);
-            }
-        }
-        closedir(dir);
+    std::vector<std::string> presetNames;
+    loadFileNames(presetFilePath_, fileExtension_, presetNames);
+
+    for (std::string &presetName : presetNames) {
+        window->addPresetName(presetName);
     }
 }
 

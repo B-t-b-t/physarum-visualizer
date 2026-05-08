@@ -57,6 +57,7 @@ public:
 	bool loadFromPreset = false;
 	bool saveToColorPreset = false;
 	bool loadFromColorPreset = false;
+	bool loadNewPicture = false;
 	bool autoPresetSwitching = false;
 	bool selectAudioHardware = false;
 	int newTextureWidth = 1600;

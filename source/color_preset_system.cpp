@@ -1,10 +1,10 @@
 #include "color_preset_system.h"
 
-#include <dirent.h>
 #include <fstream>
 #include <iostream>
 
 #include "ui/elements/preset_window.h"
+#include "utility/fileHandling.h"
 
 ColorPresetSystem::ColorPresetSystem(std::string presetFilePath, std::string fileExtension) : presetFilePath_(presetFilePath), fileExtension_(fileExtension) {}
 
@@ -67,23 +67,12 @@ void ColorPresetSystem::loadPreset(std::string fileName) {
 }
 
 void ColorPresetSystem::loadPresetNames(UserInterface &ui) {
-    DIR *dir;
-    struct dirent *ent;
     PresetWindow *window = dynamic_cast<PresetWindow*>(ui.getWindow("PresetWindow"));
-    
-    if ((dir = opendir(presetFilePath_.c_str())) != NULL) {
-        while ((ent = readdir(dir)) != NULL) {
-            std::string fileName = ent->d_name;
-            // Check if file has .pcsf extension
-            if (fileName.length() > 5 && 
-                fileName.substr(fileName.length() - 5) == ".pcsf") {
-                // Remove .pcsf extension to get preset name
-                std::string presetName = fileName.substr(0, fileName.length() - 5);
-                loadPreset(presetName);
-                window->addColorPresetName(presetName);
-            }
-        }
-        closedir(dir);
+    std::vector<std::string> presetNames;
+    loadFileNames(presetFilePath_, fileExtension_, presetNames);
+
+    for (std::string &presetName : presetNames) {
+        window->addColorPresetName(presetName);
     }
 }
 

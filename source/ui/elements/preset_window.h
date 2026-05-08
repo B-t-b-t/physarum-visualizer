@@ -19,11 +19,19 @@ public:
 	const char * getSelectedColorPresetName() { return colorPresetNames_[selectedColorPresetName_].c_str(); }
 	void setSelectedColorPreset(unsigned int index) { selectedColorPresetName_ = index;  }
 
+	void addPictureName(const std::string& pictureName) { pictureNames_.push_back(pictureName); }
+	const char * getLastPictureName() { return pictureNames_.back().c_str(); }
+	const char * getSelectedPictureName() { return pictureNames_[selectedPictureName_].c_str(); }
+	void setSelectedPicture(unsigned int index) { selectedPictureName_ = index; }
+
 private:
 	std::vector<std::string> presetNames_;
 	unsigned int selectedPresetName_ = 0;
 	std::vector<std::string> colorPresetNames_;
 	unsigned int selectedColorPresetName_ = 0;
+
+	std::vector<std::string> pictureNames_;
+	unsigned int selectedPictureName_ = 0;
 };
 
 #endif // PRESET_WINDOW_H

@@ -219,6 +219,7 @@ set(MY_HEADER_FILES
     source/ui/elements/preset_window.h
     source/ui/elements/slime_config_window.h
     source/ui/elements/visual_settings_window.h
+    source/utility/fileHandling.h
     source/utility/parameter_parser.h
 )
 
@@ -247,6 +248,7 @@ set(MY_SOURCE_FILES
     source/ui/elements/preset_window.cpp
     source/ui/elements/slime_config_window.cpp
     source/ui/elements/visual_settings_window.cpp
+    source/utility/fileHandling.cpp
     source/utility/parameter_parser.cpp
 )
 

@@ -4,12 +4,15 @@
 
 #include <SDL3_image/SDL_image.h>
 
-TrailMapController::TrailMapController() {
+#include "../ui/elements/preset_window.h"
+#include "../utility/fileHandling.h"
+
+TrailMapController::TrailMapController(std::string pictureFilePath, std::string pictureFileExtension, GLuint textureUnit) : pictureFilePath_(pictureFilePath), pictureFileExtension_(pictureFileExtension), textureUnit_(textureUnit) {
     // Constructor can be used for initialization if needed
 }
 
-void TrailMapController::loadTrailMaskFromImage(const std::string& imagePath, GLuint textureUnit) {
-    SDL_Surface* surface = IMG_Load(imagePath.c_str());
+void TrailMapController::loadTrailMaskFromImage(std::string imageName) {
+    SDL_Surface* surface = IMG_Load((pictureFilePath_ + imageName + pictureFileExtension_).c_str());
     if(surface == nullptr) {
         std::cerr << "ERROR: Failed to load image: " << SDL_GetError() << std::endl;
         return;
@@ -29,9 +32,10 @@ void TrailMapController::loadTrailMaskFromImage(const std::string& imagePath, GL
         return;
     }
 
-    glGenTextures(1, &trailMaskTexture_);
-    glActiveTexture(GL_TEXTURE0 + textureUnit);
-    glBindTexture(GL_TEXTURE_2D, trailMaskTexture_);
+    GLuint trailMaskTextureID;
+    glGenTextures(1, &trailMaskTextureID);
+    //glActiveTexture(GL_TEXTURE0 + textureUnit);
+    glBindTexture(GL_TEXTURE_2D, trailMaskTextureID);
 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -57,4 +61,82 @@ void TrailMapController::loadTrailMaskFromImage(const std::string& imagePath, GL
     glBindTexture(GL_TEXTURE_2D, 0);
 
     SDL_DestroySurface(formattedSurface);
+
+    trailMasks_[activeTrailMaskIndex_].textureID = trailMaskTextureID;
+    trailMasks_[activeTrailMaskIndex_].loadedToGPU = true;
+}
+
+void TrailMapController::loadPictureNames(UserInterface &ui) {
+
+    PresetWindow *window = dynamic_cast<PresetWindow*>(ui.getWindow("PresetWindow"));
+    
+    std::vector<std::string> pictureNames;
+
+    loadFileNames(pictureFilePath_, pictureFileExtension_, pictureNames);
+
+    for (std::string &pictureName : pictureNames) {
+        window->addPictureName(pictureName);
+        trailMasks_.push_back({pictureName, 0, false});
+    }
+}
+
+/*Loads Images indirectly, where the selection in the ListBox of the window is set and a call to handleUIRequests is made later in main()
+    !UGLY and confusing, please rewrite!!
+*/
+void TrailMapController::loadRandomPicture(UserInterface &ui) {
+    PresetWindow *window = dynamic_cast<PresetWindow*>(ui.getWindow("PresetWindow"));
+
+    unsigned int randomIndex = (unsigned int) (rand() % (int)trailMasks_.size());
+    window->setSelectedPicture(randomIndex);
+}
+
+void TrailMapController::handleUIRequests(UserInterface &ui) {
+    UIState &uiState = ui.getState();
+    PresetWindow *window = dynamic_cast<PresetWindow*>(ui.getWindow("PresetWindow"));
+
+    //Loading Picture from File
+    if(uiState.loadNewPicture) {
+        std::string pictureName = std::string(window->getSelectedPictureName());
+
+        //binds selected image or loads it into GPU memory if not already loaded
+        for(size_t i = 0; i < trailMasks_.size(); ++i) {
+            if(trailMasks_[i].imageName == pictureName) {
+                activeTrailMaskIndex_ = i;
+
+                if(trailMasks_[i].loadedToGPU) {
+                    glActiveTexture(GL_TEXTURE0 + textureUnit_);
+                    glBindTexture(GL_TEXTURE_2D, trailMasks_[i].textureID);
+                    break;
+                } else {
+                    loadTrailMaskFromImage(pictureName);
+                    break;
+                }
+            }
+        }
+
+        uiState.loadNewPicture = false;
+    }
+}
+
+void TrailMapController::autoSwitchPictures(UserInterface &UserInterface, Uint64 timeInSeconds) {
+    UIState &uiState = UserInterface.getState();
+
+    //Timed Auto Preset Switching
+    if(uiState.autoPresetSwitching) {
+        uiState.saveToPreset = false;
+        uiState.loadFromPreset = false;
+
+        if((timeInSeconds % (Uint64)uiState.presetIntervall == 0) && !timeOut_ && uiState.slimeSettings.velocityBassReaction > uiState.beatVolumeSwitch) {
+            loadRandomPicture(UserInterface);
+            timeOut_ = true;
+        } else if((timeInSeconds % (Uint64)uiState.presetIntervall > 0) && timeOut_){
+            timeOut_ = false;
+        }
+    }
+}
+
+void TrailMapController::bindToTextureUnit(GLuint textureUnit) { 
+    textureUnit_ = textureUnit;
+    glActiveTexture(GL_TEXTURE0 + textureUnit_);
+    glBindTexture(GL_TEXTURE_2D, trailMasks_[activeTrailMaskIndex_].textureID);
 }

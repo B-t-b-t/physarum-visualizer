@@ -160,8 +160,8 @@ int main(int argc, char* argv[]) {
 	UniformBufferObject ParameterSettingsUBO(4);
 	ParameterSettingsUBO.bindUniformBufferObject(uiState.parameterSettings);
 	
-	TrailMapController trailMapController;
-	trailMapController.loadTrailMaskFromImage("./res/test2.png", 16);	//Texture Unit 16
+	TrailMapController trailMapController("./res/pictures/", ".png", 16);	//Texture Unit 16 for Trail Mask Texture
+	trailMapController.loadPictureNames(UserInterface);
 
 	ParticleBehaviourProgram.attachUniformBufferObject(UniversalShaderSettingsUBO.getUniformBufferObjectID(), "UniversalShaderSettings", 0);
 	ParticleBehaviourProgram.attachUniformBufferObject(SlimeSettingsUBO.getUniformBufferObjectID(), "SlimeSettings", 1);
@@ -202,9 +202,7 @@ int main(int argc, char* argv[]) {
 		//------------------------------------------------------
 		// Compute Shader Passes for Simulation Steps
 
-		glActiveTexture(GL_TEXTURE0 + 5);
-		glBindTexture(GL_TEXTURE_2D, trailMapController.getTrailMaskTextureID());
-		//glBindImageTexture(5, trailMapController.getTrailMaskTextureID(), 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA32F);	//bind Trail Mask to image unit for compute shader access
+		trailMapController.bindToTextureUnit(5);
 		TrailDiffusionProgram.dispatchCompute(ui_uss.textureWidth / workGroupDivider, ui_uss.textureHeight / workGroupDivider, 1);	//calculate new trail texture
 		ParticleBehaviourProgram.dispatchCompute(uiState.numParticles / 8, (GLuint)1, 1);	//move Slime Particles
 
@@ -241,8 +239,7 @@ int main(int argc, char* argv[]) {
 
 		// Bind main textures for fragment shader (these should always be bound)
 		bloomEffect.bindBloomTextures(TexTrail.getID(), TexTrailNonDiffused.getID(), NewTexParticles.getID(), OldTexParticles.getID(), TexCollisions.getID());
-		glActiveTexture(GL_TEXTURE0 + 16);
-		glBindTexture(GL_TEXTURE_2D, trailMapController.getTrailMaskTextureID());
+		trailMapController.bindToTextureUnit(16);
 		drawCanvas.draw();
 
 		//------------------------------------------------------
@@ -292,10 +289,12 @@ int main(int argc, char* argv[]) {
 		//Saving Presets to File
 		presetSystem.handleUIRequests(UserInterface);
 		colorPresetSystem.handleUIRequests(UserInterface);
+		trailMapController.handleUIRequests(UserInterface);
 
 		//Auto Switching Presets
 		presetSystem.autoSwitchPresets(UserInterface, timeInSeconds);
 		colorPresetSystem.autoSwitchPresets(UserInterface, timeInSeconds);
+		trailMapController.autoSwitchPictures(UserInterface, timeInSeconds);
 
 		//Handle Audio Device Change TODO: Refactor to Audio Class!
 		if(uiState.selectAudioHardware) {

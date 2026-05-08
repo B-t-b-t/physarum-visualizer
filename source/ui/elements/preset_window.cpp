@@ -104,12 +104,31 @@ void PresetWindow::render(UIState& state) {
 		ImGui::EndListBox();
 	}
 
+	//--------------------------------
+	//Picture Selection
+	//--------------------------------
+	if (ImGui::BeginListBox("Pictures")) {
+
+		for (unsigned int n = 0; n < pictureNames_.size(); n++)
+		{
+			const bool is_selected = (selectedPictureName_ == n);
+			if (ImGui::Selectable(pictureNames_[n].c_str(), is_selected)) {
+				selectedPictureName_ = n;
+				state.loadNewPicture = true;
+				std::cout << "Selected Picture: " << pictureNames_[n] << std::endl;
+			}
+			// Set the initial focus when opening the combo (scrolling + keyboard navigation focus)
+			if (is_selected) {
+				ImGui::SetItemDefaultFocus();
+			}
+		}
+
+		ImGui::EndListBox();
+	}
+
 	ImGui::Checkbox("Auto Preset Switching", &state.autoPresetSwitching);
 	ImGui::SliderInt("Preset Intervall [s]", &state.presetIntervall, 2, 60);
 	ImGui::SliderInt("Switch at Beat Volume", &state.beatVolumeSwitch, 0, 50);
-	// if (ImGui::Button("Delete Preset")) {
-	// 	state_.deletePreset = true;
-	// }
 
 	ImGui::End();
 }
