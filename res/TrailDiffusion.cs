@@ -4,6 +4,7 @@ layout(rgba32f, binding = 1) uniform image2D texTrailNonDiffused;
 layout(r32ui, binding = 2) uniform uimage2D newTexParticles;
 layout(r32ui, binding = 3) uniform uimage2D oldTexParticles;
 layout(rgba32f, binding = 4) uniform image2D texCollisions;
+layout(binding = 5) uniform sampler2D texTrailMask;  //sampler2D because of read only
 
 layout(std140, binding = 0) uniform UniversalShaderSettings {
     int textureWidth;
@@ -22,6 +23,7 @@ layout(std140, binding = 0) uniform UniversalShaderSettings {
 layout(std140, binding = 2) uniform TrailDiffusionSettings {
     float diffusionWeight;
     float decay;
+    int useTrailMask;
 };
 
 // Helper function for boundary wrapping
@@ -51,6 +53,11 @@ void main() {
   outPx = outPx * (1.0f - decay);
   outPx = clamp(outPx, 0.0f, 1.0f);
 
+  //for debugging texTrailMask: if the mask value is above a certain threshold, add a bright spot to the trail texture (this should make it easier to see if the mask is correctly aligned and applied)
+  //vec2 uv = vec2(posPx) / vec2(textureWidth, textureHeight);
+  //vec3 maskValue = textureLod(texTrailMask, uv, 0.0f).rgb;
+
+  //outPx = 0.5f * maskValue.rgb;
 
   //Trails speichern in Textur
   imageStore(texTrail, posPx, vec4(outPx, 1.0f));

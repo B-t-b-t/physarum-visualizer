@@ -4,6 +4,7 @@ layout(rgba32f, binding = 1) uniform image2D texTrailNonDiffused;
 layout(r32ui, binding = 2) uniform uimage2D newTexParticles;
 layout(r32ui, binding = 3) uniform uimage2D oldTexParticles;
 layout(rgba32f, binding = 4) uniform image2D texCollisions;
+layout(binding = 5) uniform sampler2D texTrailMask;  //sampler2D because of read only
 /*layout(rgba32f, binding = 1) uniform image2D canvas;*/
 /*uniform sampler2D trails;*/
 /*uniform sampler2D canvas;*/
@@ -269,6 +270,7 @@ SensedTrail sensingTrail(Particle particle, float beatSensorDistance, float da, 
     sensePos = wrapCoordinates_i(sensePos, textureWidth, textureHeight);
 
     sensedPixelValue = imageLoad(texTrail, sensePos);
+    sensedPixelValue += textureLod(texTrailMask, (sensePos / vec2(textureWidth, textureHeight)), 0.0f);
 
     if(useMask == 1) {
         sensedTrail.left = dot(speciesMask, sensedPixelValue.rgb);
@@ -282,6 +284,7 @@ SensedTrail sensingTrail(Particle particle, float beatSensorDistance, float da, 
     sensePos = wrapCoordinates_i(sensePos, textureWidth, textureHeight);
 
     sensedPixelValue = imageLoad(texTrail, sensePos);
+    sensedPixelValue += textureLod(texTrailMask, (sensePos / vec2(textureWidth, textureHeight)), 0.0f);
 
     if(useMask == 1) {
         sensedTrail.front = dot(speciesMask, sensedPixelValue.rgb);
@@ -295,6 +298,7 @@ SensedTrail sensingTrail(Particle particle, float beatSensorDistance, float da, 
     sensePos = wrapCoordinates_i(sensePos, textureWidth, textureHeight);
 
     sensedPixelValue = imageLoad(texTrail, sensePos);
+    sensedPixelValue += textureLod(texTrailMask, (sensePos / vec2(textureWidth, textureHeight)), 0.0f);
 
     if(useMask == 1) {
         sensedTrail.right = dot(speciesMask, sensedPixelValue.rgb);

@@ -40,6 +40,18 @@ set(SDL_STATIC ON CACHE BOOL "" FORCE)
 set(SDL_TEST OFF CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(SDL3)
 
+#----- SDL_image ----- 
+
+FetchContent_Declare(
+    SDL_image
+    GIT_REPOSITORY https://github.com/libsdl-org/SDL_image
+    GIT_TAG release-3.4.2
+    GIT_SHALLOW TRUE
+    GIT_PROGRESS TRUE
+)
+FetchContent_MakeAvailable(SDL_image)
+
+
 #----- FFTW3 ----- 
 
 FetchContent_Declare(
@@ -197,6 +209,7 @@ set(MY_HEADER_FILES
     source/graphics/shader_program.h
     source/graphics/texture.h
     source/graphics/uniform_buffer_object.h
+    source/simulation/trail_map_controller.h
     source/ui/ui_helpers.h
     source/ui/ui_state.h
     source/ui/user_interface.h
@@ -226,6 +239,7 @@ set(MY_SOURCE_FILES
     source/graphics/shader_program.cpp
     source/graphics/texture.cpp
     source/graphics/uniform_buffer_object.cpp
+    source/simulation/trail_map_controller.cpp
     source/ui/ui_helpers.cpp
     source/ui/user_interface.cpp
     source/ui/elements/audio_window.cpp
@@ -256,6 +270,7 @@ target_link_libraries(Physarum
     PUBLIC ImGui
     ${OPENGL_LIBRARY}
     SDL3::SDL3-static
+    SDL3_image::SDL3_image-static
     glew_s
     fftw3
     ${ADDITIONAL_WINDOWS_LIBS}  # Add the Windows libraries

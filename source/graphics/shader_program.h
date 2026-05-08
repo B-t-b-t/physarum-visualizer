@@ -22,7 +22,7 @@ public:
     ~ShaderProgram();
 
     void attachShader(GLuint shaderID);
-    void link();
+    bool link();
     void use();
     void dispatchCompute(int numWorkGroupsX, int numWorkGroupsY, int numWorkGroupsZ);
 

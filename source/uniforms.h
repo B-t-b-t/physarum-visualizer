@@ -50,8 +50,8 @@ static_assert(sizeof(SlimeSettings) % 16 == 0, "SlimeSettings size must be multi
 struct alignas(16) TrailDiffusionSettings {
     float diffusionWeight = 1.0f;
     float decay = 0.5f;
+    int useTrailMask = true;
     int _padding1; // Padding for alignment
-    int _padding2; // Padding for alignment
 };
 static_assert(sizeof(TrailDiffusionSettings) % 16 == 0, "TrailDiffusionSettings size must be multiple of 16 for std140");
 

@@ -215,8 +215,8 @@ void APIENTRY openglCallbackFunction(GLenum source,
 	}
 
 	std::cout << "---------------------opengl-callback-start------------" << std::endl;
-	std::cout << "message: " << message << std::endl;
-	std::cout << "type: ";
+	std::cout << "   message: " << message << std::endl;
+	std::cout << "   type: ";
 
 	switch (type) {
 	case GL_DEBUG_TYPE_ERROR:
@@ -237,8 +237,8 @@ void APIENTRY openglCallbackFunction(GLenum source,
 	}
 
 	std::cout << std::endl;
-	std::cout << "id: " << id << std::endl;
-	std::cout << "severity: ";
+	std::cout << "   id: " << id << std::endl;
+	std::cout << "   severity: ";
 
 	switch (severity) {
 	case GL_DEBUG_SEVERITY_LOW:

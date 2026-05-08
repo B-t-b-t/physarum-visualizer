@@ -21,6 +21,7 @@
 #include "./graphics/shader_program.h"
 #include "./graphics/texture.h"
 #include "./graphics/uniform_buffer_object.h"
+#include "./simulation/trail_map_controller.h"
 #include "./ui/elements/audio_window.h"
 #include "./ui/user_interface.h"
 #include "./utility/parameter_parser.h"
@@ -93,7 +94,11 @@ int main(int argc, char* argv[]) {
 	ShaderProgram RasterizationPipeline("RasterizationPipeline");
 	RasterizationPipeline.attachShader(VertexShader.getShaderID());
 	RasterizationPipeline.attachShader(FragmentShader.getShaderID());
-	RasterizationPipeline.link();
+	bool linkingSuccess = RasterizationPipeline.link();
+	if(!linkingSuccess) {
+		std::cerr << "Failed to link Rasterization Pipeline Shader Program. Exiting." << std::endl;
+		return -1;
+	}
 	RasterizationPipeline.getUniformsFromGLSL();
 
 	// Initialize Bloom Effect
@@ -111,14 +116,22 @@ int main(int argc, char* argv[]) {
 	Shader TrailDiffusionShader("./res/TrailDiffusion.cs", ShaderType::COMPUTE_SHADER);
 	ShaderProgram TrailDiffusionProgram("TrailDiffusionProgram");
 	TrailDiffusionProgram.attachShader(TrailDiffusionShader.getShaderID());
-	TrailDiffusionProgram.link();
+	linkingSuccess = TrailDiffusionProgram.link();
+	if(!linkingSuccess) {
+		std::cerr << "Failed to link Trail Diffusion Shader Program. Exiting." << std::endl;
+		return -1;
+	}
 	TrailDiffusionProgram.getUniformsFromGLSL();
 
 	//initialize Compute Shader for Slime Mold Particle Calculations 
 	Shader ParticleBehaviourShader("./res/ParticleBehaviour.cs", ShaderType::COMPUTE_SHADER);
 	ShaderProgram ParticleBehaviourProgram("ParticleBehaviourProgram");
 	ParticleBehaviourProgram.attachShader(ParticleBehaviourShader.getShaderID());
-	ParticleBehaviourProgram.link();
+	linkingSuccess = ParticleBehaviourProgram.link();
+	if(!linkingSuccess) {
+		std::cerr << "Failed to link Particle Behaviour Shader Program. Exiting." << std::endl;
+		return -1;
+	}
 	ParticleBehaviourProgram.getUniformsFromGLSL();
 
 	//------------------------------------------------------
@@ -147,7 +160,8 @@ int main(int argc, char* argv[]) {
 	UniformBufferObject ParameterSettingsUBO(4);
 	ParameterSettingsUBO.bindUniformBufferObject(uiState.parameterSettings);
 	
-
+	TrailMapController trailMapController;
+	trailMapController.loadTrailMaskFromImage("./res/test2.png", 16);	//Texture Unit 16
 
 	ParticleBehaviourProgram.attachUniformBufferObject(UniversalShaderSettingsUBO.getUniformBufferObjectID(), "UniversalShaderSettings", 0);
 	ParticleBehaviourProgram.attachUniformBufferObject(SlimeSettingsUBO.getUniformBufferObjectID(), "SlimeSettings", 1);
@@ -188,6 +202,9 @@ int main(int argc, char* argv[]) {
 		//------------------------------------------------------
 		// Compute Shader Passes for Simulation Steps
 
+		glActiveTexture(GL_TEXTURE0 + 5);
+		glBindTexture(GL_TEXTURE_2D, trailMapController.getTrailMaskTextureID());
+		//glBindImageTexture(5, trailMapController.getTrailMaskTextureID(), 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA32F);	//bind Trail Mask to image unit for compute shader access
 		TrailDiffusionProgram.dispatchCompute(ui_uss.textureWidth / workGroupDivider, ui_uss.textureHeight / workGroupDivider, 1);	//calculate new trail texture
 		ParticleBehaviourProgram.dispatchCompute(uiState.numParticles / 8, (GLuint)1, 1);	//move Slime Particles
 
@@ -224,6 +241,8 @@ int main(int argc, char* argv[]) {
 
 		// Bind main textures for fragment shader (these should always be bound)
 		bloomEffect.bindBloomTextures(TexTrail.getID(), TexTrailNonDiffused.getID(), NewTexParticles.getID(), OldTexParticles.getID(), TexCollisions.getID());
+		glActiveTexture(GL_TEXTURE0 + 16);
+		glBindTexture(GL_TEXTURE_2D, trailMapController.getTrailMaskTextureID());
 		drawCanvas.draw();
 
 		//------------------------------------------------------

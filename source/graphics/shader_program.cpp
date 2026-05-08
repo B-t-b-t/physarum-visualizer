@@ -21,7 +21,7 @@ void ShaderProgram::attachShader(GLuint shaderID) {
     shaderIDs_.push_back(shaderID);
 }
 
-void ShaderProgram::link() {
+bool ShaderProgram::link() {
 
     glLinkProgram(programID_);
     bool success = CheckProgramError(programID_, GL_LINK_STATUS, "Error in " + programName_ + ": Program linking failed!");
@@ -36,6 +36,8 @@ void ShaderProgram::link() {
 
         getUniformsFromGLSL();
     }
+
+	return success;
 }
 
 void ShaderProgram::attachUniformBufferObject(GLuint uniformBufferObjectID, const std::string& blockName, GLuint bindingPoint) {
