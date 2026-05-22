@@ -54,6 +54,8 @@ void PresetWindow::render(UIState& state) {
 		ImGui::EndListBox();
 	}
 
+	ImGui::Separator();
+
 	//--------------------------------
 	//Color Preset System
 	//--------------------------------
@@ -104,6 +106,8 @@ void PresetWindow::render(UIState& state) {
 		ImGui::EndListBox();
 	}
 
+	ImGui::Separator();
+
 	//--------------------------------
 	//Picture Selection
 	//--------------------------------
@@ -126,8 +130,15 @@ void PresetWindow::render(UIState& state) {
 		ImGui::EndListBox();
 	}
 
+	ImGui::SliderFloat("Trail Mask Influence", &state.universalShaderSettings.trailMaskInfluence, 0.0f, 5.0f);
+	ImGui::SliderFloat("Trail Mask Scale", &state.universalShaderSettings.trailMaskScale, 0.1f, 10.0f);
+	ImGui::SliderInt("Trail Mask Time Intervall [s]", &state.trailMaskIntervall, 2, 60);
+
+	ImGui::Separator();
+
 	ImGui::Checkbox("Auto Preset Switching", &state.autoPresetSwitching);
-	ImGui::SliderInt("Preset Intervall [s]", &state.presetIntervall, 2, 60);
+	ImGui::SliderInt("Preset Time Intervall [s]", &state.presetIntervall, 2, 60);
+	ImGui::SliderInt("Color Preset Time Intervall [s]", &state.colorPresetIntervall, 2, 60);
 	ImGui::SliderInt("Switch at Beat Volume", &state.beatVolumeSwitch, 0, 50);
 
 	ImGui::End();

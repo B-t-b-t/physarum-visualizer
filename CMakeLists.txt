@@ -88,6 +88,16 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(implot)
 
+#temporarily use a pullrequest to fix C++23 compile warnings
+FetchContent_Declare(
+    toml11
+    GIT_REPOSITORY https://github.com/deckstose/toml11
+    GIT_TAG push-usxyownxrltn
+    GIT_SHALLOW TRUE
+    GIT_PROGRESS TRUE
+)
+FetchContent_MakeAvailable(toml11)
+
 FetchContent_Declare(
     Catch2
     GIT_REPOSITORY https://github.com/catchorg/Catch2
@@ -257,6 +267,7 @@ include_directories(
     ${GLEW_INCLUDE_DIR}
     ${GLM_INCLUDE_PATH}
     ${FFTW3_INCLUDE_DIR}
+    ${toml11_SOURCE_DIR}/include
     ${fftw3_SOURCE_DIR}/api
     ${glew_SOURCE_DIR}/include
 )
@@ -275,6 +286,7 @@ target_link_libraries(Physarum
     SDL3_image::SDL3_image-static
     glew_s
     fftw3
+    PRIVATE toml11::toml11
     ${ADDITIONAL_WINDOWS_LIBS}  # Add the Windows libraries
     ${ADDITIONAL_LINUX_LIBS}    # Add the Linux libraries (dl, X11)
 )

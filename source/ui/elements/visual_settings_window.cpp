@@ -26,6 +26,10 @@ void VisualSettingsWindow::render(UIState &state) {
 		ImGui::SameLine(); HelpMarker("Threshold how bright areas have to be to be considered for bloom.");
 		ImGui::SliderFloat("Bloom Knee", &state.fragmentShaderSettings.bloomKnee, 0.0f, 1.0f);
 		ImGui::Combo("Bloom Blend Mode", (int*)&state.fragmentShaderSettings.bloomBlendMode, "Additive\0Screen\0Soft Additive\0");
+		ImGui::Checkbox("Bloom Audio Reaction", &state.bloomAudioReaction);
+		if(state.bloomAudioReaction) {
+			ImGui::SliderFloat("Bloom Bass Reaction Intensity", &state.bloomBassReactionIntensity, 0.0f, 5.0f);
+		}
 		ImGui::Separator();
 	}
 	

@@ -13,7 +13,7 @@
 class TrailMapController {
 public:
 
-    TrailMapController(std::string pictureFilePath, std::string pictureFileExtension, GLuint textureUnit);
+    TrailMapController(std::string pictureFilePath, std::string pictureFileExtension, GLuint textureUnit, UserInterface &ui);
     void loadTrailMaskFromImage(std::string imageName);
     void loadPictureNames(UserInterface &ui);
     void bindToTextureUnit(GLuint textureUnit);
@@ -29,6 +29,8 @@ private:
         bool loadedToGPU = false;
     };
 
+    bool checkTimeTable(std::string imageName);
+
 
     SDL_Surface* loadedImage_;
 
@@ -37,7 +39,11 @@ private:
     std::string pictureFilePath_ = "./res/pictures/";
     std::string pictureFileExtension_ = ".png";
     GLuint textureUnit_;	//Default Texture Unit for Trail Mask Texture
+    UserInterface &ui_;
+
     size_t activeTrailMaskIndex_;
+    SDL_Time timeTicks_;
+    SDL_DateTime dateTime_;
 
     bool timeOut_ = false;
 };

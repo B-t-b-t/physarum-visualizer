@@ -6,7 +6,11 @@
 #include "ui/elements/preset_window.h"
 #include "utility/fileHandling.h"
 
-ColorPresetSystem::ColorPresetSystem(std::string presetFilePath, std::string fileExtension) : presetFilePath_(presetFilePath), fileExtension_(fileExtension) {}
+ColorPresetSystem::ColorPresetSystem(std::string presetFilePath, std::string fileExtension, UserInterface &ui)
+ : presetFilePath_(presetFilePath), fileExtension_(fileExtension), ui_(ui) {
+    //register all preset names with UI and presets into memory
+    loadPresetNames(ui_);
+}
 
 void ColorPresetSystem::createPreset(std::string presetName, UIState &uiState) {
 
@@ -73,15 +77,19 @@ void ColorPresetSystem::loadPresetNames(UserInterface &ui) {
 
     for (std::string &presetName : presetNames) {
         window->addColorPresetName(presetName);
+        loadPreset(presetName);
     }
 }
 
 void ColorPresetSystem::loadRandomPreset(UserInterface &ui) {
-    unsigned int randomIndex = (unsigned int) (rand() % (int)colorPresets.size());
-    PresetWindow *window = dynamic_cast<PresetWindow*>(ui.getWindow("PresetWindow"));
-    
-    window->setSelectedColorPreset(randomIndex);
-    setUIState(ui.getState(), window->getSelectedColorPresetName());
+    if(!colorPresets.empty()) {
+        unsigned int randomIndex = (unsigned int) (rand() % (int)colorPresets.size());
+        PresetWindow *window = dynamic_cast<PresetWindow*>(ui.getWindow("PresetWindow"));
+        window->setSelectedColorPreset(randomIndex);
+        setUIState(ui.getState(), window->getSelectedColorPresetName());
+    } else {
+        std::cerr << "WARN: No color presets available to auto switch" << std::endl;
+    }
 }
 
 void ColorPresetSystem::setUIState(UIState &uiState, std::string presetName) {
@@ -122,10 +130,10 @@ void ColorPresetSystem::autoSwitchPresets(UserInterface &ui, Uint64 timeInSecond
         uiState.saveToPreset = false;
         uiState.loadFromPreset = false;
 
-        if((timeInSeconds % (Uint64)uiState.presetIntervall == 0) && !timeOut_ && uiState.slimeSettings.velocityBassReaction > uiState.beatVolumeSwitch) {
+        if((timeInSeconds % (Uint64)uiState.colorPresetIntervall == 0) && !timeOut_ && uiState.slimeSettings.velocityBassReaction > uiState.beatVolumeSwitch) {
             loadRandomPreset(ui);
             timeOut_ = true;
-        } else if((timeInSeconds % (Uint64)uiState.presetIntervall > 0) && timeOut_){
+        } else if((timeInSeconds % (Uint64)uiState.colorPresetIntervall > 0) && timeOut_){
             timeOut_ = false;
         }
     }

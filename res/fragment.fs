@@ -19,7 +19,7 @@ layout (binding = 12) uniform sampler2D upSample4;
 layout (binding = 13) uniform sampler2D downSample5;
 layout (binding = 14) uniform sampler2D upSample5;
 layout (binding = 15) uniform sampler2D thresholdTexture;
-layout (binding = 16) uniform sampler2D texTrailMask;
+layout (binding = 16) uniform sampler2D trailMask;
 
 /*uniform sampler2D canvas;*/
 //layout(rgba32f, binding = 0) uniform image2D trails;
@@ -35,6 +35,10 @@ layout(std140, binding = 0) uniform UniversalShaderSettings {
     int renderCollisions;
     int collisionDetection;
 	int timeTicks;
+
+	float trailMaskInfluence;
+	float trailMaskScale;
+	vec2 trailMaskPosition;
 
     vec4 mouseInputs; // x, y, leftClick, rightClick
 };
@@ -204,6 +208,6 @@ void main() {
 		if(debugTextureMaskSelector == 13) {FragColor = vec4(texture(downSample5, TexCoord));}
 		if(debugTextureMaskSelector == 14) {FragColor = vec4(texture(upSample5, TexCoord));}
 		//if(debugTextureMaskSelector == 15) {FragColor = vec4(texture(thresholdTexture, TexCoord));}
-		if(debugTextureMaskSelector == 15) {FragColor = vec4(texture(texTrailMask, TexCoord));}	//temporarily changed for debugging trail mask
+		if(debugTextureMaskSelector == 15) {FragColor = vec4(texture(trailMask, TexCoord));}
 	}
 }

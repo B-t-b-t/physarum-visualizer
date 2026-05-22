@@ -6,7 +6,11 @@
 #include "ui/elements/preset_window.h"
 #include "utility/fileHandling.h"
 
-PresetSystem::PresetSystem(std::string presetFilePath, std::string fileExtension) : presetFilePath_(presetFilePath), fileExtension_(fileExtension) {}
+PresetSystem::PresetSystem(std::string presetFilePath, std::string fileExtension, UserInterface &ui)
+ : presetFilePath_(presetFilePath), fileExtension_(fileExtension), ui_(ui) {
+    //register all preset names with UI and presets into memory
+    loadPresetNames(ui_);
+}
 
 void PresetSystem::createPreset(std::string presetName, UIState &uiState) {
 
@@ -97,15 +101,20 @@ void PresetSystem::loadPresetNames(UserInterface &ui) {
 
     for (std::string &presetName : presetNames) {
         window->addPresetName(presetName);
+        loadPreset(presetName);
     }
 }
 
 void PresetSystem::loadRandomPreset(UserInterface &ui) {
-    PresetWindow *window = dynamic_cast<PresetWindow*>(ui.getWindow("PresetWindow"));
 
-    unsigned int randomIndex = (unsigned int) (rand() % (int)presets.size());
-    window->setSelectedPreset(randomIndex);
-    setUIState(ui.getState(), window->getSelectedPresetName());
+   if(!presets.empty()) {
+        PresetWindow *window = dynamic_cast<PresetWindow*>(ui.getWindow("PresetWindow"));
+        unsigned int randomIndex = (unsigned int) (rand() % (int)presets.size());
+        window->setSelectedPreset(randomIndex);
+        setUIState(ui.getState(), window->getSelectedPresetName());
+    } else {
+        std::cerr << "WARN: No presets available to auto switch" << std::endl;
+    }
 }
 
 void PresetSystem::setUIState(UIState &uiState, std::string presetName) {

@@ -14,6 +14,10 @@ struct alignas(16) UniversalShaderSettings {
     int collisionDetection = false;
     int timeTicks = 0;
 
+    float trailMaskInfluence = 1.0f;
+    float trailMaskScale = 1.0f;
+    ImVec2 trailMaskPosition = ImVec2(0.0f, 0.0f);
+
     ImVec4 mouseInputs = ImVec4(0.0f, 0.0f, 0.0f, 0.0f); // x, y, leftClick, rightClick
 };
 static_assert(sizeof(UniversalShaderSettings) % 16 == 0, "UniversalShaderSettings size must be multiple of 16 for std140");

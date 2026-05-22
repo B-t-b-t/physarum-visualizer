@@ -144,10 +144,8 @@ int main(int argc, char* argv[]) {
 	//------------------------------------------------------
 	// Initialize Preset System
 
-	PresetSystem presetSystem("./presets/", ".psf");
-	presetSystem.loadPresetNames(UserInterface);
-	ColorPresetSystem colorPresetSystem("./presets/", ".pcsf");
-	colorPresetSystem.loadPresetNames(UserInterface);
+	PresetSystem presetSystem("./presets/", ".psf", UserInterface);
+	ColorPresetSystem colorPresetSystem("./presets/", ".pcsf", UserInterface);
 
 	UniformBufferObject UniversalShaderSettingsUBO(0);
 	UniversalShaderSettingsUBO.bindUniformBufferObject(ui_uss);
@@ -160,8 +158,7 @@ int main(int argc, char* argv[]) {
 	UniformBufferObject ParameterSettingsUBO(4);
 	ParameterSettingsUBO.bindUniformBufferObject(uiState.parameterSettings);
 	
-	TrailMapController trailMapController("./res/pictures/", ".png", 16);	//Texture Unit 16 for Trail Mask Texture
-	trailMapController.loadPictureNames(UserInterface);
+	TrailMapController trailMapController("./res/pictures/", ".png", 16, UserInterface);	//Texture Unit 16 for Trail Mask Texture
 
 	ParticleBehaviourProgram.attachUniformBufferObject(UniversalShaderSettingsUBO.getUniformBufferObjectID(), "UniversalShaderSettings", 0);
 	ParticleBehaviourProgram.attachUniformBufferObject(SlimeSettingsUBO.getUniformBufferObjectID(), "SlimeSettings", 1);

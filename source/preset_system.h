@@ -26,7 +26,7 @@ struct Preset {
 class PresetSystem {
 public:
 
-	PresetSystem(std::string presetFilePath, std::string fileExtension);
+	PresetSystem(std::string presetFilePath, std::string fileExtension, UserInterface &ui);
 
     void createPreset(std::string presetName, UIState &uiState);
     void savePreset(std::string fileName);
@@ -45,6 +45,7 @@ private:
 
 	std::string presetFilePath_;
 	std::string fileExtension_;
+	UserInterface &ui_;
 
 	bool timeOut_ = false;
 };

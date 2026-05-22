@@ -1,14 +1,46 @@
 #include "trail_map_controller.h"
 
+#include <ctime>
+#include <fstream>
 #include <iostream>
 
 #include <SDL3_image/SDL_image.h>
+#include <toml.hpp>
 
 #include "../ui/elements/preset_window.h"
 #include "../utility/fileHandling.h"
 
-TrailMapController::TrailMapController(std::string pictureFilePath, std::string pictureFileExtension, GLuint textureUnit) : pictureFilePath_(pictureFilePath), pictureFileExtension_(pictureFileExtension), textureUnit_(textureUnit) {
-    // Constructor can be used for initialization if needed
+bool TrailMapController::checkTimeTable(std::string imageName) {
+
+    const toml::value timeTable = toml::parse("./res/pictures/timeTable.toml");
+
+    if(!timeTable.contains(imageName)) {
+        return true;    //if no entry for the image is found, it is always valid to use
+    }
+
+    const auto key = toml::find(timeTable, imageName);
+    const auto begin_t   = toml::find<toml::local_datetime>(key, "begin");
+    const auto end_t     = toml::find<toml::local_datetime>(key, "end");
+
+    SDL_Time begin = begin_t.operator time_t() * 1000000000;    //convert to nanoseconds for SDL3
+    SDL_Time end = end_t.operator time_t() * 1000000000;
+
+    //compare if current time is within parsed time window
+    SDL_Time current;
+    SDL_GetCurrentTime(&current);
+
+    return (current >= begin && current <= end);
+}
+
+
+TrailMapController::TrailMapController(std::string pictureFilePath, std::string pictureFileExtension, GLuint textureUnit, UserInterface &ui)
+ : pictureFilePath_(pictureFilePath), pictureFileExtension_(pictureFileExtension), textureUnit_(textureUnit), ui_(ui) {
+    loadPictureNames(ui_);
+    for(size_t i = 0; i < trailMasks_.size(); ++i) {
+        activeTrailMaskIndex_ = i;
+        loadTrailMaskFromImage(trailMasks_[i].imageName);
+    }
+    activeTrailMaskIndex_ = 0;	//reset to first image after loading all images into GPU memory
 }
 
 void TrailMapController::loadTrailMaskFromImage(std::string imageName) {
@@ -34,13 +66,12 @@ void TrailMapController::loadTrailMaskFromImage(std::string imageName) {
 
     GLuint trailMaskTextureID;
     glGenTextures(1, &trailMaskTextureID);
-    //glActiveTexture(GL_TEXTURE0 + textureUnit);
     glBindTexture(GL_TEXTURE_2D, trailMaskTextureID);
 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);  //to avoid repetition when scaling
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);  //border color is default (0,0,0,0)
 
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
     glPixelStorei(GL_UNPACK_ROW_LENGTH, formattedSurface->pitch / 4);
@@ -74,7 +105,7 @@ void TrailMapController::loadPictureNames(UserInterface &ui) {
 
     loadFileNames(pictureFilePath_, pictureFileExtension_, pictureNames);
 
-    for (std::string &pictureName : pictureNames) {
+    for (std::string pictureName : pictureNames) {
         window->addPictureName(pictureName);
         trailMasks_.push_back({pictureName, 0, false});
     }
@@ -84,10 +115,26 @@ void TrailMapController::loadPictureNames(UserInterface &ui) {
     !UGLY and confusing, please rewrite!!
 */
 void TrailMapController::loadRandomPicture(UserInterface &ui) {
-    PresetWindow *window = dynamic_cast<PresetWindow*>(ui.getWindow("PresetWindow"));
-
-    unsigned int randomIndex = (unsigned int) (rand() % (int)trailMasks_.size());
-    window->setSelectedPicture(randomIndex);
+    if(!trailMasks_.empty()) {
+        
+        SDL_GetCurrentTime(&timeTicks_);
+        SDL_TimeToDateTime(timeTicks_, &dateTime_, true);
+        
+        unsigned int randomIndex = (unsigned int) (rand() % (int)trailMasks_.size());
+        std::string imageName = trailMasks_[randomIndex].imageName;
+        
+        while(!checkTimeTable(imageName)) {
+            randomIndex = (unsigned int) (rand() % (int)trailMasks_.size());
+            imageName = trailMasks_[randomIndex].imageName;
+        }
+        
+        PresetWindow *window = dynamic_cast<PresetWindow*>(ui.getWindow("PresetWindow"));
+        window->setSelectedPicture(randomIndex);
+        activeTrailMaskIndex_ = randomIndex;
+        
+    } else {
+        std::cerr << "WARN: No pictures available to auto switch" << std::endl;
+    }
 }
 
 void TrailMapController::handleUIRequests(UserInterface &ui) {
@@ -119,6 +166,7 @@ void TrailMapController::handleUIRequests(UserInterface &ui) {
 }
 
 void TrailMapController::autoSwitchPictures(UserInterface &UserInterface, Uint64 timeInSeconds) {
+
     UIState &uiState = UserInterface.getState();
 
     //Timed Auto Preset Switching
@@ -126,10 +174,10 @@ void TrailMapController::autoSwitchPictures(UserInterface &UserInterface, Uint64
         uiState.saveToPreset = false;
         uiState.loadFromPreset = false;
 
-        if((timeInSeconds % (Uint64)uiState.presetIntervall == 0) && !timeOut_ && uiState.slimeSettings.velocityBassReaction > uiState.beatVolumeSwitch) {
+        if((timeInSeconds % (Uint64)uiState.trailMaskIntervall == 0) && !timeOut_ && uiState.slimeSettings.velocityBassReaction > uiState.beatVolumeSwitch) {
             loadRandomPicture(UserInterface);
             timeOut_ = true;
-        } else if((timeInSeconds % (Uint64)uiState.presetIntervall > 0) && timeOut_){
+        } else if((timeInSeconds % (Uint64)uiState.trailMaskIntervall > 0) && timeOut_){
             timeOut_ = false;
         }
     }

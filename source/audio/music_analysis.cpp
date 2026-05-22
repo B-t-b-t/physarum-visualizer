@@ -64,9 +64,9 @@ void MusicAnalysis::analyzeMusic(std::vector<double>& spectrumDiff, double frame
         if(presence > 100) {uiState_.presenceDetected = true;} else {uiState_.presenceDetected = false;}
         if(brilliance > 100) {uiState_.brillianceDetected = true;} else {uiState_.brillianceDetected = false;}
 
-        if(uiState_.bassDetected) {
+        if(uiState_.bassDetected && uiState_.bloomAudioReaction) {
             velocityBassReactionTarget_ += 0.5f;
-            uiState_.fragmentShaderSettings.bloomBassReaction = 1.0f;
+            uiState_.fragmentShaderSettings.bloomBassReaction = uiState_.bloomBassReactionIntensity;
             uiState_.slimeSettings.angleBassReaction = 0;
         } else {
             uiState_.fragmentShaderSettings.bloomBassReaction = 0.0f;

@@ -66,6 +66,8 @@ public:
 	int newNumParticles = 300000;
 	float slimeRatio = 0.15f;
 	int presetIntervall = 30;	//in seconds
+	int colorPresetIntervall = 30;	//in seconds
+	int trailMaskIntervall = 30;	//in seconds
 
 	TextureMask selectedTextureMask = TextureMask::TRAIL;
 
@@ -89,6 +91,9 @@ public:
 	double brillianceValue = 0.0;
 	
 	int beatVolumeSwitch = 5;
+
+	bool bloomAudioReaction = true;
+	float bloomBassReactionIntensity = 1.0f;
 
 	bool normalizeBeat = false;
 
