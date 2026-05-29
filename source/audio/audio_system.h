@@ -23,6 +23,7 @@ struct AudioStreamData {
 class AudioSystem {
 public:
     AudioSystem(std::string deviceName = "");
+    ~AudioSystem();
 
     void computeSpectrum();
 

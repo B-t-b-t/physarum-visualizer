@@ -30,7 +30,7 @@ AudioSystem::AudioSystem(std::string deviceName) {
 		audioBuffer_.insert(audioBuffer_.begin(), Buf_, Buf_ + BUFFER_SIZE);
 
 
-		//set up SDL Timer with seperate Aduio Recording Thread via callback
+		//set up SDL Timer with seperate Audio Recording Thread via callback
 		mutex_ = SDL_CreateMutex();
 
 		if (!mutex_) {
@@ -57,6 +57,19 @@ AudioSystem::AudioSystem(std::string deviceName) {
 		spectrumDiff_.reserve(audioProcessor_.getSpectrumSize());
 		spectrumDiff_.resize(audioProcessor_.getSpectrumSize(), 0.0);
 	}
+}
+
+AudioSystem::~AudioSystem() {
+	bool isTimerRemoved = SDL_RemoveTimer(timerID_);
+	if (!isTimerRemoved) {
+		std::cerr << SDL_GetError() << std::endl;
+	}
+
+	SDL_UnlockMutex(mutex_);
+	SDL_DestroyMutex(mutex_);
+
+	SDL_UnbindAudioStream(stream_in_);
+	SDL_DestroyAudioStream(stream_in_);
 }
 
 void AudioSystem::selectHardwareDevice(std::string deviceName) {
