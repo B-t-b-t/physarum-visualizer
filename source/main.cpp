@@ -307,8 +307,7 @@ int main(int argc, char* argv[]) {
 		}
 	}
 
-	window.~Window(); //call destructor and pause to view console seperatly after closing the drawing window
-	//system("pause");
+	window.~Window();
 
 	return 0;
 }

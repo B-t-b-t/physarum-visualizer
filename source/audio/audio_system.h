@@ -8,16 +8,16 @@
 
 #include "audio_processor.h"
 #include "audio_device_manager.h"
-#include "../ui/user_interface.h"
 
 #define BUFFER_SIZE 4096//2048 //65536
 
 struct AudioStreamData {
-	SDL_AudioStream *streamId;
-	short* buffer;
-	unsigned int bufferSize;
-	SDL_Mutex *mutex;
-    bool hasNewAudioData;
+	SDL_AudioStream *streamId = nullptr;
+	short* buffer = nullptr;
+	unsigned int bufferSize = 0;
+	SDL_Mutex *mutex = nullptr;
+    bool hasNewAudioData = false;
+    bool isShuttingDown = false;
 };
 
 class AudioSystem {
@@ -49,10 +49,9 @@ private:
     AudioDeviceManager deviceManager_;
 
     SDL_AudioSpec inSpec_;
-	SDL_AudioStream *stream_in_;
 	AudioStreamData data_;
 
-    int bufferSize_;
+    int bufferSize_ = BUFFER_SIZE;
     std::vector<double> audioBuffer_;
 	int16_t Buf_[BUFFER_SIZE];
 
@@ -62,8 +61,7 @@ private:
     std::vector<double> spectrumDiff_;
 
     Uint32 audioTimer_;
-    SDL_TimerID timerID_;
-    SDL_Mutex *mutex_;
+    SDL_TimerID timerID_ = 0;
 
     bool hasNewAudioData_ = false;
     bool hasNewSpectrumData_ = false;
