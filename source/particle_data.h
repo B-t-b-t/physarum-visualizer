@@ -9,17 +9,20 @@
 
 class ParticleData {
 public:
-	ParticleData(int numParticles, int texWidth, int texHeight);
+	ParticleData();
 
-	void createAndSend();
-	void recreateAndSend(int numParticles, int texWidth, int texHeight);
+	void createAndSend(int numParticles, int texWidth, int texHeight);
 	void printSSBO();
 	void writeToFile(const std::string& filename);
 
 private:
-	int numParticles_;
-	int texWidth_;
-	int texHeight_;
+	void createParticleCircle();
+
+	int numParticles_ = 0;
+	int texWidth_ = 0;
+	int texHeight_ = 0;
+
+	bool bufferAlreadyCreated_ = false;
 
 	struct shader_data_t {
 		float position_x;
@@ -28,7 +31,7 @@ private:
 		float speciesID;
 	};
 
-	GLuint ssbo_;
+	GLuint ssbo_ = 0;
 
 	std::vector<shader_data_t> shaderData_;
 };

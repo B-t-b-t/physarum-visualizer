@@ -2,67 +2,38 @@
 
 #include <fstream>
 
-#define PI 3.14159265f
+ParticleData::ParticleData() {
+}
 
-ParticleData::ParticleData(int numParticles, int texWidth, int texHeight) {
+void ParticleData::createAndSend(int numParticles, int texWidth, int texHeight) {
+
 	numParticles_ = numParticles;
 	texWidth_ = texWidth;
 	texHeight_ = texHeight;
-}
 
-void ParticleData::createAndSend() {
-	int R_Outer = 3200;
-	int R_Inner = 800;
+	createParticleCircle();
 
-	for (int i = 0; i < numParticles_; i++) {
-		int r = sqrt((R_Outer - R_Inner) * (rand() % 10000) / 10000.0f + R_Inner);	//sqrt() to maintain a even point distribution (circle area is proportional to the square of the radius)
-		float a = 2 * PI * (rand() % 10000) / 10000.0f;
-		float x = texWidth_ / 2.0f + r * cos(a);
-		float y = texHeight_ / 2.0f + r * sin(a);
-		float speciesID = (rand() % 3) + 1;		//+1 to avoid speciesID 0 for Branch Avoidance in GLSL
-		shaderData_.push_back({ x, y, a, speciesID });
-	}
-
-	ssbo_ = 0;
-	glGenBuffers(1, &ssbo_);
-	glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssbo_);
-	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, ssbo_);
-	//usage hint GL_DYNAMIC_COPY, because it is modified and read by GPU, but triggers a harmless warning when buffer is modified by CPU
-	glBufferData(GL_SHADER_STORAGE_BUFFER, static_cast<GLsizeiptr>(shaderData_.size() * sizeof(shader_data_t)), &shaderData_[0], GL_DYNAMIC_COPY);
-
-	glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
-	glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
-}
-
-void ParticleData::recreateAndSend(int numParticles, int texWidth, int texHeight) {
-	numParticles_ = numParticles;
-	texWidth_ = texWidth;
-	texHeight_ = texHeight;
-	shaderData_.clear();
-	
-	int R_Outer = 3200;
-	int R_Inner = 800;
-
-	for (int i = 0; i < numParticles_; i++) {
-		int r = sqrt((R_Outer - R_Inner) * (rand() % 10000) / 10000.0f + R_Inner);	//sqrt() to maintain a even point distribution (circle area is proportional to the square of the radius)
-		float a = 2 * PI * (rand() % 10000) / 10000.0f;
-		float x = texWidth_ / 2.0f + r * cos(a);
-		float y = texHeight_ / 2.0f + r * sin(a);
-		float speciesID = (rand() % 3) + 1;		//+1 to avoid speciesID 0 for Branch Avoidance in GLSL
-		shaderData_.push_back({ x, y, a, speciesID });
+	if(!bufferAlreadyCreated_) {
+		glGenBuffers(1, &ssbo_);
+		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, ssbo_);
 	}
 
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssbo_);
-	//usage hint GL_DYNAMIC_COPY, because it is modified and read by GPU, but triggers a harmless warning when buffer is modified by CPU
+	//usage hint GL_DYNAMIC_COPY, because it is constantly modified and read by GPU, but triggers a harmless warning when buffer is modified by CPU
 	glBufferData(GL_SHADER_STORAGE_BUFFER, static_cast<GLsizeiptr>(shaderData_.size() * sizeof(shader_data_t)), &shaderData_[0], GL_DYNAMIC_COPY);
 
-	shader_data_t* ptr = (shader_data_t*)glMapBuffer(GL_SHADER_STORAGE_BUFFER, GL_WRITE_ONLY);
-	for (int i = 0; i < numParticles_; i++) {
-		ptr[i] = shaderData_[(unsigned int) i];
+	if(bufferAlreadyCreated_) {
+		shader_data_t* ptr = (shader_data_t*)glMapBuffer(GL_SHADER_STORAGE_BUFFER, GL_WRITE_ONLY);
+		for (int i = 0; i < numParticles_; i++) {
+			ptr[i] = shaderData_[(unsigned int) i];
+		}
+		glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
 	}
 
 	glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
+
+	bufferAlreadyCreated_ = true;
 }
 
 void ParticleData::printSSBO() {
@@ -116,5 +87,22 @@ void ParticleData::writeToFile(const std::string& filename) {
 		std::cout << "Binary data written to " << filename << ".bin" << std::endl;
 	} else {
 		std::cout << "Unable to open binary file" << std::endl;
+	}
+}
+
+void ParticleData::createParticleCircle() {
+	shaderData_.clear();
+	
+	constexpr float PI = 3.14159265f;
+	constexpr int R_Outer = 3200;
+	constexpr int R_Inner = 800;
+
+	for (int i = 0; i < numParticles_; i++) {
+		int r = sqrt((R_Outer - R_Inner) * (rand() % 10000) / 10000.0f + R_Inner);	//sqrt() to maintain a even point distribution (circle area is proportional to the square of the radius)
+		float a = 2 * PI * (rand() % 10000) / 10000.0f;
+		float x = texWidth_ / 2.0f + r * cos(a);
+		float y = texHeight_ / 2.0f + r * sin(a);
+		float speciesID = (rand() % 3) + 1;		//+1 to avoid speciesID 0 for Branch Avoidance in GLSL
+		shaderData_.push_back({ x, y, a, speciesID });
 	}
 }

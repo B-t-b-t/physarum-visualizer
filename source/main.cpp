@@ -106,8 +106,8 @@ int main(int argc, char* argv[]) {
 
 	//------------------------------------------------------
 	// Initialize Physarum Particles
-	ParticleData ParticleData(uiState.numParticles, ui_uss.textureWidth, ui_uss.textureHeight);
-	ParticleData.createAndSend();
+	ParticleData ParticleData;
+	ParticleData.createAndSend(uiState.numParticles, ui_uss.textureWidth, ui_uss.textureHeight);
 
 	//------------------------------------------------------
 	// Initialize Compute Shaders
@@ -275,7 +275,7 @@ int main(int argc, char* argv[]) {
 				bloomEffect.resizeBloomTextures(ui_uss.textureWidth, ui_uss.textureHeight);
 			}
 
-			ParticleData.recreateAndSend(uiState.numParticles, ui_uss.textureWidth, ui_uss.textureHeight);
+			ParticleData.createAndSend(uiState.numParticles, ui_uss.textureWidth, ui_uss.textureHeight);
 			UniversalShaderSettingsUBO.updateUniformBufferObject(ui_uss);
 			uiState.newCanvas = false;
 		}
