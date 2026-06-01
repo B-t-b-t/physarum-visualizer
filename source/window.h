@@ -1,8 +1,6 @@
 #ifndef WINDOW_H
 #define WINDOW_H
 
-#define SDL_MAIN_HANDLED
-
 #include <string>
 
 #include <GL/glew.h>
