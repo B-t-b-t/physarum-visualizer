@@ -23,6 +23,7 @@ void APIENTRY openglCallbackFunction(GLenum source,
 class Window
 {
 public:
+	Window();
 	Window(int width, int height, const std::string& title, bool customResolution);
 
 	void setFullscreen(bool fullscreen);

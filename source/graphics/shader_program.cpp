@@ -8,6 +8,30 @@ ShaderProgram::ShaderProgram(std::string programName) : programName_(programName
     programID_ = glCreateProgram();
 }
 
+ShaderProgram::ShaderProgram(ShaderProgram&& rhs) {
+	this->programName_ = rhs.programName_;
+	this->programID_ = rhs.programID_;
+	this->shaderIDs_ = rhs.shaderIDs_;
+	this->uniformBufferObjectID_ = rhs.uniformBufferObjectID_;
+	this->uniforms_ = rhs.uniforms_;
+	this->uboMap_ = rhs.uboMap_;
+
+	rhs.programID_ = 0;
+}
+
+ShaderProgram& ShaderProgram::operator=(ShaderProgram&& rhs) {
+	this->programName_ = rhs.programName_;
+	this->programID_ = rhs.programID_;
+	this->shaderIDs_ = rhs.shaderIDs_;
+	this->uniformBufferObjectID_ = rhs.uniformBufferObjectID_;
+	this->uniforms_ = rhs.uniforms_;
+	this->uboMap_ = rhs.uboMap_;
+
+	rhs.programID_ = 0;
+
+	return *this;
+}
+
 ShaderProgram::~ShaderProgram() {
     for (GLuint shaderID : shaderIDs_) {
         glDetachShader(programID_, shaderID);       // detach shaders even if already done in Shader::linkShader just to be sure

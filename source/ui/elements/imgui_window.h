@@ -5,7 +5,7 @@
 
 class ImGuiWindow {
 public:
-    virtual void render(UIState& state) = 0;
+    virtual void render(UIState* state) = 0;
     bool visible = false;
 };
 

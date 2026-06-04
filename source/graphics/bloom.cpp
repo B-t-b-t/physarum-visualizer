@@ -57,27 +57,27 @@ Bloom::Bloom(int textureWidth, int textureHeight, GLuint vertexShaderID)
 	BloomUpsampleProgram_.getUniformsFromGLSL();
 }
 
-void Bloom::applyBloom(GLuint texTrailID, Canvas& drawCanvas, const UIState& uiState) {
+void Bloom::applyBloom(GLuint texTrailID, Canvas* drawCanvas, const UIState* uiState) {
     thresholdFramebuffer_.bind();
     glClear(GL_COLOR_BUFFER_BIT);
-    glViewport(0, 0, (int)uiState.universalShaderSettings.textureWidth, (int)uiState.universalShaderSettings.textureHeight);
+    glViewport(0, 0, (int)uiState->universalShaderSettings.textureWidth, (int)uiState->universalShaderSettings.textureHeight);
     BloomTresholdProgram_.use();
     
     // Bind trail texture to unit 0 for bloom threshold processing
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, texTrailID);
-    BloomTresholdProgram_.setUniform1f("bloomThreshold", uiState.fragmentShaderSettings.bloomThreshold);
+    BloomTresholdProgram_.setUniform1f("bloomThreshold", uiState->fragmentShaderSettings.bloomThreshold);
     // Upload soft-knee parameter for bloom threshold
-    BloomTresholdProgram_.setUniform1f("bloomKnee", uiState.fragmentShaderSettings.bloomKnee);
+    BloomTresholdProgram_.setUniform1f("bloomKnee", uiState->fragmentShaderSettings.bloomKnee);
     BloomTresholdProgram_.setUniform1i("srcTexture", 0);
 
-    drawCanvas.draw();
+    drawCanvas->draw();
 
 	//Downsample pass
     GLuint currentSrc = thresholdTexture_.getID();
     for (size_t i = 0; i < static_cast<size_t>(BLOOM_MIPS_); ++i) {
-        int w = (int) uiState.universalShaderSettings.textureWidth >> (i + 1);
-        int h = (int) uiState.universalShaderSettings.textureHeight >> (i + 1);
+        int w = (int) uiState->universalShaderSettings.textureWidth >> (i + 1);
+        int h = (int) uiState->universalShaderSettings.textureHeight >> (i + 1);
 
         // Horizontal blur
         glBindFramebuffer(GL_FRAMEBUFFER, bloomFramebuffers_[i].getID());
@@ -88,7 +88,7 @@ void Bloom::applyBloom(GLuint texTrailID, Canvas& drawCanvas, const UIState& uiS
         glBindTexture(GL_TEXTURE_2D, currentSrc);
         BloomDownsampleHProgram_.setUniform1i("srcTexture", 0);
         BloomDownsampleHProgram_.setUniform2f("texelSize", 1.0f / w, 0.0f);
-        drawCanvas.draw();
+        drawCanvas->draw();
 
         // Vertical blur
         glBindFramebuffer(GL_FRAMEBUFFER, upsampleFramebuffers_[i].getID());
@@ -99,15 +99,15 @@ void Bloom::applyBloom(GLuint texTrailID, Canvas& drawCanvas, const UIState& uiS
         glBindTexture(GL_TEXTURE_2D, bloomTextures_[i].getID());
         BloomDownsampleVProgram_.setUniform1i("srcTexture", 0);
         BloomDownsampleVProgram_.setUniform2f("texelSize", 0.0f, 1.0f / h);
-        drawCanvas.draw();
+        drawCanvas->draw();
 
         currentSrc = upsampleTextures_[i].getID();
     }
 
 	//Upsample pass
 	for (int i = static_cast<int>(BLOOM_MIPS_) - 2; i >= 0; --i) {
-		int w = (int) uiState.universalShaderSettings.textureWidth >> (i + 1);
-		int h = (int) uiState.universalShaderSettings.textureHeight >> (i + 1);
+		int w = (int) uiState->universalShaderSettings.textureWidth >> (i + 1);
+		int h = (int) uiState->universalShaderSettings.textureHeight >> (i + 1);
 		size_t upsampleIndex = static_cast<size_t>(i);
 
 		// Render into the upsample texture at this mip level,
@@ -127,7 +127,7 @@ void Bloom::applyBloom(GLuint texTrailID, Canvas& drawCanvas, const UIState& uiS
 		glBindTexture(GL_TEXTURE_2D, upsampleTextures_[upsampleIndex + 1].getID());
 		BloomUpsampleProgram_.setUniform1i("smallerMipTexture", 1);
 
-		drawCanvas.draw();
+		drawCanvas->draw();
 	}
 
     // Unbind framebuffer to ensure no read/write conflicts

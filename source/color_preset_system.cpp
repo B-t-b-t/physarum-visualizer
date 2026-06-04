@@ -6,20 +6,20 @@
 #include "ui/elements/preset_window.h"
 #include "utility/fileHandling.h"
 
-ColorPresetSystem::ColorPresetSystem(std::string presetFilePath, std::string fileExtension, UserInterface &ui)
+ColorPresetSystem::ColorPresetSystem(std::string presetFilePath, std::string fileExtension, UserInterface* ui)
  : presetFilePath_(presetFilePath), fileExtension_(fileExtension), ui_(ui) {
     //register all preset names with UI and presets into memory
     loadPresetNames(ui_);
 }
 
-void ColorPresetSystem::createPreset(std::string presetName, UIState &uiState) {
+void ColorPresetSystem::createPreset(std::string presetName, UIState* uiState) {
 
     ColorPreset preset;
     preset.name = presetName;
-    preset.lockSlimeColor = uiState.lockSlimeColor;
-    preset.slimeColor0 = uiState.slimeSettings.slimeColor0;
-    preset.slimeColor1 = uiState.slimeSettings.slimeColor1;
-    preset.slimeColor2 = uiState.slimeSettings.slimeColor2;
+    preset.lockSlimeColor = uiState->lockSlimeColor;
+    preset.slimeColor0 = uiState->slimeSettings.slimeColor0;
+    preset.slimeColor1 = uiState->slimeSettings.slimeColor1;
+    preset.slimeColor2 = uiState->slimeSettings.slimeColor2;
 
     colorPresets.insert({presetName, preset});
 }
@@ -70,8 +70,8 @@ void ColorPresetSystem::loadPreset(std::string fileName) {
     file.close();
 }
 
-void ColorPresetSystem::loadPresetNames(UserInterface &ui) {
-    PresetWindow *window = dynamic_cast<PresetWindow*>(ui.getWindow("PresetWindow"));
+void ColorPresetSystem::loadPresetNames(UserInterface* ui) {
+    PresetWindow *window = dynamic_cast<PresetWindow*>(ui->getWindow("PresetWindow"));
     std::vector<std::string> presetNames;
     loadFileNames(presetFilePath_, fileExtension_, presetNames);
 
@@ -81,59 +81,59 @@ void ColorPresetSystem::loadPresetNames(UserInterface &ui) {
     }
 }
 
-void ColorPresetSystem::loadRandomPreset(UserInterface &ui) {
+void ColorPresetSystem::loadRandomPreset(UserInterface* ui) {
     if(!colorPresets.empty()) {
         unsigned int randomIndex = (unsigned int) (rand() % (int)colorPresets.size());
-        PresetWindow *window = dynamic_cast<PresetWindow*>(ui.getWindow("PresetWindow"));
+        PresetWindow *window = dynamic_cast<PresetWindow*>(ui->getWindow("PresetWindow"));
         window->setSelectedColorPreset(randomIndex);
-        setUIState(ui.getState(), window->getSelectedColorPresetName());
+        setUIState(ui_->getState(), window->getSelectedColorPresetName());
     } else {
         std::cerr << "WARN: No color presets available to auto switch" << std::endl;
     }
 }
 
-void ColorPresetSystem::setUIState(UIState &uiState, std::string presetName) {
+void ColorPresetSystem::setUIState(UIState* uiState, std::string presetName) {
     ColorPreset preset = colorPresets[presetName];
 
-    uiState.lockSlimeColor = preset.lockSlimeColor;
-    uiState.slimeSettings.slimeColor0 = preset.slimeColor0;
-    uiState.slimeSettings.slimeColor1 = preset.slimeColor1;
-    uiState.slimeSettings.slimeColor2 = preset.slimeColor2;
+    uiState->lockSlimeColor = preset.lockSlimeColor;
+    uiState->slimeSettings.slimeColor0 = preset.slimeColor0;
+    uiState->slimeSettings.slimeColor1 = preset.slimeColor1;
+    uiState->slimeSettings.slimeColor2 = preset.slimeColor2;
 }
 
-void ColorPresetSystem::handleUIRequests(UserInterface &ui) {
-    UIState &uiState = ui.getState();
-    PresetWindow *window = dynamic_cast<PresetWindow*>(ui.getWindow("PresetWindow"));
+void ColorPresetSystem::handleUIRequests(UserInterface* ui) {
+    UIState* uiState = ui->getState();
+    PresetWindow *window = dynamic_cast<PresetWindow*>(ui->getWindow("PresetWindow"));
 
     //Saving Color Presets to File
-    if(uiState.saveToColorPreset) {
+    if(uiState->saveToColorPreset) {
         createPreset(std::string(window->getLastColorPresetName()), uiState);
         savePreset(std::string(window->getLastColorPresetName()));
-        uiState.saveToColorPreset = false;
+        uiState->saveToColorPreset = false;
     }
 
     //Loading Color Presets from File
-    if(uiState.loadFromColorPreset) {
+    if(uiState->loadFromColorPreset) {
         std::string presetName = std::string(window->getSelectedColorPresetName());
 
         loadPreset(presetName);
         setUIState(uiState, presetName);
-        uiState.loadFromColorPreset = false;
+        uiState->loadFromColorPreset = false;
     }
 }
 
-void ColorPresetSystem::autoSwitchPresets(UserInterface &ui, Uint64 timeInSeconds) {
-    UIState &uiState = ui.getState();
+void ColorPresetSystem::autoSwitchPresets(UserInterface* ui, Uint64 timeInSeconds) {
+    UIState* uiState = ui->getState();
 
     //Timed Auto Preset Switching
-    if(uiState.autoPresetSwitching) {
-        uiState.saveToPreset = false;
-        uiState.loadFromPreset = false;
+    if(uiState->autoPresetSwitching) {
+        uiState->saveToPreset = false;
+        uiState->loadFromPreset = false;
 
-        if((timeInSeconds % (Uint64)uiState.colorPresetIntervall == 0) && !timeOut_ && uiState.slimeSettings.velocityBassReaction > uiState.beatVolumeSwitch) {
+        if((timeInSeconds % (Uint64)uiState->colorPresetIntervall == 0) && !timeOut_ && uiState->slimeSettings.velocityBassReaction > uiState->beatVolumeSwitch) {
             loadRandomPreset(ui);
             timeOut_ = true;
-        } else if((timeInSeconds % (Uint64)uiState.colorPresetIntervall > 0) && timeOut_){
+        } else if((timeInSeconds % (Uint64)uiState->colorPresetIntervall > 0) && timeOut_){
             timeOut_ = false;
         }
     }

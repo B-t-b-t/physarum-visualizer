@@ -19,16 +19,17 @@ class UserInterface {
 
 public:
 
+	//UserInterface();
 	UserInterface(SDL_Window* window, SDL_GLContext glContext);
 	~UserInterface();
 
 	void display(std::vector<double>& audioBuffer, std::vector<double>& spectrum, std::vector<double>& spectrumDiff, int bufferSize, bool hasNewSpectrumData);
 	ImGuiWindow* getWindow(std::string windowName) {return windows_.at(windowName).get();}
-	UIState& getState() { return state_; }
+	UIState* getState() { return state_; }
 
 private:
 
-	UIState& state_;
+	UIState* state_;
 	std::unordered_map<std::string, std::unique_ptr<ImGuiWindow>> windows_;
 
 	ImGuiIO *guiIO_;

@@ -42,9 +42,9 @@ public:
 	FragmentShaderSettings fragmentShaderSettings;
 	ParameterSettings parameterSettings;
 
-	static UIState& getInstance() {
+	static UIState* getInstance() {
 		static UIState instance;
-        return instance;
+        return &instance;
 	}
 	
 	bool newCanvas = false;

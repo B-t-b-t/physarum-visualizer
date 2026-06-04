@@ -1,6 +1,6 @@
 #include "preset_window.h"
 
-void PresetWindow::render(UIState& state) {
+void PresetWindow::render(UIState* state) {
     if(!visible) { return; }
 
 	ImGui::Begin("Preset", &visible);
@@ -22,7 +22,7 @@ void PresetWindow::render(UIState& state) {
 
 		if(!presetAlreadyExists) {
 			addPresetName(std::string(presetNameChar));
-			state.saveToPreset = true;
+			state->saveToPreset = true;
 		}
 
 		presetNameChar[0] = '\0';
@@ -42,7 +42,7 @@ void PresetWindow::render(UIState& state) {
 			const bool is_selected = (selectedPresetName_ == n);
 			if (ImGui::Selectable(presetNames_[n].c_str(), is_selected)) {
 				selectedPresetName_ = n;
-				state.loadFromPreset = true;
+				state->loadFromPreset = true;
 				std::cout << "Selected Preset: " << presetNames_[n] << std::endl;
 			}
 			// Set the initial focus when opening the combo (scrolling + keyboard navigation focus)
@@ -74,7 +74,7 @@ void PresetWindow::render(UIState& state) {
 
 		if(!colorPresetAlreadyExists) {
 			addColorPresetName(std::string(colorPresetNameChar));
-			state.saveToColorPreset = true;
+			state->saveToColorPreset = true;
 		}
 
 		colorPresetNameChar[0] = '\0';
@@ -94,7 +94,7 @@ void PresetWindow::render(UIState& state) {
 			const bool is_selected = (selectedColorPresetName_ == n);
 			if (ImGui::Selectable(colorPresetNames_[n].c_str(), is_selected)) {
 				selectedColorPresetName_ = n;
-				state.loadFromColorPreset = true;
+				state->loadFromColorPreset = true;
 				std::cout << "Selected Color Preset: " << colorPresetNames_[n] << std::endl;
 			}
 			// Set the initial focus when opening the combo (scrolling + keyboard navigation focus)
@@ -118,7 +118,7 @@ void PresetWindow::render(UIState& state) {
 			const bool is_selected = (selectedPictureName_ == n);
 			if (ImGui::Selectable(pictureNames_[n].c_str(), is_selected)) {
 				selectedPictureName_ = n;
-				state.loadNewPicture = true;
+				state->loadNewPicture = true;
 				std::cout << "Selected Picture: " << pictureNames_[n] << std::endl;
 			}
 			// Set the initial focus when opening the combo (scrolling + keyboard navigation focus)
@@ -130,16 +130,16 @@ void PresetWindow::render(UIState& state) {
 		ImGui::EndListBox();
 	}
 
-	ImGui::SliderFloat("Trail Mask Influence", &state.universalShaderSettings.trailMaskInfluence, 0.0f, 5.0f);
-	ImGui::SliderFloat("Trail Mask Scale", &state.universalShaderSettings.trailMaskScale, 0.1f, 10.0f);
-	ImGui::SliderInt("Trail Mask Time Intervall [s]", &state.trailMaskIntervall, 2, 60);
+	ImGui::SliderFloat("Trail Mask Influence", &state->universalShaderSettings.trailMaskInfluence, 0.0f, 5.0f);
+	ImGui::SliderFloat("Trail Mask Scale", &state->universalShaderSettings.trailMaskScale, 0.1f, 10.0f);
+	ImGui::SliderInt("Trail Mask Time Intervall [s]", &state->trailMaskIntervall, 2, 60);
 
 	ImGui::Separator();
 
-	ImGui::Checkbox("Auto Preset Switching", &state.autoPresetSwitching);
-	ImGui::SliderInt("Preset Time Intervall [s]", &state.presetIntervall, 2, 60);
-	ImGui::SliderInt("Color Preset Time Intervall [s]", &state.colorPresetIntervall, 2, 60);
-	ImGui::SliderInt("Switch at Beat Volume", &state.beatVolumeSwitch, 0, 50);
+	ImGui::Checkbox("Auto Preset Switching", &state->autoPresetSwitching);
+	ImGui::SliderInt("Preset Time Intervall [s]", &state->presetIntervall, 2, 60);
+	ImGui::SliderInt("Color Preset Time Intervall [s]", &state->colorPresetIntervall, 2, 60);
+	ImGui::SliderInt("Switch at Beat Volume", &state->beatVolumeSwitch, 0, 50);
 
 	ImGui::End();
 }

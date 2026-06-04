@@ -36,7 +36,7 @@ AudioSystem::AudioSystem(std::string deviceName) {
 			SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Couldn't create mutex\n");
 		}
 		
-		data_ = {streamIn, Buf_, BUFFER_SIZE, mutex, false, false};
+		data_ = AudioStreamData(streamIn, Buf_, BUFFER_SIZE, mutex, false, false);
 		audioTimer_ = 100;
 
 		timerID_ = SDL_AddTimer(audioTimer_, getAudioCallback, &data_);
@@ -60,11 +60,11 @@ AudioSystem::AudioSystem(std::string deviceName) {
 
 AudioSystem::~AudioSystem() {
 
-	if(data_.mutex != nullptr) {
-		SDL_LockMutex(data_.mutex);
-		data_.isShuttingDown = true;	//signal audio callback to stop timer and exit
-		data_.streamId = nullptr;
-		SDL_UnlockMutex(data_.mutex);
+	if(data_.mutex_ != nullptr) {
+		SDL_LockMutex(data_.mutex_);
+		data_.isShuttingDown_ = true;	//signal audio callback to stop timer and exit
+		data_.streamId_ = nullptr;
+		SDL_UnlockMutex(data_.mutex_);
 	}
 
 	if(timerID_ != 0) {
@@ -74,26 +74,26 @@ AudioSystem::~AudioSystem() {
 		}
 	}
 
-	if(data_.mutex != nullptr) {
-		SDL_LockMutex(data_.mutex);	//wait for final audiocallback to stop if running
-		SDL_UnlockMutex(data_.mutex);
+	if(data_.mutex_ != nullptr) {
+		SDL_LockMutex(data_.mutex_);	//wait for final audiocallback to stop if running
+		SDL_UnlockMutex(data_.mutex_);
 	}
 	
-	if(data_.streamId != nullptr) {
-		SDL_DestroyAudioStream(data_.streamId);
-		data_.streamId = nullptr;
+	if(data_.streamId_ != nullptr) {
+		SDL_DestroyAudioStream(data_.streamId_);
+		data_.streamId_ = nullptr;
 	}
 	
-	if(data_.mutex != nullptr) {
-		SDL_DestroyMutex(data_.mutex);
-		data_.mutex = nullptr;
+	if(data_.mutex_ != nullptr) {
+		SDL_DestroyMutex(data_.mutex_);
+		data_.mutex_ = nullptr;
 	}
 }
 
 void AudioSystem::selectHardwareDevice(std::string deviceName) {
 
-	SDL_UnbindAudioStream(data_.streamId);
-	//SDL_DestroyAudioStream(data_.streamId);
+	SDL_UnbindAudioStream(data_.streamId_);
+	//SDL_DestroyAudioStream(data_.streamId_);
 
 	deviceManager_.openDevice(deviceName);
 	inSpec_ = deviceManager_.getCurrentAudioSpec();
@@ -101,20 +101,20 @@ void AudioSystem::selectHardwareDevice(std::string deviceName) {
 	inSpec_.channels = 1;	//use just mono (why?)
 
 	//bind new device to input stream
-	SDL_BindAudioStream(deviceManager_.getCurrentLogicalDeviceID(), data_.streamId);
+	SDL_BindAudioStream(deviceManager_.getCurrentLogicalDeviceID(), data_.streamId_);
 }
 
 void AudioSystem::computeSpectrum() {
-	if(data_.mutex == nullptr) { return; }
+	if(data_.mutex_ == nullptr) { return; }
 
-    if (SDL_TryLockMutex(data_.mutex)) {
-		if(data_.hasNewAudioData) {
+    if (SDL_TryLockMutex(data_.mutex_)) {
+		if(data_.hasNewAudioData_) {
         	audioBuffer_.clear();
         	audioBuffer_.insert(audioBuffer_.begin(), Buf_, Buf_ + BUFFER_SIZE);
-			data_.hasNewAudioData = false;
+			data_.hasNewAudioData_ = false;
 			hasNewAudioData_ = true;
 		}
-        SDL_UnlockMutex(data_.mutex);
+        SDL_UnlockMutex(data_.mutex_);
     } else {
         SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Couldn't lock mutex in AudioBuffer Vector Insert\n");
     }
@@ -136,36 +136,36 @@ void AudioSystem::computeSpectrum() {
 Uint32 getAudioCallback (void *parameter, SDL_TimerID timerID, Uint32 intervall) {
 	AudioStreamData* data = (AudioStreamData*)parameter;
 
-	if(data == nullptr || data->mutex == nullptr) {
+	if(data == nullptr || data->mutex_ == nullptr) {
 		std::cerr << "Audio Callback: No data or mutex provided!" << std::endl;
 		return 0;	//stop callback
 	}
 	
-	SDL_LockMutex(data->mutex);
+	SDL_LockMutex(data->mutex_);
 
-	if(data->isShuttingDown || data->streamId == nullptr || data->buffer == nullptr) { 
-		SDL_UnlockMutex(data->mutex);
+	if(data->isShuttingDown_ || data->streamId_ == nullptr || data->buffer_ == nullptr) { 
+		SDL_UnlockMutex(data->mutex_);
 		return 0; 	//stop timer if shutting down
 	}
 
 	timerID = timerID;		// to avoid pedantic warning
 		
-	for(unsigned int i = 0; i < data->bufferSize; i++) {
-		(data->buffer)[i] = 0;
+	for(unsigned int i = 0; i < data->bufferSize_; i++) {
+		(data->buffer_)[i] = 0;
 	}
 	
-	int read = SDL_GetAudioStreamData(data->streamId, data->buffer, data->bufferSize * sizeof(*data->buffer));
+	int read = SDL_GetAudioStreamData(data->streamId_, data->buffer_, data->bufferSize_ * sizeof(*data->buffer_));
 	if(read == -1) {
 		std::cerr << SDL_GetError() << std::endl;
 	}
 
-	bool isStreamCleared = SDL_ClearAudioStream(data->streamId);
+	bool isStreamCleared = SDL_ClearAudioStream(data->streamId_);
 	if(!isStreamCleared) {
 		std::cerr << SDL_GetError() << std::endl;
 	}
 
-	data->hasNewAudioData = true;	//for synchronizing spectrum computation in main loop
-	SDL_UnlockMutex(data->mutex);
+	data->hasNewAudioData_ = true;	//for synchronizing spectrum computation in main loop
+	SDL_UnlockMutex(data->mutex_);
 	
 	return intervall;
 }

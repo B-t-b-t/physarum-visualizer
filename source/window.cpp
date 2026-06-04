@@ -7,7 +7,11 @@ Window::Window(int width, int height, const std::string& title, bool customResol
 	windowWidth_ = width;
 	windowHeight_ = height;
 
-	SDL_Init(SDL_INIT_VIDEO | SDL_INIT_CAMERA | SDL_INIT_AUDIO);
+	bool init_SDL_Success = SDL_Init(SDL_INIT_VIDEO | SDL_INIT_CAMERA | SDL_INIT_AUDIO);
+	if (!init_SDL_Success) {
+		std::cerr << "Error: SDL_Init failed with error message: " << SDL_GetError() << std::endl;
+		exit(1);
+	}
 
 	//set to maximum display resolution if user provides none
 	if(!customResolution) {
@@ -61,7 +65,17 @@ Window::Window(int width, int height, const std::string& title, bool customResol
 
 		window_ = SDL_CreateWindow(title.c_str(), windowWidth_, windowHeight_, SDL_WINDOW_OPENGL);
 		glContext_ = SDL_GL_CreateContext(window_);
-	} 
+	}
+
+	if(window_ == nullptr) {
+		std::cerr << "Error: SDL_CreateWindow failed with error message: " << SDL_GetError() << std::endl;
+		exit(1);
+	}
+
+	if(glContext_ == nullptr) {
+		std::cerr << "Error: SDL_GL_CreateContext failed with error message: " << SDL_GetError() << std::endl;
+		exit(1);
+	}
 
 	//Measure of last resort using extensions for OpenGL Version 4.2
 	if(minorVersion_ == 2) {

@@ -205,6 +205,7 @@ add_compile_options(-Werror -Wall -Wextra -Wpedantic -Wfloat-equal -Wsign-conver
 set(GLM_INCLUDE_PATH PATH ${CMAKE_CURRENT_SOURCE_DIR}/glm)
 
 set(MY_HEADER_FILES
+    source/application.h
     source/canvas.h
     source/color_preset_system.h
     source/particle_data.h
@@ -237,6 +238,7 @@ set(MY_HEADER_FILES
 
 set(MY_SOURCE_FILES
     source/main.cpp
+    source/application.cpp
     source/canvas.cpp
     source/color_preset_system.cpp
     source/particle_data.cpp

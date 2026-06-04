@@ -10,6 +10,9 @@ static void CheckShaderError(GLuint shader, GLuint flag, const std::string& erro
 static std::string LoadShader(const std::string& filename);
 static GLuint CreateShader(const std::string& text, GLenum shaderType, std::string& filename);
 
+Shader::Shader() {
+}
+
 Shader::Shader(const std::string& filename, ShaderType shaderType) {
 	shaderType_ = shaderType;
 	filename_ = filename;
@@ -41,6 +44,22 @@ Shader::Shader(const std::string& filename, ShaderType shaderType) {
 	default:
 		break;
 	}
+
+}
+
+Shader::Shader(Shader&& rhs) {
+	this->filename_ = rhs.filename_;
+	this->shaderID_ = rhs.shaderID_;
+	this->shaderType_ = rhs.shaderType_;
+	rhs.shaderID_ = 0;
+}
+
+Shader& Shader::operator=(Shader&& rhs) {
+	this->filename_ = rhs.filename_;
+	this->shaderID_ = rhs.shaderID_;
+	this->shaderType_ = rhs.shaderType_;
+	rhs.shaderID_ = 0;
+	return *this;
 }
 
 Shader::~Shader() {

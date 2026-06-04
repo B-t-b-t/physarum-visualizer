@@ -6,6 +6,18 @@ FrameBuffer::FrameBuffer() {
     glGenFramebuffers(1, &framebufferID_);
 }
 
+FrameBuffer::FrameBuffer(FrameBuffer&& rhs) {
+    this->framebufferID_ = rhs.framebufferID_;
+    rhs.framebufferID_ = 0;
+}
+
+FrameBuffer& FrameBuffer::operator=(FrameBuffer&& rhs) {
+    this->framebufferID_ = rhs.framebufferID_;
+    rhs.framebufferID_ = 0;
+
+    return *this;
+}
+
 FrameBuffer::~FrameBuffer() {
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     glDeleteFramebuffers(1, &framebufferID_);

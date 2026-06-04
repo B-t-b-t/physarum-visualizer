@@ -10,15 +10,16 @@
 
 class Bloom {
 public:
+    Bloom() = default;
     Bloom(int textureWidth, int textureHeight, GLuint vertexShaderID);
 
-    void applyBloom(GLuint texTrailID, Canvas& drawCanvas, const UIState& uiState);
+    void applyBloom(GLuint texTrailID, Canvas* drawCanvas, const UIState* uiState);
     void bindBloomTextures(GLuint texTrail, GLuint texTrailNonDiffused, GLuint newTexParticles, GLuint oldTexParticles, GLuint texCollisions);
     void resizeBloomTextures(int textureWidth, int textureHeight);
 
 private:
 
-	const int BLOOM_MIPS_ = 5;
+	static constexpr int BLOOM_MIPS_ = 5;
 
     Texture thresholdTexture_;
     FrameBuffer thresholdFramebuffer_;

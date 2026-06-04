@@ -6,6 +6,10 @@
 class FrameBuffer {
 public:
     FrameBuffer();
+
+    FrameBuffer(FrameBuffer&& rhs);
+    FrameBuffer& operator=(FrameBuffer&& rhs);
+
     ~FrameBuffer();
 
     void bind();

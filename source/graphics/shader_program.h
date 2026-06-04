@@ -18,7 +18,11 @@ struct UniformMapping {
 
 class ShaderProgram {
 public:
+    ShaderProgram() = default;
     ShaderProgram(std::string programName);
+    ShaderProgram(ShaderProgram&& rhs);
+    ShaderProgram& operator=(ShaderProgram&& rhs);
+
     ~ShaderProgram();
 
     void attachShader(GLuint shaderID);

@@ -10,7 +10,12 @@ class UniformBufferObject {
 
 public:
 
+    UniformBufferObject() = default;
     UniformBufferObject(GLuint bindingPoint);
+
+    UniformBufferObject(UniformBufferObject&& rhs);
+    UniformBufferObject& operator=(UniformBufferObject&& rhs);
+
     ~UniformBufferObject();
 
     //implementation needs to be in the header file to avoid linker errors because of template

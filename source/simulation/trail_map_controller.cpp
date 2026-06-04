@@ -33,9 +33,9 @@ bool TrailMapController::checkTimeTable(std::string imageName) {
 }
 
 
-TrailMapController::TrailMapController(std::string pictureFilePath, std::string pictureFileExtension, GLuint textureUnit, UserInterface &ui)
- : pictureFilePath_(pictureFilePath), pictureFileExtension_(pictureFileExtension), textureUnit_(textureUnit), ui_(ui) {
-    loadPictureNames(ui_);
+TrailMapController::TrailMapController(std::string pictureFilePath, std::string pictureFileExtension, GLuint textureUnit, UserInterface* ui)
+ : pictureFilePath_(pictureFilePath), pictureFileExtension_(pictureFileExtension), textureUnit_(textureUnit) {
+    loadPictureNames(ui);
     for(size_t i = 0; i < trailMasks_.size(); ++i) {
         activeTrailMaskIndex_ = i;
         loadTrailMaskFromImage(trailMasks_[i].imageName);
@@ -97,9 +97,9 @@ void TrailMapController::loadTrailMaskFromImage(std::string imageName) {
     trailMasks_[activeTrailMaskIndex_].loadedToGPU = true;
 }
 
-void TrailMapController::loadPictureNames(UserInterface &ui) {
+void TrailMapController::loadPictureNames(UserInterface* ui) {
 
-    PresetWindow *window = dynamic_cast<PresetWindow*>(ui.getWindow("PresetWindow"));
+    PresetWindow *window = dynamic_cast<PresetWindow*>(ui->getWindow("PresetWindow"));
     
     std::vector<std::string> pictureNames;
 
@@ -114,7 +114,7 @@ void TrailMapController::loadPictureNames(UserInterface &ui) {
 /*Loads Images indirectly, where the selection in the ListBox of the window is set and a call to handleUIRequests is made later in main()
     !UGLY and confusing, please rewrite!!
 */
-void TrailMapController::loadRandomPicture(UserInterface &ui) {
+void TrailMapController::loadRandomPicture(UserInterface* ui) {
     if(!trailMasks_.empty()) {
         
         SDL_GetCurrentTime(&timeTicks_);
@@ -128,7 +128,7 @@ void TrailMapController::loadRandomPicture(UserInterface &ui) {
             imageName = trailMasks_[randomIndex].imageName;
         }
         
-        PresetWindow *window = dynamic_cast<PresetWindow*>(ui.getWindow("PresetWindow"));
+        PresetWindow *window = dynamic_cast<PresetWindow*>(ui->getWindow("PresetWindow"));
         window->setSelectedPicture(randomIndex);
         activeTrailMaskIndex_ = randomIndex;
         
@@ -137,12 +137,12 @@ void TrailMapController::loadRandomPicture(UserInterface &ui) {
     }
 }
 
-void TrailMapController::handleUIRequests(UserInterface &ui) {
-    UIState &uiState = ui.getState();
-    PresetWindow *window = dynamic_cast<PresetWindow*>(ui.getWindow("PresetWindow"));
+void TrailMapController::handleUIRequests(UserInterface* ui) {
+    UIState* uiState = ui->getState();
+    PresetWindow *window = dynamic_cast<PresetWindow*>(ui->getWindow("PresetWindow"));
 
     //Loading Picture from File
-    if(uiState.loadNewPicture) {
+    if(uiState->loadNewPicture) {
         std::string pictureName = std::string(window->getSelectedPictureName());
 
         //binds selected image or loads it into GPU memory if not already loaded
@@ -161,23 +161,23 @@ void TrailMapController::handleUIRequests(UserInterface &ui) {
             }
         }
 
-        uiState.loadNewPicture = false;
+        uiState->loadNewPicture = false;
     }
 }
 
-void TrailMapController::autoSwitchPictures(UserInterface &UserInterface, Uint64 timeInSeconds) {
+void TrailMapController::autoSwitchPictures(UserInterface* ui, Uint64 timeInSeconds) {
 
-    UIState &uiState = UserInterface.getState();
+    UIState* uiState = ui->getState();
 
     //Timed Auto Preset Switching
-    if(uiState.autoPresetSwitching) {
-        uiState.saveToPreset = false;
-        uiState.loadFromPreset = false;
+    if(uiState->autoPresetSwitching) {
+        uiState->saveToPreset = false;
+        uiState->loadFromPreset = false;
 
-        if((timeInSeconds % (Uint64)uiState.trailMaskIntervall == 0) && !timeOut_ && uiState.slimeSettings.velocityBassReaction > uiState.beatVolumeSwitch) {
-            loadRandomPicture(UserInterface);
+        if((timeInSeconds % (Uint64)uiState->trailMaskIntervall == 0) && !timeOut_ && uiState->slimeSettings.velocityBassReaction > uiState->beatVolumeSwitch) {
+            loadRandomPicture(ui);
             timeOut_ = true;
-        } else if((timeInSeconds % (Uint64)uiState.trailMaskIntervall > 0) && timeOut_){
+        } else if((timeInSeconds % (Uint64)uiState->trailMaskIntervall > 0) && timeOut_){
             timeOut_ = false;
         }
     }

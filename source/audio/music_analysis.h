@@ -6,15 +6,16 @@
 class MusicAnalysis {
 public:
 
-    MusicAnalysis(UIState& uiState);
+    MusicAnalysis() = default;
+    MusicAnalysis(UIState* uiState);
 
     void analyzeMusic(std::vector<double>& spectrumDiff, double frameTime);
 
 private:
 
-    UIState& uiState_;
+    UIState* uiState_;
 
-    const float velocityReactionTimeConstant_ = 0.15f;
+    float velocityReactionTimeConstant_ = 0.15f;
     float velocityBassReactionTarget_;
 	float velocityBassReactionSmooth_;
 };

@@ -6,26 +6,26 @@
 #include "ui/elements/preset_window.h"
 #include "utility/fileHandling.h"
 
-PresetSystem::PresetSystem(std::string presetFilePath, std::string fileExtension, UserInterface &ui)
+PresetSystem::PresetSystem(std::string presetFilePath, std::string fileExtension, UserInterface* ui)
  : presetFilePath_(presetFilePath), fileExtension_(fileExtension), ui_(ui) {
     //register all preset names with UI and presets into memory
-    loadPresetNames(ui_);
+    loadPresetNames(ui);
 }
 
-void PresetSystem::createPreset(std::string presetName, UIState &uiState) {
+void PresetSystem::createPreset(std::string presetName, UIState* uiState) {
 
     Preset preset;
     preset.name = presetName;
-    preset.useMask = uiState.slimeSettings.useMask;
-    preset.collisionDetection = uiState.universalShaderSettings.collisionDetection;
-    preset.v = uiState.slimeSettings.v;
-    preset.depositionStrength = uiState.slimeSettings.depositionStrength;
-    preset.lockAngles = uiState.lockAngles;
-    preset.rotationAngle = uiState.slimeSettings.rotationAngle;
-    preset.angle = uiState.slimeSettings.angle;
-    preset.sensorDistance = uiState.slimeSettings.sensorDistance;
-    preset.diffusionWeight = uiState.trailDiffusionSettings.diffusionWeight;
-    preset.decay = uiState.trailDiffusionSettings.decay;
+    preset.useMask = uiState->slimeSettings.useMask;
+    preset.collisionDetection = uiState->universalShaderSettings.collisionDetection;
+    preset.v = uiState->slimeSettings.v;
+    preset.depositionStrength = uiState->slimeSettings.depositionStrength;
+    preset.lockAngles = uiState->lockAngles;
+    preset.rotationAngle = uiState->slimeSettings.rotationAngle;
+    preset.angle = uiState->slimeSettings.angle;
+    preset.sensorDistance = uiState->slimeSettings.sensorDistance;
+    preset.diffusionWeight = uiState->trailDiffusionSettings.diffusionWeight;
+    preset.decay = uiState->trailDiffusionSettings.decay;
 
     presets.insert({presetName, preset});
 }
@@ -93,9 +93,9 @@ void PresetSystem::loadPreset(std::string fileName) {
     file.close();
 }
 
-void PresetSystem::loadPresetNames(UserInterface &ui) {
+void PresetSystem::loadPresetNames(UserInterface* ui) {
 
-    PresetWindow *window = dynamic_cast<PresetWindow*>(ui.getWindow("PresetWindow"));
+    PresetWindow *window = dynamic_cast<PresetWindow*>(ui->getWindow("PresetWindow"));
     std::vector<std::string> presetNames;
     loadFileNames(presetFilePath_, fileExtension_, presetNames);
 
@@ -105,66 +105,66 @@ void PresetSystem::loadPresetNames(UserInterface &ui) {
     }
 }
 
-void PresetSystem::loadRandomPreset(UserInterface &ui) {
+void PresetSystem::loadRandomPreset(UserInterface* ui) {
 
    if(!presets.empty()) {
-        PresetWindow *window = dynamic_cast<PresetWindow*>(ui.getWindow("PresetWindow"));
+        PresetWindow *window = dynamic_cast<PresetWindow*>(ui->getWindow("PresetWindow"));
         unsigned int randomIndex = (unsigned int) (rand() % (int)presets.size());
         window->setSelectedPreset(randomIndex);
-        setUIState(ui.getState(), window->getSelectedPresetName());
+        setUIState(ui->getState(), window->getSelectedPresetName());
     } else {
         std::cerr << "WARN: No presets available to auto switch" << std::endl;
     }
 }
 
-void PresetSystem::setUIState(UIState &uiState, std::string presetName) {
+void PresetSystem::setUIState(UIState* uiState, std::string presetName) {
     Preset preset = presets[presetName];
 
-    uiState.slimeSettings.useMask = preset.useMask;
-    uiState.universalShaderSettings.collisionDetection = preset.collisionDetection;
-    uiState.slimeSettings.v = preset.v;
-    uiState.slimeSettings.depositionStrength = preset.depositionStrength;
-    uiState.lockAngles = preset.lockAngles;
-    uiState.slimeSettings.rotationAngle = preset.rotationAngle;
-    uiState.slimeSettings.angle = preset.angle;
-    uiState.slimeSettings.sensorDistance = preset.sensorDistance;
-    uiState.trailDiffusionSettings.diffusionWeight = preset.diffusionWeight;
-    uiState.trailDiffusionSettings.decay = preset.decay;
+    uiState->slimeSettings.useMask = preset.useMask;
+    uiState->universalShaderSettings.collisionDetection = preset.collisionDetection;
+    uiState->slimeSettings.v = preset.v;
+    uiState->slimeSettings.depositionStrength = preset.depositionStrength;
+    uiState->lockAngles = preset.lockAngles;
+    uiState->slimeSettings.rotationAngle = preset.rotationAngle;
+    uiState->slimeSettings.angle = preset.angle;
+    uiState->slimeSettings.sensorDistance = preset.sensorDistance;
+    uiState->trailDiffusionSettings.diffusionWeight = preset.diffusionWeight;
+    uiState->trailDiffusionSettings.decay = preset.decay;
 }
 
-void PresetSystem::handleUIRequests(UserInterface &ui) {
-    UIState &uiState = ui.getState();
-    PresetWindow *window = dynamic_cast<PresetWindow*>(ui.getWindow("PresetWindow"));
+void PresetSystem::handleUIRequests(UserInterface* ui) {
+    UIState* uiState = ui->getState();
+    PresetWindow *window = dynamic_cast<PresetWindow*>(ui->getWindow("PresetWindow"));
 
     //Saving Presets to File
-    if(uiState.saveToPreset) {
+    if(uiState->saveToPreset) {
         createPreset(std::string(window->getLastPresetName()), uiState);
         savePreset(std::string(window->getLastPresetName()));
-        uiState.saveToPreset = false;
+        uiState->saveToPreset = false;
     }
 
     //Loading Presets from File
-    if(uiState.loadFromPreset) {
+    if(uiState->loadFromPreset) {
         std::string presetName = std::string(window->getSelectedPresetName());
 
         loadPreset(presetName);
         setUIState(uiState, presetName);
-        uiState.loadFromPreset = false;
+        uiState->loadFromPreset = false;
     }
 }
 
-void PresetSystem::autoSwitchPresets(UserInterface &UserInterface, Uint64 timeInSeconds) {
-    UIState &uiState = UserInterface.getState();
+void PresetSystem::autoSwitchPresets(UserInterface* ui, Uint64 timeInSeconds) {
+    UIState* uiState = ui->getState();
 
     //Timed Auto Preset Switching
-    if(uiState.autoPresetSwitching) {
-        uiState.saveToPreset = false;
-        uiState.loadFromPreset = false;
+    if(uiState->autoPresetSwitching) {
+        uiState->saveToPreset = false;
+        uiState->loadFromPreset = false;
 
-        if((timeInSeconds % (Uint64)uiState.presetIntervall == 0) && !timeOut_ && uiState.slimeSettings.velocityBassReaction > uiState.beatVolumeSwitch) {
-            loadRandomPreset(UserInterface);
+        if((timeInSeconds % (Uint64)uiState->presetIntervall == 0) && !timeOut_ && uiState->slimeSettings.velocityBassReaction > uiState->beatVolumeSwitch) {
+            loadRandomPreset(ui);
             timeOut_ = true;
-        } else if((timeInSeconds % (Uint64)uiState.presetIntervall > 0) && timeOut_){
+        } else if((timeInSeconds % (Uint64)uiState->presetIntervall > 0) && timeOut_){
             timeOut_ = false;
         }
     }

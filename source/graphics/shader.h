@@ -17,7 +17,11 @@ enum class ShaderType {
 class Shader {
 
 public:
+    Shader();
 	Shader(const std::string& filename, ShaderType shaderType);
+    Shader(Shader&& rhs);
+    Shader& operator=(Shader&& rhs);
+
     virtual ~Shader();
 
     GLuint getShaderID() const { return shaderID_; }

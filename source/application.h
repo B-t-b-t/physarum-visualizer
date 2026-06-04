@@ -1,0 +1,81 @@
+#ifndef APPLICATION_H
+#define APPLICATION_H
+
+#include "canvas.h"
+#include "color_preset_system.h"
+#include "particle_data.h"
+#include "preset_system.h"
+#include "window.h"
+#include "./audio/audio_system.h"
+#include "./audio/music_analysis.h"
+#include "./graphics/bloom.h"
+#include "./graphics/shader.h"
+#include "./graphics/shader_program.h"
+#include "./graphics/texture.h"
+#include "./graphics/uniform_buffer_object.h"
+#include "./simulation/trail_map_controller.h"
+#include "./utility/parameter_parser.h"
+#include "./ui/elements/audio_window.h"
+#include "./ui/user_interface.h"
+
+class Application {
+
+public:
+    Application(Parameters params, int workGroupDivider);
+    ~Application();
+
+    void initialize();
+
+    void run();
+
+private:
+    Parameters params_;
+    int workGroupDivider_;
+    Window window_;
+    UserInterface ui_;
+    
+    UIState* uiState_;
+    Canvas drawCanvas_;
+
+    Texture texTrail_;		        //Texture Unit 0
+	Texture texTrailNonDiffused_;	//Texture Unit 1
+	Texture newTexParticles_;		//Texture Unit 2
+	Texture oldTexParticles_;		//Texture Unit 3
+	Texture texCollisions_;         //Texture Unit 4
+
+    Shader vertexShader_;
+	Shader fragmentShader_;
+
+    ShaderProgram rasterizationPipeline_;
+
+    Bloom bloomEffect_;
+
+    ParticleData particleData_;
+
+    Shader trailDiffusionShader_;
+	ShaderProgram trailDiffusionProgram_;
+    Shader particleBehaviourShader_;
+	ShaderProgram particleBehaviourProgram_;
+
+    AudioSystem audioSystem_;
+
+    AudioWindow* audioWindow_;
+
+    PresetSystem presetSystem_;
+	ColorPresetSystem colorPresetSystem_;
+
+    UniformBufferObject universalShaderSettingsUBO_;
+	UniformBufferObject slimeSettingsUBO_;
+	UniformBufferObject trailDiffusionUBO_;
+	UniformBufferObject fragmentShaderSettingsUBO_;
+	UniformBufferObject parameterSettingsUBO_;
+
+    TrailMapController trailMapController_;
+
+    MusicAnalysis musicAnalysis_;
+
+    Uint64 prevCounter_;
+	Uint64 counterFrequency_; 
+};
+
+#endif // APPLICATION_H

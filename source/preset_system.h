@@ -26,18 +26,19 @@ struct Preset {
 class PresetSystem {
 public:
 
-	PresetSystem(std::string presetFilePath, std::string fileExtension, UserInterface &ui);
+	PresetSystem() = default;
+	PresetSystem(std::string presetFilePath, std::string fileExtension, UserInterface* ui);
 
-    void createPreset(std::string presetName, UIState &uiState);
+    void createPreset(std::string presetName, UIState* uiState);
     void savePreset(std::string fileName);
     void loadPreset(std::string fileName);
-	void loadRandomPreset(UserInterface &ui);
+	void loadRandomPreset(UserInterface* ui);
 
-	void loadPresetNames(UserInterface &ui);
-	void setUIState(UIState &uiState, std::string presetName);
+	void loadPresetNames(UserInterface* ui);
+	void setUIState(UIState* uiState, std::string presetName);
 
-	void handleUIRequests(UserInterface &ui);
-	void autoSwitchPresets(UserInterface &ui, Uint64 timeInSeconds);
+	void handleUIRequests(UserInterface* ui);
+	void autoSwitchPresets(UserInterface* ui, Uint64 timeInSeconds);
 
 private:
 
@@ -45,7 +46,7 @@ private:
 
 	std::string presetFilePath_;
 	std::string fileExtension_;
-	UserInterface &ui_;
+	UserInterface* ui_;
 
 	bool timeOut_ = false;
 };

@@ -7,7 +7,7 @@
 class VisualSettingsWindow : public ImGuiWindow {
 
 public:
-    void render(UIState &state) override;
+    void render(UIState* state) override;
 };
 
 #endif // VISUAL_SETTINGS_WINDOW_H
