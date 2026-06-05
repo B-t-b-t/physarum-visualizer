@@ -62,18 +62,10 @@ void Application::initialize() {
 	vertexShader_ = Shader("./res/vertex.vs", ShaderType::VERTEX_SHADER);
 	fragmentShader_ = Shader("./res/fragment.fs", ShaderType::FRAGMENT_SHADER);
 
-	rasterizationPipeline_ = ShaderProgram("RasterizationPipeline");
-	rasterizationPipeline_.attachShader(vertexShader_.getShaderID());
-	rasterizationPipeline_.attachShader(fragmentShader_.getShaderID());
-	bool linkingSuccess = rasterizationPipeline_.link();
-	if(!linkingSuccess) {
-		std::cerr << "Failed to link Rasterization Pipeline Shader Program. Exiting." << std::endl;
-		return;
-	}
-	rasterizationPipeline_.getUniformsFromGLSL();
+	rasterizationPipeline_ = ShaderProgram("RasterizationPipeline", {&vertexShader_, &fragmentShader_});
 
 	// Initialize Bloom Effect
-	bloomEffect_ = Bloom(ui_uss_.textureWidth, ui_uss_.textureHeight, vertexShader_.getShaderID());
+	bloomEffect_ = Bloom(ui_uss_.textureWidth, ui_uss_.textureHeight, &vertexShader_);
 
 	//------------------------------------------------------
 	// Initialize Physarum Particles
@@ -84,25 +76,11 @@ void Application::initialize() {
 
 	//initialize Compute Shader for Slime Mold Trail Texture
 	trailDiffusionShader_ = Shader("./res/TrailDiffusion.cs", ShaderType::COMPUTE_SHADER);
-	trailDiffusionProgram_ = ShaderProgram("TrailDiffusionProgram");
-	trailDiffusionProgram_.attachShader(trailDiffusionShader_.getShaderID());
-	linkingSuccess = trailDiffusionProgram_.link();
-	if(!linkingSuccess) {
-		std::cerr << "Failed to link Trail Diffusion Shader Program. Exiting." << std::endl;
-		return;
-	}
-	trailDiffusionProgram_.getUniformsFromGLSL();
+	trailDiffusionProgram_ = ShaderProgram("TrailDiffusionProgram", {&trailDiffusionShader_});
 
 	//initialize Compute Shader for Slime Mold Particle Calculations 
 	particleBehaviourShader_ = Shader("./res/ParticleBehaviour.cs", ShaderType::COMPUTE_SHADER);
-	particleBehaviourProgram_ = ShaderProgram("ParticleBehaviourProgram");
-	particleBehaviourProgram_.attachShader(particleBehaviourShader_.getShaderID());
-	linkingSuccess = particleBehaviourProgram_.link();
-	if(!linkingSuccess) {
-		std::cerr << "Failed to link Particle Behaviour Shader Program. Exiting." << std::endl;
-		return;
-	}
-	particleBehaviourProgram_.getUniformsFromGLSL();
+	particleBehaviourProgram_ = ShaderProgram("ParticleBehaviourProgram", {&particleBehaviourShader_});
 
 	//------------------------------------------------------
 	// Initialize Audio Recording and Processing

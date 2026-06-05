@@ -11,7 +11,7 @@
 class Bloom {
 public:
     Bloom() = default;
-    Bloom(int textureWidth, int textureHeight, GLuint vertexShaderID);
+    Bloom(int textureWidth, int textureHeight, Shader* vertexShader);
 
     void applyBloom(GLuint texTrailID, Canvas* drawCanvas, const UIState* uiState);
     void bindBloomTextures(GLuint texTrail, GLuint texTrailNonDiffused, GLuint newTexParticles, GLuint oldTexParticles, GLuint texCollisions);

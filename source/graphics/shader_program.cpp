@@ -4,8 +4,32 @@
 
 static bool CheckProgramError(GLuint shader, GLuint flag, const std::string& errorMessage);
 
-ShaderProgram::ShaderProgram(std::string programName) : programName_(programName) {
+ShaderProgram::ShaderProgram(std::string programName, std::initializer_list<Shader*> shaders) : programName_(programName) {
     programID_ = glCreateProgram();
+
+	if(!isProgramValid()) {
+		std::cerr << "Error: Program creation failed!" << std::endl;
+		return;
+	}
+
+	if(!attachShaders(shaders)) {
+		detachShaders();
+		glDeleteProgram(programID_);
+		programID_ = 0;		//set programID to 0 to mark this ShaderProgram as invalid
+		return;
+	}
+		
+	if(!link()) {
+		std::cerr << "Failed to link '" << programName_ << "' Shader Program." << std::endl;
+		detachShaders();
+		glDeleteProgram(programID_);
+		programID_ = 0;		//set programID to 0 to mark this ShaderProgram as invalid
+		return;
+	}
+	
+	getUniformsFromGLSL();
+	
+	detachShaders();	//detach shaders for possible reuse of Shaders in other Programs
 }
 
 ShaderProgram::ShaderProgram(ShaderProgram&& rhs) {
@@ -33,16 +57,32 @@ ShaderProgram& ShaderProgram::operator=(ShaderProgram&& rhs) {
 }
 
 ShaderProgram::~ShaderProgram() {
-    for (GLuint shaderID : shaderIDs_) {
-        glDetachShader(programID_, shaderID);       // detach shaders even if already done in Shader::linkShader just to be sure
-    }
-
+    detachShaders();
     glDeleteProgram(programID_);
 }
 
-void ShaderProgram::attachShader(GLuint shaderID) {
-    glAttachShader(programID_, shaderID);
-    shaderIDs_.push_back(shaderID);
+bool ShaderProgram::attachShaders(std::initializer_list<Shader*> shaders) {
+
+	bool success = true;
+
+	for (const Shader* shader : shaders) {
+		if (shader->isShaderValid()) {
+			glAttachShader(programID_, shader->getShaderID());
+			shaderIDs_.push_back(shader->getShaderID());
+		}
+		else {
+			std::cerr << "Error: Shader '" << shader->getFileName() << "' is not valid and can't be attached to program '" << programName_ << "'." << std::endl;
+			success = false;
+		}
+	}
+
+	return success;
+}
+
+void ShaderProgram::detachShaders() {
+	for(GLuint shaderID : shaderIDs_) {
+		glDetachShader(programID_, shaderID);
+	}
 }
 
 bool ShaderProgram::link() {
@@ -57,8 +97,6 @@ bool ShaderProgram::link() {
         for(GLuint shaderID : shaderIDs_) {
             glDetachShader(programID_, shaderID);       // Detach shaders for possible reuse of Shaders in other Programs
         }
-
-        getUniformsFromGLSL();
     }
 
 	return success;

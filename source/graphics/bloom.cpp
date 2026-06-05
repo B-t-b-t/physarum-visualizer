@@ -1,15 +1,15 @@
 #include "bloom.h"
 
-Bloom::Bloom(int textureWidth, int textureHeight, GLuint vertexShaderID)
+Bloom::Bloom(int textureWidth, int textureHeight, Shader* vertexShader)
    :thresholdTexture_(textureWidth, textureHeight, Texture::TextureType::RGBA_FLOAT, 15, false, false),
     BloomTresholdShader_("./res/bloomThreshold.fs", ShaderType::FRAGMENT_SHADER),
-	BloomTresholdProgram_("BloomTresholdProgram"), 
+	BloomTresholdProgram_("BloomTresholdProgram", {vertexShader, &BloomTresholdShader_}), 
     BloomDownsampleHShader_("./res/bloomDownsampleH.fs", ShaderType::FRAGMENT_SHADER),
-	BloomDownsampleHProgram_("BloomDownsampleHProgram"),
+	BloomDownsampleHProgram_("BloomDownsampleHProgram", {vertexShader, &BloomDownsampleHShader_}),
 	BloomDownsampleVShader_("./res/bloomDownsampleV.fs", ShaderType::FRAGMENT_SHADER),
-	BloomDownsampleVProgram_("BloomDownsampleVProgram"),
+	BloomDownsampleVProgram_("BloomDownsampleVProgram", {vertexShader, &BloomDownsampleVShader_}),
     BloomUpsampleShader_("./res/bloomUpsample.fs", ShaderType::FRAGMENT_SHADER),
-	BloomUpsampleProgram_("BloomUpsampleProgram")
+	BloomUpsampleProgram_("BloomUpsampleProgram", {vertexShader, &BloomUpsampleShader_})
 {
     // Texture Unit 15 (use no mipmaps for bloom textures!!!)
 
@@ -32,29 +32,6 @@ Bloom::Bloom(int textureWidth, int textureHeight, GLuint vertexShaderID)
 		upsampleFramebuffers_.emplace_back();
 		upsampleFramebuffers_[i].attachTexture(GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, upsampleTextures_[i].getID(), 0);
 	}
-
-    //------------------------------------------------------
-	//initialize Bloom Shaders
-
-	BloomTresholdProgram_.attachShader(vertexShaderID);
-	BloomTresholdProgram_.attachShader(BloomTresholdShader_.getShaderID());
-	BloomTresholdProgram_.link();
-	BloomTresholdProgram_.getUniformsFromGLSL();
-
-	BloomDownsampleHProgram_.attachShader(BloomDownsampleHShader_.getShaderID());
-	BloomDownsampleHProgram_.attachShader(vertexShaderID);
-	BloomDownsampleHProgram_.link();
-	BloomDownsampleHProgram_.getUniformsFromGLSL();
-
-	BloomDownsampleVProgram_.attachShader(BloomDownsampleVShader_.getShaderID());
-	BloomDownsampleVProgram_.attachShader(vertexShaderID);
-	BloomDownsampleVProgram_.link();
-	BloomDownsampleVProgram_.getUniformsFromGLSL();
-
-	BloomUpsampleProgram_.attachShader(BloomUpsampleShader_.getShaderID());
-	BloomUpsampleProgram_.attachShader(vertexShaderID);
-	BloomUpsampleProgram_.link();
-	BloomUpsampleProgram_.getUniformsFromGLSL();
 }
 
 void Bloom::applyBloom(GLuint texTrailID, Canvas* drawCanvas, const UIState* uiState) {
