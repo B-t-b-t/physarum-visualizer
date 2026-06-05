@@ -6,17 +6,13 @@
 
 #include <SDL3/SDL.h>
 
-static void CheckShaderError(GLuint shader, GLuint flag, const std::string& errorMessage);
-static std::string LoadShader(const std::string& filename);
-static GLuint CreateShader(const std::string& text, GLenum shaderType, std::string& filename);
+static GLuint createShader(const std::string& text, GLenum shaderType, const std::string& fileName);
+static std::string readTextFromFile(const std::string& fileName);
+static bool checkShaderError(GLuint shader, GLuint flag, const std::string& errorMessage);
 
-Shader::Shader() {
-}
-
-Shader::Shader(const std::string& filename, ShaderType shaderType) {
-	shaderType_ = shaderType;
-	filename_ = filename;
-
+Shader::Shader(const std::string& fileName, ShaderType shaderType) 
+: fileName_(fileName), shaderType_(shaderType)
+{
 	int glMajorVersion, glMinorVersion;
 	SDL_GL_GetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, &glMajorVersion);
 	SDL_GL_GetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, &glMinorVersion);
@@ -28,18 +24,18 @@ Shader::Shader(const std::string& filename, ShaderType shaderType) {
 		shaderString.append("#extension GL_ARB_shader_storage_buffer_object : enable\n");
 	}
 
-	shaderString.append(LoadShader(filename));
+	shaderString.append(readTextFromFile(fileName_));
 
 	switch (shaderType_)
 	{
 	case ShaderType::VERTEX_SHADER:
-		shaderID_ = CreateShader(shaderString, GL_VERTEX_SHADER, filename_);
+		shaderID_ = createShader(shaderString, GL_VERTEX_SHADER, fileName_);
 		break;
 	case ShaderType::FRAGMENT_SHADER:
-		shaderID_ = CreateShader(shaderString, GL_FRAGMENT_SHADER, filename_);
+		shaderID_ = createShader(shaderString, GL_FRAGMENT_SHADER, fileName_);
 		break;
 	case ShaderType::COMPUTE_SHADER:
-		shaderID_ = CreateShader(shaderString, GL_COMPUTE_SHADER, filename_);
+		shaderID_ = createShader(shaderString, GL_COMPUTE_SHADER, fileName_);
 		break;
 	default:
 		break;
@@ -48,16 +44,18 @@ Shader::Shader(const std::string& filename, ShaderType shaderType) {
 }
 
 Shader::Shader(Shader&& rhs) {
-	this->filename_ = rhs.filename_;
+	this->fileName_ = rhs.fileName_;
 	this->shaderID_ = rhs.shaderID_;
 	this->shaderType_ = rhs.shaderType_;
+	rhs.fileName_ = "";
 	rhs.shaderID_ = 0;
 }
 
 Shader& Shader::operator=(Shader&& rhs) {
-	this->filename_ = rhs.filename_;
+	this->fileName_ = rhs.fileName_;
 	this->shaderID_ = rhs.shaderID_;
 	this->shaderType_ = rhs.shaderType_;
+	rhs.fileName_ = "";
 	rhs.shaderID_ = 0;
 	return *this;
 }
@@ -66,11 +64,20 @@ Shader::~Shader() {
 	glDeleteShader(shaderID_);
 }
 
-static GLuint CreateShader(const std::string& text, GLenum shaderType, std::string& filename) {
+/**
+ * @brief Creates and compiles a Shader object from GLSL code.
+ * 
+ * @param text The GLSL code for the shader
+ * @param shaderType The type of the shader (e.g., GL_VERTEX_SHADER)
+ * @param fileName The name of the shader file (just for error messages)
+ * @return The OpenGL shader ID (0 if creation failed)
+ */
+static GLuint createShader(const std::string& text, GLenum shaderType, const std::string& fileName) {
 	GLuint shader = glCreateShader(shaderType);
 
 	if (shader == 0) {
 		std::cerr << "Error: Shader creation failed!" << std::endl;
+		return 0;
     }
 
 	const GLchar* shaderSourceStrings[1];
@@ -81,14 +88,24 @@ static GLuint CreateShader(const std::string& text, GLenum shaderType, std::stri
 	glShaderSource(shader, 1, shaderSourceStrings, shaderSourceStringLengths);
 	glCompileShader(shader);
 
-	CheckShaderError(shader, GL_COMPILE_STATUS, "Error in " + filename + ": Shader compilation failed: ");
+	//check for compilation errors
+	if (!checkShaderError(shader, GL_COMPILE_STATUS, "Error in " + fileName + ": Shader compilation failed: ")) {
+		glDeleteShader(shader);
+		return 0;
+	}
 
 	return shader;
 }
 
-static std::string LoadShader(const std::string& filename) {
+/**
+ * @brief Read the contents of a text file into a string
+ * 
+ * @param fileName The name of the file to read
+ * @return std::string The contents of the file
+ */
+static std::string readTextFromFile(const std::string& fileName) {
 	std::ifstream file;
-	file.open((filename).c_str());
+	file.open((fileName).c_str());
 
 	std::string output;
 	std::string line;
@@ -98,15 +115,24 @@ static std::string LoadShader(const std::string& filename) {
 			getline(file, line);
 			output.append(line + "\n");
 		}
+		//file closed automatically by destructor of ifstream
 	}
 	else {
-		std::cerr << "Unable to load shader:" << filename << std::endl;
+		std::cerr << "Unable to read from file: " << fileName << std::endl;
 	}
 
 	return output;
 }
 
-static void CheckShaderError(GLuint shader, GLuint flag, const std::string& errorMessage) {
+/**
+ * @brief Check for shader compilation errors
+ * 
+ * @param shader The shader to check
+ * @param flag The flag to check (e.g., GL_COMPILE_STATUS)
+ * @param errorMessage The error message to display if the check fails
+ * @return true if no errors, false otherwise
+ */
+static bool checkShaderError(GLuint shader, GLuint flag, const std::string& errorMessage) {
 	GLint success = 0;
 	GLchar error[1024] = { 0 };
 
@@ -116,4 +142,6 @@ static void CheckShaderError(GLuint shader, GLuint flag, const std::string& erro
 		glGetShaderInfoLog(shader, sizeof(error), NULL, error);
 		std::cerr << errorMessage << ": '" << error << "'" << std::endl;
 	}
+
+	return (bool)success;	//return true if no error (success >= 1)
 }
