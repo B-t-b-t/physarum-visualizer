@@ -41,11 +41,6 @@ public:
 	TrailDiffusionSettings trailDiffusionSettings;
 	FragmentShaderSettings fragmentShaderSettings;
 	ParameterSettings parameterSettings;
-
-	static UIState* getInstance() {
-		static UIState instance;
-        return &instance;
-	}
 	
 	bool newCanvas = false;
 	bool exitProgram = false;
@@ -97,11 +92,15 @@ public:
 
 	bool normalizeBeat = false;
 
+	static UIState* getInstance();
+
 private:
-    UIState() = default;
-    ~UIState() = default;
-    UIState(const UIState&) = delete;
-    UIState& operator=(const UIState&) = delete;
+	static UIState* singleton_;
+
+	UIState() = default;
+	~UIState() = default;
+	UIState(const UIState&) = delete;
+	UIState& operator=(const UIState&) = delete;
 };
 
 #endif // UI_STATE_H

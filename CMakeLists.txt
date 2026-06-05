@@ -258,6 +258,7 @@ set(MY_SOURCE_FILES
     source/graphics/uniform_buffer_object.cpp
     source/simulation/trail_map_controller.cpp
     source/ui/ui_helpers.cpp
+    source/ui/ui_state.cpp
     source/ui/user_interface.cpp
     source/ui/elements/audio_window.cpp
     source/ui/elements/debug_window.cpp
