@@ -1,10 +1,14 @@
 #include "application.h"
 
 Application::Application(Parameters params, int workGroupDivider) 
- : params_(params), workGroupDivider_(workGroupDivider), 
- window_(Window((int)params.width, (int)params.height, "Physarum", params.customResolution)),
- ui_(UserInterface(window_.getWindow(), window_.getGLContext())),
- audioSystem_(AudioSystem(params.audioDevice))
+  :	params_{params}, 
+	workGroupDivider_{workGroupDivider}, 
+	window_{Window((int)params.width, (int)params.height, "Physarum", params.customResolution)},
+	ui_{UserInterface(window_.getWindow(), window_.getGLContext())},
+	uiState_{ui_.getState()},
+	ui_uss_{uiState_->universalShaderSettings},	//just shortening the name as a temp solution
+	drawCanvas_{Canvas()},
+	audioSystem_{AudioSystem(params.audioDevice)}
 {
 }
 
@@ -21,37 +25,37 @@ void Application::initialize() {
 	//------------------------------------------------------
 	// Initialize User Interface
 	//ui_ = UserInterface(window_.getWindow(), window_.getGLContext());
-	uiState_ = ui_.getState();
+	//uiState_ = ui_.getState();
 
-	auto& ui_uss = uiState_->universalShaderSettings;	//just shortening the name as a temp solution
+	//auto& ui_uss = uiState_->universalShaderSettings;	//just shortening the name as a temp solution
 	
-	ui_uss.windowWidth = window_.getWindowWidth();
-	ui_uss.windowHeight = window_.getWindowHeight();
+	ui_uss_.windowWidth = window_.getWindowWidth();
+	ui_uss_.windowHeight = window_.getWindowHeight();
 	uiState_->numParticles = params_.numParticles;
 	uiState_->newNumParticles = params_.numParticles;
 	uiState_->slimeRatio = params_.slimeRatio;
 
 	float scaling = window_.getFractionalScalingFactor();
 
-	ui_uss.textureWidth = (int)(ui_uss.windowWidth * scaling - ((int)(ui_uss.windowWidth * scaling) % workGroupDivider_));		//make sure width is multiple of workgroup size
-	ui_uss.textureHeight = (int)(ui_uss.windowHeight * scaling - ((int)(ui_uss.windowHeight * scaling) % workGroupDivider_));	//make sure height is multiple of workgroup size
-	uiState_->newTextureWidth = ui_uss.textureWidth;
-	uiState_->newTextureHeight = ui_uss.textureHeight;
+	ui_uss_.textureWidth = (int)(ui_uss_.windowWidth * scaling - ((int)(ui_uss_.windowWidth * scaling) % workGroupDivider_));		//make sure width is multiple of workgroup size
+	ui_uss_.textureHeight = (int)(ui_uss_.windowHeight * scaling - ((int)(ui_uss_.windowHeight * scaling) % workGroupDivider_));	//make sure height is multiple of workgroup size
+	uiState_->newTextureWidth = ui_uss_.textureWidth;
+	uiState_->newTextureHeight = ui_uss_.textureHeight;
 
 	if(params_.customParticleCount) {
-		uiState_->slimeRatio = uiState_->numParticles / (float)(ui_uss.textureWidth * ui_uss.textureHeight);
+		uiState_->slimeRatio = uiState_->numParticles / (float)(ui_uss_.textureWidth * ui_uss_.textureHeight);
 	} else {
-		uiState_->numParticles = uiState_->slimeRatio * ui_uss.textureWidth * ui_uss.textureHeight;
+		uiState_->numParticles = uiState_->slimeRatio * ui_uss_.textureWidth * ui_uss_.textureHeight;
 		uiState_->numParticles = uiState_->numParticles - uiState_->numParticles % workGroupDivider_;	//ensure multiple of workgroup size
 	}
 
 	//------------------------------------------------------
 	//Initialize Textures and Texture Buffers
-	texTrail_ = Texture((int)ui_uss.textureWidth, (int)ui_uss.textureHeight, Texture::TextureType::RGBA_FLOAT, 0);		//Texture Unit 0
-	texTrailNonDiffused_ = Texture((int)ui_uss.textureWidth, (int)ui_uss.textureHeight, Texture::TextureType::RGBA_FLOAT, 1);	//Texture Unit 1
-	newTexParticles_ = Texture((int)ui_uss.textureWidth, (int)ui_uss.textureHeight, Texture::TextureType::R_UINT, 2);		//Texture Unit 2
-	oldTexParticles_ = Texture((int)ui_uss.textureWidth, (int)ui_uss.textureHeight, Texture::TextureType::R_UINT, 3);		//Texture Unit 3
-	texCollisions_ = Texture((int)ui_uss.textureWidth, (int)ui_uss.textureHeight, Texture::TextureType::RGBA_FLOAT, 4);		//Texture Unit 4
+	texTrail_ = Texture((int)ui_uss_.textureWidth, (int)ui_uss_.textureHeight, Texture::TextureType::RGBA_FLOAT, 0);		//Texture Unit 0
+	texTrailNonDiffused_ = Texture((int)ui_uss_.textureWidth, (int)ui_uss_.textureHeight, Texture::TextureType::RGBA_FLOAT, 1);	//Texture Unit 1
+	newTexParticles_ = Texture((int)ui_uss_.textureWidth, (int)ui_uss_.textureHeight, Texture::TextureType::R_UINT, 2);		//Texture Unit 2
+	oldTexParticles_ = Texture((int)ui_uss_.textureWidth, (int)ui_uss_.textureHeight, Texture::TextureType::R_UINT, 3);		//Texture Unit 3
+	texCollisions_ = Texture((int)ui_uss_.textureWidth, (int)ui_uss_.textureHeight, Texture::TextureType::RGBA_FLOAT, 4);		//Texture Unit 4
 
 	//------------------------------------------------------
 	//initialize Rasterizer Pipeline for Canvas
@@ -69,11 +73,11 @@ void Application::initialize() {
 	rasterizationPipeline_.getUniformsFromGLSL();
 
 	// Initialize Bloom Effect
-	bloomEffect_ = Bloom(ui_uss.textureWidth, ui_uss.textureHeight, vertexShader_.getShaderID());
+	bloomEffect_ = Bloom(ui_uss_.textureWidth, ui_uss_.textureHeight, vertexShader_.getShaderID());
 
 	//------------------------------------------------------
 	// Initialize Physarum Particles
-	particleData_.createAndSend(uiState_->numParticles, ui_uss.textureWidth, ui_uss.textureHeight);
+	particleData_.createAndSend(uiState_->numParticles, ui_uss_.textureWidth, ui_uss_.textureHeight);
 
 	//------------------------------------------------------
 	// Initialize Compute Shaders
@@ -114,7 +118,7 @@ void Application::initialize() {
 	colorPresetSystem_ = ColorPresetSystem("./presets/", ".pcsf", &ui_);
 
     universalShaderSettingsUBO_ = UniformBufferObject(0);
-	universalShaderSettingsUBO_.bindUniformBufferObject(ui_uss);
+	universalShaderSettingsUBO_.bindUniformBufferObject(ui_uss_);
 	slimeSettingsUBO_ = UniformBufferObject(1);
 	slimeSettingsUBO_.bindUniformBufferObject(uiState_->slimeSettings);
 	trailDiffusionUBO_ = UniformBufferObject(2);
@@ -148,18 +152,16 @@ void Application::run() {
 	//======================================================================
 	while (!window_.IsClosed()) {
 
-	    auto& ui_uss = uiState_->universalShaderSettings;	//just shortening the name as a temp solution
-
 		Uint64 nowCounter = SDL_GetPerformanceCounter();
 		Uint64 timeInSeconds = nowCounter / counterFrequency_; //SDL Timer in Seconds for Audio Beat Analysis and Auto Preset Switching
 		double frameTime = double(nowCounter - prevCounter_) / double(counterFrequency_);
 		prevCounter_ = nowCounter;
 
-		ui_uss.timeTicks = nowCounter;
+		ui_uss_.timeTicks = nowCounter;
 
 		//------------------------------------------------------
 		// setting Uniforms for later use in Draw Call
-		universalShaderSettingsUBO_.updateUniformBufferObject(ui_uss);
+		universalShaderSettingsUBO_.updateUniformBufferObject(ui_uss_);
 		slimeSettingsUBO_.updateUniformBufferObject(uiState_->slimeSettings);
 		trailDiffusionUBO_.updateUniformBufferObject(uiState_->trailDiffusionSettings);
 		fragmentShaderSettingsUBO_.updateUniformBufferObject(uiState_->fragmentShaderSettings);
@@ -169,7 +171,7 @@ void Application::run() {
 		// Compute Shader Passes for Simulation Steps
 
 		trailMapController_.bindToTextureUnit(5);
-		trailDiffusionProgram_.dispatchCompute(ui_uss.textureWidth / workGroupDivider_, ui_uss.textureHeight / workGroupDivider_, 1);	//calculate new trail texture
+		trailDiffusionProgram_.dispatchCompute(ui_uss_.textureWidth / workGroupDivider_, ui_uss_.textureHeight / workGroupDivider_, 1);	//calculate new trail texture
 		particleBehaviourProgram_.dispatchCompute(uiState_->numParticles / 8, (GLuint)1, 1);	//move Slime Particles
 
 		//------------------------------------------------------
@@ -200,7 +202,7 @@ void Application::run() {
 		//------------------------------------------------------
 		//OpenGL Draw Call
 		glBindFramebuffer(GL_FRAMEBUFFER, 0); // Default framebuffer
-		glViewport(0, 0, (int) ui_uss.windowWidth, (int) ui_uss.windowHeight);
+		glViewport(0, 0, (int) ui_uss_.windowWidth, (int) ui_uss_.windowHeight);
 		rasterizationPipeline_.use();
 
 		// Bind main textures for fragment shader (these should always be bound)
@@ -223,29 +225,29 @@ void Application::run() {
 		if(window_.getExitLock()) { 				//if exit lock is active go to fullscreen
 			uiState_->fullscreen = true;
 		}
-		ui_uss.windowWidth = window_.getWindowWidth();		//synchronize window size
-		ui_uss.windowHeight = window_.getWindowHeight();
+		ui_uss_.windowWidth = window_.getWindowWidth();		//synchronize window size
+		ui_uss_.windowHeight = window_.getWindowHeight();
 
 		//------------------------------------------------------
 		// Handle User Interface Changes that affect Simulation State
 		if(uiState_->newCanvas) {
-			std::cout << "Creating new Canvas with " << uiState_->numParticles << " particles and size " << ui_uss.textureWidth << "x" << ui_uss.textureHeight << std::endl;
-			if(uiState_->newTextureWidth != ui_uss.textureWidth || uiState_->newTextureHeight != ui_uss.textureHeight) {
+			std::cout << "Creating new Canvas with " << uiState_->numParticles << " particles and size " << ui_uss_.textureWidth << "x" << ui_uss_.textureHeight << std::endl;
+			if(uiState_->newTextureWidth != ui_uss_.textureWidth || uiState_->newTextureHeight != ui_uss_.textureHeight) {
 				// Resize Textures and Framebuffers
-				ui_uss.textureWidth = uiState_->newTextureWidth;
-				ui_uss.textureHeight = uiState_->newTextureHeight;
+				ui_uss_.textureWidth = uiState_->newTextureWidth;
+				ui_uss_.textureHeight = uiState_->newTextureHeight;
 
-				texTrail_.resizeTexture((int)ui_uss.textureWidth, (int)ui_uss.textureHeight);
-				texTrailNonDiffused_.resizeTexture((int)ui_uss.textureWidth, (int)ui_uss.textureHeight);
-				newTexParticles_.resizeTexture((int)ui_uss.textureWidth, (int)ui_uss.textureHeight);
-				oldTexParticles_.resizeTexture((int)ui_uss.textureWidth, (int)ui_uss.textureHeight);
-				texCollisions_.resizeTexture((int)ui_uss.textureWidth, (int)ui_uss.textureHeight);
+				texTrail_.resizeTexture((int)ui_uss_.textureWidth, (int)ui_uss_.textureHeight);
+				texTrailNonDiffused_.resizeTexture((int)ui_uss_.textureWidth, (int)ui_uss_.textureHeight);
+				newTexParticles_.resizeTexture((int)ui_uss_.textureWidth, (int)ui_uss_.textureHeight);
+				oldTexParticles_.resizeTexture((int)ui_uss_.textureWidth, (int)ui_uss_.textureHeight);
+				texCollisions_.resizeTexture((int)ui_uss_.textureWidth, (int)ui_uss_.textureHeight);
 
-				bloomEffect_.resizeBloomTextures(ui_uss.textureWidth, ui_uss.textureHeight);
+				bloomEffect_.resizeBloomTextures(ui_uss_.textureWidth, ui_uss_.textureHeight);
 			}
 
-			particleData_.createAndSend(uiState_->numParticles, ui_uss.textureWidth, ui_uss.textureHeight);
-			universalShaderSettingsUBO_.updateUniformBufferObject(ui_uss);
+			particleData_.createAndSend(uiState_->numParticles, ui_uss_.textureWidth, ui_uss_.textureHeight);
+			universalShaderSettingsUBO_.updateUniformBufferObject(ui_uss_);
 			uiState_->newCanvas = false;
 		}
 

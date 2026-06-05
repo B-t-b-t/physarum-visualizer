@@ -35,6 +35,7 @@ private:
     UserInterface ui_;
     
     UIState* uiState_;
+    UniversalShaderSettings& ui_uss_;	//just shortening the name as a temp solution
     Canvas drawCanvas_;
 
     Texture texTrail_;		        //Texture Unit 0
