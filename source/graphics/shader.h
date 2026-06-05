@@ -38,7 +38,7 @@ public:
 	Shader(const std::string& fileName, ShaderType shaderType);
 
     Shader(const Shader& other) = delete;   //no copies, to prevent multiple destructor calls on same GL shaderID
-    void operator=(const Shader& other) = delete;
+    Shader& operator=(const Shader& other) = delete;
     Shader(Shader&& rhs);   //move constructor
     Shader& operator=(Shader&& rhs);    //move assignment operator
 
