@@ -24,6 +24,10 @@ public:
     /**
      * @brief Creates and compiles a new Shader object from a text file with GLSL code.
      * 
+     * Replaces unsupported GLSL versions (if GPU doesn't support them) in parsed shader file with supported ones,
+     * works from #version 460 down to #version 420 with extensions.
+     * Default version is #version 460.
+     * 
      * If the file can't be read or the GLSL code isn't valid, this shader object isn't usable 
      * and not registered with OpenGL.
      * Check with isShaderValid() before using the shader to prevent errors.
