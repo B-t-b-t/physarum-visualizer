@@ -214,6 +214,7 @@ set(MY_HEADER_FILES
     source/window.h
     source/audio/audio_device_manager.h
     source/audio/audio_processor.h
+    source/audio/audiostream_data.h
     source/audio/audio_system.h
     source/audio/music_analysis.h
     source/graphics/bloom.h
@@ -246,6 +247,7 @@ set(MY_SOURCE_FILES
     source/window.cpp
     source/audio/music_analysis.cpp
     source/audio/audio_device_manager.cpp
+    source/audio/audiostream_data.cpp
     source/audio/audio_system.cpp
     source/audio/audio_processor.cpp
     source/graphics/framebuffer.cpp
