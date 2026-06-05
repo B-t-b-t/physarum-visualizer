@@ -8,12 +8,13 @@ struct Parameters {
     int height = 800;
     int numParticles = 10000;
     float slimeRatio = 0.15f;
+    int workGroupDivider = 8;
     std::string audioDevice = "";
     bool customResolution = false;
     bool customParticleCount = false;
 };
 
-int parseParameters(int argc, char* argv[], Parameters &params, int workGroupDivider);
-void printHelpMessage(char* argv[], int workGroupDivider);
+bool parseParameters(int argc, char* argv[], Parameters &params);
+void printHelpMessage(char* programName, int workGroupDivider);
 
 #endif // PARAMETER_PARSER_H

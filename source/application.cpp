@@ -1,8 +1,8 @@
 #include "application.h"
 
-Application::Application(Parameters params, int workGroupDivider) 
+Application::Application(Parameters params) 
   :	params_{params}, 
-	workGroupDivider_{workGroupDivider}, 
+	workGroupDivider_{params.workGroupDivider}, 
 	window_{Window((int)params.width, (int)params.height, "Physarum", params.customResolution)},
 	ui_{UserInterface(window_.getWindow(), window_.getGLContext())},
 	uiState_{ui_.getState()},
@@ -22,7 +22,7 @@ Application::Application(Parameters params, int workGroupDivider)
 {
 	//------------------------------------------------------
 	//beginn constructor body
-	
+
 	ui_uss_.windowWidth = window_.getWindowWidth();
 	ui_uss_.windowHeight = window_.getWindowHeight();
 	uiState_->numParticles = params_.numParticles;

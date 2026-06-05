@@ -21,7 +21,7 @@
 class Application {
 
 public:
-    Application(Parameters params, int workGroupDivider);
+    Application(Parameters params);
     void run();
 
 private:
