@@ -1,3 +1,5 @@
+#version 460
+
 layout(local_size_x = 8, local_size_y = 1) in;
 layout(rgba32f, binding = 0) uniform image2D texTrail;
 layout(rgba32f, binding = 1) uniform image2D texTrailNonDiffused;

@@ -1,3 +1,5 @@
+#version 460
+
 out vec4 FragColor;  
 
 /*layout(pixel_center_integer) in vec4 gl_FragCoord;*/

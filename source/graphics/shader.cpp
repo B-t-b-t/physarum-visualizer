@@ -13,18 +13,28 @@ static bool checkShaderError(GLuint shader, GLuint flag, const std::string& erro
 Shader::Shader(const std::string& fileName, ShaderType shaderType) 
 : fileName_(fileName), shaderType_(shaderType)
 {
-	int glMajorVersion, glMinorVersion;
+	int glMajorVersion = 0, glMinorVersion = 0;
 	SDL_GL_GetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, &glMajorVersion);
 	SDL_GL_GetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, &glMinorVersion);
 
-	std::string shaderString = "#version " + std::to_string(glMajorVersion) + std::to_string(glMinorVersion) + "0\n";
+	std::string shaderString = readTextFromFile(fileName_);
+	std::string versionString = "#version 460";		//default version used in my GLSL code
 
-	if(glMajorVersion == 4 && glMinorVersion == 2 && shaderType_ == ShaderType::COMPUTE_SHADER) {
-		shaderString.append("#extension GL_ARB_compute_shader : enable\n");
-		shaderString.append("#extension GL_ARB_shader_storage_buffer_object : enable\n");
+	//change GL version in shader code if different from 4.6
+	if(glMajorVersion == 4 && glMinorVersion < 6) {
+		size_t versionPos = shaderString.find(versionString);
+		if (versionPos != std::string::npos) {
+			shaderString.replace(versionPos, versionString.length(), "#version " + std::to_string(glMajorVersion) + std::to_string(glMinorVersion) + "0");
+		}
+
+		//if GL version is 4.2 additional extensions are needed in compute shaders
+		if(glMinorVersion == 2 && shaderType_ == ShaderType::COMPUTE_SHADER) {
+			size_t firstNewlinePos = shaderString.find("\n");
+			std::string extensionString = "#extension GL_ARB_compute_shader : enable\n";
+			extensionString.append("#extension GL_ARB_shader_storage_buffer_object : enable\n");
+			shaderString.insert(firstNewlinePos + 1, extensionString);	//insert extensions behind new line char
+		}
 	}
-
-	shaderString.append(readTextFromFile(fileName_));
 
 	switch (shaderType_)
 	{
