@@ -22,10 +22,6 @@ class Application {
 
 public:
     Application(Parameters params, int workGroupDivider);
-    ~Application();
-
-    void initialize();
-
     void run();
 
 private:
@@ -33,7 +29,7 @@ private:
     int workGroupDivider_;
     Window window_;
     UserInterface ui_;
-    
+
     UIState* uiState_;
     UniversalShaderSettings& ui_uss_;	//just shortening the name as a temp solution
     Canvas drawCanvas_;

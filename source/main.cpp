@@ -28,7 +28,6 @@ int main(int argc, char* argv[]) {
 	}
 
 	Application app(params, workGroupDivider);
-	app.initialize();
 	app.run();
 
 	return 0;

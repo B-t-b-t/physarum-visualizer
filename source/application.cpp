@@ -8,26 +8,20 @@ Application::Application(Parameters params, int workGroupDivider)
 	uiState_{ui_.getState()},
 	ui_uss_{uiState_->universalShaderSettings},	//just shortening the name as a temp solution
 	drawCanvas_{Canvas()},
-	audioSystem_{AudioSystem(params.audioDevice)}
+	vertexShader_{Shader("./res/vertex.vs", ShaderType::VERTEX_SHADER)},
+	fragmentShader_{Shader("./res/fragment.fs", ShaderType::FRAGMENT_SHADER)},
+	rasterizationPipeline_{ShaderProgram("RasterizationPipeline", {&vertexShader_, &fragmentShader_})},
+	trailDiffusionShader_{Shader("./res/TrailDiffusion.cs", ShaderType::COMPUTE_SHADER)},
+	trailDiffusionProgram_{ShaderProgram("TrailDiffusionProgram", {&trailDiffusionShader_})},
+	particleBehaviourShader_{Shader("./res/ParticleBehaviour.cs", ShaderType::COMPUTE_SHADER)},
+	particleBehaviourProgram_{ShaderProgram("ParticleBehaviourProgram", {&particleBehaviourShader_})},
+	audioSystem_{AudioSystem(params.audioDevice)},
+	presetSystem_{PresetSystem("./presets/", ".psf", &ui_)},
+	colorPresetSystem_{ColorPresetSystem("./presets/", ".pcsf", &ui_)},
+	musicAnalysis_{MusicAnalysis(uiState_)}
 {
-}
-
-Application::~Application() {
-    
-}
-
-void Application::initialize() {
-
 	//------------------------------------------------------
-	// Initialize Window
-    //window_ = Window((int)params_.width, (int)params_.height, "Physarum", params_.customResolution);
-	
-	//------------------------------------------------------
-	// Initialize User Interface
-	//ui_ = UserInterface(window_.getWindow(), window_.getGLContext());
-	//uiState_ = ui_.getState();
-
-	//auto& ui_uss = uiState_->universalShaderSettings;	//just shortening the name as a temp solution
+	//beginn constructor body
 	
 	ui_uss_.windowWidth = window_.getWindowWidth();
 	ui_uss_.windowHeight = window_.getWindowHeight();
@@ -57,13 +51,6 @@ void Application::initialize() {
 	oldTexParticles_ = Texture((int)ui_uss_.textureWidth, (int)ui_uss_.textureHeight, Texture::TextureType::R_UINT, 3);		//Texture Unit 3
 	texCollisions_ = Texture((int)ui_uss_.textureWidth, (int)ui_uss_.textureHeight, Texture::TextureType::RGBA_FLOAT, 4);		//Texture Unit 4
 
-	//------------------------------------------------------
-	//initialize Rasterizer Pipeline for Canvas
-	vertexShader_ = Shader("./res/vertex.vs", ShaderType::VERTEX_SHADER);
-	fragmentShader_ = Shader("./res/fragment.fs", ShaderType::FRAGMENT_SHADER);
-
-	rasterizationPipeline_ = ShaderProgram("RasterizationPipeline", {&vertexShader_, &fragmentShader_});
-
 	// Initialize Bloom Effect
 	bloomEffect_ = Bloom(ui_uss_.textureWidth, ui_uss_.textureHeight, &vertexShader_);
 
@@ -72,28 +59,10 @@ void Application::initialize() {
 	particleData_.createAndSend(uiState_->numParticles, ui_uss_.textureWidth, ui_uss_.textureHeight);
 
 	//------------------------------------------------------
-	// Initialize Compute Shaders
-
-	//initialize Compute Shader for Slime Mold Trail Texture
-	trailDiffusionShader_ = Shader("./res/TrailDiffusion.cs", ShaderType::COMPUTE_SHADER);
-	trailDiffusionProgram_ = ShaderProgram("TrailDiffusionProgram", {&trailDiffusionShader_});
-
-	//initialize Compute Shader for Slime Mold Particle Calculations 
-	particleBehaviourShader_ = Shader("./res/ParticleBehaviour.cs", ShaderType::COMPUTE_SHADER);
-	particleBehaviourProgram_ = ShaderProgram("ParticleBehaviourProgram", {&particleBehaviourShader_});
-
-	//------------------------------------------------------
 	// Initialize Audio Recording and Processing
-	//audioSystem_ = AudioSystem(params_.audioDevice);
 	std::vector<std::string> availableAudioHardwareNames = audioSystem_.getAvailableHardwareDeviceNames();
 	audioWindow_ = dynamic_cast<AudioWindow*>(ui_.getWindow("AudioWindow"));
 	audioWindow_->addHardwareDeviceNames(availableAudioHardwareNames);
-
-	//------------------------------------------------------
-	// Initialize Preset System
-
-	presetSystem_ = PresetSystem("./presets/", ".psf", &ui_);
-	colorPresetSystem_ = ColorPresetSystem("./presets/", ".pcsf", &ui_);
 
     universalShaderSettingsUBO_ = UniformBufferObject(0);
 	universalShaderSettingsUBO_.bindUniformBufferObject(ui_uss_);
@@ -118,11 +87,10 @@ void Application::initialize() {
 	rasterizationPipeline_.attachUniformBufferObject(universalShaderSettingsUBO_.getUniformBufferObjectID(), "UniversalShaderSettings", 0);
 	rasterizationPipeline_.attachUniformBufferObject(fragmentShaderSettingsUBO_.getUniformBufferObjectID(), "FragmentShaderSettings", 3);
 
-	musicAnalysis_ = MusicAnalysis(uiState_);
-
 	prevCounter_ = SDL_GetPerformanceCounter();
 	counterFrequency_ = SDL_GetPerformanceFrequency(); //SDL Timer Frequency for Audio Beat Analysis and Auto Preset Switching
 }
+
 
 void Application::run() {
 	//======================================================================
