@@ -235,6 +235,8 @@ set(MY_HEADER_FILES
     source/ui/elements/visual_settings_window.h
     source/utility/fileHandling.h
     source/utility/parameter_parser.h
+    source/utility/observable.h
+    source/utility/observer.h
 )
 
 set(MY_SOURCE_FILES
@@ -267,6 +269,8 @@ set(MY_SOURCE_FILES
     source/ui/elements/visual_settings_window.cpp
     source/utility/fileHandling.cpp
     source/utility/parameter_parser.cpp
+    source/utility/observable.cpp
+    source/utility/observer.cpp
 )
 
 include_directories(

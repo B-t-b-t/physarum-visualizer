@@ -23,6 +23,8 @@ Application::Application(Parameters params)
 	//------------------------------------------------------
 	//beginn constructor body
 
+	window_.attachToObservable(Event::FULLSCREEN_TOGGLE, ui_.getWindow("VisualSettingsWindow"));	//attach to window resize event to update viewport and texture sizes
+
 	ui_uss_.windowWidth = window_.getWindowWidth();
 	ui_uss_.windowHeight = window_.getWindowHeight();
 	uiState_->numParticles = params_.numParticles;
@@ -136,7 +138,7 @@ void Application::run() {
 		}
 
 		//------------------------------------------------------
-		// Bloom Post-Processing (only if bloom is enabled)
+		// Bloom Post-Processing
 		if(uiState_->fragmentShaderSettings.bloomEnabled) {
 			bloomEffect_.applyBloom(texTrail_.getID(), &drawCanvas_, uiState_);
 		}
@@ -166,8 +168,6 @@ void Application::run() {
 		//process Key Presses from User
 		window_.Update();	//TODO: badly named; RENAME!
 
-
-		window_.setFullscreen(uiState_->fullscreen); //check if fullscreen mode changed in UI and set it
 		if(window_.getExitLock()) { 				//if exit lock is active go to fullscreen
 			uiState_->fullscreen = true;
 		}

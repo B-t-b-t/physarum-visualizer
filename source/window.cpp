@@ -137,8 +137,8 @@ void Window::updateViewport() {
     glViewport(0, 0, windowWidth_, windowHeight_);						  // Update viewport to match window size
 }
 
-void Window::setFullscreen(bool fullscreen){
-	if (fullscreen) {
+void Window::setFullscreen(){
+	if (uiState_->fullscreen) {
 		SDL_SetWindowFullscreen(window_, SDL_WINDOW_FULLSCREEN);
 	} else {
 		SDL_SetWindowFullscreen(window_, 0);
@@ -188,6 +188,16 @@ void Window::printOpenGLExtensions() {
 		std::cout << glGetStringi(GL_EXTENSIONS, (unsigned int)i) << std::endl;
 	}
 	std::cout << "----------------------" << std::endl;
+}
+
+void Window::onNotify(const Event event) {
+	switch (event) {
+		case Event::FULLSCREEN_TOGGLE:
+			setFullscreen();		//check if fullscreen mode changed in UI and set it
+			break;
+		default:
+			break;
+	}
 }
 
 /*---------------------------------------------------------------

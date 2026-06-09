@@ -1,6 +1,7 @@
 #include "visual_settings_window.h"
 
 #include "../ui_helpers.h"
+#include "../../utility/event.h"
 
 void VisualSettingsWindow::render(UIState* state) {
     if(!visible) { return; }
@@ -49,7 +50,9 @@ void VisualSettingsWindow::render(UIState* state) {
 		ImGui::SliderFloat("Vignette Y Dimension", &state->fragmentShaderSettings.vignetteYDimension, 0.0f, 10.0f);
 		ImGui::Separator();
 	}
-	ImGui::Checkbox("Fullscreen", &state->fullscreen);
+	if(ImGui::Checkbox("Fullscreen", &state->fullscreen)) {
+		notify(Event::FULLSCREEN_TOGGLE);
+	}
 
 	ImGui::End();
 }
