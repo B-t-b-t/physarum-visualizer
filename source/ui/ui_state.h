@@ -51,7 +51,6 @@ public:
 	bool lockParticleColor = false;
 	bool lockAngles = true;
 	bool fullscreen = false;
-	bool loadNewPicture = false;
 	bool autoPresetSwitching = false;
 	std::string currentAudioHardware = "";
 	int newTextureWidth = 1600;
