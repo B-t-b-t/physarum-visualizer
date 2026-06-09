@@ -4,7 +4,8 @@
 enum class Event {
     WINDOW_RESIZE,
     TEXTURE_RESIZE,
-    FULLSCREEN_TOGGLE
+    FULLSCREEN_TOGGLE,
+    AUDIO_HARDWARE_CHANGE
 };
 
 #endif // EVENT_H

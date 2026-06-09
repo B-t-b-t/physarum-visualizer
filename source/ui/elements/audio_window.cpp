@@ -167,7 +167,8 @@ void AudioWindow::render(UIState* state) {
 			const bool is_selected = (selectedHardwareDevice_ == n);
 			if (ImGui::Selectable(availableHardwareDevices_[n].c_str(), is_selected)) {
 				selectedHardwareDevice_ = n;
-				state->selectAudioHardware = true;
+				state->currentAudioHardware = getSelectedHardwareDevice();
+				notify(Event::AUDIO_HARDWARE_CHANGE);
 			}
 			// Set the initial focus when opening the combo (scrolling + keyboard navigation focus)
 			if (is_selected) {

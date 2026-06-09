@@ -1,7 +1,10 @@
 #ifndef UI_STATE_H
 #define UI_STATE_H
 
+#include <string>
+
 #include "../uniforms.h"
+
 
 enum class TextureMask {
         TRAIL = 0,
@@ -54,7 +57,7 @@ public:
 	bool loadFromColorPreset = false;
 	bool loadNewPicture = false;
 	bool autoPresetSwitching = false;
-	bool selectAudioHardware = false;
+	std::string currentAudioHardware = "";
 	int newTextureWidth = 1600;
 	int newTextureHeight = 896;
 	int numParticles = 300000;

@@ -90,18 +90,31 @@ AudioSystem::~AudioSystem() {
 	}
 }
 
+void AudioSystem::onNotify(const Event event) {
+	if(event == Event::AUDIO_HARDWARE_CHANGE) {
+		selectHardwareDevice(uiState_->currentAudioHardware);
+	}
+}
+
 void AudioSystem::selectHardwareDevice(std::string deviceName) {
 
 	SDL_UnbindAudioStream(data_.streamId_);
 	//SDL_DestroyAudioStream(data_.streamId_);
 
-	deviceManager_.openDevice(deviceName);
+	bool isOpen = deviceManager_.openDevice(deviceName);
 	inSpec_ = deviceManager_.getCurrentAudioSpec();
 
 	inSpec_.channels = 1;	//use just mono (why?)
 
 	//bind new device to input stream
-	SDL_BindAudioStream(deviceManager_.getCurrentLogicalDeviceID(), data_.streamId_);
+	if(isOpen) {
+		SDL_BindAudioStream(deviceManager_.getCurrentLogicalDeviceID(), data_.streamId_);
+		uiState_->slimeSettings.reactToAudio = true;	//turn on audio reaction if a device is available
+	} else {
+		hasNewAudioData_ = false;
+		hasNewSpectrumData_ = false;
+		uiState_->slimeSettings.reactToAudio = false;	//turn off audio reaction if no device is available
+	}
 }
 
 void AudioSystem::computeSpectrum() {

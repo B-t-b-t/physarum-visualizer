@@ -12,11 +12,12 @@ AudioDeviceManager::~AudioDeviceManager() {
 void AudioDeviceManager::checkForAvailableDevices() {
     availableDevices_.clear();  //for repeated calls to this method to check if devices changed
 
+    
     SDL_AudioDeviceID* rawDeviceArray = nullptr;
     int numDevices = 0;
-
+    
     rawDeviceArray = SDL_GetAudioRecordingDevices(&numDevices);
-
+    
     if(!rawDeviceArray || numDevices == 0) {
         SDL_Log("INFO: No recording devices found!");
     } else {
@@ -26,11 +27,13 @@ void AudioDeviceManager::checkForAvailableDevices() {
             availableDevices_.push_back({name, rawDeviceArray[i]});
         }
     }
-
+    
     if (rawDeviceArray) {
         SDL_free(rawDeviceArray);
     }
 
+    availableDevices_.push_back({"None", 0}); //add default device as last entry
+    
     return;
 }
 

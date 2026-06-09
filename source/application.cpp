@@ -24,6 +24,7 @@ Application::Application(Parameters params)
 	//beginn constructor body
 
 	window_.attachToObservable(Event::FULLSCREEN_TOGGLE, ui_.getWindow("VisualSettingsWindow"));	//attach to window resize event to update viewport and texture sizes
+	audioSystem_.attachToObservable(Event::AUDIO_HARDWARE_CHANGE, ui_.getWindow("AudioWindow"));	//attach to audio device change event to update audio input stream
 
 	ui_uss_.windowWidth = window_.getWindowWidth();
 	ui_uss_.windowHeight = window_.getWindowHeight();
@@ -209,12 +210,6 @@ void Application::run() {
 		presetSystem_.autoSwitchPresets(&ui_, timeInSeconds);
 		colorPresetSystem_.autoSwitchPresets(&ui_, timeInSeconds);
 		trailMapController_.autoSwitchPictures(&ui_, timeInSeconds);
-
-		//Handle Audio Device Change TODO: Refactor to Audio Class!
-		if(uiState_->selectAudioHardware) {
-			audioSystem_.selectHardwareDevice(audioWindow_->getSelectedHardwareDevice());
-			uiState_->selectAudioHardware = false;
-		}
 
 		//Exit Program when requested from UI
 		if(uiState_->exitProgram) {
