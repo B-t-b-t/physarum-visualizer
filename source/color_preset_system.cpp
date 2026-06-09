@@ -101,40 +101,35 @@ void ColorPresetSystem::setUIState(UIState* uiState, std::string presetName) {
     uiState->slimeSettings.slimeColor2 = preset.slimeColor2;
 }
 
-void ColorPresetSystem::handleUIRequests(UserInterface* ui) {
-    UIState* uiState = ui->getState();
-    PresetWindow *window = dynamic_cast<PresetWindow*>(ui->getWindow("PresetWindow"));
-
-    //Saving Color Presets to File
-    if(uiState->saveToColorPreset) {
-        createPreset(std::string(window->getLastColorPresetName()), uiState);
-        savePreset(std::string(window->getLastColorPresetName()));
-        uiState->saveToColorPreset = false;
-    }
-
-    //Loading Color Presets from File
-    if(uiState->loadFromColorPreset) {
-        std::string presetName = std::string(window->getSelectedColorPresetName());
-
-        loadPreset(presetName);
-        setUIState(uiState, presetName);
-        uiState->loadFromColorPreset = false;
-    }
-}
-
 void ColorPresetSystem::autoSwitchPresets(UserInterface* ui, Uint64 timeInSeconds) {
     UIState* uiState = ui->getState();
 
     //Timed Auto Preset Switching
     if(uiState->autoPresetSwitching) {
-        uiState->saveToPreset = false;
-        uiState->loadFromPreset = false;
-
         if((timeInSeconds % (Uint64)uiState->colorPresetIntervall == 0) && !timeOut_ && uiState->slimeSettings.velocityBassReaction > uiState->beatVolumeSwitch) {
             loadRandomPreset(ui);
             timeOut_ = true;
         } else if((timeInSeconds % (Uint64)uiState->colorPresetIntervall > 0) && timeOut_){
             timeOut_ = false;
         }
+    }
+}
+
+void ColorPresetSystem::onNotify(const Event event) {
+    PresetWindow *window = dynamic_cast<PresetWindow*>(observable_);
+
+    switch (event) {
+        case Event::SAVE_COLOR_PRESET:
+            createPreset(std::string(window->getLastColorPresetName()), uiState_);
+            savePreset(std::string(window->getLastColorPresetName()));
+            break;
+        case Event::LOAD_COLOR_PRESET: {
+            std::string presetName = std::string(window->getSelectedColorPresetName());
+            loadPreset(presetName);
+            setUIState(uiState_, presetName);
+            break;
+        }
+        default:
+            break;
     }
 }

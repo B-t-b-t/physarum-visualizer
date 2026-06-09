@@ -7,6 +7,7 @@
 #include "imgui.h"
 
 #include "./ui/user_interface.h"
+#include "./utility/observer.h"
 
 struct Preset {
     std::string name;
@@ -23,7 +24,7 @@ struct Preset {
 	float decay;
 };
 
-class PresetSystem {
+class PresetSystem : public Observer{
 public:
 
 	PresetSystem() = default;
@@ -37,8 +38,9 @@ public:
 	void loadPresetNames(UserInterface* ui);
 	void setUIState(UIState* uiState, std::string presetName);
 
-	void handleUIRequests(UserInterface* ui);
 	void autoSwitchPresets(UserInterface* ui, Uint64 timeInSeconds);
+
+	void onNotify(const Event event) override;
 
 private:
 
@@ -47,6 +49,8 @@ private:
 	std::string presetFilePath_;
 	std::string fileExtension_;
 	UserInterface* ui_;
+
+	UIState* uiState_ = UIState::getInstance();
 
 	bool timeOut_ = false;
 };

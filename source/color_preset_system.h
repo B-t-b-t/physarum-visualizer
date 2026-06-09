@@ -7,6 +7,7 @@
 #include "imgui.h"
 
 #include "./ui/user_interface.h"
+#include "./utility/observer.h"
 
 struct ColorPreset {
     std::string name;
@@ -17,7 +18,7 @@ struct ColorPreset {
 	ImVec4 slimeColor2;
 };
 
-class ColorPresetSystem {
+class ColorPresetSystem : public Observer {
 public:
 
 	ColorPresetSystem() = default;
@@ -31,8 +32,9 @@ public:
 	void loadPresetNames(UserInterface* ui);
 	void setUIState(UIState* uiState, std::string presetName);
 
-	void handleUIRequests(UserInterface* ui);
 	void autoSwitchPresets(UserInterface* ui, Uint64 timeInSeconds);
+
+	void onNotify(const Event event) override;
 
 private:
 
@@ -43,6 +45,8 @@ private:
 	UserInterface* ui_;
 
 	bool timeOut_ = false;
+
+	UIState* uiState_ = UIState::getInstance();
 };
 
 #endif // COLOR_PRESET_SYSTEM_H

@@ -22,7 +22,8 @@ void PresetWindow::render(UIState* state) {
 
 		if(!presetAlreadyExists) {
 			addPresetName(std::string(presetNameChar));
-			state->saveToPreset = true;
+			notify(Event::SAVE_PRESET);
+			//state->saveToPreset = true;
 		}
 
 		presetNameChar[0] = '\0';
@@ -42,7 +43,8 @@ void PresetWindow::render(UIState* state) {
 			const bool is_selected = (selectedPresetName_ == n);
 			if (ImGui::Selectable(presetNames_[n].c_str(), is_selected)) {
 				selectedPresetName_ = n;
-				state->loadFromPreset = true;
+				//state->loadFromPreset = true;
+				notify(Event::LOAD_PRESET);
 				std::cout << "Selected Preset: " << presetNames_[n] << std::endl;
 			}
 			// Set the initial focus when opening the combo (scrolling + keyboard navigation focus)
@@ -74,7 +76,8 @@ void PresetWindow::render(UIState* state) {
 
 		if(!colorPresetAlreadyExists) {
 			addColorPresetName(std::string(colorPresetNameChar));
-			state->saveToColorPreset = true;
+			//state->saveToColorPreset = true;
+			notify(Event::SAVE_COLOR_PRESET);
 		}
 
 		colorPresetNameChar[0] = '\0';
@@ -94,7 +97,8 @@ void PresetWindow::render(UIState* state) {
 			const bool is_selected = (selectedColorPresetName_ == n);
 			if (ImGui::Selectable(colorPresetNames_[n].c_str(), is_selected)) {
 				selectedColorPresetName_ = n;
-				state->loadFromColorPreset = true;
+				//state->loadFromColorPreset = true;
+				notify(Event::LOAD_COLOR_PRESET);
 				std::cout << "Selected Color Preset: " << colorPresetNames_[n] << std::endl;
 			}
 			// Set the initial focus when opening the combo (scrolling + keyboard navigation focus)
@@ -118,7 +122,8 @@ void PresetWindow::render(UIState* state) {
 			const bool is_selected = (selectedPictureName_ == n);
 			if (ImGui::Selectable(pictureNames_[n].c_str(), is_selected)) {
 				selectedPictureName_ = n;
-				state->loadNewPicture = true;
+				//state->loadNewPicture = true;
+				notify(Event::LOAD_NEW_PICTURE);
 				std::cout << "Selected Picture: " << pictureNames_[n] << std::endl;
 			}
 			// Set the initial focus when opening the combo (scrolling + keyboard navigation focus)

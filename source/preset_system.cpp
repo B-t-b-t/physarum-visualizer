@@ -132,40 +132,35 @@ void PresetSystem::setUIState(UIState* uiState, std::string presetName) {
     uiState->trailDiffusionSettings.decay = preset.decay;
 }
 
-void PresetSystem::handleUIRequests(UserInterface* ui) {
-    UIState* uiState = ui->getState();
-    PresetWindow *window = dynamic_cast<PresetWindow*>(ui->getWindow("PresetWindow"));
-
-    //Saving Presets to File
-    if(uiState->saveToPreset) {
-        createPreset(std::string(window->getLastPresetName()), uiState);
-        savePreset(std::string(window->getLastPresetName()));
-        uiState->saveToPreset = false;
-    }
-
-    //Loading Presets from File
-    if(uiState->loadFromPreset) {
-        std::string presetName = std::string(window->getSelectedPresetName());
-
-        loadPreset(presetName);
-        setUIState(uiState, presetName);
-        uiState->loadFromPreset = false;
-    }
-}
-
 void PresetSystem::autoSwitchPresets(UserInterface* ui, Uint64 timeInSeconds) {
     UIState* uiState = ui->getState();
 
     //Timed Auto Preset Switching
     if(uiState->autoPresetSwitching) {
-        uiState->saveToPreset = false;
-        uiState->loadFromPreset = false;
-
         if((timeInSeconds % (Uint64)uiState->presetIntervall == 0) && !timeOut_ && uiState->slimeSettings.velocityBassReaction > uiState->beatVolumeSwitch) {
             loadRandomPreset(ui);
             timeOut_ = true;
         } else if((timeInSeconds % (Uint64)uiState->presetIntervall > 0) && timeOut_){
             timeOut_ = false;
         }
+    }
+}
+
+void PresetSystem::onNotify(const Event event) {
+    PresetWindow *window = dynamic_cast<PresetWindow*>(observable_);
+
+    switch (event) {
+        case Event::SAVE_PRESET:
+            createPreset(std::string(window->getLastPresetName()), uiState_);
+            savePreset(std::string(window->getLastPresetName()));
+            break;
+        case Event::LOAD_PRESET: {
+            std::string presetName = std::string(window->getSelectedPresetName());
+            loadPreset(presetName);
+            setUIState(uiState_, presetName);
+            break;
+        }
+        default:
+            break;
     }
 }

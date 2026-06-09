@@ -9,8 +9,9 @@
 
 #include "../graphics/texture.h"
 #include "../ui/user_interface.h"
+#include "../utility/observer.h"
 
-class TrailMapController {
+class TrailMapController : public Observer {
 public:
 
     TrailMapController() = default;
@@ -19,9 +20,10 @@ public:
     void loadPictureNames(UserInterface* ui);
     void bindToTextureUnit(GLuint textureUnit);
 
-    void handleUIRequests(UserInterface* ui);
 	void autoSwitchPictures(UserInterface* ui, Uint64 timeInSeconds);
     void loadRandomPicture(UserInterface* ui);
+
+    void onNotify(const Event event) override;
 
 private:
     struct TrailMask {
@@ -47,6 +49,8 @@ private:
     SDL_DateTime dateTime_;
 
     bool timeOut_ = false;
+
+    UIState* uiState_ = UIState::getInstance();
 };
 
 #endif // TRAIL_MAP_CONTROLLER_H

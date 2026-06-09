@@ -51,10 +51,6 @@ public:
 	bool lockParticleColor = false;
 	bool lockAngles = true;
 	bool fullscreen = false;
-	bool saveToPreset = false;
-	bool loadFromPreset = false;
-	bool saveToColorPreset = false;
-	bool loadFromColorPreset = false;
 	bool loadNewPicture = false;
 	bool autoPresetSwitching = false;
 	std::string currentAudioHardware = "";

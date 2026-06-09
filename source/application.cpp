@@ -18,13 +18,21 @@ Application::Application(Parameters params)
 	audioSystem_{AudioSystem(params.audioDevice)},
 	presetSystem_{PresetSystem("./presets/", ".psf", &ui_)},
 	colorPresetSystem_{ColorPresetSystem("./presets/", ".pcsf", &ui_)},
+	trailMapController_{TrailMapController("./res/pictures/", ".png", 16, &ui_)},	//Texture Unit 16 for Trail Mask Texture
 	musicAnalysis_{MusicAnalysis(uiState_)}
 {
 	//------------------------------------------------------
 	//beginn constructor body
 
-	window_.attachToObservable(Event::FULLSCREEN_TOGGLE, ui_.getWindow("VisualSettingsWindow"));	//attach to window resize event to update viewport and texture sizes
-	audioSystem_.attachToObservable(Event::AUDIO_HARDWARE_CHANGE, ui_.getWindow("AudioWindow"));	//attach to audio device change event to update audio input stream
+	//Register Observers for Events
+	window_.attachToObservable(Event::FULLSCREEN_TOGGLE, ui_.getWindow("VisualSettingsWindow"));
+	audioSystem_.attachToObservable(Event::AUDIO_HARDWARE_CHANGE, ui_.getWindow("AudioWindow"));
+	presetSystem_.attachToObservable(Event::SAVE_PRESET, ui_.getWindow("PresetWindow"));
+	presetSystem_.attachToObservable(Event::LOAD_PRESET, ui_.getWindow("PresetWindow"));
+	colorPresetSystem_.attachToObservable(Event::SAVE_COLOR_PRESET, ui_.getWindow("PresetWindow"));
+	colorPresetSystem_.attachToObservable(Event::LOAD_COLOR_PRESET, ui_.getWindow("PresetWindow"));
+	trailMapController_.attachToObservable(Event::LOAD_NEW_PICTURE, ui_.getWindow("PresetWindow"));
+
 
 	ui_uss_.windowWidth = window_.getWindowWidth();
 	ui_uss_.windowHeight = window_.getWindowHeight();
@@ -77,8 +85,6 @@ Application::Application(Parameters params)
 	fragmentShaderSettingsUBO_.bindUniformBufferObject(uiState_->fragmentShaderSettings);
 	parameterSettingsUBO_ = UniformBufferObject(4);
 	parameterSettingsUBO_.bindUniformBufferObject(uiState_->parameterSettings);
-	
-	trailMapController_ = TrailMapController("./res/pictures/", ".png", 16, &ui_);	//Texture Unit 16 for Trail Mask Texture
 
 	particleBehaviourProgram_.attachUniformBufferObject(universalShaderSettingsUBO_.getUniformBufferObjectID(), "UniversalShaderSettings", 0);
 	particleBehaviourProgram_.attachUniformBufferObject(slimeSettingsUBO_.getUniformBufferObjectID(), "SlimeSettings", 1);
@@ -197,14 +203,6 @@ void Application::run() {
 			universalShaderSettingsUBO_.updateUniformBufferObject(ui_uss_);
 			uiState_->newCanvas = false;
 		}
-
-		//------------------------------------------------------
-		// Handle Preset System
-
-		//Saving Presets to File
-		presetSystem_.handleUIRequests(&ui_);
-		colorPresetSystem_.handleUIRequests(&ui_);
-		trailMapController_.handleUIRequests(&ui_);
 
 		//Auto Switching Presets
 		presetSystem_.autoSwitchPresets(&ui_, timeInSeconds);

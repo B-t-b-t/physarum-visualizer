@@ -14,7 +14,7 @@ public:
     virtual void onNotify(const Event event) = 0;
     void attachToObservable(Event event, Observable* observable);
 
-private:
+protected:
     Observable* observable_{nullptr};
 };
 

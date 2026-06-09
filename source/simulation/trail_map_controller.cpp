@@ -137,43 +137,12 @@ void TrailMapController::loadRandomPicture(UserInterface* ui) {
     }
 }
 
-void TrailMapController::handleUIRequests(UserInterface* ui) {
-    UIState* uiState = ui->getState();
-    PresetWindow *window = dynamic_cast<PresetWindow*>(ui->getWindow("PresetWindow"));
-
-    //Loading Picture from File
-    if(uiState->loadNewPicture) {
-        std::string pictureName = std::string(window->getSelectedPictureName());
-
-        //binds selected image or loads it into GPU memory if not already loaded
-        for(size_t i = 0; i < trailMasks_.size(); ++i) {
-            if(trailMasks_[i].imageName == pictureName) {
-                activeTrailMaskIndex_ = i;
-
-                if(trailMasks_[i].loadedToGPU) {
-                    glActiveTexture(GL_TEXTURE0 + textureUnit_);
-                    glBindTexture(GL_TEXTURE_2D, trailMasks_[i].textureID);
-                    break;
-                } else {
-                    loadTrailMaskFromImage(pictureName);
-                    break;
-                }
-            }
-        }
-
-        uiState->loadNewPicture = false;
-    }
-}
-
 void TrailMapController::autoSwitchPictures(UserInterface* ui, Uint64 timeInSeconds) {
 
     UIState* uiState = ui->getState();
 
     //Timed Auto Preset Switching
     if(uiState->autoPresetSwitching) {
-        uiState->saveToPreset = false;
-        uiState->loadFromPreset = false;
-
         if((timeInSeconds % (Uint64)uiState->trailMaskIntervall == 0) && !timeOut_ && uiState->slimeSettings.velocityBassReaction > uiState->beatVolumeSwitch) {
             loadRandomPicture(ui);
             timeOut_ = true;
@@ -187,4 +156,34 @@ void TrailMapController::bindToTextureUnit(GLuint textureUnit) {
     textureUnit_ = textureUnit;
     glActiveTexture(GL_TEXTURE0 + textureUnit_);
     glBindTexture(GL_TEXTURE_2D, trailMasks_[activeTrailMaskIndex_].textureID);
+}
+
+void TrailMapController::onNotify(const Event event) {
+    PresetWindow *window = dynamic_cast<PresetWindow*>(observable_);
+
+    switch (event) {
+        case Event::LOAD_NEW_PICTURE:
+        {
+            std::string pictureName = std::string(window->getSelectedPictureName());
+
+            //binds selected image or loads it into GPU memory if not already loaded
+            for(size_t i = 0; i < trailMasks_.size(); ++i) {
+                if(trailMasks_[i].imageName == pictureName) {
+                    activeTrailMaskIndex_ = i;
+
+                    if(trailMasks_[i].loadedToGPU) {
+                        glActiveTexture(GL_TEXTURE0 + textureUnit_);
+                        glBindTexture(GL_TEXTURE_2D, trailMasks_[i].textureID);
+                        break;
+                    } else {
+                        loadTrailMaskFromImage(pictureName);
+                        break;
+                    }
+                }
+            }
+            break;
+        }
+        default:
+            break;
+    }
 }

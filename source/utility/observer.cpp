@@ -15,7 +15,9 @@ Observer::~Observer() {
 }
 
 void Observer::attachToObservable(Event event, Observable* observable) {
-    if (!observable_ && observable) {
+    if(observable == nullptr) { return;}
+
+    if(observable_ == nullptr || observable_ == observable) {
         observable_ = observable;
         observable_->addObserver(event, this);
     }
