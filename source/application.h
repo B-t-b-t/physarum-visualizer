@@ -7,9 +7,7 @@
 #include "window.h"
 #include "./audio/audio_system.h"
 #include "./audio/music_analysis.h"
-#include "./graphics/bloom.h"
 #include "./graphics/renderer.h"
-#include "./graphics/texture.h"
 #include "./graphics/uniform_buffer_object.h"
 #include "./simulation/trail_map_controller.h"
 #include "./utility/parameter_parser.h"
@@ -31,14 +29,6 @@ private:
     UIState* uiState_;
     UniversalShaderSettings& ui_uss_;	//just shortening the name as a temp solution
     Renderer renderer_;
-
-    Texture texTrail_;		        //Texture Unit 0
-	Texture texTrailNonDiffused_;	//Texture Unit 1
-	Texture newTexParticles_;		//Texture Unit 2
-	Texture oldTexParticles_;		//Texture Unit 3
-	Texture texCollisions_;         //Texture Unit 4
-
-    Bloom bloomEffect_;
 
     ParticleData particleData_;
 

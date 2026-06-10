@@ -7,7 +7,6 @@ Application::Application(Parameters params)
 	ui_{UserInterface(window_.getWindow(), window_.getGLContext())},
 	uiState_{ui_.getState()},
 	ui_uss_{uiState_->universalShaderSettings},	//just shortening the name as a temp solution
-	renderer_{Renderer()},
 	trailDiffusionShader_{Shader("./res/TrailDiffusion.cs", ShaderType::COMPUTE_SHADER)},
 	trailDiffusionProgram_{ShaderProgram("TrailDiffusionProgram", {&trailDiffusionShader_})},
 	particleBehaviourShader_{Shader("./res/ParticleBehaviour.cs", ShaderType::COMPUTE_SHADER)},
@@ -30,13 +29,15 @@ Application::Application(Parameters params)
 	colorPresetSystem_.attachToObservable(Event::LOAD_COLOR_PRESET, ui_.getWindow("PresetWindow"));
 	trailMapController_.attachToObservable(Event::LOAD_NEW_PICTURE, ui_.getWindow("PresetWindow"));
 
-
+	//update window size because the window is created in window constructor with maximum possible size for the screen
 	ui_uss_.windowWidth = window_.getWindowWidth();
 	ui_uss_.windowHeight = window_.getWindowHeight();
 	uiState_->numParticles = params_.numParticles;
 	uiState_->newNumParticles = params_.numParticles;
 	uiState_->slimeRatio = params_.slimeRatio;
 
+	//calculate texture size based on window size and fractional scaling factor for high DPI displays
+	//texture size should reflect resolution of the physical display and not the scaled OS resolution
 	float scaling = window_.getFractionalScalingFactor();
 
 	ui_uss_.textureWidth = (int)(ui_uss_.windowWidth * scaling - ((int)(ui_uss_.windowWidth * scaling) % workGroupDivider_));		//make sure width is multiple of workgroup size
@@ -44,6 +45,7 @@ Application::Application(Parameters params)
 	uiState_->newTextureWidth = ui_uss_.textureWidth;
 	uiState_->newTextureHeight = ui_uss_.textureHeight;
 
+	//calculate number of particles based on texture size and slime ratio
 	if(params_.customParticleCount) {
 		uiState_->slimeRatio = uiState_->numParticles / (float)(ui_uss_.textureWidth * ui_uss_.textureHeight);
 	} else {
@@ -51,27 +53,18 @@ Application::Application(Parameters params)
 		uiState_->numParticles = uiState_->numParticles - uiState_->numParticles % workGroupDivider_;	//ensure multiple of workgroup size
 	}
 
-	//------------------------------------------------------
-	//Initialize Textures and Texture Buffers
-	texTrail_ = Texture((int)ui_uss_.textureWidth, (int)ui_uss_.textureHeight, Texture::TextureType::RGBA_FLOAT, 0);		//Texture Unit 0
-	texTrailNonDiffused_ = Texture((int)ui_uss_.textureWidth, (int)ui_uss_.textureHeight, Texture::TextureType::RGBA_FLOAT, 1);	//Texture Unit 1
-	newTexParticles_ = Texture((int)ui_uss_.textureWidth, (int)ui_uss_.textureHeight, Texture::TextureType::R_UINT, 2);		//Texture Unit 2
-	oldTexParticles_ = Texture((int)ui_uss_.textureWidth, (int)ui_uss_.textureHeight, Texture::TextureType::R_UINT, 3);		//Texture Unit 3
-	texCollisions_ = Texture((int)ui_uss_.textureWidth, (int)ui_uss_.textureHeight, Texture::TextureType::RGBA_FLOAT, 4);		//Texture Unit 4
-
-	// Initialize Bloom Effect
-	bloomEffect_ = Bloom(ui_uss_.textureWidth, ui_uss_.textureHeight, &renderer_.getVertexShader());
-
+	renderer_ = Renderer();	//initialize after setting the correct texture size because of false texture initialization in Renderer Constructor??
+	
 	//------------------------------------------------------
 	// Initialize Physarum Particles
 	particleData_.createAndSend(uiState_->numParticles, ui_uss_.textureWidth, ui_uss_.textureHeight);
-
+	
 	//------------------------------------------------------
 	// Initialize Audio Recording and Processing
 	std::vector<std::string> availableAudioHardwareNames = audioSystem_.getAvailableHardwareDeviceNames();
 	audioWindow_ = dynamic_cast<AudioWindow*>(ui_.getWindow("AudioWindow"));
 	audioWindow_->addHardwareDeviceNames(availableAudioHardwareNames);
-
+	
     universalShaderSettingsUBO_ = UniformBufferObject(0);
 	universalShaderSettingsUBO_.bindUniformBufferObject(ui_uss_);
 	slimeSettingsUBO_ = UniformBufferObject(1);
@@ -82,16 +75,19 @@ Application::Application(Parameters params)
 	fragmentShaderSettingsUBO_.bindUniformBufferObject(uiState_->fragmentShaderSettings);
 	parameterSettingsUBO_ = UniformBufferObject(4);
 	parameterSettingsUBO_.bindUniformBufferObject(uiState_->parameterSettings);
-
+	
 	particleBehaviourProgram_.attachUniformBufferObject(universalShaderSettingsUBO_.getUniformBufferObjectID(), "UniversalShaderSettings", 0);
 	particleBehaviourProgram_.attachUniformBufferObject(slimeSettingsUBO_.getUniformBufferObjectID(), "SlimeSettings", 1);
 	particleBehaviourProgram_.attachUniformBufferObject(parameterSettingsUBO_.getUniformBufferObjectID(), "ParameterSettings", 4);
-
+	
 	trailDiffusionProgram_.attachUniformBufferObject(universalShaderSettingsUBO_.getUniformBufferObjectID(), "UniversalShaderSettings", 0);
 	trailDiffusionProgram_.attachUniformBufferObject(trailDiffusionUBO_.getUniformBufferObjectID(), "TrailDiffusionSettings", 2);
-
+	
 	renderer_.attachUniformBufferObject(universalShaderSettingsUBO_.getUniformBufferObjectID(), "UniversalShaderSettings", 0);
 	renderer_.attachUniformBufferObject(fragmentShaderSettingsUBO_.getUniformBufferObjectID(), "FragmentShaderSettings", 3);
+
+	//resize textures to correct size according to window size and scaling factor
+	renderer_.resizeTextures(ui_uss_.textureWidth, ui_uss_.textureHeight);
 
 	prevCounter_ = SDL_GetPerformanceCounter();
 	counterFrequency_ = SDL_GetPerformanceFrequency(); //SDL Timer Frequency for Audio Beat Analysis and Auto Preset Switching
@@ -140,15 +136,8 @@ void Application::run() {
 		if(uiState_->slimeSettings.reactToAudio) {
 			musicAnalysis_.analyzeMusic(audioSystem_.getSpectrumDiff(), frameTime);
 		}
-		// Bind main textures for fragment shader (these should always be bound)
-		bloomEffect_.bindBloomTextures(texTrail_.getID(), texTrailNonDiffused_.getID(), newTexParticles_.getID(), oldTexParticles_.getID(), texCollisions_.getID());
-		trailMapController_.bindToTextureUnit(16);
 
-		//------------------------------------------------------
-		// Bloom Post-Processing
-		if(uiState_->fragmentShaderSettings.bloomEnabled) {
-			bloomEffect_.applyBloom(texTrail_.getID(), &renderer_.getCanvas(), uiState_);
-		}
+		trailMapController_.bindToTextureUnit(16);
 
 		//------------------------------------------------------
 		// Draw Call with Rasterization Pipeline
@@ -179,13 +168,7 @@ void Application::run() {
 				ui_uss_.textureWidth = uiState_->newTextureWidth;
 				ui_uss_.textureHeight = uiState_->newTextureHeight;
 
-				texTrail_.resizeTexture((int)ui_uss_.textureWidth, (int)ui_uss_.textureHeight);
-				texTrailNonDiffused_.resizeTexture((int)ui_uss_.textureWidth, (int)ui_uss_.textureHeight);
-				newTexParticles_.resizeTexture((int)ui_uss_.textureWidth, (int)ui_uss_.textureHeight);
-				oldTexParticles_.resizeTexture((int)ui_uss_.textureWidth, (int)ui_uss_.textureHeight);
-				texCollisions_.resizeTexture((int)ui_uss_.textureWidth, (int)ui_uss_.textureHeight);
-
-				bloomEffect_.resizeBloomTextures(ui_uss_.textureWidth, ui_uss_.textureHeight);
+				renderer_.resizeTextures(ui_uss_.textureWidth, ui_uss_.textureHeight);
 			}
 
 			particleData_.createAndSend(uiState_->numParticles, ui_uss_.textureWidth, ui_uss_.textureHeight);

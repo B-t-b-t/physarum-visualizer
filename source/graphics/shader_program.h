@@ -24,8 +24,8 @@ public:
     ShaderProgram(std::string programName, std::initializer_list<Shader*> shaders);
     ShaderProgram(ShaderProgram& rhs) = delete;   //no copies, to prevent multiple destructor calls on same GL programID
     ShaderProgram& operator=(ShaderProgram& rhs) = delete;
-    ShaderProgram(ShaderProgram&& rhs);
-    ShaderProgram& operator=(ShaderProgram&& rhs);
+    ShaderProgram(ShaderProgram&& rhs) noexcept;
+    ShaderProgram& operator=(ShaderProgram&& rhs) noexcept;
 
     ~ShaderProgram();
 

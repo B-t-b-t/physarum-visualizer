@@ -36,8 +36,16 @@ Texture::Texture(int width, int height, TextureType textureType, GLuint textureU
 }
 
 Texture::Texture(Texture&& other) noexcept 
-	: textureID_(other.textureID_), textureUnit_(other.textureUnit_), width_(other.width_), height_(other.height_), generateMipmaps_(other.generateMipmaps_) {
+	:	textureID_(other.textureID_),
+		textureUnit_(other.textureUnit_),
+		width_(other.width_),
+		height_(other.height_),
+		generateMipmaps_(other.generateMipmaps_) 
+{
 	other.textureID_ = 0; // Prevent the moved-from object from deleting the texture
+	other.textureUnit_ = 0;
+	other.width_ = 0;
+	other.height_ = 0;
 	other.generateMipmaps_ = false;
 }
 
@@ -51,7 +59,11 @@ Texture& Texture::operator=(Texture&& other) noexcept {
 		width_ = other.width_;
 		height_ = other.height_;
 		generateMipmaps_ = other.generateMipmaps_;
+		
 		other.textureID_ = 0; // Prevent the moved-from object from deleting the texture
+		other.textureUnit_ = 0;
+		other.width_ = 0;
+		other.height_ = 0;
 		other.generateMipmaps_ = false;
 	}
 	return *this;

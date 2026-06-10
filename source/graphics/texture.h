@@ -35,13 +35,13 @@ private:
 
 	static TextureFormats resolveFormat(TextureType textureType);
 
-	GLuint textureID_;
-	GLuint textureUnit_;
+	GLuint textureID_{0};
+	GLuint textureUnit_{0};
 	TextureFormats textureFormat_;
 
-	int width_;
-	int height_;
-	bool generateMipmaps_;
+	int width_{0};
+	int height_{0};
+	bool generateMipmaps_{false};
 };
 
 #endif // TEXTURE_H

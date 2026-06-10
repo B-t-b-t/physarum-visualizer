@@ -6,11 +6,64 @@ Renderer::Renderer()
     fragmentShader_{Shader("./res/fragment.fs", ShaderType::FRAGMENT_SHADER)},
 	rasterizationPipeline_{ShaderProgram("RasterizationPipeline", {&vertexShader_, &fragmentShader_})},
     uiState_{UIState::getInstance()},
-    ui_uss_{uiState_->universalShaderSettings}
+    ui_uss_{uiState_->universalShaderSettings},
+	texTrail_{(int)ui_uss_.textureWidth, (int)ui_uss_.textureHeight, Texture::TextureType::RGBA_FLOAT, 0},		//Texture Unit 0
+	texTrailNonDiffused_{(int)ui_uss_.textureWidth, (int)ui_uss_.textureHeight, Texture::TextureType::RGBA_FLOAT, 1},	//Texture Unit 1
+	newTexParticles_{(int)ui_uss_.textureWidth, (int)ui_uss_.textureHeight, Texture::TextureType::R_UINT, 2},		//Texture Unit 2
+	oldTexParticles_{(int)ui_uss_.textureWidth, (int)ui_uss_.textureHeight, Texture::TextureType::R_UINT, 3},		//Texture Unit 3
+	texCollisions_{(int)ui_uss_.textureWidth, (int)ui_uss_.textureHeight, Texture::TextureType::RGBA_FLOAT, 4}		//Texture Unit 4
+{
+    //------------------------------------------------------
+	//Initialize Textures and Texture Buffers
+
+    // Initialize Bloom Effect
+	bloomEffect_ = Bloom(ui_uss_.textureWidth, ui_uss_.textureHeight, &vertexShader_);
+}
+
+Renderer::Renderer(Renderer&& rhs) noexcept
+    : drawCanvas_(std::move(rhs.drawCanvas_)),
+      vertexShader_(std::move(rhs.vertexShader_)),
+      fragmentShader_(std::move(rhs.fragmentShader_)),
+      rasterizationPipeline_(std::move(rhs.rasterizationPipeline_)),
+      bloomEffect_(std::move(rhs.bloomEffect_)),
+      uiState_(rhs.uiState_),
+      ui_uss_(rhs.ui_uss_),
+      texTrail_(std::move(rhs.texTrail_)),
+      texTrailNonDiffused_(std::move(rhs.texTrailNonDiffused_)),
+      newTexParticles_(std::move(rhs.newTexParticles_)),
+      oldTexParticles_(std::move(rhs.oldTexParticles_)),
+      texCollisions_(std::move(rhs.texCollisions_))
 {
 }
 
+Renderer& Renderer::operator=(Renderer&& rhs) noexcept {
+    if (this != &rhs) {
+        drawCanvas_ = std::move(rhs.drawCanvas_);
+        vertexShader_ = std::move(rhs.vertexShader_);
+        fragmentShader_ = std::move(rhs.fragmentShader_);
+        rasterizationPipeline_ = std::move(rhs.rasterizationPipeline_);
+        bloomEffect_ = std::move(rhs.bloomEffect_);
+        uiState_ = rhs.uiState_;
+        ui_uss_ = rhs.ui_uss_;
+        texTrail_ = std::move(rhs.texTrail_);
+        texTrailNonDiffused_ = std::move(rhs.texTrailNonDiffused_);
+        newTexParticles_ = std::move(rhs.newTexParticles_);
+        oldTexParticles_ = std::move(rhs.oldTexParticles_);
+        texCollisions_ = std::move(rhs.texCollisions_);
+    }
+    return *this;
+}
+
 void Renderer::draw() {
+	// Bind main textures for fragment shader (these should always be bound)
+	bloomEffect_.bindBloomTextures(texTrail_.getID(), texTrailNonDiffused_.getID(), newTexParticles_.getID(), oldTexParticles_.getID(), texCollisions_.getID());
+
+    //------------------------------------------------------
+    // Bloom Post-Processing
+    if(uiState_->fragmentShaderSettings.bloomEnabled) {
+        bloomEffect_.applyBloom(texTrail_.getID(), &drawCanvas_, uiState_);
+    }
+
     //------------------------------------------------------
     // Display Clearing
     clear(uiState_->clearColor.x, uiState_->clearColor.y, uiState_->clearColor.z, uiState_->clearColor.w);
@@ -19,8 +72,8 @@ void Renderer::draw() {
     //OpenGL Draw Call
     glBindFramebuffer(GL_FRAMEBUFFER, 0); // Default framebuffer
     glViewport(0, 0, (int) ui_uss_.windowWidth, (int) ui_uss_.windowHeight);
+    
     rasterizationPipeline_.use();
-
     drawCanvas_.draw();
 }
 
@@ -32,4 +85,16 @@ void Renderer::clear(float r, float g, float b, float a) {
 void Renderer::attachUniformBufferObject(GLuint uniformBufferObjectID, const std::string& blockName, GLuint bindingPoint) {
     rasterizationPipeline_.attachUniformBufferObject(uniformBufferObjectID, blockName, bindingPoint);
 
+}
+
+void Renderer::resizeTextures(const int newWidth, const int newHeight) {
+    texTrail_.resizeTexture(newWidth, newHeight);
+	texTrailNonDiffused_.resizeTexture(newWidth, newHeight);
+	newTexParticles_.resizeTexture(newWidth, newHeight);
+	oldTexParticles_.resizeTexture(newWidth, newHeight);
+	texCollisions_.resizeTexture(newWidth, newHeight);
+
+	bloomEffect_.resizeBloomTextures(newWidth, newHeight);
+
+    //glViewport(0, 0, newWidth, newHeight);
 }

@@ -32,33 +32,48 @@ ShaderProgram::ShaderProgram(std::string programName, std::initializer_list<Shad
 	detachShaders();	//detach shaders for possible reuse of Shaders in other Programs
 }
 
-ShaderProgram::ShaderProgram(ShaderProgram&& rhs) {
-	this->programName_ = rhs.programName_;
-	this->programID_ = rhs.programID_;
-	this->shaderIDs_ = rhs.shaderIDs_;
-	this->uniformBufferObjectID_ = rhs.uniformBufferObjectID_;
-	this->uniforms_ = rhs.uniforms_;
-	this->uboMap_ = rhs.uboMap_;
-
+ShaderProgram::ShaderProgram(ShaderProgram&& rhs) noexcept
+	: programName_{std::move(rhs.programName_)},
+	  programID_{rhs.programID_},
+	  shaderIDs_{std::move(rhs.shaderIDs_)},
+	  uniformBufferObjectID_{rhs.uniformBufferObjectID_},
+	  uniforms_{std::move(rhs.uniforms_)},
+	  uboMap_{std::move(rhs.uboMap_)}
+{
 	rhs.programID_ = 0;
+	rhs.uniformBufferObjectID_ = 0;
+	rhs.shaderIDs_.clear();
 }
 
-ShaderProgram& ShaderProgram::operator=(ShaderProgram&& rhs) {
-	this->programName_ = rhs.programName_;
-	this->programID_ = rhs.programID_;
-	this->shaderIDs_ = rhs.shaderIDs_;
-	this->uniformBufferObjectID_ = rhs.uniformBufferObjectID_;
-	this->uniforms_ = rhs.uniforms_;
-	this->uboMap_ = rhs.uboMap_;
+ShaderProgram& ShaderProgram::operator=(ShaderProgram&& rhs) noexcept {
+	if(this == &rhs) {
+		return *this;
+	}
+
+	if(programID_ != 0) {
+		detachShaders();
+		glDeleteProgram(programID_);
+	}
+
+	programName_ = std::move(rhs.programName_);
+	programID_ = rhs.programID_;
+	shaderIDs_ = std::move(rhs.shaderIDs_);
+	uniformBufferObjectID_ = rhs.uniformBufferObjectID_;
+	uniforms_ = std::move(rhs.uniforms_);
+	uboMap_ = std::move(rhs.uboMap_);
 
 	rhs.programID_ = 0;
+	rhs.uniformBufferObjectID_ = 0;
+	rhs.shaderIDs_.clear();
 
 	return *this;
 }
 
 ShaderProgram::~ShaderProgram() {
-    detachShaders();
-    glDeleteProgram(programID_);
+	if(programID_ != 0) {
+    	detachShaders();
+    	glDeleteProgram(programID_);
+	}
 }
 
 bool ShaderProgram::attachShaders(std::initializer_list<Shader*> shaders) {
@@ -80,9 +95,17 @@ bool ShaderProgram::attachShaders(std::initializer_list<Shader*> shaders) {
 }
 
 void ShaderProgram::detachShaders() {
-	for(GLuint shaderID : shaderIDs_) {
-		glDetachShader(programID_, shaderID);
-	}
+    if (programID_ == 0) {
+        shaderIDs_.clear();
+        return;
+    }
+
+    for(GLuint shaderID : shaderIDs_) {
+        if (shaderID != 0) {
+            glDetachShader(programID_, shaderID);
+        }
+    }
+    shaderIDs_.clear();
 }
 
 bool ShaderProgram::link() {
@@ -90,14 +113,10 @@ bool ShaderProgram::link() {
     glLinkProgram(programID_);
     bool success = CheckProgramError(programID_, GL_LINK_STATUS, "Error in " + programName_ + ": Program linking failed!");
 
-	glValidateProgram(programID_);
-	success = CheckProgramError(programID_, GL_VALIDATE_STATUS, "Error in " + programName_ + ": Program is invalid: ");
-
-    if (success) {
-        for(GLuint shaderID : shaderIDs_) {
-            glDetachShader(programID_, shaderID);       // Detach shaders for possible reuse of Shaders in other Programs
-        }
-    }
+	if(success) {
+		glValidateProgram(programID_);
+		success = success && CheckProgramError(programID_, GL_VALIDATE_STATUS, "Error in " + programName_ + ": Program is invalid: ");
+	}
 
 	return success;
 }
