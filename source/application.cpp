@@ -7,10 +7,7 @@ Application::Application(Parameters params)
 	ui_{UserInterface(window_.getWindow(), window_.getGLContext())},
 	uiState_{ui_.getState()},
 	ui_uss_{uiState_->universalShaderSettings},	//just shortening the name as a temp solution
-	drawCanvas_{Canvas()},
-	vertexShader_{Shader("./res/vertex.vs", ShaderType::VERTEX_SHADER)},
-	fragmentShader_{Shader("./res/fragment.fs", ShaderType::FRAGMENT_SHADER)},
-	rasterizationPipeline_{ShaderProgram("RasterizationPipeline", {&vertexShader_, &fragmentShader_})},
+	renderer_{Renderer()},
 	trailDiffusionShader_{Shader("./res/TrailDiffusion.cs", ShaderType::COMPUTE_SHADER)},
 	trailDiffusionProgram_{ShaderProgram("TrailDiffusionProgram", {&trailDiffusionShader_})},
 	particleBehaviourShader_{Shader("./res/ParticleBehaviour.cs", ShaderType::COMPUTE_SHADER)},
@@ -63,7 +60,7 @@ Application::Application(Parameters params)
 	texCollisions_ = Texture((int)ui_uss_.textureWidth, (int)ui_uss_.textureHeight, Texture::TextureType::RGBA_FLOAT, 4);		//Texture Unit 4
 
 	// Initialize Bloom Effect
-	bloomEffect_ = Bloom(ui_uss_.textureWidth, ui_uss_.textureHeight, &vertexShader_);
+	bloomEffect_ = Bloom(ui_uss_.textureWidth, ui_uss_.textureHeight, &renderer_.getVertexShader());
 
 	//------------------------------------------------------
 	// Initialize Physarum Particles
@@ -93,8 +90,8 @@ Application::Application(Parameters params)
 	trailDiffusionProgram_.attachUniformBufferObject(universalShaderSettingsUBO_.getUniformBufferObjectID(), "UniversalShaderSettings", 0);
 	trailDiffusionProgram_.attachUniformBufferObject(trailDiffusionUBO_.getUniformBufferObjectID(), "TrailDiffusionSettings", 2);
 
-	rasterizationPipeline_.attachUniformBufferObject(universalShaderSettingsUBO_.getUniformBufferObjectID(), "UniversalShaderSettings", 0);
-	rasterizationPipeline_.attachUniformBufferObject(fragmentShaderSettingsUBO_.getUniformBufferObjectID(), "FragmentShaderSettings", 3);
+	renderer_.attachUniformBufferObject(universalShaderSettingsUBO_.getUniformBufferObjectID(), "UniversalShaderSettings", 0);
+	renderer_.attachUniformBufferObject(fragmentShaderSettingsUBO_.getUniformBufferObjectID(), "FragmentShaderSettings", 3);
 
 	prevCounter_ = SDL_GetPerformanceCounter();
 	counterFrequency_ = SDL_GetPerformanceFrequency(); //SDL Timer Frequency for Audio Beat Analysis and Auto Preset Switching
@@ -143,27 +140,19 @@ void Application::run() {
 		if(uiState_->slimeSettings.reactToAudio) {
 			musicAnalysis_.analyzeMusic(audioSystem_.getSpectrumDiff(), frameTime);
 		}
+		// Bind main textures for fragment shader (these should always be bound)
+		bloomEffect_.bindBloomTextures(texTrail_.getID(), texTrailNonDiffused_.getID(), newTexParticles_.getID(), oldTexParticles_.getID(), texCollisions_.getID());
+		trailMapController_.bindToTextureUnit(16);
 
 		//------------------------------------------------------
 		// Bloom Post-Processing
 		if(uiState_->fragmentShaderSettings.bloomEnabled) {
-			bloomEffect_.applyBloom(texTrail_.getID(), &drawCanvas_, uiState_);
+			bloomEffect_.applyBloom(texTrail_.getID(), &renderer_.getCanvas(), uiState_);
 		}
 
 		//------------------------------------------------------
-		// Display Clearing
-		window_.Clear(uiState_->clearColor.x, uiState_->clearColor.y, uiState_->clearColor.z, uiState_->clearColor.w);
-
-		//------------------------------------------------------
-		//OpenGL Draw Call
-		glBindFramebuffer(GL_FRAMEBUFFER, 0); // Default framebuffer
-		glViewport(0, 0, (int) ui_uss_.windowWidth, (int) ui_uss_.windowHeight);
-		rasterizationPipeline_.use();
-
-		// Bind main textures for fragment shader (these should always be bound)
-		bloomEffect_.bindBloomTextures(texTrail_.getID(), texTrailNonDiffused_.getID(), newTexParticles_.getID(), oldTexParticles_.getID(), texCollisions_.getID());
-		trailMapController_.bindToTextureUnit(16);
-		drawCanvas_.draw();
+		// Draw Call with Rasterization Pipeline
+		renderer_.draw();
 
 		//------------------------------------------------------
 		// ImGui Draw Call

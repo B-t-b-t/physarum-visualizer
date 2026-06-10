@@ -1,7 +1,6 @@
 #ifndef APPLICATION_H
 #define APPLICATION_H
 
-#include "canvas.h"
 #include "color_preset_system.h"
 #include "particle_data.h"
 #include "preset_system.h"
@@ -9,8 +8,7 @@
 #include "./audio/audio_system.h"
 #include "./audio/music_analysis.h"
 #include "./graphics/bloom.h"
-#include "./graphics/shader.h"
-#include "./graphics/shader_program.h"
+#include "./graphics/renderer.h"
 #include "./graphics/texture.h"
 #include "./graphics/uniform_buffer_object.h"
 #include "./simulation/trail_map_controller.h"
@@ -32,18 +30,13 @@ private:
 
     UIState* uiState_;
     UniversalShaderSettings& ui_uss_;	//just shortening the name as a temp solution
-    Canvas drawCanvas_;
+    Renderer renderer_;
 
     Texture texTrail_;		        //Texture Unit 0
 	Texture texTrailNonDiffused_;	//Texture Unit 1
 	Texture newTexParticles_;		//Texture Unit 2
 	Texture oldTexParticles_;		//Texture Unit 3
 	Texture texCollisions_;         //Texture Unit 4
-
-    Shader vertexShader_;
-	Shader fragmentShader_;
-
-    ShaderProgram rasterizationPipeline_;
 
     Bloom bloomEffect_;
 

@@ -29,7 +29,6 @@ public:
 
 	void setFullscreen();
 
-	void Clear(float r, float g, float b, float a);
 	void Update();
 	bool IsClosed();
 	SDL_Window* getWindow() { return window_; }
