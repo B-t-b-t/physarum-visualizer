@@ -2,15 +2,17 @@
 #define RENDERER_H
 
 #include "../canvas.h"
+#include "bloom.h"
 #include "shader.h"
 #include "shader_program.h"
 #include "texture.h"
-#include "bloom.h"
+#include "uniform_buffer_manager.h"
 
 class Renderer {
 public:
 
-    Renderer();
+    Renderer() = delete;
+    explicit Renderer(UniformBufferManager* uboManager);
 
     Renderer(const Renderer&) = delete;   //no copies, to prevent multiple destructor calls on same GL resources
     Renderer& operator=(const Renderer&) = delete;
@@ -20,7 +22,6 @@ public:
     void draw();
     void clear(float r, float g, float b, float a);
 
-    void attachUniformBufferObject(GLuint uniformBufferObjectID, const std::string& blockName, GLuint bindingPoint);
     void resizeTextures(const int newWidth, const int newHeight);
 
 private:

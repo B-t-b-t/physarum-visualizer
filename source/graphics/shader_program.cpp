@@ -36,12 +36,9 @@ ShaderProgram::ShaderProgram(ShaderProgram&& rhs) noexcept
 	: programName_{std::move(rhs.programName_)},
 	  programID_{rhs.programID_},
 	  shaderIDs_{std::move(rhs.shaderIDs_)},
-	  uniformBufferObjectID_{rhs.uniformBufferObjectID_},
-	  uniforms_{std::move(rhs.uniforms_)},
-	  uboMap_{std::move(rhs.uboMap_)}
+	  uniforms_{std::move(rhs.uniforms_)}
 {
 	rhs.programID_ = 0;
-	rhs.uniformBufferObjectID_ = 0;
 	rhs.shaderIDs_.clear();
 }
 
@@ -58,12 +55,9 @@ ShaderProgram& ShaderProgram::operator=(ShaderProgram&& rhs) noexcept {
 	programName_ = std::move(rhs.programName_);
 	programID_ = rhs.programID_;
 	shaderIDs_ = std::move(rhs.shaderIDs_);
-	uniformBufferObjectID_ = rhs.uniformBufferObjectID_;
 	uniforms_ = std::move(rhs.uniforms_);
-	uboMap_ = std::move(rhs.uboMap_);
 
 	rhs.programID_ = 0;
-	rhs.uniformBufferObjectID_ = 0;
 	rhs.shaderIDs_.clear();
 
 	return *this;
@@ -119,17 +113,6 @@ bool ShaderProgram::link() {
 	}
 
 	return success;
-}
-
-void ShaderProgram::attachUniformBufferObject(GLuint uniformBufferObjectID, const std::string& blockName, GLuint bindingPoint) {
-	GLuint blockIndex = glGetUniformBlockIndex(programID_, blockName.c_str());	//search for the uniform block in the shader
-	if (blockIndex == GL_INVALID_INDEX) {
-		std::cerr << "Error: Uniform block '" << blockName << "' not found in shader program '" << programName_ << "'." << std::endl;
-		return;
-	}
-	glUniformBlockBinding(programID_, blockIndex, bindingPoint);	//assign the uniform block to a UBO binding point
-
-	uboMap_[blockName] = uniformBufferObjectID;
 }
 
 void ShaderProgram::getUniformsFromGLSL() {

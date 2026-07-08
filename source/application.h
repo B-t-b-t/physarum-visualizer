@@ -1,6 +1,8 @@
 #ifndef APPLICATION_H
 #define APPLICATION_H
 
+#include <memory>
+
 #include "color_preset_system.h"
 #include "particle_data.h"
 #include "preset_system.h"
@@ -8,7 +10,7 @@
 #include "./audio/audio_system.h"
 #include "./audio/music_analysis.h"
 #include "./graphics/renderer.h"
-#include "./graphics/uniform_buffer_object.h"
+#include "./graphics/uniform_buffer_manager.h"
 #include "./simulation/trail_map_controller.h"
 #include "./utility/parameter_parser.h"
 #include "./ui/elements/audio_window.h"
@@ -28,7 +30,9 @@ private:
 
     UIState* uiState_;
     UniversalShaderSettings& ui_uss_;	//just shortening the name as a temp solution
-    Renderer renderer_;
+    UniformBufferManager ubo_manager_;
+
+    std::unique_ptr<Renderer> renderer_;
 
     ParticleData particleData_;
 
@@ -43,12 +47,6 @@ private:
 
     PresetSystem presetSystem_;
 	ColorPresetSystem colorPresetSystem_;
-
-    UniformBufferObject universalShaderSettingsUBO_;
-	UniformBufferObject slimeSettingsUBO_;
-	UniformBufferObject trailDiffusionUBO_;
-	UniformBufferObject fragmentShaderSettingsUBO_;
-	UniformBufferObject parameterSettingsUBO_;
 
     TrailMapController trailMapController_;
 

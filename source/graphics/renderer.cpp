@@ -1,6 +1,6 @@
 #include "renderer.h"
 
-Renderer::Renderer()
+Renderer::Renderer(UniformBufferManager* uboManager)
  :  drawCanvas_(Canvas()),
     vertexShader_{Shader("./res/vertex.vs", ShaderType::VERTEX_SHADER)},
     fragmentShader_{Shader("./res/fragment.fs", ShaderType::FRAGMENT_SHADER)},
@@ -13,8 +13,7 @@ Renderer::Renderer()
 	oldTexParticles_{(int)ui_uss_.textureWidth, (int)ui_uss_.textureHeight, Texture::TextureType::R_UINT, 3},		//Texture Unit 3
 	texCollisions_{(int)ui_uss_.textureWidth, (int)ui_uss_.textureHeight, Texture::TextureType::RGBA_FLOAT, 4}		//Texture Unit 4
 {
-    //------------------------------------------------------
-	//Initialize Textures and Texture Buffers
+    uboManager->attachUBOs({rasterizationPipeline_.getProgramID()});
 
     // Initialize Bloom Effect
 	bloomEffect_ = Bloom(ui_uss_.textureWidth, ui_uss_.textureHeight, &vertexShader_);
@@ -80,11 +79,6 @@ void Renderer::draw() {
 void Renderer::clear(float r, float g, float b, float a) {
     glClearColor(r, g, b, a);
     glClear(GL_COLOR_BUFFER_BIT);
-}
-
-void Renderer::attachUniformBufferObject(GLuint uniformBufferObjectID, const std::string& blockName, GLuint bindingPoint) {
-    rasterizationPipeline_.attachUniformBufferObject(uniformBufferObjectID, blockName, bindingPoint);
-
 }
 
 void Renderer::resizeTextures(const int newWidth, const int newHeight) {

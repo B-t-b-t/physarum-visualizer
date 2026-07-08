@@ -9,6 +9,7 @@
 #include <GL/glew.h>
 
 #include "shader.h"
+#include "uniform_buffer_object.h"
 #include "../uniforms.h"
 #include "../ui/user_interface.h"
 
@@ -32,12 +33,12 @@ public:
     void use();
     void dispatchCompute(int numWorkGroupsX, int numWorkGroupsY, int numWorkGroupsZ);
     
-    void attachUniformBufferObject(GLuint uniformBufferObjectID, const std::string& blockName, GLuint bindingPoint);
-    
     bool isProgramValid() const { return programID_ != 0; }
 
     void printUniforms();
     void printWorkGroupInfo();
+
+    GLuint getProgramID() const { return programID_; }
     
     // Uniform setters
     void setUniform1i(const std::string& name, int value);
@@ -56,9 +57,7 @@ public:
     GLuint programID_{0};
     std::vector<GLuint> shaderIDs_;
 
-    GLuint uniformBufferObjectID_;      //don't share UBOs between different ShaderPrograms; each ShaderProgram has its own UBO if needed!
     std::unordered_map<std::string, UniformMapping> uniforms_;
-    std::unordered_map<std::string, GLuint> uboMap_;
 };
 
 #endif // SHADER_PROGRAM_H

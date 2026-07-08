@@ -7,6 +7,7 @@ Application::Application(Parameters params)
 	ui_{UserInterface(window_.getWindow(), window_.getGLContext())},
 	uiState_{ui_.getState()},
 	ui_uss_{uiState_->universalShaderSettings},	//just shortening the name as a temp solution
+	ubo_manager_{UniformBufferManager(uiState_)},
 	trailDiffusionShader_{Shader("./res/TrailDiffusion.cs", ShaderType::COMPUTE_SHADER)},
 	trailDiffusionProgram_{ShaderProgram("TrailDiffusionProgram", {&trailDiffusionShader_})},
 	particleBehaviourShader_{Shader("./res/ParticleBehaviour.cs", ShaderType::COMPUTE_SHADER)},
@@ -53,7 +54,8 @@ Application::Application(Parameters params)
 		uiState_->numParticles = uiState_->numParticles - uiState_->numParticles % workGroupDivider_;	//ensure multiple of workgroup size
 	}
 
-	renderer_ = Renderer();	//initialize after setting the correct texture size because of false texture initialization in Renderer Constructor??
+	renderer_ = std::make_unique<Renderer>(&ubo_manager_);	//initialize after setting the correct texture size because of false texture initialization in Renderer Constructor??
+	ubo_manager_.attachUBOs({trailDiffusionProgram_.getProgramID(), particleBehaviourProgram_.getProgramID()});	//replace with handling in seperate Simulation class like Renderer
 	
 	//------------------------------------------------------
 	// Initialize Physarum Particles
@@ -64,30 +66,9 @@ Application::Application(Parameters params)
 	std::vector<std::string> availableAudioHardwareNames = audioSystem_.getAvailableHardwareDeviceNames();
 	audioWindow_ = dynamic_cast<AudioWindow*>(ui_.getWindow("AudioWindow"));
 	audioWindow_->addHardwareDeviceNames(availableAudioHardwareNames);
-	
-    universalShaderSettingsUBO_ = UniformBufferObject(0);
-	universalShaderSettingsUBO_.bindUniformBufferObject(ui_uss_);
-	slimeSettingsUBO_ = UniformBufferObject(1);
-	slimeSettingsUBO_.bindUniformBufferObject(uiState_->slimeSettings);
-	trailDiffusionUBO_ = UniformBufferObject(2);
-	trailDiffusionUBO_.bindUniformBufferObject(uiState_->trailDiffusionSettings);
-	fragmentShaderSettingsUBO_ = UniformBufferObject(3);
-	fragmentShaderSettingsUBO_.bindUniformBufferObject(uiState_->fragmentShaderSettings);
-	parameterSettingsUBO_ = UniformBufferObject(4);
-	parameterSettingsUBO_.bindUniformBufferObject(uiState_->parameterSettings);
-	
-	particleBehaviourProgram_.attachUniformBufferObject(universalShaderSettingsUBO_.getUniformBufferObjectID(), "UniversalShaderSettings", 0);
-	particleBehaviourProgram_.attachUniformBufferObject(slimeSettingsUBO_.getUniformBufferObjectID(), "SlimeSettings", 1);
-	particleBehaviourProgram_.attachUniformBufferObject(parameterSettingsUBO_.getUniformBufferObjectID(), "ParameterSettings", 4);
-	
-	trailDiffusionProgram_.attachUniformBufferObject(universalShaderSettingsUBO_.getUniformBufferObjectID(), "UniversalShaderSettings", 0);
-	trailDiffusionProgram_.attachUniformBufferObject(trailDiffusionUBO_.getUniformBufferObjectID(), "TrailDiffusionSettings", 2);
-	
-	renderer_.attachUniformBufferObject(universalShaderSettingsUBO_.getUniformBufferObjectID(), "UniversalShaderSettings", 0);
-	renderer_.attachUniformBufferObject(fragmentShaderSettingsUBO_.getUniformBufferObjectID(), "FragmentShaderSettings", 3);
 
 	//resize textures to correct size according to window size and scaling factor
-	renderer_.resizeTextures(ui_uss_.textureWidth, ui_uss_.textureHeight);
+	renderer_->resizeTextures(ui_uss_.textureWidth, ui_uss_.textureHeight);
 
 	prevCounter_ = SDL_GetPerformanceCounter();
 	counterFrequency_ = SDL_GetPerformanceFrequency(); //SDL Timer Frequency for Audio Beat Analysis and Auto Preset Switching
@@ -109,11 +90,7 @@ void Application::run() {
 
 		//------------------------------------------------------
 		// setting Uniforms for later use in Draw Call
-		universalShaderSettingsUBO_.updateUniformBufferObject(ui_uss_);
-		slimeSettingsUBO_.updateUniformBufferObject(uiState_->slimeSettings);
-		trailDiffusionUBO_.updateUniformBufferObject(uiState_->trailDiffusionSettings);
-		fragmentShaderSettingsUBO_.updateUniformBufferObject(uiState_->fragmentShaderSettings);
-		parameterSettingsUBO_.updateUniformBufferObject(uiState_->parameterSettings);
+		ubo_manager_.updateUBOs(uiState_);
 
 		//------------------------------------------------------
 		// Compute Shader Passes for Simulation Steps
@@ -141,7 +118,7 @@ void Application::run() {
 
 		//------------------------------------------------------
 		// Draw Call with Rasterization Pipeline
-		renderer_.draw();
+		renderer_->draw();
 
 		//------------------------------------------------------
 		// ImGui Draw Call
@@ -168,11 +145,11 @@ void Application::run() {
 				ui_uss_.textureWidth = uiState_->newTextureWidth;
 				ui_uss_.textureHeight = uiState_->newTextureHeight;
 
-				renderer_.resizeTextures(ui_uss_.textureWidth, ui_uss_.textureHeight);
+				renderer_->resizeTextures(ui_uss_.textureWidth, ui_uss_.textureHeight);
 			}
 
 			particleData_.createAndSend(uiState_->numParticles, ui_uss_.textureWidth, ui_uss_.textureHeight);
-			universalShaderSettingsUBO_.updateUniformBufferObject(ui_uss_);
+			ubo_manager_.updateUBOs(uiState_);
 			uiState_->newCanvas = false;
 		}
 
