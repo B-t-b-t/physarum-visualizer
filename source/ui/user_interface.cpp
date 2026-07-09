@@ -3,7 +3,7 @@
 #include "ui_helpers.h"
 #include "elements/audio_window.h"
 #include "elements/debug_window.h"
-#include "elements/new_modal.h"
+#include "elements/new_canvas_modal.h"
 #include "elements/preset_window.h"
 #include "elements/slime_config_window.h"
 #include "elements/visual_settings_window.h"
@@ -40,7 +40,7 @@ void UserInterface::initWindows() {
 	windows_.emplace("PresetWindow", std::make_unique<PresetWindow>());
 	windows_.emplace("AudioWindow", std::make_unique<AudioWindow>());
 	windows_.emplace("DebugWindow", std::make_unique<DebugWindow>());
-	windows_.emplace("NewModal", std::make_unique<NewModal>());
+	windows_.emplace("NewCanvasModal", std::make_unique<NewCanvasModal>());
 
 	(dynamic_cast<DebugWindow*>(windows_.at("DebugWindow").get()))->setGuiIO(guiIO_);
 }
@@ -78,7 +78,7 @@ void UserInterface::mainMenuBarGUI() {
 	ImGuiIO& io = ImGui::GetIO();
 	if (io.MousePos.y <= 200 && ImGui::BeginMainMenuBar()) {
         if (ImGui::BeginMenu("File")) {
-			if (ImGui::MenuItem("New Canvas")) {windows_.at("NewModal")->visible = true;}
+			if (ImGui::MenuItem("New Canvas")) {windows_.at("NewCanvasModal")->visible = true;}
 			ImGui::Separator();
             if (ImGui::MenuItem("Exit")) {state_->exitProgram = true;}
             ImGui::EndMenu();

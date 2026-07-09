@@ -24,7 +24,6 @@ public:
 
 private:
     ApplicationState* appState_;
-    UniversalShaderSettings& app_uss_;	//just shortening the name as a temp solution
 
     Window window_;
 

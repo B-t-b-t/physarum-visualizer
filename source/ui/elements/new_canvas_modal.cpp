@@ -1,8 +1,8 @@
-#include "new_modal.h"
+#include "new_canvas_modal.h"
 
 #include <iostream>
 
-void NewModal::render(ApplicationState* appState) {
+void NewCanvasModal::render(ApplicationState* appState) {
 	if (visible) {
 		ImGui::OpenPopup("New Canvas");
 	} else {

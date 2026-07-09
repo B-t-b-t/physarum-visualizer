@@ -2,7 +2,6 @@
 
 Application::Application(Parameters params) 
   :	appState_{ApplicationState::getInstance(params)},
-	app_uss_{appState_->universalShaderSettings},	//just shortening the name as a temp solution
 	window_{Window("Physarum", appState_, params.customResolution)},
 	ui_{UserInterface(window_.getWindow(), window_.getGLContext(), appState_)},
 	ubo_manager_{UniformBufferManager(appState_)},
@@ -22,9 +21,9 @@ Application::Application(Parameters params)
 	colorPresetSystem_.attachToObservable(Event::SAVE_COLOR_PRESET, ui_.getWindow("PresetWindow"));
 	colorPresetSystem_.attachToObservable(Event::LOAD_COLOR_PRESET, ui_.getWindow("PresetWindow"));
 	simulation_.getTrailMapController()->attachToObservable(Event::LOAD_NEW_PICTURE, ui_.getWindow("PresetWindow"));
-	renderer_->attachToObservable(Event::NEW_CANVAS, ui_.getWindow("NewModal"));
-	simulation_.attachToObservable(Event::NEW_CANVAS, ui_.getWindow("NewModal"));
-	ubo_manager_.attachToObservable(Event::NEW_CANVAS, ui_.getWindow("NewModal"));
+	renderer_->attachToObservable(Event::NEW_CANVAS, ui_.getWindow("NewCanvasModal"));
+	simulation_.attachToObservable(Event::NEW_CANVAS, ui_.getWindow("NewCanvasModal"));
+	ubo_manager_.attachToObservable(Event::NEW_CANVAS, ui_.getWindow("NewCanvasModal"));
 	
 	//------------------------------------------------------
 	// Initialize Audio Recording and Processing
@@ -48,7 +47,7 @@ void Application::run() {
 		double frameTime = double(nowCounter - prevCounter_) / double(counterFrequency_);
 		prevCounter_ = nowCounter;
 
-		app_uss_.timeTicks = nowCounter;
+		appState_->universalShaderSettings.timeTicks = nowCounter;
 
 		//------------------------------------------------------
 		// setting Uniforms for later use in Draw Call
