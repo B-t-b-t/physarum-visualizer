@@ -6,34 +6,34 @@ DebugWindow::DebugWindow() {
 	fillDebugInfos();
 }
 
-void DebugWindow::render(ApplicationState* state) {
+void DebugWindow::render(ApplicationState* appState) {
     if(!visible) { return; }
 
 	ImGui::Begin("Debug", &visible);
 
-	ImGui::Checkbox("Render Particles", (bool*)&state->universalShaderSettings.renderParticles);
-	ImGui::Checkbox("Lock Particle Color to Color 0", &state->lockParticleColor);
-	ImGui::ColorEdit3("Particle Color 0", (float*)&state->slimeSettings.particleColor0);
-	ImGui::ColorEdit3("Particle Color 1", (float*)&state->slimeSettings.particleColor1);
-	ImGui::ColorEdit3("Particle Color 2", (float*)&state->slimeSettings.particleColor2);
+	ImGui::Checkbox("Render Particles", (bool*)&appState->universalShaderSettings.renderParticles);
+	ImGui::Checkbox("Lock Particle Color to Color 0", &appState->lockParticleColor);
+	ImGui::ColorEdit3("Particle Color 0", (float*)&appState->slimeSettings.particleColor0);
+	ImGui::ColorEdit3("Particle Color 1", (float*)&appState->slimeSettings.particleColor1);
+	ImGui::ColorEdit3("Particle Color 2", (float*)&appState->slimeSettings.particleColor2);
 
 	ImGui::Separator();
 
-	ImGui::Checkbox("Render Collisions", (bool*)&state->universalShaderSettings.renderCollisions);
-	if(state->universalShaderSettings.renderCollisions) {
-		ImGui::ColorEdit3("Collision Color", (float*)&state->slimeSettings.collisionColor);
+	ImGui::Checkbox("Render Collisions", (bool*)&appState->universalShaderSettings.renderCollisions);
+	if(appState->universalShaderSettings.renderCollisions) {
+		ImGui::ColorEdit3("Collision Color", (float*)&appState->slimeSettings.collisionColor);
 	}
 
 	ImGui::Separator();
 
 	// ImGui::Checkbox expects a bool*, but renderColorTraces is stored as an int in ApplicationState;
 	// use a temporary bool to interface with ImGui and write back the result to the int.
-	bool renderColorTraces = state->fragmentShaderSettings.renderColorTraces != 0;
+	bool renderColorTraces = appState->fragmentShaderSettings.renderColorTraces != 0;
 	if (ImGui::Checkbox("Render Color Traces", &renderColorTraces)) {
-		state->fragmentShaderSettings.renderColorTraces = renderColorTraces ? 1 : 0;
+		appState->fragmentShaderSettings.renderColorTraces = renderColorTraces ? 1 : 0;
 	}
 
-	ImGui::ColorEdit4("Clear Color", (float*)&state->clearColor);
+	ImGui::ColorEdit4("Clear Color", (float*)&appState->clearColor);
 
     if (ImGui::BeginListBox("Texture Mask")) {
         const char* textureMaskNames[] = {
@@ -56,10 +56,10 @@ void DebugWindow::render(ApplicationState* state) {
         };
 
         for (int n = 0; n < IM_ARRAYSIZE(textureMaskNames); n++) {
-            const bool is_selected = (state->fragmentShaderSettings.debugTextureMaskSelector == n);
+            const bool is_selected = (appState->fragmentShaderSettings.debugTextureMaskSelector == n);
             if (ImGui::Selectable(textureMaskNames[n], is_selected)) {
-                state->fragmentShaderSettings.debugTextureMaskSelector = n;
-                state->selectedTextureMask = static_cast<TextureMask>(n);
+                appState->fragmentShaderSettings.debugTextureMaskSelector = n;
+                appState->selectedTextureMask = static_cast<TextureMask>(n);
             }
             
             // Set the initial focus when opening the combo (scrolling + keyboard navigation focus)
@@ -72,9 +72,9 @@ void DebugWindow::render(ApplicationState* state) {
     }
 
 	ImGui::SeparatorText("Infos");
-	ImGui::Text("Number of Particles: %d", state->numParticles);
-	ImGui::Text("WindowWidth: %d TextureWidth: %d NewTextureWidth: %d Height: %d TextureHeight: %d NewTextureHeight: %d", state->universalShaderSettings.windowWidth, state->universalShaderSettings.textureWidth, state->newTextureWidth, state->universalShaderSettings.windowHeight, state->universalShaderSettings.textureHeight, state->newTextureHeight);
-	ImGui::Text("Fullscreen: %d", state->fullscreen);
+	ImGui::Text("Number of Particles: %d", appState->numParticles);
+	ImGui::Text("WindowWidth: %d TextureWidth: %d NewTextureWidth: %d Height: %d TextureHeight: %d NewTextureHeight: %d", appState->universalShaderSettings.windowWidth, appState->universalShaderSettings.textureWidth, appState->newTextureWidth, appState->universalShaderSettings.windowHeight, appState->universalShaderSettings.textureHeight, appState->newTextureHeight);
+	ImGui::Text("Fullscreen: %d", appState->fullscreen);
 
 	if(ImGui::CollapsingHeader("Display Infos")) {
 		ImGui::Text("Number of Displays: %d", debugInfos_.numberOfDisplays);
@@ -121,9 +121,9 @@ void DebugWindow::render(ApplicationState* state) {
 
 	ImGui::End();
 
-	if (state->lockParticleColor) {
-		state->slimeSettings.particleColor1 = state->slimeSettings.particleColor0;
-		state->slimeSettings.particleColor2 = state->slimeSettings.particleColor0;
+	if (appState->lockParticleColor) {
+		appState->slimeSettings.particleColor1 = appState->slimeSettings.particleColor0;
+		appState->slimeSettings.particleColor2 = appState->slimeSettings.particleColor0;
 	}
 }
 

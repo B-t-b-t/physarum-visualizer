@@ -7,7 +7,7 @@ class MusicAnalysis {
 public:
 
     MusicAnalysis() = default;
-    MusicAnalysis(ApplicationState* uiState);
+    MusicAnalysis(ApplicationState* appState);
 
     void analyzeMusic(std::vector<double>& spectrumDiff, double frameTime);
 

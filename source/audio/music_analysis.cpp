@@ -1,6 +1,6 @@
 #include "music_analysis.h"
 
-MusicAnalysis::MusicAnalysis(ApplicationState* uiState) : appState_(uiState) {
+MusicAnalysis::MusicAnalysis(ApplicationState* appState) : appState_(appState) {
     velocityBassReactionTarget_ = appState_->slimeSettings.velocityBassReaction;
 	velocityBassReactionSmooth_ = appState_->slimeSettings.velocityBassReaction;
 }
@@ -84,7 +84,7 @@ void MusicAnalysis::analyzeMusic(std::vector<double>& spectrumDiff, double frame
     velocityBassReactionSmooth_ += (velocityBassReactionTarget_ - velocityBassReactionSmooth_) * alpha;
 
     // Exponential decay of the target so impulses fade naturally.
-    // Use uiState.beatDivide as a decay rate proxy (tune as needed)
+    // Use appState.beatDivide as a decay rate proxy (tune as needed)
     float decayRate = std::max(0.0f, appState_->beatDivide);
     velocityBassReactionTarget_ *= std::expf(-decayRate * (float)frameTime);
 
@@ -92,6 +92,6 @@ void MusicAnalysis::analyzeMusic(std::vector<double>& spectrumDiff, double frame
     if(velocityBassReactionSmooth_ < 0.0f) velocityBassReactionSmooth_ = 0.0f;
     if(velocityBassReactionTarget_ < 0.0f) velocityBassReactionTarget_ = 0.0f;
 
-    // write the smoothed value back into uiState so UBO uses it
+    // write the smoothed value back into appState so UBO uses it
     appState_->slimeSettings.velocityBassReaction = velocityBassReactionSmooth_;
 }

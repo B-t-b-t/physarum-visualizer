@@ -8,7 +8,7 @@ class AudioWindow : public ImGuiWindow {
 
 public:
     AudioWindow();
-    void render(ApplicationState* state) override;
+    void render(ApplicationState* appState) override;
 
     void update(std::vector<double>& audioBuffer, std::vector<double>& spectrum, std::vector<double>& spectrumDiff, int bufferSize, bool hasNewSpectrumData);
 

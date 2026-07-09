@@ -2,7 +2,7 @@
 
 #include <iostream>
 
-void NewModal::render(ApplicationState* state) {
+void NewModal::render(ApplicationState* appState) {
 	if (visible) {
 		ImGui::OpenPopup("New Canvas");
 	} else {
@@ -21,46 +21,46 @@ void NewModal::render(ApplicationState* state) {
 
 
 		ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0, 0));
-		ImGui::InputInt("New Texture Width", &(state->newTextureWidth), 8, 8, ImGuiInputTextFlags_CharsNoBlank);
-		state->newTextureWidth = state->newTextureWidth - (state->newTextureWidth % 8);
-		ImGui::InputInt("New Texture Height", &(state->newTextureHeight), 8, 8, ImGuiInputTextFlags_CharsNoBlank);
-		state->newTextureHeight = state->newTextureHeight - (state->newTextureHeight % 8);
-		state->newNumParticles = state->slimeRatio * state->newTextureWidth * state->newTextureHeight;
-		ImGui::InputInt("Number of Particles", &(state->newNumParticles), 8, 8, ImGuiInputTextFlags_CharsNoBlank);
-		state->newNumParticles = state->newNumParticles - (state->newNumParticles % 8);
-		state->slimeRatio = state->newNumParticles / (float) (state->newTextureWidth * state->newTextureHeight);
-		ImGui::InputFloat("Slime Ratio", &(state->slimeRatio));
+		ImGui::InputInt("New Texture Width", &(appState->newTextureWidth), 8, 8, ImGuiInputTextFlags_CharsNoBlank);
+		appState->newTextureWidth = appState->newTextureWidth - (appState->newTextureWidth % 8);
+		ImGui::InputInt("New Texture Height", &(appState->newTextureHeight), 8, 8, ImGuiInputTextFlags_CharsNoBlank);
+		appState->newTextureHeight = appState->newTextureHeight - (appState->newTextureHeight % 8);
+		appState->newNumParticles = appState->slimeRatio * appState->newTextureWidth * appState->newTextureHeight;
+		ImGui::InputInt("Number of Particles", &(appState->newNumParticles), 8, 8, ImGuiInputTextFlags_CharsNoBlank);
+		appState->newNumParticles = appState->newNumParticles - (appState->newNumParticles % 8);
+		appState->slimeRatio = appState->newNumParticles / (float) (appState->newTextureWidth * appState->newTextureHeight);
+		ImGui::InputFloat("Slime Ratio", &(appState->slimeRatio));
 		ImGui::PopStyleVar();
 		ImGui::Separator();
 
-		ImGui::SliderFloat("v", &(state->slimeSettings.v), 0.0f, 3.0f);
-		ImGui::SliderInt("Rotation Angle", &(state->slimeSettings.rotationAngle), 0, 180);
-		ImGui::SliderInt("Sensor Angle", &(state->slimeSettings.angle), 0, 180);
+		ImGui::SliderFloat("v", &(appState->slimeSettings.v), 0.0f, 3.0f);
+		ImGui::SliderInt("Rotation Angle", &(appState->slimeSettings.rotationAngle), 0, 180);
+		ImGui::SliderInt("Sensor Angle", &(appState->slimeSettings.angle), 0, 180);
 		
-		ImGui::SliderInt("Sensor Distance", &(state->slimeSettings.sensorDistance), 1, 100);
-		ImGui::SliderFloat("Deposition Strength", &(state->slimeSettings.depositionStrength), 0.0f, 10.0f);
-		ImGui::SliderFloat("diffusionWeight", &(state->trailDiffusionSettings.diffusionWeight), 0.0f, 1.0f);
-		ImGui::SliderFloat("decay", &(state->trailDiffusionSettings.decay), 0.0f, 1.0f);
+		ImGui::SliderInt("Sensor Distance", &(appState->slimeSettings.sensorDistance), 1, 100);
+		ImGui::SliderFloat("Deposition Strength", &(appState->slimeSettings.depositionStrength), 0.0f, 10.0f);
+		ImGui::SliderFloat("diffusionWeight", &(appState->trailDiffusionSettings.diffusionWeight), 0.0f, 1.0f);
+		ImGui::SliderFloat("decay", &(appState->trailDiffusionSettings.decay), 0.0f, 1.0f);
 
 		ImGui::Separator();
 		
-		ImGui::ColorEdit3("Slime Color 0", (float*)&(state->slimeSettings.slimeColor0));
-		ImGui::ColorEdit3("Slime Color 1", (float*)&(state->slimeSettings.slimeColor1));
-		ImGui::ColorEdit3("Slime Color 2", (float*)&(state->slimeSettings.slimeColor2));
+		ImGui::ColorEdit3("Slime Color 0", (float*)&(appState->slimeSettings.slimeColor0));
+		ImGui::ColorEdit3("Slime Color 1", (float*)&(appState->slimeSettings.slimeColor1));
+		ImGui::ColorEdit3("Slime Color 2", (float*)&(appState->slimeSettings.slimeColor2));
 		
 		ImGui::Separator();
 		
-		ImGui::Checkbox("Use Particle Mask instead of Color", (bool*)&(state->slimeSettings.useMask));
+		ImGui::Checkbox("Use Particle Mask instead of Color", (bool*)&(appState->slimeSettings.useMask));
 		
-		ImGui::Checkbox("Collision Detection", (bool*)&(state->universalShaderSettings.collisionDetection));
+		ImGui::Checkbox("Collision Detection", (bool*)&(appState->universalShaderSettings.collisionDetection));
 
 		if (ImGui::Button("OK", ImVec2(120, 0))) {  visible = false;
                                                     notify(Event::NEW_CANVAS);
-                                                    //new canvas has been created, update the state accordingly
-                                                    state->universalShaderSettings.textureWidth = state->newTextureWidth;
-                                                    state->universalShaderSettings.textureHeight = state->newTextureHeight;
-                                                    state->numParticles = state->newNumParticles;
-                                                    std::cout << "Creating new Canvas with " << state->numParticles << " particles and size " << state->universalShaderSettings.textureWidth << "x" << state->universalShaderSettings.textureHeight << std::endl;                                   
+                                                    //new canvas has been created, update the appState accordingly
+                                                    appState->universalShaderSettings.textureWidth = appState->newTextureWidth;
+                                                    appState->universalShaderSettings.textureHeight = appState->newTextureHeight;
+                                                    appState->numParticles = appState->newNumParticles;
+                                                    std::cout << "Creating new Canvas with " << appState->numParticles << " particles and size " << appState->universalShaderSettings.textureWidth << "x" << appState->universalShaderSettings.textureHeight << std::endl;                                   
                                                     ImGui::CloseCurrentPopup(); }
 		ImGui::SetItemDefaultFocus();
 		ImGui::SameLine();

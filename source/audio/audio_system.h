@@ -16,7 +16,7 @@
 
 class AudioSystem : public Observer{
 public:
-    AudioSystem(ApplicationState* uiState, std::string deviceName = "");
+    AudioSystem(ApplicationState* appState, std::string deviceName = "");
 
     ~AudioSystem();
 

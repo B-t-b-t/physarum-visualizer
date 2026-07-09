@@ -140,14 +140,14 @@ void TrailMapController::loadRandomPicture(UserInterface* ui) {
 
 void TrailMapController::autoSwitchPictures(UserInterface* ui, Uint64 timeInSeconds) {
 
-    ApplicationState* uiState = ui->getState();
+    ApplicationState* appState = ui->getState();
 
     //Timed Auto Preset Switching
-    if(uiState->autoPresetSwitching) {
-        if((timeInSeconds % (Uint64)uiState->trailMaskIntervall == 0) && !timeOut_ && uiState->slimeSettings.velocityBassReaction > uiState->beatVolumeSwitch) {
+    if(appState->autoPresetSwitching) {
+        if((timeInSeconds % (Uint64)appState->trailMaskIntervall == 0) && !timeOut_ && appState->slimeSettings.velocityBassReaction > appState->beatVolumeSwitch) {
             loadRandomPicture(ui);
             timeOut_ = true;
-        } else if((timeInSeconds % (Uint64)uiState->trailMaskIntervall > 0) && timeOut_){
+        } else if((timeInSeconds % (Uint64)appState->trailMaskIntervall > 0) && timeOut_){
             timeOut_ = false;
         }
     }

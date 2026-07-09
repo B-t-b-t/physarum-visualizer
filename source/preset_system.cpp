@@ -13,20 +13,20 @@ PresetSystem::PresetSystem(std::string presetFilePath, std::string fileExtension
     loadPresetNames(ui);
 }
 
-void PresetSystem::createPreset(std::string presetName, ApplicationState* uiState) {
+void PresetSystem::createPreset(std::string presetName, ApplicationState* appState) {
 
     Preset preset;
     preset.name = presetName;
-    preset.useMask = uiState->slimeSettings.useMask;
-    preset.collisionDetection = uiState->universalShaderSettings.collisionDetection;
-    preset.v = uiState->slimeSettings.v;
-    preset.depositionStrength = uiState->slimeSettings.depositionStrength;
-    preset.lockAngles = uiState->lockAngles;
-    preset.rotationAngle = uiState->slimeSettings.rotationAngle;
-    preset.angle = uiState->slimeSettings.angle;
-    preset.sensorDistance = uiState->slimeSettings.sensorDistance;
-    preset.diffusionWeight = uiState->trailDiffusionSettings.diffusionWeight;
-    preset.decay = uiState->trailDiffusionSettings.decay;
+    preset.useMask = appState->slimeSettings.useMask;
+    preset.collisionDetection = appState->universalShaderSettings.collisionDetection;
+    preset.v = appState->slimeSettings.v;
+    preset.depositionStrength = appState->slimeSettings.depositionStrength;
+    preset.lockAngles = appState->lockAngles;
+    preset.rotationAngle = appState->slimeSettings.rotationAngle;
+    preset.angle = appState->slimeSettings.angle;
+    preset.sensorDistance = appState->slimeSettings.sensorDistance;
+    preset.diffusionWeight = appState->trailDiffusionSettings.diffusionWeight;
+    preset.decay = appState->trailDiffusionSettings.decay;
 
     presets.insert({presetName, preset});
 }
@@ -118,30 +118,30 @@ void PresetSystem::loadRandomPreset(UserInterface* ui) {
     }
 }
 
-void PresetSystem::setUIState(ApplicationState* uiState, std::string presetName) {
+void PresetSystem::setUIState(ApplicationState* appState, std::string presetName) {
     Preset preset = presets[presetName];
 
-    uiState->slimeSettings.useMask = preset.useMask;
-    uiState->universalShaderSettings.collisionDetection = preset.collisionDetection;
-    uiState->slimeSettings.v = preset.v;
-    uiState->slimeSettings.depositionStrength = preset.depositionStrength;
-    uiState->lockAngles = preset.lockAngles;
-    uiState->slimeSettings.rotationAngle = preset.rotationAngle;
-    uiState->slimeSettings.angle = preset.angle;
-    uiState->slimeSettings.sensorDistance = preset.sensorDistance;
-    uiState->trailDiffusionSettings.diffusionWeight = preset.diffusionWeight;
-    uiState->trailDiffusionSettings.decay = preset.decay;
+    appState->slimeSettings.useMask = preset.useMask;
+    appState->universalShaderSettings.collisionDetection = preset.collisionDetection;
+    appState->slimeSettings.v = preset.v;
+    appState->slimeSettings.depositionStrength = preset.depositionStrength;
+    appState->lockAngles = preset.lockAngles;
+    appState->slimeSettings.rotationAngle = preset.rotationAngle;
+    appState->slimeSettings.angle = preset.angle;
+    appState->slimeSettings.sensorDistance = preset.sensorDistance;
+    appState->trailDiffusionSettings.diffusionWeight = preset.diffusionWeight;
+    appState->trailDiffusionSettings.decay = preset.decay;
 }
 
 void PresetSystem::autoSwitchPresets(UserInterface* ui, Uint64 timeInSeconds) {
-    ApplicationState* uiState = ui->getState();
+    ApplicationState* appState = ui->getState();
 
     //Timed Auto Preset Switching
-    if(uiState->autoPresetSwitching) {
-        if((timeInSeconds % (Uint64)uiState->presetIntervall == 0) && !timeOut_ && uiState->slimeSettings.velocityBassReaction > uiState->beatVolumeSwitch) {
+    if(appState->autoPresetSwitching) {
+        if((timeInSeconds % (Uint64)appState->presetIntervall == 0) && !timeOut_ && appState->slimeSettings.velocityBassReaction > appState->beatVolumeSwitch) {
             loadRandomPreset(ui);
             timeOut_ = true;
-        } else if((timeInSeconds % (Uint64)uiState->presetIntervall > 0) && timeOut_){
+        } else if((timeInSeconds % (Uint64)appState->presetIntervall > 0) && timeOut_){
             timeOut_ = false;
         }
     }

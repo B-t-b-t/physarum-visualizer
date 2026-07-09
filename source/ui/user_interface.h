@@ -20,7 +20,7 @@ class UserInterface {
 public:
 
 	//UserInterface();
-	UserInterface(SDL_Window* window, SDL_GLContext glContext, ApplicationState* state);
+	UserInterface(SDL_Window* window, SDL_GLContext glContext, ApplicationState* appState);
 	~UserInterface();
 
 	void display(std::vector<double>& audioBuffer, std::vector<double>& spectrum, std::vector<double>& spectrumDiff, int bufferSize, bool hasNewSpectrumData);

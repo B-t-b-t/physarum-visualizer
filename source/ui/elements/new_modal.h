@@ -6,7 +6,7 @@
 class NewModal : public ImGuiWindow {
 
 public:
-    void render(ApplicationState* state) override;
+    void render(ApplicationState* appState) override;
 };
 
 #endif // NEW_MODAL_H

@@ -34,18 +34,18 @@ Bloom::Bloom(int textureWidth, int textureHeight, Shader* vertexShader)
 	}
 }
 
-void Bloom::applyBloom(GLuint texTrailID, Canvas* drawCanvas, const ApplicationState* uiState) {
+void Bloom::applyBloom(GLuint texTrailID, Canvas* drawCanvas, const ApplicationState* appState) {
     thresholdFramebuffer_.bind();
     glClear(GL_COLOR_BUFFER_BIT);
-    glViewport(0, 0, (int)uiState->universalShaderSettings.textureWidth, (int)uiState->universalShaderSettings.textureHeight);
+    glViewport(0, 0, (int)appState->universalShaderSettings.textureWidth, (int)appState->universalShaderSettings.textureHeight);
     BloomTresholdProgram_.use();
     
     // Bind trail texture to unit 0 for bloom threshold processing
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, texTrailID);
-    BloomTresholdProgram_.setUniform1f("bloomThreshold", uiState->fragmentShaderSettings.bloomThreshold);
+    BloomTresholdProgram_.setUniform1f("bloomThreshold", appState->fragmentShaderSettings.bloomThreshold);
     // Upload soft-knee parameter for bloom threshold
-    BloomTresholdProgram_.setUniform1f("bloomKnee", uiState->fragmentShaderSettings.bloomKnee);
+    BloomTresholdProgram_.setUniform1f("bloomKnee", appState->fragmentShaderSettings.bloomKnee);
     BloomTresholdProgram_.setUniform1i("srcTexture", 0);
 
     drawCanvas->draw();
@@ -53,8 +53,8 @@ void Bloom::applyBloom(GLuint texTrailID, Canvas* drawCanvas, const ApplicationS
 	//Downsample pass
     GLuint currentSrc = thresholdTexture_.getID();
     for (size_t i = 0; i < static_cast<size_t>(BLOOM_MIPS_); ++i) {
-        int w = (int) uiState->universalShaderSettings.textureWidth >> (i + 1);
-        int h = (int) uiState->universalShaderSettings.textureHeight >> (i + 1);
+        int w = (int) appState->universalShaderSettings.textureWidth >> (i + 1);
+        int h = (int) appState->universalShaderSettings.textureHeight >> (i + 1);
 
         // Horizontal blur
         glBindFramebuffer(GL_FRAMEBUFFER, bloomFramebuffers_[i].getID());
@@ -83,8 +83,8 @@ void Bloom::applyBloom(GLuint texTrailID, Canvas* drawCanvas, const ApplicationS
 
 	//Upsample pass
 	for (int i = static_cast<int>(BLOOM_MIPS_) - 2; i >= 0; --i) {
-		int w = (int) uiState->universalShaderSettings.textureWidth >> (i + 1);
-		int h = (int) uiState->universalShaderSettings.textureHeight >> (i + 1);
+		int w = (int) appState->universalShaderSettings.textureWidth >> (i + 1);
+		int h = (int) appState->universalShaderSettings.textureHeight >> (i + 1);
 		size_t upsampleIndex = static_cast<size_t>(i);
 
 		// Render into the upsample texture at this mip level,

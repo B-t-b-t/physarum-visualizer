@@ -13,14 +13,14 @@ ColorPresetSystem::ColorPresetSystem(std::string presetFilePath, std::string fil
     loadPresetNames(ui_);
 }
 
-void ColorPresetSystem::createPreset(std::string presetName, ApplicationState* uiState) {
+void ColorPresetSystem::createPreset(std::string presetName, ApplicationState* appState) {
 
     ColorPreset preset;
     preset.name = presetName;
-    preset.lockSlimeColor = uiState->lockSlimeColor;
-    preset.slimeColor0 = uiState->slimeSettings.slimeColor0;
-    preset.slimeColor1 = uiState->slimeSettings.slimeColor1;
-    preset.slimeColor2 = uiState->slimeSettings.slimeColor2;
+    preset.lockSlimeColor = appState->lockSlimeColor;
+    preset.slimeColor0 = appState->slimeSettings.slimeColor0;
+    preset.slimeColor1 = appState->slimeSettings.slimeColor1;
+    preset.slimeColor2 = appState->slimeSettings.slimeColor2;
 
     colorPresets.insert({presetName, preset});
 }
@@ -93,24 +93,24 @@ void ColorPresetSystem::loadRandomPreset(UserInterface* ui) {
     }
 }
 
-void ColorPresetSystem::setUIState(ApplicationState* uiState, std::string presetName) {
+void ColorPresetSystem::setUIState(ApplicationState* appState, std::string presetName) {
     ColorPreset preset = colorPresets[presetName];
 
-    uiState->lockSlimeColor = preset.lockSlimeColor;
-    uiState->slimeSettings.slimeColor0 = preset.slimeColor0;
-    uiState->slimeSettings.slimeColor1 = preset.slimeColor1;
-    uiState->slimeSettings.slimeColor2 = preset.slimeColor2;
+    appState->lockSlimeColor = preset.lockSlimeColor;
+    appState->slimeSettings.slimeColor0 = preset.slimeColor0;
+    appState->slimeSettings.slimeColor1 = preset.slimeColor1;
+    appState->slimeSettings.slimeColor2 = preset.slimeColor2;
 }
 
 void ColorPresetSystem::autoSwitchPresets(UserInterface* ui, Uint64 timeInSeconds) {
-    ApplicationState* uiState = ui->getState();
+    ApplicationState* appState = ui->getState();
 
     //Timed Auto Preset Switching
-    if(uiState->autoPresetSwitching) {
-        if((timeInSeconds % (Uint64)uiState->colorPresetIntervall == 0) && !timeOut_ && uiState->slimeSettings.velocityBassReaction > uiState->beatVolumeSwitch) {
+    if(appState->autoPresetSwitching) {
+        if((timeInSeconds % (Uint64)appState->colorPresetIntervall == 0) && !timeOut_ && appState->slimeSettings.velocityBassReaction > appState->beatVolumeSwitch) {
             loadRandomPreset(ui);
             timeOut_ = true;
-        } else if((timeInSeconds % (Uint64)uiState->colorPresetIntervall > 0) && timeOut_){
+        } else if((timeInSeconds % (Uint64)appState->colorPresetIntervall > 0) && timeOut_){
             timeOut_ = false;
         }
     }

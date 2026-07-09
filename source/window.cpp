@@ -3,8 +3,8 @@
 #include <iostream>
 
 
-Window::Window(const std::string& title, ApplicationState* uiState, bool customResolution)
- : appState_{uiState}
+Window::Window(const std::string& title, ApplicationState* appState, bool customResolution)
+ : appState_{appState}
 {
 	windowWidth_ = appState_->universalShaderSettings.windowWidth;
 	windowHeight_ = appState_->universalShaderSettings.windowHeight;

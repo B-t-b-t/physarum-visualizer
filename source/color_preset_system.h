@@ -25,13 +25,13 @@ public:
 	ColorPresetSystem() = default;
 	ColorPresetSystem(std::string presetFilePath, std::string fileExtension, UserInterface *ui);
 
-    void createPreset(std::string presetName, ApplicationState* uiState);
+    void createPreset(std::string presetName, ApplicationState* appState);
     void savePreset(std::string fileName);
     void loadPreset(std::string fileName);
 	void loadRandomPreset(UserInterface* ui);
 
 	void loadPresetNames(UserInterface* ui);
-	void setUIState(ApplicationState* uiState, std::string presetName);
+	void setUIState(ApplicationState* appState, std::string presetName);
 
 	void autoSwitchPresets(UserInterface* ui, Uint64 timeInSeconds);
 

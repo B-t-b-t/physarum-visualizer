@@ -6,7 +6,7 @@
 
 class ImGuiWindow : public Observable {
 public:
-    virtual void render(ApplicationState* state) = 0;
+    virtual void render(ApplicationState* appState) = 0;
     bool visible = false;
 };
 

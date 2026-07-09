@@ -7,7 +7,7 @@
 class SlimeConfigWindow : public ImGuiWindow {
 
 public:
-    void render(ApplicationState* state) override;
+    void render(ApplicationState* appState) override;
 };
 
 #endif // SLIME_CONFIG_WINDOW_H

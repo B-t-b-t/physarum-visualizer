@@ -25,7 +25,7 @@ void APIENTRY openglCallbackFunction(GLenum source,
 class Window : public Observer {
 public:
 	Window();
-	Window(const std::string& title, ApplicationState* uiState, bool customResolution);
+	Window(const std::string& title, ApplicationState* appState, bool customResolution);
 
 	void setFullscreen();
 

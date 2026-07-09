@@ -8,8 +8,8 @@
 #include "elements/slime_config_window.h"
 #include "elements/visual_settings_window.h"
 
-UserInterface::UserInterface(SDL_Window* window, SDL_GLContext glContext, ApplicationState* state)
- : state_(state)
+UserInterface::UserInterface(SDL_Window* window, SDL_GLContext glContext, ApplicationState* appState)
+ : state_(appState)
  {
 		
 	IMGUI_CHECKVERSION();

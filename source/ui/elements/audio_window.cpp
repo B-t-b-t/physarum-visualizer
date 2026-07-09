@@ -12,12 +12,12 @@ AudioWindow::AudioWindow() {
 	heatMapChange_.resize(512 * 32, 0.0);
 }
 
-void AudioWindow::render(ApplicationState* state) {
+void AudioWindow::render(ApplicationState* appState) {
     if(!visible) { return; }
     
     ImGui::Begin("Audio", &visible);
 
-	ImGui::Checkbox("Enable Audio Processing", (bool*)&state->slimeSettings.reactToAudio);
+	ImGui::Checkbox("Enable Audio Processing", (bool*)&appState->slimeSettings.reactToAudio);
 	ImGui::SameLine(); HelpMarker("When enabled, the slime movement will react to audio input. Make sure to select an audio input device in the Audio menu.");
 	
     if (ImGui::CollapsingHeader("Audio Graph")) {
@@ -111,52 +111,52 @@ void AudioWindow::render(ApplicationState* state) {
 
 	ImGui::SeparatorText("Beat Detection");
 
-	ImGui::Text("VelocityBassReaction: %.2f", state->slimeSettings.velocityBassReaction);
+	ImGui::Text("VelocityBassReaction: %.2f", appState->slimeSettings.velocityBassReaction);
 
 	HelpMarker("Frequency Range: 20-60 Hz");
 	ImGui::SameLine();
-	ImGui::Text("Sub Bass Detected: %d", state->subBassDetected);
+	ImGui::Text("Sub Bass Detected: %d", appState->subBassDetected);
 	ImGui::SameLine();
-	ImGui::Text("Sub Bass Value: %.2f", state->subBassValue);
+	ImGui::Text("Sub Bass Value: %.2f", appState->subBassValue);
 
 	HelpMarker("Frequency Range: 60-250 Hz");
 	ImGui::SameLine();
-	ImGui::Text("Bass Detected: %d", state->bassDetected);
+	ImGui::Text("Bass Detected: %d", appState->bassDetected);
 	ImGui::SameLine();
-	ImGui::Text("Bass Value: %.2f", state->bassValue);
+	ImGui::Text("Bass Value: %.2f", appState->bassValue);
 
 	HelpMarker("Frequency Range: 250-500 Hz");
 	ImGui::SameLine();
-	ImGui::Text("Low Mid Range Detected: %d", state->lowMidRangeDetected);
+	ImGui::Text("Low Mid Range Detected: %d", appState->lowMidRangeDetected);
 	ImGui::SameLine();
-	ImGui::Text("Low Mid Range Value: %.2f", state->lowMidRangeValue);
+	ImGui::Text("Low Mid Range Value: %.2f", appState->lowMidRangeValue);
 
 	HelpMarker("Frequency Range: 500-2000 Hz");
 	ImGui::SameLine();
-	ImGui::Text("Mid Range Detected: %d", state->midRangeDetected);
+	ImGui::Text("Mid Range Detected: %d", appState->midRangeDetected);
 	ImGui::SameLine();
-	ImGui::Text("Mid Range Value: %.2f", state->midRangeValue);
+	ImGui::Text("Mid Range Value: %.2f", appState->midRangeValue);
 
 	HelpMarker("Frequency Range: 2000-4000 Hz");
 	ImGui::SameLine();
-	ImGui::Text("Upper Mid Range Detected: %d", state->upperMidRangeDetected);
+	ImGui::Text("Upper Mid Range Detected: %d", appState->upperMidRangeDetected);
 	ImGui::SameLine();
-	ImGui::Text("Upper Mid Range Value: %.2f", state->upperMidRangeValue);
+	ImGui::Text("Upper Mid Range Value: %.2f", appState->upperMidRangeValue);
 
 	HelpMarker("Frequency Range: 4000-6000 Hz");
 	ImGui::SameLine();
-	ImGui::Text("Presence Detected: %d", state->presenceDetected);
+	ImGui::Text("Presence Detected: %d", appState->presenceDetected);
 	ImGui::SameLine();
-	ImGui::Text("Presence Value: %.2f", state->presenceValue);
+	ImGui::Text("Presence Value: %.2f", appState->presenceValue);
 
 	HelpMarker("Frequency Range: 6000-20000 Hz");
 	ImGui::SameLine();
-	ImGui::Text("Brilliance Detected: %d", state->brillianceDetected);
+	ImGui::Text("Brilliance Detected: %d", appState->brillianceDetected);
 	ImGui::SameLine();
-	ImGui::Text("Brilliance Value: %.2f", state->brillianceValue);
+	ImGui::Text("Brilliance Value: %.2f", appState->brillianceValue);
 
-	ImGui::SliderFloat("Beat Divide", &state->beatDivide, 0, 100.0f);
-	//ImGui::Checkbox("Beat Normalization", &state->normalizeBeat);
+	ImGui::SliderFloat("Beat Divide", &appState->beatDivide, 0, 100.0f);
+	//ImGui::Checkbox("Beat Normalization", &appState->normalizeBeat);
 	// ImGui::SeparatorText("Fringe Detection (non functional)");
 	// ImGui::SliderInt("Fringe Beginn", &state_.fringeBeginn, 0, state_.fringeEnd);
 	// ImGui::SliderInt("Fringe End", &state_.fringeEnd, state_.fringeBeginn, bufferSize / 2);
@@ -167,7 +167,7 @@ void AudioWindow::render(ApplicationState* state) {
 			const bool is_selected = (selectedHardwareDevice_ == n);
 			if (ImGui::Selectable(availableHardwareDevices_[n].c_str(), is_selected)) {
 				selectedHardwareDevice_ = n;
-				state->currentAudioHardware = getSelectedHardwareDevice();
+				appState->currentAudioHardware = getSelectedHardwareDevice();
 				notify(Event::AUDIO_HARDWARE_CHANGE);
 			}
 			// Set the initial focus when opening the combo (scrolling + keyboard navigation focus)

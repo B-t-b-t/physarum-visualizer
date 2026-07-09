@@ -7,7 +7,7 @@
 class PresetWindow : public ImGuiWindow {
 
 public:
-    void render(ApplicationState* state) override;
+    void render(ApplicationState* appState) override;
 
     void addPresetName(const std::string& presetName) { presetNames_.push_back(presetName); }
 	const char * getLastPresetName() { return presetNames_.back().c_str(); }
