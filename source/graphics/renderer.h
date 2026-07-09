@@ -1,18 +1,18 @@
 #ifndef RENDERER_H
 #define RENDERER_H
 
-#include "../canvas.h"
 #include "bloom.h"
 #include "shader.h"
 #include "shader_program.h"
 #include "texture.h"
 #include "uniform_buffer_manager.h"
-
+#include "../canvas.h"
+#include "../ui/ui_state.h"
 class Renderer {
 public:
 
     Renderer() = delete;
-    explicit Renderer(UniformBufferManager* uboManager);
+    explicit Renderer(UniformBufferManager* uboManager, UIState* uiState);
 
     Renderer(const Renderer&) = delete;   //no copies, to prevent multiple destructor calls on same GL resources
     Renderer& operator=(const Renderer&) = delete;

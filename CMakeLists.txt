@@ -225,6 +225,7 @@ set(MY_HEADER_FILES
     source/graphics/texture.h
     source/graphics/uniform_buffer_manager.h
     source/graphics/uniform_buffer_object.h
+    source/simulation/simulation.h
     source/simulation/trail_map_controller.h
     source/ui/ui_helpers.h
     source/ui/ui_state.h
@@ -262,6 +263,7 @@ set(MY_SOURCE_FILES
     source/graphics/texture.cpp
     source/graphics/uniform_buffer_manager.cpp
     source/graphics/uniform_buffer_object.cpp
+    source/simulation/simulation.cpp
     source/simulation/trail_map_controller.cpp
     source/ui/ui_helpers.cpp
     source/ui/ui_state.cpp

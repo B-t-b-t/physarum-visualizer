@@ -16,7 +16,7 @@
 
 class AudioSystem : public Observer{
 public:
-    AudioSystem(std::string deviceName = "");
+    AudioSystem(UIState* uiState, std::string deviceName = "");
 
     ~AudioSystem();
 
@@ -60,7 +60,7 @@ private:
     Uint32 audioTimer_;
     SDL_TimerID timerID_ = 0;
 
-    UIState* uiState_ = UIState::getInstance();
+    UIState* uiState_;
 
     bool hasNewAudioData_ = false;
     bool hasNewSpectrumData_ = false;

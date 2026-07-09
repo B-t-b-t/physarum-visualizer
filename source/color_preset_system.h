@@ -6,6 +6,7 @@
 
 #include "imgui.h"
 
+#include "./ui/ui_state.h"
 #include "./ui/user_interface.h"
 #include "./utility/observer.h"
 
@@ -46,7 +47,7 @@ private:
 
 	bool timeOut_ = false;
 
-	UIState* uiState_ = UIState::getInstance();
+	UIState* uiState_;
 };
 
 #endif // COLOR_PRESET_SYSTEM_H

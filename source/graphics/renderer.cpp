@@ -1,11 +1,11 @@
 #include "renderer.h"
 
-Renderer::Renderer(UniformBufferManager* uboManager)
+Renderer::Renderer(UniformBufferManager* uboManager, UIState* uiState)
  :  drawCanvas_(Canvas()),
     vertexShader_{Shader("./res/vertex.vs", ShaderType::VERTEX_SHADER)},
     fragmentShader_{Shader("./res/fragment.fs", ShaderType::FRAGMENT_SHADER)},
 	rasterizationPipeline_{ShaderProgram("RasterizationPipeline", {&vertexShader_, &fragmentShader_})},
-    uiState_{UIState::getInstance()},
+    uiState_{uiState},
     ui_uss_{uiState_->universalShaderSettings},
 	texTrail_{(int)ui_uss_.textureWidth, (int)ui_uss_.textureHeight, Texture::TextureType::RGBA_FLOAT, 0},		//Texture Unit 0
 	texTrailNonDiffused_{(int)ui_uss_.textureWidth, (int)ui_uss_.textureHeight, Texture::TextureType::RGBA_FLOAT, 1},	//Texture Unit 1

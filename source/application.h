@@ -11,6 +11,7 @@
 #include "./audio/music_analysis.h"
 #include "./graphics/renderer.h"
 #include "./graphics/uniform_buffer_manager.h"
+#include "./simulation/simulation.h"
 #include "./simulation/trail_map_controller.h"
 #include "./utility/parameter_parser.h"
 #include "./ui/elements/audio_window.h"
@@ -23,23 +24,18 @@ public:
     void run();
 
 private:
-    Parameters params_;
-    int workGroupDivider_;
-    Window window_;
-    UserInterface ui_;
-
     UIState* uiState_;
     UniversalShaderSettings& ui_uss_;	//just shortening the name as a temp solution
+
+    Window window_;
+
+    UserInterface ui_;
+
     UniformBufferManager ubo_manager_;
 
     std::unique_ptr<Renderer> renderer_;
 
-    ParticleData particleData_;
-
-    Shader trailDiffusionShader_;
-	ShaderProgram trailDiffusionProgram_;
-    Shader particleBehaviourShader_;
-	ShaderProgram particleBehaviourProgram_;
+    Simulation simulation_;
 
     AudioSystem audioSystem_;
 

@@ -49,8 +49,6 @@ private:
     SDL_DateTime dateTime_;
 
     bool timeOut_ = false;
-
-    UIState* uiState_ = UIState::getInstance();
 };
 
 #endif // TRAIL_MAP_CONTROLLER_H

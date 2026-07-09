@@ -3,9 +3,11 @@
 #include <iostream>
 
 
-Window::Window(int width, int height, const std::string& title, bool customResolution) {
-	windowWidth_ = width;
-	windowHeight_ = height;
+Window::Window(const std::string& title, UIState* uiState, bool customResolution)
+ : uiState_{uiState}
+{
+	windowWidth_ = uiState_->universalShaderSettings.windowWidth;
+	windowHeight_ = uiState_->universalShaderSettings.windowHeight;
 
 	bool init_SDL_Success = SDL_Init(SDL_INIT_VIDEO | SDL_INIT_CAMERA | SDL_INIT_AUDIO);
 	if (!init_SDL_Success) {
@@ -123,6 +125,11 @@ Window::Window(int width, int height, const std::string& title, bool customResol
 	#if _DEBUG
 	setOpenGLDebugCallback();
 	#endif
+
+	//give infos about window size back to the whole program
+	uiState_->universalShaderSettings.windowWidth = getWindowWidth();
+	uiState_->universalShaderSettings.windowHeight = getWindowHeight();
+	uiState_->fractionalScalingFactor = getFractionalScalingFactor();
 }
 
 Window::~Window() {

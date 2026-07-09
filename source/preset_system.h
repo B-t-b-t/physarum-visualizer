@@ -6,6 +6,7 @@
 
 #include "imgui.h"
 
+#include "./ui/ui_state.h"
 #include "./ui/user_interface.h"
 #include "./utility/observer.h"
 
@@ -50,7 +51,7 @@ private:
 	std::string fileExtension_;
 	UserInterface* ui_;
 
-	UIState* uiState_ = UIState::getInstance();
+	UIState* uiState_;
 
 	bool timeOut_ = false;
 };

@@ -7,7 +7,9 @@
 #include "elements/slime_config_window.h"
 #include "elements/visual_settings_window.h"
 
-UserInterface::UserInterface(SDL_Window* window, SDL_GLContext glContext) : state_(UIState::getInstance()) {
+UserInterface::UserInterface(SDL_Window* window, SDL_GLContext glContext, UIState* state)
+ : state_(state)
+ {
 		
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();

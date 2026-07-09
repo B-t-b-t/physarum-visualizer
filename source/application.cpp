@@ -1,26 +1,19 @@
 #include "application.h"
 
 Application::Application(Parameters params) 
-  :	params_{params}, 
-	workGroupDivider_{params.workGroupDivider}, 
-	window_{Window((int)params.width, (int)params.height, "Physarum", params.customResolution)},
-	ui_{UserInterface(window_.getWindow(), window_.getGLContext())},
-	uiState_{ui_.getState()},
+  :	uiState_{UIState::getInstance(params)},
 	ui_uss_{uiState_->universalShaderSettings},	//just shortening the name as a temp solution
+	window_{Window("Physarum", uiState_, params.customResolution)},
+	ui_{UserInterface(window_.getWindow(), window_.getGLContext(), uiState_)},
 	ubo_manager_{UniformBufferManager(uiState_)},
-	trailDiffusionShader_{Shader("./res/TrailDiffusion.cs", ShaderType::COMPUTE_SHADER)},
-	trailDiffusionProgram_{ShaderProgram("TrailDiffusionProgram", {&trailDiffusionShader_})},
-	particleBehaviourShader_{Shader("./res/ParticleBehaviour.cs", ShaderType::COMPUTE_SHADER)},
-	particleBehaviourProgram_{ShaderProgram("ParticleBehaviourProgram", {&particleBehaviourShader_})},
-	audioSystem_{AudioSystem(params.audioDevice)},
+	simulation_{Simulation(&ubo_manager_, uiState_, params.customParticleCount)},
+	audioSystem_{AudioSystem(uiState_, params.audioDevice)},
 	presetSystem_{PresetSystem("./presets/", ".psf", &ui_)},
 	colorPresetSystem_{ColorPresetSystem("./presets/", ".pcsf", &ui_)},
 	trailMapController_{TrailMapController("./res/pictures/", ".png", 16, &ui_)},	//Texture Unit 16 for Trail Mask Texture
 	musicAnalysis_{MusicAnalysis(uiState_)}
 {
 	//------------------------------------------------------
-	//beginn constructor body
-
 	//Register Observers for Events
 	window_.attachToObservable(Event::FULLSCREEN_TOGGLE, ui_.getWindow("VisualSettingsWindow"));
 	audioSystem_.attachToObservable(Event::AUDIO_HARDWARE_CHANGE, ui_.getWindow("AudioWindow"));
@@ -30,36 +23,7 @@ Application::Application(Parameters params)
 	colorPresetSystem_.attachToObservable(Event::LOAD_COLOR_PRESET, ui_.getWindow("PresetWindow"));
 	trailMapController_.attachToObservable(Event::LOAD_NEW_PICTURE, ui_.getWindow("PresetWindow"));
 
-	//update window size because the window is created in window constructor with maximum possible size for the screen
-	ui_uss_.windowWidth = window_.getWindowWidth();
-	ui_uss_.windowHeight = window_.getWindowHeight();
-	uiState_->numParticles = params_.numParticles;
-	uiState_->newNumParticles = params_.numParticles;
-	uiState_->slimeRatio = params_.slimeRatio;
-
-	//calculate texture size based on window size and fractional scaling factor for high DPI displays
-	//texture size should reflect resolution of the physical display and not the scaled OS resolution
-	float scaling = window_.getFractionalScalingFactor();
-
-	ui_uss_.textureWidth = (int)(ui_uss_.windowWidth * scaling - ((int)(ui_uss_.windowWidth * scaling) % workGroupDivider_));		//make sure width is multiple of workgroup size
-	ui_uss_.textureHeight = (int)(ui_uss_.windowHeight * scaling - ((int)(ui_uss_.windowHeight * scaling) % workGroupDivider_));	//make sure height is multiple of workgroup size
-	uiState_->newTextureWidth = ui_uss_.textureWidth;
-	uiState_->newTextureHeight = ui_uss_.textureHeight;
-
-	//calculate number of particles based on texture size and slime ratio
-	if(params_.customParticleCount) {
-		uiState_->slimeRatio = uiState_->numParticles / (float)(ui_uss_.textureWidth * ui_uss_.textureHeight);
-	} else {
-		uiState_->numParticles = uiState_->slimeRatio * ui_uss_.textureWidth * ui_uss_.textureHeight;
-		uiState_->numParticles = uiState_->numParticles - uiState_->numParticles % workGroupDivider_;	//ensure multiple of workgroup size
-	}
-
-	renderer_ = std::make_unique<Renderer>(&ubo_manager_);	//initialize after setting the correct texture size because of false texture initialization in Renderer Constructor??
-	ubo_manager_.attachUBOs({trailDiffusionProgram_.getProgramID(), particleBehaviourProgram_.getProgramID()});	//replace with handling in seperate Simulation class like Renderer
-	
-	//------------------------------------------------------
-	// Initialize Physarum Particles
-	particleData_.createAndSend(uiState_->numParticles, ui_uss_.textureWidth, ui_uss_.textureHeight);
+	renderer_ = std::make_unique<Renderer>(&ubo_manager_, uiState_);	//initialize after setting the correct texture size because of false texture initialization in Renderer Constructor??
 	
 	//------------------------------------------------------
 	// Initialize Audio Recording and Processing
@@ -96,8 +60,7 @@ void Application::run() {
 		// Compute Shader Passes for Simulation Steps
 
 		trailMapController_.bindToTextureUnit(5);
-		trailDiffusionProgram_.dispatchCompute(ui_uss_.textureWidth / workGroupDivider_, ui_uss_.textureHeight / workGroupDivider_, 1);	//calculate new trail texture
-		particleBehaviourProgram_.dispatchCompute(uiState_->numParticles / 8, (GLuint)1, 1);	//move Slime Particles
+		simulation_.simulateStep(uiState_);
 
 		//------------------------------------------------------
 		// Audio Processing
@@ -148,7 +111,7 @@ void Application::run() {
 				renderer_->resizeTextures(ui_uss_.textureWidth, ui_uss_.textureHeight);
 			}
 
-			particleData_.createAndSend(uiState_->numParticles, ui_uss_.textureWidth, ui_uss_.textureHeight);
+			simulation_.setNewParticleParameters(uiState_);
 			ubo_manager_.updateUBOs(uiState_);
 			uiState_->newCanvas = false;
 		}

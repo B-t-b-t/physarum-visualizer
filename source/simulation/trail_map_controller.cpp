@@ -7,6 +7,7 @@
 #include <SDL3_image/SDL_image.h>
 #include <toml.hpp>
 
+#include "../ui/ui_state.h"
 #include "../ui/elements/preset_window.h"
 #include "../utility/fileHandling.h"
 

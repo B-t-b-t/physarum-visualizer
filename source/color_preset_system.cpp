@@ -7,7 +7,8 @@
 #include "utility/fileHandling.h"
 
 ColorPresetSystem::ColorPresetSystem(std::string presetFilePath, std::string fileExtension, UserInterface* ui)
- : presetFilePath_(presetFilePath), fileExtension_(fileExtension), ui_(ui) {
+ : presetFilePath_(presetFilePath), fileExtension_(fileExtension), ui_(ui), uiState_{ui_->getState()}
+{
     //register all preset names with UI and presets into memory
     loadPresetNames(ui_);
 }

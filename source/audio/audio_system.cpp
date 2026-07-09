@@ -1,6 +1,8 @@
 #include "audio_system.h"
 
-AudioSystem::AudioSystem(std::string deviceName) {	
+AudioSystem::AudioSystem(UIState* uiState, std::string deviceName) 
+ : uiState_{uiState} 
+{
 
 	//check available devices and populate device vector
 	deviceManager_.checkForAvailableDevices();

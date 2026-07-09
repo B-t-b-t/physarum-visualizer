@@ -4,6 +4,7 @@
 #include <string>
 
 #include "../uniforms.h"
+#include "../utility/parameter_parser.h"
 
 
 enum class TextureMask {
@@ -58,6 +59,8 @@ public:
 	int numParticles = 300000;
 	int newNumParticles = 300000;
 	float slimeRatio = 0.15f;
+	float fractionalScalingFactor = 1.0f;
+	int workGroupDivider = 8;
 	int presetIntervall = 30;	//in seconds
 	int colorPresetIntervall = 30;	//in seconds
 	int trailMaskIntervall = 30;	//in seconds
@@ -90,12 +93,12 @@ public:
 
 	bool normalizeBeat = false;
 
-	static UIState* getInstance();
+	static UIState* getInstance(Parameters& params);
 
 private:
 	static UIState* singleton_;
 
-	UIState() = default;
+	UIState(Parameters& params);
 	~UIState() = default;
 	UIState(const UIState&) = delete;
 	UIState& operator=(const UIState&) = delete;

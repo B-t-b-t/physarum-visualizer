@@ -25,7 +25,7 @@ void APIENTRY openglCallbackFunction(GLenum source,
 class Window : public Observer {
 public:
 	Window();
-	Window(int width, int height, const std::string& title, bool customResolution);
+	Window(const std::string& title, UIState* uiState, bool customResolution);
 
 	void setFullscreen();
 
@@ -60,7 +60,7 @@ private:
 	SDL_DisplayID* displays_;
 	int numberOfDisplays_;
 
-	UIState* uiState_ = UIState::getInstance();
+	UIState* uiState_;
 
 	int windowWidth_;
 	int windowHeight_;
