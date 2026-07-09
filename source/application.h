@@ -33,9 +33,8 @@ private:
 
     UniformBufferManager ubo_manager_;
 
-    std::unique_ptr<Renderer> renderer_;
-
     Simulation simulation_;
+    std::unique_ptr<Renderer> renderer_;
 
     AudioSystem audioSystem_;
 

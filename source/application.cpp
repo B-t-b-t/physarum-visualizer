@@ -7,6 +7,7 @@ Application::Application(Parameters params)
 	ui_{UserInterface(window_.getWindow(), window_.getGLContext(), uiState_)},
 	ubo_manager_{UniformBufferManager(uiState_)},
 	simulation_{Simulation(&ubo_manager_, uiState_, params.customParticleCount)},
+	renderer_{std::make_unique<Renderer>(&ubo_manager_, uiState_)},	//initialize after simulation, because simulation calculates the texture size!
 	audioSystem_{AudioSystem(uiState_, params.audioDevice)},
 	presetSystem_{PresetSystem("./presets/", ".psf", &ui_)},
 	colorPresetSystem_{ColorPresetSystem("./presets/", ".pcsf", &ui_)},
@@ -22,17 +23,12 @@ Application::Application(Parameters params)
 	colorPresetSystem_.attachToObservable(Event::SAVE_COLOR_PRESET, ui_.getWindow("PresetWindow"));
 	colorPresetSystem_.attachToObservable(Event::LOAD_COLOR_PRESET, ui_.getWindow("PresetWindow"));
 	trailMapController_.attachToObservable(Event::LOAD_NEW_PICTURE, ui_.getWindow("PresetWindow"));
-
-	renderer_ = std::make_unique<Renderer>(&ubo_manager_, uiState_);	//initialize after setting the correct texture size because of false texture initialization in Renderer Constructor??
 	
 	//------------------------------------------------------
 	// Initialize Audio Recording and Processing
 	std::vector<std::string> availableAudioHardwareNames = audioSystem_.getAvailableHardwareDeviceNames();
 	audioWindow_ = dynamic_cast<AudioWindow*>(ui_.getWindow("AudioWindow"));
 	audioWindow_->addHardwareDeviceNames(availableAudioHardwareNames);
-
-	//resize textures to correct size according to window size and scaling factor
-	renderer_->resizeTextures(ui_uss_.textureWidth, ui_uss_.textureHeight);
 
 	prevCounter_ = SDL_GetPerformanceCounter();
 	counterFrequency_ = SDL_GetPerformanceFrequency(); //SDL Timer Frequency for Audio Beat Analysis and Auto Preset Switching
