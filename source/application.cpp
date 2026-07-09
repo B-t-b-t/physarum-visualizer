@@ -6,12 +6,11 @@ Application::Application(Parameters params)
 	window_{Window("Physarum", uiState_, params.customResolution)},
 	ui_{UserInterface(window_.getWindow(), window_.getGLContext(), uiState_)},
 	ubo_manager_{UniformBufferManager(uiState_)},
-	simulation_{Simulation(&ubo_manager_, uiState_, params.customParticleCount)},
+	simulation_{Simulation(&ubo_manager_, &ui_, params.customParticleCount)},
 	renderer_{std::make_unique<Renderer>(&ubo_manager_, uiState_)},
 	audioSystem_{AudioSystem(uiState_, params.audioDevice)},
 	presetSystem_{PresetSystem("./presets/", ".psf", &ui_)},
 	colorPresetSystem_{ColorPresetSystem("./presets/", ".pcsf", &ui_)},
-	trailMapController_{TrailMapController("./res/pictures/", ".png", 16, &ui_)},	//Texture Unit 16 for Trail Mask Texture
 	musicAnalysis_{MusicAnalysis(uiState_)}
 {
 	//------------------------------------------------------
@@ -22,7 +21,7 @@ Application::Application(Parameters params)
 	presetSystem_.attachToObservable(Event::LOAD_PRESET, ui_.getWindow("PresetWindow"));
 	colorPresetSystem_.attachToObservable(Event::SAVE_COLOR_PRESET, ui_.getWindow("PresetWindow"));
 	colorPresetSystem_.attachToObservable(Event::LOAD_COLOR_PRESET, ui_.getWindow("PresetWindow"));
-	trailMapController_.attachToObservable(Event::LOAD_NEW_PICTURE, ui_.getWindow("PresetWindow"));
+	simulation_.getTrailMapController()->attachToObservable(Event::LOAD_NEW_PICTURE, ui_.getWindow("PresetWindow"));
 	
 	//------------------------------------------------------
 	// Initialize Audio Recording and Processing
@@ -55,7 +54,6 @@ void Application::run() {
 		//------------------------------------------------------
 		// Compute Shader Passes for Simulation Steps
 
-		trailMapController_.bindToTextureUnit(5);
 		simulation_.simulateStep(uiState_);
 
 		//------------------------------------------------------
@@ -69,8 +67,6 @@ void Application::run() {
 		if(uiState_->slimeSettings.reactToAudio) {
 			musicAnalysis_.analyzeMusic(audioSystem_.getSpectrumDiff(), frameTime);
 		}
-		
-		trailMapController_.bindToTextureUnit(16);
 		
 		//------------------------------------------------------
 		// Draw Call with Rasterization Pipeline
@@ -109,7 +105,7 @@ void Application::run() {
 		//Auto Switching Presets
 		presetSystem_.autoSwitchPresets(&ui_, timeInSeconds);
 		colorPresetSystem_.autoSwitchPresets(&ui_, timeInSeconds);
-		trailMapController_.autoSwitchPictures(&ui_, timeInSeconds);
+		simulation_.getTrailMapController()->autoSwitchPictures(&ui_, timeInSeconds);
 
 		//Exit Program when requested from UI
 		if(uiState_->exitProgram) {

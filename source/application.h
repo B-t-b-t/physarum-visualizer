@@ -4,7 +4,6 @@
 #include <memory>
 
 #include "color_preset_system.h"
-#include "particle_data.h"
 #include "preset_system.h"
 #include "window.h"
 #include "./audio/audio_system.h"
@@ -42,8 +41,6 @@ private:
 
     PresetSystem presetSystem_;
 	ColorPresetSystem colorPresetSystem_;
-
-    TrailMapController trailMapController_;
 
     MusicAnalysis musicAnalysis_;
 
