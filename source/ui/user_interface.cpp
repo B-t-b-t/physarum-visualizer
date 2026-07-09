@@ -68,6 +68,9 @@ void UserInterface::display(std::vector<double>& audioBuffer, std::vector<double
 		auto& w = kv.second;
 		if (w && w->visible) { w->render(state_); }
 	}
+
+	ImGui::Render();
+	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
 
 void UserInterface::newModal() {

@@ -64,26 +64,22 @@ void Application::run() {
 			audioSystem_.computeSpectrum();
 		}
 
-		//give UI access to audio data; Why Here?!
-		ui_.display(audioSystem_.getAudioBuffer(), audioSystem_.getSpectrum(), audioSystem_.getSpectrumDiff(), audioSystem_.getBufferSize(), audioSystem_.hasNewSpectrumData());
-		audioSystem_.setHasNewSpectrumData(false);
-
+		
 		// Analyze the music data
 		if(uiState_->slimeSettings.reactToAudio) {
 			musicAnalysis_.analyzeMusic(audioSystem_.getSpectrumDiff(), frameTime);
 		}
-
+		
 		trailMapController_.bindToTextureUnit(16);
-
+		
 		//------------------------------------------------------
 		// Draw Call with Rasterization Pipeline
 		renderer_->draw();
-
+		
 		//------------------------------------------------------
 		// ImGui Draw Call
-		glBindFramebuffer(GL_FRAMEBUFFER, 0); // Default framebuffer to make sure
-		ImGui::Render();
-		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+		ui_.display(audioSystem_.getAudioBuffer(), audioSystem_.getSpectrum(), audioSystem_.getSpectrumDiff(), audioSystem_.getBufferSize(), audioSystem_.hasNewSpectrumData());
+		audioSystem_.setHasNewSpectrumData(false);
 		
 		//------------------------------------------------------
 		//process Key Presses from User
@@ -92,8 +88,6 @@ void Application::run() {
 		if(window_.getExitLock()) { 				//if exit lock is active go to fullscreen
 			uiState_->fullscreen = true;
 		}
-		ui_uss_.windowWidth = window_.getWindowWidth();		//synchronize window size
-		ui_uss_.windowHeight = window_.getWindowHeight();
 
 		//------------------------------------------------------
 		// Handle User Interface Changes that affect Simulation State
