@@ -3,11 +3,11 @@
 #include <iostream>
 
 
-Window::Window(const std::string& title, UIState* uiState, bool customResolution)
- : uiState_{uiState}
+Window::Window(const std::string& title, ApplicationState* uiState, bool customResolution)
+ : appState_{uiState}
 {
-	windowWidth_ = uiState_->universalShaderSettings.windowWidth;
-	windowHeight_ = uiState_->universalShaderSettings.windowHeight;
+	windowWidth_ = appState_->universalShaderSettings.windowWidth;
+	windowHeight_ = appState_->universalShaderSettings.windowHeight;
 
 	bool init_SDL_Success = SDL_Init(SDL_INIT_VIDEO | SDL_INIT_CAMERA | SDL_INIT_AUDIO);
 	if (!init_SDL_Success) {
@@ -127,20 +127,20 @@ Window::Window(const std::string& title, UIState* uiState, bool customResolution
 	#endif
 
 	//give infos about window size back to the whole program
-	uiState_->universalShaderSettings.windowWidth = getWindowWidth();
-	uiState_->universalShaderSettings.windowHeight = getWindowHeight();
-	uiState_->fractionalScalingFactor = getFractionalScalingFactor();
-	int workGroupDivider = uiState_->workGroupDivider;
+	appState_->universalShaderSettings.windowWidth = getWindowWidth();
+	appState_->universalShaderSettings.windowHeight = getWindowHeight();
+	appState_->fractionalScalingFactor = getFractionalScalingFactor();
+	int workGroupDivider = appState_->workGroupDivider;
 	
 	//calculate texture sizes, so that it matches window size at initialization
 	int textureWidth = (int)(windowWidth_ * fractionalScalingFactor_ - ((int)(windowWidth_ * fractionalScalingFactor_) % workGroupDivider));		//make sure width is multiples of workgroup size for compute shaders
 	int textureHeight = (int)(windowHeight_ * fractionalScalingFactor_ - ((int)(windowHeight_ * fractionalScalingFactor_) % workGroupDivider));
 	
 	//write back to program state
-	uiState_->universalShaderSettings.textureWidth = textureWidth;
-	uiState_->universalShaderSettings.textureHeight = textureHeight;
-	uiState_->newTextureWidth = textureWidth;
-	uiState_->newTextureHeight = textureHeight;
+	appState_->universalShaderSettings.textureWidth = textureWidth;
+	appState_->universalShaderSettings.textureHeight = textureHeight;
+	appState_->newTextureWidth = textureWidth;
+	appState_->newTextureHeight = textureHeight;
 }
 
 
@@ -157,7 +157,7 @@ void Window::updateViewport() {
 }
 
 void Window::setFullscreen(){
-	if (uiState_->fullscreen) {
+	if (appState_->fullscreen) {
 		SDL_SetWindowFullscreen(window_, SDL_WINDOW_FULLSCREEN);
 	} else {
 		SDL_SetWindowFullscreen(window_, 0);

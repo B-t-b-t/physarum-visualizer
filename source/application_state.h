@@ -1,10 +1,10 @@
-#ifndef UI_STATE_H
-#define UI_STATE_H
+#ifndef APPLICATION_STATE_H
+#define APPLICATION_STATE_H
 
 #include <string>
 
-#include "../uniforms.h"
-#include "../utility/parameter_parser.h"
+#include "uniforms.h"
+#include "utility/parameter_parser.h"
 
 
 enum class TextureMask {
@@ -38,7 +38,7 @@ enum class ToneMappingMode {
 		EXPOSURE = 1
 };
 
-class UIState {
+class ApplicationState {
 public:
 	UniversalShaderSettings universalShaderSettings;
 	SlimeSettings slimeSettings;
@@ -93,15 +93,15 @@ public:
 
 	bool normalizeBeat = false;
 
-	static UIState* getInstance(Parameters& params);
+	static ApplicationState* getInstance(Parameters& params);
 
 private:
-	static UIState* singleton_;
+	static ApplicationState* singleton_;
 
-	UIState(Parameters& params);
-	~UIState() = default;
-	UIState(const UIState&) = delete;
-	UIState& operator=(const UIState&) = delete;
+	ApplicationState(Parameters& params);
+	~ApplicationState() = default;
+	ApplicationState(const ApplicationState&) = delete;
+	ApplicationState& operator=(const ApplicationState&) = delete;
 };
 
-#endif // UI_STATE_H
+#endif // APPLICATION_STATE_H

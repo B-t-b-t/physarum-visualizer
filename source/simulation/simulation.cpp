@@ -9,7 +9,7 @@ Simulation::Simulation(UniformBufferManager* uboManager, UserInterface* ui, bool
 {
 	//------------------------------------------------------
 	// Calculate new simulation parameters based on window properties or user input
-	UIState* uiState = ui->getState();	//TODO: whole ui used just for trailMapController, remove later!
+	ApplicationState* uiState = ui->getState();	//TODO: whole ui used just for trailMapController, remove later!
 
 	int textureWidth = uiState->universalShaderSettings.textureWidth;
 	int textureHeight = uiState->universalShaderSettings.textureHeight;
@@ -31,7 +31,7 @@ Simulation::Simulation(UniformBufferManager* uboManager, UserInterface* ui, bool
 	particleData_.createAndSend(uiState->numParticles, uiState->universalShaderSettings.textureWidth, uiState->universalShaderSettings.textureHeight);
 }
 
-void Simulation::simulateStep(UIState* uiState) {
+void Simulation::simulateStep(ApplicationState* uiState) {
 	int workGroupDivider = uiState->workGroupDivider;
 	trailMapController_.bindToTextureUnit(5);	//because compute shaders use trailMask at texture unit 5
 
@@ -41,6 +41,6 @@ void Simulation::simulateStep(UIState* uiState) {
 	trailMapController_.bindToTextureUnit(16);	//move back to texture unit 16 for use in fragment shader 
 }
 
-void Simulation::setNewParticleParameters(UIState* uiState) {
+void Simulation::setNewParticleParameters(ApplicationState* uiState) {
 	particleData_.createAndSend(uiState->numParticles, uiState->universalShaderSettings.textureWidth, uiState->universalShaderSettings.textureHeight);
 }

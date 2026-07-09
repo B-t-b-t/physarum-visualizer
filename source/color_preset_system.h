@@ -6,7 +6,7 @@
 
 #include "imgui.h"
 
-#include "./ui/ui_state.h"
+#include "application_state.h"
 #include "./ui/user_interface.h"
 #include "./utility/observer.h"
 
@@ -25,13 +25,13 @@ public:
 	ColorPresetSystem() = default;
 	ColorPresetSystem(std::string presetFilePath, std::string fileExtension, UserInterface *ui);
 
-    void createPreset(std::string presetName, UIState* uiState);
+    void createPreset(std::string presetName, ApplicationState* uiState);
     void savePreset(std::string fileName);
     void loadPreset(std::string fileName);
 	void loadRandomPreset(UserInterface* ui);
 
 	void loadPresetNames(UserInterface* ui);
-	void setUIState(UIState* uiState, std::string presetName);
+	void setUIState(ApplicationState* uiState, std::string presetName);
 
 	void autoSwitchPresets(UserInterface* ui, Uint64 timeInSeconds);
 
@@ -47,7 +47,7 @@ private:
 
 	bool timeOut_ = false;
 
-	UIState* uiState_;
+	ApplicationState* appState_;
 };
 
 #endif // COLOR_PRESET_SYSTEM_H

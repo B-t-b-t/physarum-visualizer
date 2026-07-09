@@ -3,7 +3,7 @@
 #include "../ui_helpers.h"
 #include "../../utility/event.h"
 
-void VisualSettingsWindow::render(UIState* state) {
+void VisualSettingsWindow::render(ApplicationState* state) {
     if(!visible) { return; }
 
     ImGui::Begin("Visual Settings", &visible);
@@ -34,7 +34,7 @@ void VisualSettingsWindow::render(UIState* state) {
 		ImGui::Separator();
 	}
 	
-	// ImGui::Checkbox expects a bool*, but vignetteEffect is stored as an int in UIState;
+	// ImGui::Checkbox expects a bool*, but vignetteEffect is stored as an int in ApplicationState;
 	// use a temporary bool to interface with ImGui and write back the result to the int.
 	bool vignette = state->fragmentShaderSettings.vignetteEffect != 0;
 	if (ImGui::Checkbox("Vignette Effect", &vignette)) {

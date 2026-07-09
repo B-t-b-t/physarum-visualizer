@@ -34,7 +34,7 @@ Bloom::Bloom(int textureWidth, int textureHeight, Shader* vertexShader)
 	}
 }
 
-void Bloom::applyBloom(GLuint texTrailID, Canvas* drawCanvas, const UIState* uiState) {
+void Bloom::applyBloom(GLuint texTrailID, Canvas* drawCanvas, const ApplicationState* uiState) {
     thresholdFramebuffer_.bind();
     glClear(GL_COLOR_BUFFER_BIT);
     glViewport(0, 0, (int)uiState->universalShaderSettings.textureWidth, (int)uiState->universalShaderSettings.textureHeight);

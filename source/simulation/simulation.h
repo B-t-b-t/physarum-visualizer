@@ -6,7 +6,7 @@
 #include "../graphics/shader.h"
 #include "../graphics/shader_program.h"
 #include "../graphics/uniform_buffer_manager.h"
-#include "../ui/ui_state.h"
+#include "../application_state.h"
 #include "../ui/user_interface.h"
 
 class Simulation {
@@ -15,8 +15,8 @@ public:
 
     Simulation(UniformBufferManager* uboManager, UserInterface* ui, bool customParticleCount);
 
-    void simulateStep(UIState* uiState);
-    void setNewParticleParameters(UIState* uiState);
+    void simulateStep(ApplicationState* uiState);
+    void setNewParticleParameters(ApplicationState* uiState);
     TrailMapController* getTrailMapController() { return &trailMapController_; }
 
 private:

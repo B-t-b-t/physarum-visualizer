@@ -1,17 +1,17 @@
 #include "application.h"
 
 Application::Application(Parameters params) 
-  :	uiState_{UIState::getInstance(params)},
-	ui_uss_{uiState_->universalShaderSettings},	//just shortening the name as a temp solution
-	window_{Window("Physarum", uiState_, params.customResolution)},
-	ui_{UserInterface(window_.getWindow(), window_.getGLContext(), uiState_)},
-	ubo_manager_{UniformBufferManager(uiState_)},
+  :	appState_{ApplicationState::getInstance(params)},
+	app_uss_{appState_->universalShaderSettings},	//just shortening the name as a temp solution
+	window_{Window("Physarum", appState_, params.customResolution)},
+	ui_{UserInterface(window_.getWindow(), window_.getGLContext(), appState_)},
+	ubo_manager_{UniformBufferManager(appState_)},
 	simulation_{Simulation(&ubo_manager_, &ui_, params.customParticleCount)},
-	renderer_{std::make_unique<Renderer>(&ubo_manager_, uiState_)},
-	audioSystem_{AudioSystem(uiState_, params.audioDevice)},
+	renderer_{std::make_unique<Renderer>(&ubo_manager_, appState_)},
+	audioSystem_{AudioSystem(appState_, params.audioDevice)},
 	presetSystem_{PresetSystem("./presets/", ".psf", &ui_)},
 	colorPresetSystem_{ColorPresetSystem("./presets/", ".pcsf", &ui_)},
-	musicAnalysis_{MusicAnalysis(uiState_)}
+	musicAnalysis_{MusicAnalysis(appState_)}
 {
 	//------------------------------------------------------
 	//Register Observers for Events
@@ -45,26 +45,26 @@ void Application::run() {
 		double frameTime = double(nowCounter - prevCounter_) / double(counterFrequency_);
 		prevCounter_ = nowCounter;
 
-		ui_uss_.timeTicks = nowCounter;
+		app_uss_.timeTicks = nowCounter;
 
 		//------------------------------------------------------
 		// setting Uniforms for later use in Draw Call
-		ubo_manager_.updateUBOs(uiState_);
+		ubo_manager_.updateUBOs(appState_);
 
 		//------------------------------------------------------
 		// Compute Shader Passes for Simulation Steps
 
-		simulation_.simulateStep(uiState_);
+		simulation_.simulateStep(appState_);
 
 		//------------------------------------------------------
 		// Audio Processing
-		if(uiState_->slimeSettings.reactToAudio) {
+		if(appState_->slimeSettings.reactToAudio) {
 			audioSystem_.computeSpectrum();
 		}
 
 		
 		// Analyze the music data
-		if(uiState_->slimeSettings.reactToAudio) {
+		if(appState_->slimeSettings.reactToAudio) {
 			musicAnalysis_.analyzeMusic(audioSystem_.getSpectrumDiff(), frameTime);
 		}
 		
@@ -82,24 +82,24 @@ void Application::run() {
 		window_.Update();	//TODO: badly named; RENAME!
 
 		if(window_.getExitLock()) { 				//if exit lock is active go to fullscreen
-			uiState_->fullscreen = true;
+			appState_->fullscreen = true;
 		}
 
 		//------------------------------------------------------
 		// Handle User Interface Changes that affect Simulation State
-		if(uiState_->newCanvas) {
-			std::cout << "Creating new Canvas with " << uiState_->numParticles << " particles and size " << ui_uss_.textureWidth << "x" << ui_uss_.textureHeight << std::endl;
-			if(uiState_->newTextureWidth != ui_uss_.textureWidth || uiState_->newTextureHeight != ui_uss_.textureHeight) {
+		if(appState_->newCanvas) {
+			std::cout << "Creating new Canvas with " << appState_->numParticles << " particles and size " << app_uss_.textureWidth << "x" << app_uss_.textureHeight << std::endl;
+			if(appState_->newTextureWidth != app_uss_.textureWidth || appState_->newTextureHeight != app_uss_.textureHeight) {
 				// Resize Textures and Framebuffers
-				ui_uss_.textureWidth = uiState_->newTextureWidth;
-				ui_uss_.textureHeight = uiState_->newTextureHeight;
+				app_uss_.textureWidth = appState_->newTextureWidth;
+				app_uss_.textureHeight = appState_->newTextureHeight;
 
-				renderer_->resizeTextures(ui_uss_.textureWidth, ui_uss_.textureHeight);
+				renderer_->resizeTextures(app_uss_.textureWidth, app_uss_.textureHeight);
 			}
 
-			simulation_.setNewParticleParameters(uiState_);
-			ubo_manager_.updateUBOs(uiState_);
-			uiState_->newCanvas = false;
+			simulation_.setNewParticleParameters(appState_);
+			ubo_manager_.updateUBOs(appState_);
+			appState_->newCanvas = false;
 		}
 
 		//Auto Switching Presets
@@ -108,9 +108,9 @@ void Application::run() {
 		simulation_.getTrailMapController()->autoSwitchPictures(&ui_, timeInSeconds);
 
 		//Exit Program when requested from UI
-		if(uiState_->exitProgram) {
+		if(appState_->exitProgram) {
 			if(!window_.setIsClosed(true)) {
-				uiState_->exitProgram = false;
+				appState_->exitProgram = false;
 			}
 		}
 	}

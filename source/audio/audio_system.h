@@ -9,14 +9,14 @@
 #include "audio_processor.h"
 #include "audio_device_manager.h"
 #include "audiostream_data.h"
-#include "../ui/ui_state.h"
+#include "../application_state.h"
 #include "../utility/observer.h"
 
 #define BUFFER_SIZE 4096//2048 //65536
 
 class AudioSystem : public Observer{
 public:
-    AudioSystem(UIState* uiState, std::string deviceName = "");
+    AudioSystem(ApplicationState* uiState, std::string deviceName = "");
 
     ~AudioSystem();
 
@@ -60,7 +60,7 @@ private:
     Uint32 audioTimer_;
     SDL_TimerID timerID_ = 0;
 
-    UIState* uiState_;
+    ApplicationState* appState_;
 
     bool hasNewAudioData_ = false;
     bool hasNewSpectrumData_ = false;

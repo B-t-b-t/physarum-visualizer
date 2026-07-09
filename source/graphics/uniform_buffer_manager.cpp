@@ -1,6 +1,6 @@
 #include "uniform_buffer_manager.h"
 
-UniformBufferManager::UniformBufferManager(UIState* uiState) {
+UniformBufferManager::UniformBufferManager(ApplicationState* uiState) {
     uboMap_.try_emplace("UniversalShaderSettings", std::make_unique<UniformBufferObject>("UniversalShaderSettings", uiState->universalShaderSettings, 0));
     uboMap_.try_emplace("SlimeSettings", std::make_unique<UniformBufferObject>("SlimeSettings", uiState->slimeSettings, 1));
     uboMap_.try_emplace("TrailDiffusionSettings", std::make_unique<UniformBufferObject>("TrailDiffusionSettings", uiState->trailDiffusionSettings, 2));
@@ -21,7 +21,7 @@ void UniformBufferManager::attachUBOs(std::initializer_list<GLuint> shaderProgra
     }
 }
 
-void UniformBufferManager::updateUBOs(UIState* uiState) {
+void UniformBufferManager::updateUBOs(ApplicationState* uiState) {
     uboMap_["UniversalShaderSettings"]->updateUniformBufferObject(uiState->universalShaderSettings);
     uboMap_["SlimeSettings"]->updateUniformBufferObject(uiState->slimeSettings);
     uboMap_["TrailDiffusionSettings"]->updateUniformBufferObject(uiState->trailDiffusionSettings);

@@ -7,7 +7,7 @@
 #include <SDL3_image/SDL_image.h>
 #include <toml.hpp>
 
-#include "../ui/ui_state.h"
+#include "../application_state.h"
 #include "../ui/elements/preset_window.h"
 #include "../utility/fileHandling.h"
 
@@ -140,7 +140,7 @@ void TrailMapController::loadRandomPicture(UserInterface* ui) {
 
 void TrailMapController::autoSwitchPictures(UserInterface* ui, Uint64 timeInSeconds) {
 
-    UIState* uiState = ui->getState();
+    ApplicationState* uiState = ui->getState();
 
     //Timed Auto Preset Switching
     if(uiState->autoPresetSwitching) {

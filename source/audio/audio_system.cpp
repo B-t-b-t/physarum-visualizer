@@ -1,7 +1,7 @@
 #include "audio_system.h"
 
-AudioSystem::AudioSystem(UIState* uiState, std::string deviceName) 
- : uiState_{uiState} 
+AudioSystem::AudioSystem(ApplicationState* uiState, std::string deviceName) 
+ : appState_{uiState} 
 {
 
 	//check available devices and populate device vector
@@ -94,7 +94,7 @@ AudioSystem::~AudioSystem() {
 
 void AudioSystem::onNotify(const Event event) {
 	if(event == Event::AUDIO_HARDWARE_CHANGE) {
-		selectHardwareDevice(uiState_->currentAudioHardware);
+		selectHardwareDevice(appState_->currentAudioHardware);
 	}
 }
 
@@ -111,11 +111,11 @@ void AudioSystem::selectHardwareDevice(std::string deviceName) {
 	//bind new device to input stream
 	if(isOpen) {
 		SDL_BindAudioStream(deviceManager_.getCurrentLogicalDeviceID(), data_.streamId_);
-		uiState_->slimeSettings.reactToAudio = true;	//turn on audio reaction if a device is available
+		appState_->slimeSettings.reactToAudio = true;	//turn on audio reaction if a device is available
 	} else {
 		hasNewAudioData_ = false;
 		hasNewSpectrumData_ = false;
-		uiState_->slimeSettings.reactToAudio = false;	//turn off audio reaction if no device is available
+		appState_->slimeSettings.reactToAudio = false;	//turn off audio reaction if no device is available
 	}
 }
 

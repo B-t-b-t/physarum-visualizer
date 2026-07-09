@@ -23,8 +23,8 @@ public:
     void run();
 
 private:
-    UIState* uiState_;
-    UniversalShaderSettings& ui_uss_;	//just shortening the name as a temp solution
+    ApplicationState* appState_;
+    UniversalShaderSettings& app_uss_;	//just shortening the name as a temp solution
 
     Window window_;
 

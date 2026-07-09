@@ -1,12 +1,12 @@
 #include "renderer.h"
 
-Renderer::Renderer(UniformBufferManager* uboManager, UIState* uiState)
+Renderer::Renderer(UniformBufferManager* uboManager, ApplicationState* uiState)
  :  drawCanvas_(Canvas()),
     vertexShader_{Shader("./res/vertex.vs", ShaderType::VERTEX_SHADER)},
     fragmentShader_{Shader("./res/fragment.fs", ShaderType::FRAGMENT_SHADER)},
 	rasterizationPipeline_{ShaderProgram("RasterizationPipeline", {&vertexShader_, &fragmentShader_})},
-    uiState_{uiState},
-    ui_uss_{uiState_->universalShaderSettings},
+    appState_{uiState},
+    ui_uss_{appState_->universalShaderSettings},
 	texTrail_{(int)ui_uss_.textureWidth, (int)ui_uss_.textureHeight, Texture::TextureType::RGBA_FLOAT, 0},		//Texture Unit 0
 	texTrailNonDiffused_{(int)ui_uss_.textureWidth, (int)ui_uss_.textureHeight, Texture::TextureType::RGBA_FLOAT, 1},	//Texture Unit 1
 	newTexParticles_{(int)ui_uss_.textureWidth, (int)ui_uss_.textureHeight, Texture::TextureType::R_UINT, 2},		//Texture Unit 2
@@ -25,7 +25,7 @@ Renderer::Renderer(Renderer&& rhs) noexcept
       fragmentShader_(std::move(rhs.fragmentShader_)),
       rasterizationPipeline_(std::move(rhs.rasterizationPipeline_)),
       bloomEffect_(std::move(rhs.bloomEffect_)),
-      uiState_(rhs.uiState_),
+      appState_(rhs.appState_),
       ui_uss_(rhs.ui_uss_),
       texTrail_(std::move(rhs.texTrail_)),
       texTrailNonDiffused_(std::move(rhs.texTrailNonDiffused_)),
@@ -42,7 +42,7 @@ Renderer& Renderer::operator=(Renderer&& rhs) noexcept {
         fragmentShader_ = std::move(rhs.fragmentShader_);
         rasterizationPipeline_ = std::move(rhs.rasterizationPipeline_);
         bloomEffect_ = std::move(rhs.bloomEffect_);
-        uiState_ = rhs.uiState_;
+        appState_ = rhs.appState_;
         ui_uss_ = rhs.ui_uss_;
         texTrail_ = std::move(rhs.texTrail_);
         texTrailNonDiffused_ = std::move(rhs.texTrailNonDiffused_);
@@ -59,13 +59,13 @@ void Renderer::draw() {
 
     //------------------------------------------------------
     // Bloom Post-Processing
-    if(uiState_->fragmentShaderSettings.bloomEnabled) {
-        bloomEffect_.applyBloom(texTrail_.getID(), &drawCanvas_, uiState_);
+    if(appState_->fragmentShaderSettings.bloomEnabled) {
+        bloomEffect_.applyBloom(texTrail_.getID(), &drawCanvas_, appState_);
     }
 
     //------------------------------------------------------
     // Display Clearing
-    clear(uiState_->clearColor.x, uiState_->clearColor.y, uiState_->clearColor.z, uiState_->clearColor.w);
+    clear(appState_->clearColor.x, appState_->clearColor.y, appState_->clearColor.z, appState_->clearColor.w);
 
     //------------------------------------------------------
     //OpenGL Draw Call

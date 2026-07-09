@@ -6,7 +6,7 @@ DebugWindow::DebugWindow() {
 	fillDebugInfos();
 }
 
-void DebugWindow::render(UIState* state) {
+void DebugWindow::render(ApplicationState* state) {
     if(!visible) { return; }
 
 	ImGui::Begin("Debug", &visible);
@@ -26,7 +26,7 @@ void DebugWindow::render(UIState* state) {
 
 	ImGui::Separator();
 
-	// ImGui::Checkbox expects a bool*, but renderColorTraces is stored as an int in UIState;
+	// ImGui::Checkbox expects a bool*, but renderColorTraces is stored as an int in ApplicationState;
 	// use a temporary bool to interface with ImGui and write back the result to the int.
 	bool renderColorTraces = state->fragmentShaderSettings.renderColorTraces != 0;
 	if (ImGui::Checkbox("Render Color Traces", &renderColorTraces)) {

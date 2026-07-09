@@ -12,7 +12,7 @@ AudioWindow::AudioWindow() {
 	heatMapChange_.resize(512 * 32, 0.0);
 }
 
-void AudioWindow::render(UIState* state) {
+void AudioWindow::render(ApplicationState* state) {
     if(!visible) { return; }
     
     ImGui::Begin("Audio", &visible);

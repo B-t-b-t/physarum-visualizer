@@ -1,16 +1,16 @@
-#include "ui_state.h"
+#include "application_state.h"
 
-UIState* UIState::singleton_ = nullptr;
+ApplicationState* ApplicationState::singleton_ = nullptr;
 
-UIState* UIState::getInstance(Parameters& params) {
+ApplicationState* ApplicationState::getInstance(Parameters& params) {
 	if(singleton_ == nullptr) {
-		singleton_ = new UIState(params);
+		singleton_ = new ApplicationState(params);
 	}
 
 	return singleton_;
 }
 
-UIState::UIState(Parameters& params) 
+ApplicationState::ApplicationState(Parameters& params) 
  : numParticles{params.numParticles},
    newNumParticles{params.numParticles},
    slimeRatio{params.slimeRatio},

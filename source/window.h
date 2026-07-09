@@ -7,7 +7,7 @@
 #include "imgui_impl_sdl3.h"
 #include <SDL3/SDL.h>
 
-#include "ui/ui_state.h"
+#include "application_state.h"
 #include "utility/observer.h"
 
 #define APIENTRY GLEWAPIENTRY	//tell OpenGL debug callback function to use GLEW's calling convention macro
@@ -25,7 +25,7 @@ void APIENTRY openglCallbackFunction(GLenum source,
 class Window : public Observer {
 public:
 	Window();
-	Window(const std::string& title, UIState* uiState, bool customResolution);
+	Window(const std::string& title, ApplicationState* uiState, bool customResolution);
 
 	void setFullscreen();
 
@@ -60,7 +60,7 @@ private:
 	SDL_DisplayID* displays_;
 	int numberOfDisplays_;
 
-	UIState* uiState_;
+	ApplicationState* appState_;
 
 	int windowWidth_;
 	int windowHeight_;

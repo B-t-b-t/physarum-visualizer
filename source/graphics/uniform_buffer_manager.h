@@ -7,12 +7,12 @@
 #include <unordered_map>
 
 #include "uniform_buffer_object.h"
-#include "../ui/ui_state.h"
+#include "../application_state.h"
 
 class UniformBufferManager {
 
 public:
-    explicit UniformBufferManager(UIState* uiState);
+    explicit UniformBufferManager(ApplicationState* uiState);
     ~UniformBufferManager() = default;
 
     UniformBufferManager() = delete;
@@ -22,7 +22,7 @@ public:
     UniformBufferManager& operator=(UniformBufferManager&&) = delete;
 
     void attachUBOs(std::initializer_list<GLuint> shaderProgramIDs);
-    void updateUBOs(UIState* uiState);
+    void updateUBOs(ApplicationState* uiState);
 
 private:
 

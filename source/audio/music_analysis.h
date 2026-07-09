@@ -7,13 +7,13 @@ class MusicAnalysis {
 public:
 
     MusicAnalysis() = default;
-    MusicAnalysis(UIState* uiState);
+    MusicAnalysis(ApplicationState* uiState);
 
     void analyzeMusic(std::vector<double>& spectrumDiff, double frameTime);
 
 private:
 
-    UIState* uiState_;
+    ApplicationState* appState_;
 
     float velocityReactionTimeConstant_ = 0.15f;
     float velocityBassReactionTarget_;

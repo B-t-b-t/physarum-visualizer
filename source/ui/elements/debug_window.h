@@ -22,7 +22,7 @@ class DebugWindow : public ImGuiWindow {
 
 public:
     DebugWindow();
-    void render(UIState* state) override;
+    void render(ApplicationState* state) override;
 
     void setGuiIO(ImGuiIO *guiIO) { guiIO_ = guiIO; };
 

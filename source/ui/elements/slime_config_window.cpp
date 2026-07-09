@@ -1,6 +1,6 @@
 #include "slime_config_window.h"
 
-void SlimeConfigWindow::render(UIState* state) {
+void SlimeConfigWindow::render(ApplicationState* state) {
     if(!visible) { return; }
 
     ImGui::Begin("Slime Config", &visible);

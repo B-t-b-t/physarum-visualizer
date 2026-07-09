@@ -1,6 +1,6 @@
 #include "preset_window.h"
 
-void PresetWindow::render(UIState* state) {
+void PresetWindow::render(ApplicationState* state) {
     if(!visible) { return; }
 
 	ImGui::Begin("Preset", &visible);

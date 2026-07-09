@@ -7,13 +7,13 @@
 #include "utility/fileHandling.h"
 
 ColorPresetSystem::ColorPresetSystem(std::string presetFilePath, std::string fileExtension, UserInterface* ui)
- : presetFilePath_(presetFilePath), fileExtension_(fileExtension), ui_(ui), uiState_{ui_->getState()}
+ : presetFilePath_(presetFilePath), fileExtension_(fileExtension), ui_(ui), appState_{ui_->getState()}
 {
     //register all preset names with UI and presets into memory
     loadPresetNames(ui_);
 }
 
-void ColorPresetSystem::createPreset(std::string presetName, UIState* uiState) {
+void ColorPresetSystem::createPreset(std::string presetName, ApplicationState* uiState) {
 
     ColorPreset preset;
     preset.name = presetName;
@@ -93,7 +93,7 @@ void ColorPresetSystem::loadRandomPreset(UserInterface* ui) {
     }
 }
 
-void ColorPresetSystem::setUIState(UIState* uiState, std::string presetName) {
+void ColorPresetSystem::setUIState(ApplicationState* uiState, std::string presetName) {
     ColorPreset preset = colorPresets[presetName];
 
     uiState->lockSlimeColor = preset.lockSlimeColor;
@@ -103,7 +103,7 @@ void ColorPresetSystem::setUIState(UIState* uiState, std::string presetName) {
 }
 
 void ColorPresetSystem::autoSwitchPresets(UserInterface* ui, Uint64 timeInSeconds) {
-    UIState* uiState = ui->getState();
+    ApplicationState* uiState = ui->getState();
 
     //Timed Auto Preset Switching
     if(uiState->autoPresetSwitching) {
@@ -121,13 +121,13 @@ void ColorPresetSystem::onNotify(const Event event) {
 
     switch (event) {
         case Event::SAVE_COLOR_PRESET:
-            createPreset(std::string(window->getLastColorPresetName()), uiState_);
+            createPreset(std::string(window->getLastColorPresetName()), appState_);
             savePreset(std::string(window->getLastColorPresetName()));
             break;
         case Event::LOAD_COLOR_PRESET: {
             std::string presetName = std::string(window->getSelectedColorPresetName());
             loadPreset(presetName);
-            setUIState(uiState_, presetName);
+            setUIState(appState_, presetName);
             break;
         }
         default:

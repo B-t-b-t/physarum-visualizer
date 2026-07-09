@@ -7,13 +7,13 @@
 #include "utility/fileHandling.h"
 
 PresetSystem::PresetSystem(std::string presetFilePath, std::string fileExtension, UserInterface* ui)
- : presetFilePath_(presetFilePath), fileExtension_(fileExtension), ui_(ui), uiState_(ui->getState())
+ : presetFilePath_(presetFilePath), fileExtension_(fileExtension), ui_(ui), appState_(ui->getState())
 {
     //register all preset names with UI and presets into memory
     loadPresetNames(ui);
 }
 
-void PresetSystem::createPreset(std::string presetName, UIState* uiState) {
+void PresetSystem::createPreset(std::string presetName, ApplicationState* uiState) {
 
     Preset preset;
     preset.name = presetName;
@@ -118,7 +118,7 @@ void PresetSystem::loadRandomPreset(UserInterface* ui) {
     }
 }
 
-void PresetSystem::setUIState(UIState* uiState, std::string presetName) {
+void PresetSystem::setUIState(ApplicationState* uiState, std::string presetName) {
     Preset preset = presets[presetName];
 
     uiState->slimeSettings.useMask = preset.useMask;
@@ -134,7 +134,7 @@ void PresetSystem::setUIState(UIState* uiState, std::string presetName) {
 }
 
 void PresetSystem::autoSwitchPresets(UserInterface* ui, Uint64 timeInSeconds) {
-    UIState* uiState = ui->getState();
+    ApplicationState* uiState = ui->getState();
 
     //Timed Auto Preset Switching
     if(uiState->autoPresetSwitching) {
@@ -152,13 +152,13 @@ void PresetSystem::onNotify(const Event event) {
 
     switch (event) {
         case Event::SAVE_PRESET:
-            createPreset(std::string(window->getLastPresetName()), uiState_);
+            createPreset(std::string(window->getLastPresetName()), appState_);
             savePreset(std::string(window->getLastPresetName()));
             break;
         case Event::LOAD_PRESET: {
             std::string presetName = std::string(window->getSelectedPresetName());
             loadPreset(presetName);
-            setUIState(uiState_, presetName);
+            setUIState(appState_, presetName);
             break;
         }
         default:

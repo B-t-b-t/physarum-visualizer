@@ -10,7 +10,7 @@
 #include "imgui_impl_opengl3.h"
 #include "imgui_impl_sdl3.h"
 
-#include "ui_state.h"
+#include "../application_state.h"
 #include "../uniforms.h"
 #include "../audio/audio_system.h"
 #include "elements/imgui_window.h"
@@ -20,16 +20,16 @@ class UserInterface {
 public:
 
 	//UserInterface();
-	UserInterface(SDL_Window* window, SDL_GLContext glContext, UIState* state);
+	UserInterface(SDL_Window* window, SDL_GLContext glContext, ApplicationState* state);
 	~UserInterface();
 
 	void display(std::vector<double>& audioBuffer, std::vector<double>& spectrum, std::vector<double>& spectrumDiff, int bufferSize, bool hasNewSpectrumData);
 	ImGuiWindow* getWindow(std::string windowName) {return windows_.at(windowName).get();}
-	UIState* getState() { return state_; }
+	ApplicationState* getState() { return state_; }
 
 private:
 
-	UIState* state_;
+	ApplicationState* state_;
 	std::unordered_map<std::string, std::unique_ptr<ImGuiWindow>> windows_;
 
 	ImGuiIO *guiIO_;

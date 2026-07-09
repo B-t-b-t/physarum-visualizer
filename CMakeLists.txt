@@ -206,6 +206,7 @@ set(GLM_INCLUDE_PATH PATH ${CMAKE_CURRENT_SOURCE_DIR}/glm)
 
 set(MY_HEADER_FILES
     source/application.h
+    source/application_state.h
     source/canvas.h
     source/color_preset_system.h
     source/particle_data.h
@@ -228,7 +229,6 @@ set(MY_HEADER_FILES
     source/simulation/simulation.h
     source/simulation/trail_map_controller.h
     source/ui/ui_helpers.h
-    source/ui/ui_state.h
     source/ui/user_interface.h
     source/ui/elements/audio_window.h
     source/ui/elements/debug_window.h
@@ -245,6 +245,7 @@ set(MY_HEADER_FILES
 set(MY_SOURCE_FILES
     source/main.cpp
     source/application.cpp
+    source/application_state.cpp
     source/canvas.cpp
     source/color_preset_system.cpp
     source/particle_data.cpp
@@ -266,7 +267,6 @@ set(MY_SOURCE_FILES
     source/simulation/simulation.cpp
     source/simulation/trail_map_controller.cpp
     source/ui/ui_helpers.cpp
-    source/ui/ui_state.cpp
     source/ui/user_interface.cpp
     source/ui/elements/audio_window.cpp
     source/ui/elements/debug_window.cpp

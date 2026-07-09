@@ -7,12 +7,12 @@
 #include "texture.h"
 #include "uniform_buffer_manager.h"
 #include "../canvas.h"
-#include "../ui/ui_state.h"
+#include "../application_state.h"
 class Renderer {
 public:
 
     Renderer() = delete;
-    explicit Renderer(UniformBufferManager* uboManager, UIState* uiState);
+    explicit Renderer(UniformBufferManager* uboManager, ApplicationState* uiState);
 
     Renderer(const Renderer&) = delete;   //no copies, to prevent multiple destructor calls on same GL resources
     Renderer& operator=(const Renderer&) = delete;
@@ -33,7 +33,7 @@ private:
 
     Bloom bloomEffect_;
 
-    UIState* uiState_;
+    ApplicationState* appState_;
     UniversalShaderSettings& ui_uss_;	//just shortening the name as a temp solution
     
     Texture texTrail_;		        //Texture Unit 0
