@@ -9,18 +9,18 @@ Simulation::Simulation(UniformBufferManager* uboManager, UserInterface* ui, bool
 {
 	//------------------------------------------------------
 	// Calculate new simulation parameters based on window properties or user input
-	ApplicationState* uiState = ui->getState();	//TODO: whole ui used just for trailMapController, remove later!
+	appState_ = ui->getState();
 
-	int textureWidth = uiState->universalShaderSettings.textureWidth;
-	int textureHeight = uiState->universalShaderSettings.textureHeight;
-	int workGroupDivider = uiState->workGroupDivider;
+	int textureWidth = appState_->universalShaderSettings.textureWidth;
+	int textureHeight = appState_->universalShaderSettings.textureHeight;
+	int workGroupDivider = appState_->workGroupDivider;
 	
 	//calculate new number of particles based on texture size, slime ratio and user input
 	if(customParticleCount) {
-		uiState->slimeRatio = uiState->numParticles / (float)(textureWidth * textureHeight);	//ensure number is multiples of workgroup size for compute shaders
+		appState_->slimeRatio = appState_->numParticles / (float)(textureWidth * textureHeight);	//ensure number is multiples of workgroup size for compute shaders
 	} else {
-		uiState->numParticles = uiState->slimeRatio * textureWidth * textureHeight;
-		uiState->numParticles = uiState->numParticles - uiState->numParticles % workGroupDivider;
+		appState_->numParticles = appState_->slimeRatio * textureWidth * textureHeight;
+		appState_->numParticles = appState_->numParticles - appState_->numParticles % workGroupDivider;
 	}
 	
 	//attach UBOs to compute shaders
@@ -28,19 +28,29 @@ Simulation::Simulation(UniformBufferManager* uboManager, UserInterface* ui, bool
 
 	//------------------------------------------------------
 	// Initialize Physarum Particles
-	particleData_.createAndSend(uiState->numParticles, uiState->universalShaderSettings.textureWidth, uiState->universalShaderSettings.textureHeight);
+	particleData_.createAndSend(appState_->numParticles, appState_->universalShaderSettings.textureWidth, appState_->universalShaderSettings.textureHeight);
 }
 
-void Simulation::simulateStep(ApplicationState* uiState) {
-	int workGroupDivider = uiState->workGroupDivider;
+void Simulation::simulateStep() {
+	int workGroupDivider = appState_->workGroupDivider;
 	trailMapController_.bindToTextureUnit(5);	//because compute shaders use trailMask at texture unit 5
 
-	trailDiffusionProgram_.dispatchCompute(uiState->universalShaderSettings.textureWidth / workGroupDivider, uiState->universalShaderSettings.textureHeight / workGroupDivider, 1);	//calculate new trail texture
-	particleBehaviourProgram_.dispatchCompute(uiState->numParticles / 8, (GLuint)1, 1);	//move Slime Particles
+	trailDiffusionProgram_.dispatchCompute(appState_->universalShaderSettings.textureWidth / workGroupDivider, appState_->universalShaderSettings.textureHeight / workGroupDivider, 1);	//calculate new trail texture
+	particleBehaviourProgram_.dispatchCompute(appState_->numParticles / 8, (GLuint)1, 1);	//move Slime Particles
 
 	trailMapController_.bindToTextureUnit(16);	//move back to texture unit 16 for use in fragment shader 
 }
 
-void Simulation::setNewParticleParameters(ApplicationState* uiState) {
-	particleData_.createAndSend(uiState->numParticles, uiState->universalShaderSettings.textureWidth, uiState->universalShaderSettings.textureHeight);
+void Simulation::updateParticleParameters() {
+	particleData_.createAndSend(appState_->numParticles, appState_->universalShaderSettings.textureWidth, appState_->universalShaderSettings.textureHeight);
+}
+
+void Simulation::onNotify(const Event event) {
+	switch(event) {
+		case Event::NEW_CANVAS:
+			updateParticleParameters();
+			break;
+		default:
+			break;
+	}
 }

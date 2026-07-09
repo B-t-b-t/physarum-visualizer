@@ -22,6 +22,9 @@ Application::Application(Parameters params)
 	colorPresetSystem_.attachToObservable(Event::SAVE_COLOR_PRESET, ui_.getWindow("PresetWindow"));
 	colorPresetSystem_.attachToObservable(Event::LOAD_COLOR_PRESET, ui_.getWindow("PresetWindow"));
 	simulation_.getTrailMapController()->attachToObservable(Event::LOAD_NEW_PICTURE, ui_.getWindow("PresetWindow"));
+	renderer_->attachToObservable(Event::NEW_CANVAS, ui_.getWindow("NewModal"));
+	simulation_.attachToObservable(Event::NEW_CANVAS, ui_.getWindow("NewModal"));
+	ubo_manager_.attachToObservable(Event::NEW_CANVAS, ui_.getWindow("NewModal"));
 	
 	//------------------------------------------------------
 	// Initialize Audio Recording and Processing
@@ -49,12 +52,12 @@ void Application::run() {
 
 		//------------------------------------------------------
 		// setting Uniforms for later use in Draw Call
-		ubo_manager_.updateUBOs(appState_);
+		ubo_manager_.updateUBOs();
 
 		//------------------------------------------------------
 		// Compute Shader Passes for Simulation Steps
 
-		simulation_.simulateStep(appState_);
+		simulation_.simulateStep();
 
 		//------------------------------------------------------
 		// Audio Processing
@@ -83,23 +86,6 @@ void Application::run() {
 
 		if(window_.getExitLock()) { 				//if exit lock is active go to fullscreen
 			appState_->fullscreen = true;
-		}
-
-		//------------------------------------------------------
-		// Handle User Interface Changes that affect Simulation State
-		if(appState_->newCanvas) {
-			std::cout << "Creating new Canvas with " << appState_->numParticles << " particles and size " << app_uss_.textureWidth << "x" << app_uss_.textureHeight << std::endl;
-			if(appState_->newTextureWidth != app_uss_.textureWidth || appState_->newTextureHeight != app_uss_.textureHeight) {
-				// Resize Textures and Framebuffers
-				app_uss_.textureWidth = appState_->newTextureWidth;
-				app_uss_.textureHeight = appState_->newTextureHeight;
-
-				renderer_->resizeTextures(app_uss_.textureWidth, app_uss_.textureHeight);
-			}
-
-			simulation_.setNewParticleParameters(appState_);
-			ubo_manager_.updateUBOs(appState_);
-			appState_->newCanvas = false;
 		}
 
 		//Auto Switching Presets

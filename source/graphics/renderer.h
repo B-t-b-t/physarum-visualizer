@@ -8,11 +8,13 @@
 #include "uniform_buffer_manager.h"
 #include "../canvas.h"
 #include "../application_state.h"
-class Renderer {
+#include "../utility/observer.h"
+
+class Renderer : public Observer {
 public:
 
     Renderer() = delete;
-    explicit Renderer(UniformBufferManager* uboManager, ApplicationState* uiState);
+    explicit Renderer(UniformBufferManager* uboManager, ApplicationState* appState);
 
     Renderer(const Renderer&) = delete;   //no copies, to prevent multiple destructor calls on same GL resources
     Renderer& operator=(const Renderer&) = delete;
@@ -24,6 +26,8 @@ public:
 
     void resizeTextures(const int newWidth, const int newHeight);
 
+    void onNotify(const Event event) override;
+
 private:
 
     Canvas drawCanvas_;
@@ -34,7 +38,7 @@ private:
     Bloom bloomEffect_;
 
     ApplicationState* appState_;
-    UniversalShaderSettings& ui_uss_;	//just shortening the name as a temp solution
+    UniversalShaderSettings& app_uss_;	//just shortening the name as a temp solution
     
     Texture texTrail_;		        //Texture Unit 0
     Texture texTrailNonDiffused_;	//Texture Unit 1

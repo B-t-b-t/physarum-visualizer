@@ -34,13 +34,11 @@ private:
 
 	ImGuiIO *guiIO_;
 
-	bool showNew_ = false;
 	bool showImGUIDemo_ = false;
 	bool showImPlotDemo_ = false;
 
 	void initWindows();
 
-	void newModal();
 	void mainMenuBarGUI();
 };
 

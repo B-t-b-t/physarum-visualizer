@@ -8,11 +8,12 @@
 
 #include "uniform_buffer_object.h"
 #include "../application_state.h"
+#include "../utility/observer.h"
 
-class UniformBufferManager {
+class UniformBufferManager : public Observer {
 
 public:
-    explicit UniformBufferManager(ApplicationState* uiState);
+    explicit UniformBufferManager(ApplicationState* appState);
     ~UniformBufferManager() = default;
 
     UniformBufferManager() = delete;
@@ -22,10 +23,13 @@ public:
     UniformBufferManager& operator=(UniformBufferManager&&) = delete;
 
     void attachUBOs(std::initializer_list<GLuint> shaderProgramIDs);
-    void updateUBOs(ApplicationState* uiState);
+    void updateUBOs();
+
+    void onNotify(const Event event) override;
 
 private:
 
+    ApplicationState* appState_;
     std::unordered_map<std::string, std::unique_ptr<UniformBufferObject>> uboMap_;
 
 };

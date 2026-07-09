@@ -1,22 +1,22 @@
 #include "renderer.h"
 
-Renderer::Renderer(UniformBufferManager* uboManager, ApplicationState* uiState)
+Renderer::Renderer(UniformBufferManager* uboManager, ApplicationState* appState)
  :  drawCanvas_(Canvas()),
     vertexShader_{Shader("./res/vertex.vs", ShaderType::VERTEX_SHADER)},
     fragmentShader_{Shader("./res/fragment.fs", ShaderType::FRAGMENT_SHADER)},
 	rasterizationPipeline_{ShaderProgram("RasterizationPipeline", {&vertexShader_, &fragmentShader_})},
-    appState_{uiState},
-    ui_uss_{appState_->universalShaderSettings},
-	texTrail_{(int)ui_uss_.textureWidth, (int)ui_uss_.textureHeight, Texture::TextureType::RGBA_FLOAT, 0},		//Texture Unit 0
-	texTrailNonDiffused_{(int)ui_uss_.textureWidth, (int)ui_uss_.textureHeight, Texture::TextureType::RGBA_FLOAT, 1},	//Texture Unit 1
-	newTexParticles_{(int)ui_uss_.textureWidth, (int)ui_uss_.textureHeight, Texture::TextureType::R_UINT, 2},		//Texture Unit 2
-	oldTexParticles_{(int)ui_uss_.textureWidth, (int)ui_uss_.textureHeight, Texture::TextureType::R_UINT, 3},		//Texture Unit 3
-	texCollisions_{(int)ui_uss_.textureWidth, (int)ui_uss_.textureHeight, Texture::TextureType::RGBA_FLOAT, 4}		//Texture Unit 4
+    appState_{appState},
+    app_uss_{appState_->universalShaderSettings},
+	texTrail_{(int)app_uss_.textureWidth, (int)app_uss_.textureHeight, Texture::TextureType::RGBA_FLOAT, 0},		//Texture Unit 0
+	texTrailNonDiffused_{(int)app_uss_.textureWidth, (int)app_uss_.textureHeight, Texture::TextureType::RGBA_FLOAT, 1},	//Texture Unit 1
+	newTexParticles_{(int)app_uss_.textureWidth, (int)app_uss_.textureHeight, Texture::TextureType::R_UINT, 2},		//Texture Unit 2
+	oldTexParticles_{(int)app_uss_.textureWidth, (int)app_uss_.textureHeight, Texture::TextureType::R_UINT, 3},		//Texture Unit 3
+	texCollisions_{(int)app_uss_.textureWidth, (int)app_uss_.textureHeight, Texture::TextureType::RGBA_FLOAT, 4}		//Texture Unit 4
 {
     uboManager->attachUBOs({rasterizationPipeline_.getProgramID()});
 
     // Initialize Bloom Effect
-	bloomEffect_ = Bloom(ui_uss_.textureWidth, ui_uss_.textureHeight, &vertexShader_);
+	bloomEffect_ = Bloom(app_uss_.textureWidth, app_uss_.textureHeight, &vertexShader_);
 }
 
 Renderer::Renderer(Renderer&& rhs) noexcept
@@ -26,7 +26,7 @@ Renderer::Renderer(Renderer&& rhs) noexcept
       rasterizationPipeline_(std::move(rhs.rasterizationPipeline_)),
       bloomEffect_(std::move(rhs.bloomEffect_)),
       appState_(rhs.appState_),
-      ui_uss_(rhs.ui_uss_),
+      app_uss_(rhs.app_uss_),
       texTrail_(std::move(rhs.texTrail_)),
       texTrailNonDiffused_(std::move(rhs.texTrailNonDiffused_)),
       newTexParticles_(std::move(rhs.newTexParticles_)),
@@ -43,7 +43,7 @@ Renderer& Renderer::operator=(Renderer&& rhs) noexcept {
         rasterizationPipeline_ = std::move(rhs.rasterizationPipeline_);
         bloomEffect_ = std::move(rhs.bloomEffect_);
         appState_ = rhs.appState_;
-        ui_uss_ = rhs.ui_uss_;
+        app_uss_ = rhs.app_uss_;
         texTrail_ = std::move(rhs.texTrail_);
         texTrailNonDiffused_ = std::move(rhs.texTrailNonDiffused_);
         newTexParticles_ = std::move(rhs.newTexParticles_);
@@ -70,7 +70,7 @@ void Renderer::draw() {
     //------------------------------------------------------
     //OpenGL Draw Call
     glBindFramebuffer(GL_FRAMEBUFFER, 0); // Default framebuffer
-    glViewport(0, 0, (int) ui_uss_.windowWidth, (int) ui_uss_.windowHeight);
+    glViewport(0, 0, (int) app_uss_.windowWidth, (int) app_uss_.windowHeight);
     
     rasterizationPipeline_.use();
     drawCanvas_.draw();
@@ -91,4 +91,16 @@ void Renderer::resizeTextures(const int newWidth, const int newHeight) {
 	bloomEffect_.resizeBloomTextures(newWidth, newHeight);
 
     //glViewport(0, 0, newWidth, newHeight);
+}
+
+void Renderer::onNotify(const Event event) {
+    switch(event) {
+        case Event::NEW_CANVAS:
+            if(appState_->newTextureWidth != app_uss_.textureWidth || appState_->newTextureHeight != app_uss_.textureHeight) {
+                resizeTextures(appState_->newTextureWidth, appState_->newTextureHeight);
+            }
+            break;
+        default:
+            break;
+    }
 }

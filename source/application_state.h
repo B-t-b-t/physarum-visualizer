@@ -46,7 +46,6 @@ public:
 	FragmentShaderSettings fragmentShaderSettings;
 	ParameterSettings parameterSettings;
 	
-	bool newCanvas = false;
 	bool exitProgram = false;
 	bool lockSlimeColor = false;
 	bool lockParticleColor = false;

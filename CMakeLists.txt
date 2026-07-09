@@ -233,6 +233,7 @@ set(MY_HEADER_FILES
     source/ui/elements/audio_window.h
     source/ui/elements/debug_window.h
     source/ui/elements/imgui_window.h
+    source/ui/elements/new_modal.h
     source/ui/elements/preset_window.h
     source/ui/elements/slime_config_window.h
     source/ui/elements/visual_settings_window.h
@@ -270,6 +271,7 @@ set(MY_SOURCE_FILES
     source/ui/user_interface.cpp
     source/ui/elements/audio_window.cpp
     source/ui/elements/debug_window.cpp
+    source/ui/elements/new_modal.cpp
     source/ui/elements/preset_window.cpp
     source/ui/elements/slime_config_window.cpp
     source/ui/elements/visual_settings_window.cpp

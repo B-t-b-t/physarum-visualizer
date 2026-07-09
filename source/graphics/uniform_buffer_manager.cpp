@@ -1,11 +1,12 @@
 #include "uniform_buffer_manager.h"
 
-UniformBufferManager::UniformBufferManager(ApplicationState* uiState) {
-    uboMap_.try_emplace("UniversalShaderSettings", std::make_unique<UniformBufferObject>("UniversalShaderSettings", uiState->universalShaderSettings, 0));
-    uboMap_.try_emplace("SlimeSettings", std::make_unique<UniformBufferObject>("SlimeSettings", uiState->slimeSettings, 1));
-    uboMap_.try_emplace("TrailDiffusionSettings", std::make_unique<UniformBufferObject>("TrailDiffusionSettings", uiState->trailDiffusionSettings, 2));
-    uboMap_.try_emplace("FragmentShaderSettings", std::make_unique<UniformBufferObject>("FragmentShaderSettings", uiState->fragmentShaderSettings, 3));
-    uboMap_.try_emplace("ParameterSettings", std::make_unique<UniformBufferObject>("ParameterSettings", uiState->parameterSettings, 4));
+UniformBufferManager::UniformBufferManager(ApplicationState* appState)
+ : appState_(appState) {
+    uboMap_.try_emplace("UniversalShaderSettings", std::make_unique<UniformBufferObject>("UniversalShaderSettings", appState_->universalShaderSettings, 0));
+    uboMap_.try_emplace("SlimeSettings", std::make_unique<UniformBufferObject>("SlimeSettings", appState_->slimeSettings, 1));
+    uboMap_.try_emplace("TrailDiffusionSettings", std::make_unique<UniformBufferObject>("TrailDiffusionSettings", appState_->trailDiffusionSettings, 2));
+    uboMap_.try_emplace("FragmentShaderSettings", std::make_unique<UniformBufferObject>("FragmentShaderSettings", appState_->fragmentShaderSettings, 3));
+    uboMap_.try_emplace("ParameterSettings", std::make_unique<UniformBufferObject>("ParameterSettings", appState_->parameterSettings, 4));
 }
 
 void UniformBufferManager::attachUBOs(std::initializer_list<GLuint> shaderProgramIDs) {
@@ -21,10 +22,20 @@ void UniformBufferManager::attachUBOs(std::initializer_list<GLuint> shaderProgra
     }
 }
 
-void UniformBufferManager::updateUBOs(ApplicationState* uiState) {
-    uboMap_["UniversalShaderSettings"]->updateUniformBufferObject(uiState->universalShaderSettings);
-    uboMap_["SlimeSettings"]->updateUniformBufferObject(uiState->slimeSettings);
-    uboMap_["TrailDiffusionSettings"]->updateUniformBufferObject(uiState->trailDiffusionSettings);
-    uboMap_["FragmentShaderSettings"]->updateUniformBufferObject(uiState->fragmentShaderSettings);
-    uboMap_["ParameterSettings"]->updateUniformBufferObject(uiState->parameterSettings);
+void UniformBufferManager::updateUBOs() {
+    uboMap_["UniversalShaderSettings"]->updateUniformBufferObject(appState_->universalShaderSettings);
+    uboMap_["SlimeSettings"]->updateUniformBufferObject(appState_->slimeSettings);
+    uboMap_["TrailDiffusionSettings"]->updateUniformBufferObject(appState_->trailDiffusionSettings);
+    uboMap_["FragmentShaderSettings"]->updateUniformBufferObject(appState_->fragmentShaderSettings);
+    uboMap_["ParameterSettings"]->updateUniformBufferObject(appState_->parameterSettings);
+}
+
+void UniformBufferManager::onNotify(const Event event) {
+    switch(event) {
+        case Event::NEW_CANVAS:
+            updateUBOs();
+            break;
+        default:
+            break;
+    }
 }
