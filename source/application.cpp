@@ -7,7 +7,7 @@ Application::Application(Parameters params)
 	ui_{UserInterface(window_.getWindow(), window_.getGLContext(), uiState_)},
 	ubo_manager_{UniformBufferManager(uiState_)},
 	simulation_{Simulation(&ubo_manager_, uiState_, params.customParticleCount)},
-	renderer_{std::make_unique<Renderer>(&ubo_manager_, uiState_)},	//initialize after simulation, because simulation calculates the texture size!
+	renderer_{std::make_unique<Renderer>(&ubo_manager_, uiState_)},
 	audioSystem_{AudioSystem(uiState_, params.audioDevice)},
 	presetSystem_{PresetSystem("./presets/", ".psf", &ui_)},
 	colorPresetSystem_{ColorPresetSystem("./presets/", ".pcsf", &ui_)},

@@ -8,28 +8,17 @@ Simulation::Simulation(UniformBufferManager* uboManager, UIState* uiState, bool 
 {
 	//------------------------------------------------------
 	// Calculate new simulation parameters based on window properties or user input
-	int windowWidth = uiState->universalShaderSettings.windowWidth;
-	int windowHeight = uiState->universalShaderSettings.windowHeight;
-	float scaling = uiState->fractionalScalingFactor;
+	int textureWidth = uiState->universalShaderSettings.textureWidth;
+	int textureHeight = uiState->universalShaderSettings.textureHeight;
 	int workGroupDivider = uiState->workGroupDivider;
-
-	//calculate texture sizes based on window size and fractional scaling
-	int textureWidth = (int)(windowWidth * scaling - ((int)(windowWidth * scaling) % workGroupDivider));		//make sure width is multiples of workgroup size for compute shaders
-	int textureHeight = (int)(windowHeight * scaling - ((int)(windowHeight * scaling) % workGroupDivider));
 	
-	//calculate new number of particles based on texture size, slime ratio and 
+	//calculate new number of particles based on texture size, slime ratio and user input
 	if(customParticleCount) {
 		uiState->slimeRatio = uiState->numParticles / (float)(textureWidth * textureHeight);	//ensure number is multiples of workgroup size for compute shaders
 	} else {
 		uiState->numParticles = uiState->slimeRatio * textureWidth * textureHeight;
 		uiState->numParticles = uiState->numParticles - uiState->numParticles % workGroupDivider;
 	}
-	
-	//write back to program state
-	uiState->universalShaderSettings.textureWidth = textureWidth;
-	uiState->universalShaderSettings.textureHeight = textureHeight;
-	uiState->newTextureWidth = textureWidth;
-	uiState->newTextureHeight = textureHeight;
 	
 	//attach UBOs to compute shaders
 	uboManager->attachUBOs({trailDiffusionProgram_.getProgramID(), particleBehaviourProgram_.getProgramID()});
