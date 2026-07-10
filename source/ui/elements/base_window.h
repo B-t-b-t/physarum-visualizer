@@ -1,13 +1,13 @@
-#ifndef IMGUI_WINDOW_H
-#define IMGUI_WINDOW_H
+#ifndef BASE_WINDOW_H
+#define BASE_WINDOW_H
 
 #include "../../application_state.h"
 #include "../../utility/observable.h"
 
-class ImGuiWindow : public Observable {
+class BaseWindow : public Observable {
 public:
     virtual void render(ApplicationState* appState) = 0;
     bool visible = false;
 };
 
-#endif // IMGUI_WINDOW_H
+#endif // BASE_WINDOW_H

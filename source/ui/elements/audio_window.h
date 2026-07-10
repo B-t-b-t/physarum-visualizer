@@ -1,10 +1,10 @@
 #ifndef AUDIO_WINDOW_H
 #define AUDIO_WINDOW_H
 
-#include "imgui_window.h"
+#include "base_window.h"
 #include "../user_interface.h"
 
-class AudioWindow : public ImGuiWindow {
+class AudioWindow : public BaseWindow {
 
 public:
     AudioWindow();

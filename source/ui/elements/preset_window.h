@@ -1,10 +1,10 @@
 #ifndef PRESET_WINDOW_H
 #define PRESET_WINDOW_H
 
-#include "imgui_window.h"
+#include "base_window.h"
 #include "../user_interface.h"
 
-class PresetWindow : public ImGuiWindow {
+class PresetWindow : public BaseWindow {
 
 public:
     void render(ApplicationState* appState) override;

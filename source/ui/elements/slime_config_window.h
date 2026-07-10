@@ -1,10 +1,10 @@
 #ifndef SLIME_CONFIG_WINDOW_H
 #define SLIME_CONFIG_WINDOW_H
 
-#include "imgui_window.h"
+#include "base_window.h"
 #include "../user_interface.h"
 
-class SlimeConfigWindow : public ImGuiWindow {
+class SlimeConfigWindow : public BaseWindow {
 
 public:
     void render(ApplicationState* appState) override;

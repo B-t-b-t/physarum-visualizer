@@ -1,7 +1,7 @@
 #ifndef DEBUG_WINDOW_H
 #define DEBUG_WINDOW_H
 
-#include "imgui_window.h"
+#include "base_window.h"
 #include "../user_interface.h"
 
 struct DebugInfos {
@@ -18,7 +18,7 @@ struct DebugInfos {
     std::string audioDriver = "";
 };
 
-class DebugWindow : public ImGuiWindow {
+class DebugWindow : public BaseWindow {
 
 public:
     DebugWindow();

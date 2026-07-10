@@ -232,8 +232,8 @@ set(MY_HEADER_FILES
     source/ui/ui_helpers.h
     source/ui/user_interface.h
     source/ui/elements/audio_window.h
+    source/ui/elements/base_window.h
     source/ui/elements/debug_window.h
-    source/ui/elements/imgui_window.h
     source/ui/elements/new_canvas_modal.h
     source/ui/elements/preset_window.h
     source/ui/elements/slime_config_window.h

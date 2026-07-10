@@ -13,7 +13,7 @@
 #include "../application_state.h"
 #include "../uniforms.h"
 #include "../audio/audio_system.h"
-#include "elements/imgui_window.h"
+#include "elements/base_window.h"
 
 class UserInterface {
 
@@ -24,13 +24,13 @@ public:
 	~UserInterface();
 
 	void display(std::vector<double>& audioBuffer, std::vector<double>& spectrum, std::vector<double>& spectrumDiff, int bufferSize, bool hasNewSpectrumData);
-	ImGuiWindow* getWindow(std::string windowName) {return windows_.at(windowName).get();}
+	BaseWindow* getWindow(std::string windowName) {return windows_.at(windowName).get();}
 	ApplicationState* getState() { return state_; }
 
 private:
 
 	ApplicationState* state_;
-	std::unordered_map<std::string, std::unique_ptr<ImGuiWindow>> windows_;
+	std::unordered_map<std::string, std::unique_ptr<BaseWindow>> windows_;
 
 	ImGuiIO *guiIO_;
 
