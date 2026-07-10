@@ -1,8 +1,9 @@
 #include "application.h"
 
 Application::Application(Parameters params) 
-  :	appState_{ApplicationState::getInstance(params)},
+ :  appState_{ApplicationState::getInstance(params)},
 	window_{Window("Physarum", appState_, params.customResolution)},
+	inputHandler_{InputHandler(appState_)},
 	ui_{UserInterface(window_.getWindow(), window_.getGLContext(), appState_)},
 	ubo_manager_{UniformBufferManager(appState_)},
 	simulation_{Simulation(&ubo_manager_, &ui_, params.customParticleCount)},
@@ -40,7 +41,7 @@ void Application::run() {
 	//======================================================================
 	// Main Loop
 	//======================================================================
-	while (!window_.IsClosed()) {
+	while (!window_.isClosing()) {
 
 		Uint64 nowCounter = SDL_GetPerformanceCounter();
 		Uint64 timeInSeconds = nowCounter / counterFrequency_; //SDL Timer in Seconds for Audio Beat Analysis and Auto Preset Switching
@@ -50,23 +51,22 @@ void Application::run() {
 		appState_->universalShaderSettings.timeTicks = nowCounter;
 
 		//------------------------------------------------------
+		// handle user input through keyboard, mouse and window
+		inputHandler_.processUserInput();
+		window_.processWindowEvents();
+
+		//------------------------------------------------------
 		// setting Uniforms for later use in Draw Call
 		ubo_manager_.updateUBOs();
 
 		//------------------------------------------------------
 		// Compute Shader Passes for Simulation Steps
-
 		simulation_.simulateStep();
 
 		//------------------------------------------------------
 		// Audio Processing
 		if(appState_->slimeSettings.reactToAudio) {
 			audioSystem_.computeSpectrum();
-		}
-
-		
-		// Analyze the music data
-		if(appState_->slimeSettings.reactToAudio) {
 			musicAnalysis_.analyzeMusic(audioSystem_.getSpectrumDiff(), frameTime);
 		}
 		
@@ -80,23 +80,12 @@ void Application::run() {
 		audioSystem_.setHasNewSpectrumData(false);
 		
 		//------------------------------------------------------
-		//process Key Presses from User
-		window_.Update();	//TODO: badly named; RENAME!
-
-		if(window_.getExitLock()) { 				//if exit lock is active go to fullscreen
-			appState_->fullscreen = true;
-		}
+		// Swap draw buffers with SDL3
+		window_.swapBuffers();
 
 		//Auto Switching Presets
 		presetSystem_.autoSwitchPresets(&ui_, timeInSeconds);
 		colorPresetSystem_.autoSwitchPresets(&ui_, timeInSeconds);
 		simulation_.getTrailMapController()->autoSwitchPictures(&ui_, timeInSeconds);
-
-		//Exit Program when requested from UI
-		if(appState_->exitProgram) {
-			if(!window_.setIsClosed(true)) {
-				appState_->exitProgram = false;
-			}
-		}
 	}
 }

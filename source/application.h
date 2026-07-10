@@ -4,6 +4,7 @@
 #include <memory>
 
 #include "color_preset_system.h"
+#include "input_handler.h"
 #include "preset_system.h"
 #include "window.h"
 #include "./audio/audio_system.h"
@@ -26,6 +27,8 @@ private:
     ApplicationState* appState_;
 
     Window window_;
+
+    InputHandler inputHandler_;
 
     UserInterface ui_;
 

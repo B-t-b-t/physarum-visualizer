@@ -4,7 +4,6 @@
 #include <string>
 
 #include <GL/glew.h>
-#include "imgui_impl_sdl3.h"
 #include <SDL3/SDL.h>
 
 #include "application_state.h"
@@ -29,8 +28,9 @@ public:
 
 	void setFullscreen();
 
-	void Update();
-	bool IsClosed();
+	void swapBuffers();
+	void processWindowEvents();
+	bool isClosing() { return isClosing_; };
 	SDL_Window* getWindow() { return window_; }
 	virtual ~Window();
 
@@ -40,9 +40,6 @@ public:
 
 	void setWindowWidth(int width) { windowWidth_ = width; }
 	void setWindowHeight(int height) { windowHeight_ = height; }
-
-	bool getExitLock() { return exitLock_; }
-	bool setIsClosed(bool closed) { if(!exitLock_) {isClosed_ = closed; return true;} else {return false;} }
 
 	void updateViewport();
 
@@ -65,8 +62,7 @@ private:
 	int windowWidth_;
 	int windowHeight_;
 	float fractionalScalingFactor_;
-	bool isClosed_;
-	bool exitLock_ = false;
+	bool isClosing_;
 };
 
 #endif // WINDOW_H

@@ -209,6 +209,7 @@ set(MY_HEADER_FILES
     source/application_state.h
     source/canvas.h
     source/color_preset_system.h
+    source/input_handler.h
     source/particle_data.h
     source/preset_system.h
     source/uniforms.h
@@ -249,6 +250,7 @@ set(MY_SOURCE_FILES
     source/application_state.cpp
     source/canvas.cpp
     source/color_preset_system.cpp
+    source/input_handler.cpp
     source/particle_data.cpp
     source/preset_system.cpp
     source/window.cpp

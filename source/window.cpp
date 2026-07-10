@@ -116,7 +116,7 @@ Window::Window(const std::string& title, ApplicationState* appState, bool custom
 		std::cerr << "ERROR: Glew failed to initialize with error message: " << glewGetErrorString(status) << std::endl;
 	}
 
-	isClosed_ = false;
+	isClosing_ = false;
 
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -166,28 +166,26 @@ void Window::setFullscreen(){
 	updateViewport();
 }
 
-bool Window::IsClosed() {
-	return isClosed_;
+void Window::swapBuffers() {
+	SDL_GL_SwapWindow(window_);
 }
 
-void Window::Update() {
-	SDL_GL_SwapWindow(window_);
+void Window::processWindowEvents() {
+    SDL_Event windowEvent;
+	SDL_PumpEvents(); //necessary to update the event queue with latest events
 
-	SDL_Event inputEvent;
+	//filter for quitting through window close button
+	if(SDL_PeepEvents(&windowEvent, 1, SDL_GETEVENT, SDL_EVENT_QUIT, SDL_EVENT_QUIT) || appState_->exitProgram) {
+		isClosing_ = true;
+		return;	//polling for other events unnecessary after quit
+	}
+    
+    //filter just keyboard and mouse events
+	while (SDL_PeepEvents(&windowEvent, 1, SDL_GETEVENT, SDL_EVENT_WINDOW_FIRST, SDL_EVENT_WINDOW_LAST)) {
 
-	while (SDL_PollEvent(&inputEvent)) {
-		ImGui_ImplSDL3_ProcessEvent(&inputEvent);
-
-		switch (inputEvent.type) {
-		case SDL_EVENT_KEY_DOWN:
-			if(inputEvent.key.key == SDLK_ESCAPE) { if(!exitLock_) {isClosed_ = true;}}
-			if(inputEvent.key.key == SDLK_F11) { exitLock_ = exitLock_ ? false : true; }
-			break;
-		case SDL_EVENT_QUIT:
-			if(!exitLock_) {isClosed_ = true;}
-			break;
-		default:
-			break;
+		switch (windowEvent.type) {
+			default:
+				break;
 		}
 	}
 }
