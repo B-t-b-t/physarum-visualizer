@@ -6,15 +6,19 @@
 class Observable;   //forward declaration to avoid circular dependency
 
 class Observer {
+
+friend class Observable;  //to allow Observable to remove itself when destroyed
+
 public:
     Observer() = default;
-    Observer(Event event, Observable* observable);
-    ~Observer();
+    virtual ~Observer();
 
     virtual void onNotify(const Event event) = 0;
-    void attachToObservable(Event event, Observable* observable);
-
+    
 protected:
+    void setObservable(Observable* observable);
+    void resetObservable() { observable_ = nullptr; }   //exists to simplify nullptr check in setObservable
+
     Observable* observable_{nullptr};
 };
 

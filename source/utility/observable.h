@@ -11,7 +11,7 @@ class Observer;  //forward declaration to avoid circular dependency
 class Observable {
     public: 
 
-    virtual ~Observable() = default;
+    virtual ~Observable();
     
     void notify(const Event event);
     void notifyAll();

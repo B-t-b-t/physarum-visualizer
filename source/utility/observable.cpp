@@ -2,6 +2,15 @@
 
 #include "observer.h"
 
+Observable::~Observable() {
+    for(auto& pair : observers_) {
+        ObserverList& obsList = pair.second;
+        for(Observer* observer : obsList) {
+            observer->resetObservable();
+        }
+    }
+}
+
 void Observable::notify(const Event event) {
     ObserverList& obsList = observers_[event];
     for(Observer* observer : obsList) {
@@ -20,6 +29,7 @@ void Observable::addObserver(Event event, Observer* observer) {
     if(observer) {
         ObserverList& obsList = observers_[event];
         obsList.push_back(observer);
+        observer->setObservable(this);
     }
 }
 

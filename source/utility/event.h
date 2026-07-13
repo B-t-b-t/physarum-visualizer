@@ -1,6 +1,8 @@
 #ifndef EVENT_H
 #define EVENT_H
 
+#include <iostream>
+
 enum class Event {
     WINDOW_RESIZE,
     TEXTURE_RESIZE,
@@ -13,5 +15,7 @@ enum class Event {
     LOAD_COLOR_PRESET,
     LOAD_NEW_PICTURE
 };
+
+std::ostream& operator<<(std::ostream& os, const Event& c);
 
 #endif // EVENT_H

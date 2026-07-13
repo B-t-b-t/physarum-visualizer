@@ -6,6 +6,8 @@
 
 class BaseWindow : public Observable {
 public:
+    virtual ~BaseWindow() = default;
+
     virtual void render(ApplicationState* appState) = 0;
     bool visible = false;
 };

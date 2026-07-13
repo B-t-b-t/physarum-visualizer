@@ -14,18 +14,18 @@ Application::Application(Parameters params)
 	musicAnalysis_{MusicAnalysis(appState_)}
 {
 	//------------------------------------------------------
-	//Register Observers for Events
-	window_.attachToObservable(Event::FULLSCREEN_TOGGLE, ui_.getWindow("VisualSettingsWindow"));
-	audioSystem_.attachToObservable(Event::AUDIO_HARDWARE_CHANGE, ui_.getWindow("AudioWindow"));
-	presetSystem_.attachToObservable(Event::SAVE_PRESET, ui_.getWindow("PresetWindow"));
-	presetSystem_.attachToObservable(Event::LOAD_PRESET, ui_.getWindow("PresetWindow"));
-	colorPresetSystem_.attachToObservable(Event::SAVE_COLOR_PRESET, ui_.getWindow("PresetWindow"));
-	colorPresetSystem_.attachToObservable(Event::LOAD_COLOR_PRESET, ui_.getWindow("PresetWindow"));
-	simulation_.getTrailMapController()->attachToObservable(Event::LOAD_NEW_PICTURE, ui_.getWindow("PresetWindow"));
-	renderer_->attachToObservable(Event::NEW_CANVAS, ui_.getWindow("NewCanvasModal"));
-	simulation_.attachToObservable(Event::NEW_CANVAS, ui_.getWindow("NewCanvasModal"));
-	ubo_manager_.attachToObservable(Event::NEW_CANVAS, ui_.getWindow("NewCanvasModal"));
-	
+	//Register Observers for immediate reaction to Events
+	ui_.getWindow("VisualSettingsWindow")->addObserver(Event::FULLSCREEN_TOGGLE, &window_);
+	ui_.getWindow("AudioWindow")->addObserver(Event::AUDIO_HARDWARE_CHANGE, &audioSystem_);
+	ui_.getWindow("PresetWindow")->addObserver(Event::SAVE_PRESET, &presetSystem_);
+	ui_.getWindow("PresetWindow")->addObserver(Event::LOAD_PRESET, &presetSystem_);
+	ui_.getWindow("PresetWindow")->addObserver(Event::SAVE_COLOR_PRESET, &colorPresetSystem_);
+	ui_.getWindow("PresetWindow")->addObserver(Event::LOAD_COLOR_PRESET, &colorPresetSystem_);
+	ui_.getWindow("PresetWindow")->addObserver(Event::LOAD_NEW_PICTURE, simulation_.getTrailMapController());
+	ui_.getWindow("NewCanvasModal")->addObserver(Event::NEW_CANVAS, renderer_.get());
+	ui_.getWindow("NewCanvasModal")->addObserver(Event::NEW_CANVAS, &simulation_);
+	ui_.getWindow("NewCanvasModal")->addObserver(Event::NEW_CANVAS, &ubo_manager_);
+
 	//------------------------------------------------------
 	// Initialize Audio Recording and Processing
 	std::vector<std::string> availableAudioHardwareNames = audioSystem_.getAvailableHardwareDeviceNames();

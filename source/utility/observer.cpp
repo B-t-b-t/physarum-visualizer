@@ -1,12 +1,8 @@
 #include "observer.h"
 
-#include "observable.h"
+#include <cassert>
 
-Observer::Observer(Event event, Observable* observable) :observable_{observable} {
-    if (observable_) {
-        observable_->addObserver(event, this);
-    }
-}
+#include "observable.h"
 
 Observer::~Observer() {
     if (observable_) {
@@ -14,11 +10,10 @@ Observer::~Observer() {
     }
 }
 
-void Observer::attachToObservable(Event event, Observable* observable) {
-    if(observable == nullptr) { return;}
-
-    if(observable_ == nullptr || observable_ == observable) {
-        observable_ = observable;
-        observable_->addObserver(event, this);
+void Observer::setObservable(Observable* observable) {
+    assert((observable_ == nullptr || (observable_ != nullptr && observable_ == observable)) && "Observer is already associated with a different Observable.");
+    
+    if(observable_ == nullptr || (observable_ != nullptr && observable_ == observable)) {
+        observable_ = observable; 
     }
 }
