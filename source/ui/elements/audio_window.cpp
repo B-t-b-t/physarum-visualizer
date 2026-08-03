@@ -46,7 +46,7 @@ void AudioWindow::render(ApplicationState* appState) {
 			ImPlot::SetupFinish();
 			ImPlot::PlotLineG("Audio##2", MyDataGetter, appState->audioBuffer->data(), appState->audioBuffer->size());
 			//ImPlot::PlotLine("Audio", audioBuffer.data(), bufferSize);
-			ImPlot::SetNextMarkerStyle(ImPlotMarker_Circle);
+			//ImPlot::SetNextMarkerStyle(ImPlotMarker_Circle);
 			ImPlot::EndPlot();
 		}
 	}
@@ -101,21 +101,23 @@ void AudioWindow::render(ApplicationState* appState) {
 
 	ImPlot::PushColormap(map);
 
-	if (ImPlot::BeginPlot("##Heatmap1",ImVec2(512,768),ImPlotFlags_NoLegend|ImPlotFlags_NoMouseText)) {
+	if (ImPlot::BeginPlot("##Spectrum History",ImVec2(512,768),ImPlotFlags_NoLegend|ImPlotFlags_NoMouseText)) {
 		ImPlot::SetupAxes("Time", "Frequency (Hz)", axes_flags, axes_flags);
         //ImPlot::SetupAxisTicks(ImAxis_X1,0 + 1.0/14.0, 1 - 1.0/14.0, 7, xlabels);
 		ImPlot::SetupFinish();
-        ImPlot::PlotHeatmap("heat", heatmapData_.data(), 512, 32, scale_min, scale_max, nullptr, ImPlotPoint(0,1), ImPlotPoint(1,0), 0);
+		ImPlotSpec spec;
+        ImPlot::PlotHeatmap("heat", heatmapData_.data(), 512, 32, scale_min, scale_max, nullptr, ImPlotPoint(0,1), ImPlotPoint(1,0), spec);
         ImPlot::EndPlot();
     }
 
 	ImGui::SameLine();
 
-	if (ImPlot::BeginPlot("##Heatmap2",ImVec2(512,768),ImPlotFlags_NoLegend|ImPlotFlags_NoMouseText)) {
+	if (ImPlot::BeginPlot("##Spectrum Change History",ImVec2(512,768),ImPlotFlags_NoLegend|ImPlotFlags_NoMouseText)) {
 		ImPlot::SetupAxes("Time", "Frequency (Hz)", axes_flags, axes_flags);
         //ImPlot::SetupAxisTicks(ImAxis_X1,0 + 1.0/14.0, 1 - 1.0/14.0, 7, xlabels);
 		ImPlot::SetupFinish();
-        ImPlot::PlotHeatmap("heat", heatMapChange_.data(), 512, 32, scale_min, scale_max, nullptr, ImPlotPoint(0,1), ImPlotPoint(1,0), 0);
+		ImPlotSpec spec;
+        ImPlot::PlotHeatmap("heat", heatMapChange_.data(), 512, 32, scale_min, scale_max, nullptr, ImPlotPoint(0,1), ImPlotPoint(1,0), spec);
         ImPlot::EndPlot();
     }
 	ImPlot::PopColormap();	//to avoid interfering with the colour of other plots when the draw order changes (Collapsing Headers, ...)

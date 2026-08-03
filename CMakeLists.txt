@@ -30,6 +30,11 @@ unset(CMAKE_POLICY_VERSION_MINIMUM CACHE)
 
 #----- SDL3 ----- 
 
+if(CMAKE_HOST_UNIX)
+    #required for SDL's Linux feature checks for getresuid/getresgid.
+    set(CMAKE_REQUIRED_DEFINITIONS "-D_GNU_SOURCE")
+endif()
+
 FetchContent_Declare(
     SDL3
     GIT_REPOSITORY https://github.com/libsdl-org/SDL
@@ -73,7 +78,7 @@ unset(CMAKE_POLICY_VERSION_MINIMUM CACHE)
 FetchContent_Declare(
     imgui
     GIT_REPOSITORY https://github.com/ocornut/imgui
-    GIT_TAG v1.92.6-docking
+    GIT_TAG v1.92.9-docking
     GIT_SHALLOW TRUE
     GIT_PROGRESS TRUE
 )
@@ -84,7 +89,7 @@ FetchContent_MakeAvailable(imgui)
 FetchContent_Declare(
     implot
     GIT_REPOSITORY https://github.com/epezent/implot
-    GIT_TAG v0.17
+    GIT_TAG v1.0
     GIT_SHALLOW TRUE
     GIT_PROGRESS TRUE
 )
@@ -293,6 +298,7 @@ include_directories(
     ${toml11_SOURCE_DIR}/include
     ${fftw3_SOURCE_DIR}/api
     ${glew_SOURCE_DIR}/include
+    ${SDL_image_SOURCE_DIR}/include
 )
 
 add_executable(Physarum
@@ -306,7 +312,7 @@ target_link_libraries(Physarum
     PUBLIC ImGui
     ${OPENGL_LIBRARY}
     SDL3::SDL3-static
-    SDL3_image::SDL3_image-static
+    SDL3_image-static
     glew_s
     fftw3
     PRIVATE toml11::toml11
