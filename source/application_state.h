@@ -2,6 +2,7 @@
 #define APPLICATION_STATE_H
 
 #include <string>
+#include <vector>
 
 #include "uniforms.h"
 #include "utility/parameter_parser.h"
@@ -67,6 +68,12 @@ public:
 	TextureMask selectedTextureMask = TextureMask::TRAIL;
 
 	ImVec4 clearColor = ImVec4(0.0f, 0.0f, 0.0f, 0.0f);
+
+	std::vector<double>* audioBuffer = nullptr;
+    std::vector<double>* spectrum = nullptr;
+    std::vector<double>* spectrumDiff = nullptr;
+    int bufferSize = 0;
+    bool* hasNewSpectrumData = nullptr;
 
 	float beatDivide = 20.0f;
 	bool subBassDetected = false;

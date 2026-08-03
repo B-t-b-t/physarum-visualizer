@@ -58,6 +58,12 @@ AudioSystem::AudioSystem(ApplicationState* appState, std::string deviceName)
 		previousSpectrum_.assign(audioProcessor_.getSpectrumSize(), 0.0);
 		spectrumDiff_.assign(audioProcessor_.getSpectrumSize(), 0.0);
 	}
+
+	appState_->audioBuffer = &audioBuffer_;
+	appState_->spectrum = &spectrum_;
+	appState_->spectrumDiff = &spectrumDiff_;
+	appState_->bufferSize = BUFFER_SIZE;
+	appState_->hasNewSpectrumData = &hasNewSpectrumData_;
 }
 
 AudioSystem::~AudioSystem() {
@@ -111,7 +117,7 @@ void AudioSystem::selectHardwareDevice(std::string deviceName) {
 	//bind new device to input stream
 	if(isOpen) {
 		SDL_BindAudioStream(deviceManager_.getCurrentLogicalDeviceID(), data_.streamId_);
-		appState_->slimeSettings.reactToAudio = true;	//turn on audio reaction if a device is available
+		//appState_->slimeSettings.reactToAudio = true;	//turn on audio reaction if a device is available
 	} else {
 		hasNewAudioData_ = false;
 		hasNewSpectrumData_ = false;

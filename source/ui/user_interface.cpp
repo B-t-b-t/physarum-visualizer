@@ -45,7 +45,7 @@ void UserInterface::initWindows() {
 	(dynamic_cast<DebugWindow*>(windows_.at("DebugWindow").get()))->setGuiIO(guiIO_);
 }
 
-void UserInterface::display(std::vector<double>& audioBuffer, std::vector<double>& spectrum, std::vector<double>& spectrumDiff, int bufferSize, bool hasNewSpectrumData) {
+void UserInterface::display() {
 	// Start the Dear ImGui frame
 	ImGui_ImplOpenGL3_NewFrame();
 	ImGui_ImplSDL3_NewFrame();
@@ -59,11 +59,6 @@ void UserInterface::display(std::vector<double>& audioBuffer, std::vector<double
 
 	if(showImGUIDemo_) {ImGui::ShowDemoWindow();}
 	if(showImPlotDemo_) {ImPlot::ShowDemoWindow();}
-
-	AudioWindow* audioWindow = dynamic_cast<AudioWindow*>(windows_.at("AudioWindow").get());
-    if (audioWindow && audioWindow->visible) {
-        audioWindow->update(audioBuffer, spectrum, spectrumDiff, bufferSize, hasNewSpectrumData);
-    }
 
 	for(auto& kv : windows_) {
 		auto& w = kv.second;

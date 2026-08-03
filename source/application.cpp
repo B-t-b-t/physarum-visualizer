@@ -76,8 +76,7 @@ void Application::run() {
 		
 		//------------------------------------------------------
 		// ImGui Draw Call
-		ui_.display(audioSystem_.getAudioBuffer(), audioSystem_.getSpectrum(), audioSystem_.getSpectrumDiff(), audioSystem_.getBufferSize(), audioSystem_.hasNewSpectrumData());
-		audioSystem_.setHasNewSpectrumData(false);
+		ui_.display();
 		
 		//------------------------------------------------------
 		// Swap draw buffers with SDL3

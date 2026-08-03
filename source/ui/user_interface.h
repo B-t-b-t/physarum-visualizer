@@ -4,7 +4,6 @@
 #include <memory>
 #include <string>
 #include <unordered_map>
-#include <vector>
 
 #include "imgui.h"
 #include "imgui_impl_opengl3.h"
@@ -23,7 +22,7 @@ public:
 	UserInterface(SDL_Window* window, SDL_GLContext glContext, ApplicationState* appState);
 	~UserInterface();
 
-	void display(std::vector<double>& audioBuffer, std::vector<double>& spectrum, std::vector<double>& spectrumDiff, int bufferSize, bool hasNewSpectrumData);
+	void display();
 	BaseWindow* getWindow(std::string windowName) {return windows_.at(windowName).get();}
 	ApplicationState* getState() { return state_; }
 
