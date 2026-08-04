@@ -75,7 +75,8 @@ void AudioDeviceManager::closeCurrentDevice() {
     }
 }
 
-std::vector<std::string> AudioDeviceManager::getAvailableDeviceNames() const {
+std::vector<std::string> AudioDeviceManager::getAvailableDeviceNames() {
+    checkForAvailableDevices();  //refresh device list
     std::vector<std::string> names;
     names.reserve(availableDevices_.size());
     for (const auto& device : availableDevices_) {

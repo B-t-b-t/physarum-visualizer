@@ -71,56 +71,57 @@ void AudioWindow::render(ApplicationState* appState) {
 	}
 
 	// Heatmap
-	if(*(appState->hasNewSpectrumData))  {
-		for (size_t i = 0; i < 512 * 32; i += 32) {
-			double spectrumVal = (*(appState->spectrum))[i / 32];
-			spectrumVal = std::isnan(spectrumVal) ? 0.0 : spectrumVal;
-			heatmapData_[i + (static_cast<size_t>(heatMapIndex_))] = spectrumVal;
+	if (ImGui::CollapsingHeader("Spectrum Heatmap")) {
+		if(*(appState->hasNewSpectrumData))  {
+			for (size_t i = 0; i < 512 * 32; i += 32) {
+				double spectrumVal = (*(appState->spectrum))[i / 32];
+				spectrumVal = std::isnan(spectrumVal) ? 0.0 : spectrumVal;
+				heatmapData_[i + (static_cast<size_t>(heatMapIndex_))] = spectrumVal;
 
-			double diffVal = (*(appState->spectrumDiff))[i / 32];
-			diffVal = std::isnan(diffVal) ? 0.0 : diffVal;
-			heatMapChange_[i + (static_cast<size_t>(heatMapIndex_))] = diffVal > 0 ? diffVal : 0.0;
+				double diffVal = (*(appState->spectrumDiff))[i / 32];
+				diffVal = std::isnan(diffVal) ? 0.0 : diffVal;
+				heatMapChange_[i + (static_cast<size_t>(heatMapIndex_))] = diffVal > 0 ? diffVal : 0.0;
+			}
+
+			heatMapIndex_ = (heatMapIndex_ + 1) % 32;
 		}
 
-		heatMapIndex_ = (heatMapIndex_ + 1) % 32;
+		static float scale_min       = 0.0f;
+		static float scale_max       = 100;
+		//static const char* xlabels[] = {"C1","C2","C3","C4","C5","C6","C7"};
+		//static const char* ylabels[] = {"R1","R2","R3","R4","R5","R6","R7"};
+
+		static ImPlotColormap map = ImPlotColormap_Hot;
+
+		ImGui::SetNextItemWidth(225);
+		ImGui::DragFloatRange2("Min / Max",&scale_min, &scale_max, 0.01f, -20, 20);
+		
+		static ImPlotAxisFlags axes_flags = ImPlotAxisFlags_Lock | ImPlotAxisFlags_NoGridLines | ImPlotAxisFlags_NoTickMarks;
+		
+		ImPlot::PushColormap(map);
+
+		if (ImPlot::BeginPlot("##Spectrum History",ImVec2(512,768),ImPlotFlags_NoLegend|ImPlotFlags_NoMouseText)) {
+			ImPlot::SetupAxes("Time", "Frequency (Hz)", axes_flags, axes_flags);
+			//ImPlot::SetupAxisTicks(ImAxis_X1,0 + 1.0/14.0, 1 - 1.0/14.0, 7, xlabels);
+			ImPlot::SetupFinish();
+			ImPlotSpec spec;
+			ImPlot::PlotHeatmap("heat", heatmapData_.data(), 512, 32, scale_min, scale_max, nullptr, ImPlotPoint(0,1), ImPlotPoint(1,0), spec);
+			ImPlot::EndPlot();
+		}
+
+		ImGui::SameLine();
+
+		if (ImPlot::BeginPlot("##Spectrum Change History",ImVec2(512,768),ImPlotFlags_NoLegend|ImPlotFlags_NoMouseText)) {
+			ImPlot::SetupAxes("Time", "Frequency (Hz)", axes_flags, axes_flags);
+			//ImPlot::SetupAxisTicks(ImAxis_X1,0 + 1.0/14.0, 1 - 1.0/14.0, 7, xlabels);
+			ImPlot::SetupFinish();
+			ImPlotSpec spec;
+			ImPlot::PlotHeatmap("heat", heatMapChange_.data(), 512, 32, scale_min, scale_max, nullptr, ImPlotPoint(0,1), ImPlotPoint(1,0), spec);
+			ImPlot::EndPlot();
+		}
+		ImPlot::PopColormap();	//to avoid interfering with the colour of other plots when the draw order changes (Collapsing Headers, ...)
+		
 	}
-
-    static float scale_min       = 0.0f;
-    static float scale_max       = 100;
-    //static const char* xlabels[] = {"C1","C2","C3","C4","C5","C6","C7"};
-    //static const char* ylabels[] = {"R1","R2","R3","R4","R5","R6","R7"};
-
-    static ImPlotColormap map = ImPlotColormap_Hot;
-
-    ImGui::SameLine();
-    ImGui::LabelText("##Colormap Index", "%s", "Change Colormap");
-    ImGui::SetNextItemWidth(225);
-    ImGui::DragFloatRange2("Min / Max",&scale_min, &scale_max, 0.01f, -20, 20);
-
-    static ImPlotAxisFlags axes_flags = ImPlotAxisFlags_Lock | ImPlotAxisFlags_NoGridLines | ImPlotAxisFlags_NoTickMarks;
-
-	ImPlot::PushColormap(map);
-
-	if (ImPlot::BeginPlot("##Spectrum History",ImVec2(512,768),ImPlotFlags_NoLegend|ImPlotFlags_NoMouseText)) {
-		ImPlot::SetupAxes("Time", "Frequency (Hz)", axes_flags, axes_flags);
-        //ImPlot::SetupAxisTicks(ImAxis_X1,0 + 1.0/14.0, 1 - 1.0/14.0, 7, xlabels);
-		ImPlot::SetupFinish();
-		ImPlotSpec spec;
-        ImPlot::PlotHeatmap("heat", heatmapData_.data(), 512, 32, scale_min, scale_max, nullptr, ImPlotPoint(0,1), ImPlotPoint(1,0), spec);
-        ImPlot::EndPlot();
-    }
-
-	ImGui::SameLine();
-
-	if (ImPlot::BeginPlot("##Spectrum Change History",ImVec2(512,768),ImPlotFlags_NoLegend|ImPlotFlags_NoMouseText)) {
-		ImPlot::SetupAxes("Time", "Frequency (Hz)", axes_flags, axes_flags);
-        //ImPlot::SetupAxisTicks(ImAxis_X1,0 + 1.0/14.0, 1 - 1.0/14.0, 7, xlabels);
-		ImPlot::SetupFinish();
-		ImPlotSpec spec;
-        ImPlot::PlotHeatmap("heat", heatMapChange_.data(), 512, 32, scale_min, scale_max, nullptr, ImPlotPoint(0,1), ImPlotPoint(1,0), spec);
-        ImPlot::EndPlot();
-    }
-	ImPlot::PopColormap();	//to avoid interfering with the colour of other plots when the draw order changes (Collapsing Headers, ...)
 
 	// ImGui::SliderInt("Scan Time [ms]", &audioTimer, 1, 1000);
 	// if (ImGui::IsItemDeactivatedAfterEdit()) {

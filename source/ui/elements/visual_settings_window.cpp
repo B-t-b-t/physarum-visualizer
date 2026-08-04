@@ -5,7 +5,7 @@
 
 void VisualSettingsWindow::render(ApplicationState* appState) {
     if(!visible) { return; }
-
+	
     ImGui::Begin("Visual Settings", &visible);
 
 	ImGui::SliderFloat("Brightness Multiplier", &appState->fragmentShaderSettings.brightnessMultiplier, 0.0f, 10.0f);

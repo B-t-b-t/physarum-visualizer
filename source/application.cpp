@@ -76,6 +76,7 @@ void Application::run() {
 		
 		//------------------------------------------------------
 		// ImGui Draw Call
+		audioWindow_->addHardwareDeviceNames(audioSystem_.getAvailableHardwareDeviceNames());
 		ui_.display();
 		
 		//------------------------------------------------------

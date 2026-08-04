@@ -52,7 +52,7 @@ Window::Window(const std::string& title, ApplicationState* appState, bool custom
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, majorVersion_);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, minorVersion_);
 
-	window_ = SDL_CreateWindow(title.c_str(), windowWidth_, windowHeight_, SDL_WINDOW_OPENGL);
+	window_ = SDL_CreateWindow(title.c_str(), windowWidth_, windowHeight_, SDL_WINDOW_OPENGL | SDL_WINDOW_HIGH_PIXEL_DENSITY);
 	glContext_ = SDL_GL_CreateContext(window_);
 
 	//reducing OpenGL Version until it works
@@ -65,7 +65,7 @@ Window::Window(const std::string& title, ApplicationState* appState, bool custom
 		SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, minorVersion_);
 		std::cerr << "Trying OpenGL Version: " << majorVersion_ << "." << minorVersion_ << std::endl;
 
-		window_ = SDL_CreateWindow(title.c_str(), windowWidth_, windowHeight_, SDL_WINDOW_OPENGL);
+		window_ = SDL_CreateWindow(title.c_str(), windowWidth_, windowHeight_, SDL_WINDOW_OPENGL | SDL_WINDOW_HIGH_PIXEL_DENSITY);
 		glContext_ = SDL_GL_CreateContext(window_);
 	}
 
@@ -109,7 +109,9 @@ Window::Window(const std::string& title, ApplicationState* appState, bool custom
 	SDL_GL_SetSwapInterval(1);					// Enable V-Sync
 	SDL_MaximizeWindow(window_);				// necessary, because SDL_GetDisplayUsableBounds() doesn't work with Wayland
 
-	glViewport(0, 0, windowWidth_, windowHeight_);
+	updateViewport();
+	fractionalScalingFactor_ = SDL_GetWindowPixelDensity(window_);
+	//glViewport(0, 0, windowWidth_, windowHeight_);
 
 	GLenum status = glewInit();
 	if (status != GLEW_OK) {
@@ -133,9 +135,12 @@ Window::Window(const std::string& title, ApplicationState* appState, bool custom
 	int workGroupDivider = appState_->workGroupDivider;
 	
 	//calculate texture sizes, so that it matches window size at initialization
-	int textureWidth = (int)(windowWidth_ * fractionalScalingFactor_ - ((int)(windowWidth_ * fractionalScalingFactor_) % workGroupDivider));		//make sure width is multiples of workgroup size for compute shaders
-	int textureHeight = (int)(windowHeight_ * fractionalScalingFactor_ - ((int)(windowHeight_ * fractionalScalingFactor_) % workGroupDivider));
-	
+	//int textureWidth = (int)(windowWidth_ * fractionalScalingFactor_ - ((int)(windowWidth_ * fractionalScalingFactor_) % workGroupDivider));		//make sure width is multiples of workgroup size for compute shaders
+	//int textureHeight = (int)(windowHeight_ * fractionalScalingFactor_ - ((int)(windowHeight_ * fractionalScalingFactor_) % workGroupDivider));
+	int textureWidth = windowWidth_ - (windowWidth_ % workGroupDivider);
+	int textureHeight = windowHeight_ - (windowHeight_ % workGroupDivider);
+
+
 	//write back to program state
 	appState_->universalShaderSettings.textureWidth = textureWidth;
 	appState_->universalShaderSettings.textureHeight = textureHeight;

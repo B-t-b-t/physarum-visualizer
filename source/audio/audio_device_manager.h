@@ -26,7 +26,7 @@ public:
     SDL_AudioSpec getCurrentAudioSpec() const { return currentAudioSpec_; }
     int getSampleRate() const { return currentAudioSpec_.freq; }
 
-    std::vector<std::string> getAvailableDeviceNames() const;
+    std::vector<std::string> getAvailableDeviceNames();
     int getNumAvailableDevices() const { return availableDevices_.size(); }
     bool hasDevices() const { return !availableDevices_.empty(); }
 
