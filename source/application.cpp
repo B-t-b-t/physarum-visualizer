@@ -60,7 +60,7 @@ void Application::run() {
 		//------------------------------------------------------
 		// Audio Processing
 		audioSystem_.update();
-		
+
 		if(appState_->slimeSettings.reactToAudio) {
 			audioSystem_.computeSpectrum();
 			musicAnalysis_.analyzeMusic(audioSystem_.getSpectrumDiff(), frameTime);

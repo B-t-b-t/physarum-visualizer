@@ -1,3 +1,5 @@
+#include <iostream>
+
 #include <SDL3/SDL_main.h>
 
 #include "./utility/parameter_parser.h"
@@ -13,6 +15,10 @@ int main(int argc, char* argv[]) {
 		return -1;
 	}
 
+	std::cout << "====================" << std::endl 
+			  << "Physarum 0.6.0-alpha" << std::endl
+			  << "====================" << std::endl;
+			   
 	Application app(params);
 	app.run();
 
