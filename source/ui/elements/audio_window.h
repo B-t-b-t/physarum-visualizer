@@ -11,12 +11,7 @@ public:
     AudioWindow();
     void render(ApplicationState* appState) override;
 
-    void addHardwareDeviceNames(const std::vector<std::string>& deviceNames);
-	const char * getSelectedHardwareDevice() { return availableHardwareDevices_[selectedHardwareDevice_].c_str(); }
-
 private:
-	std::vector<std::string> availableHardwareDevices_;
-	unsigned int selectedHardwareDevice_ = 0;
 
 	std::vector<double> heatmapData_;
 	std::vector<double> heatMapChange_;

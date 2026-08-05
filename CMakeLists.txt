@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.30.0)
-project(Physarum VERSION 0.5.0 LANGUAGES CXX)
+project(Physarum VERSION 0.6.0 LANGUAGES CXX)
 
 cmake_policy(SET CMP0072 NEW)
 
@@ -8,7 +8,8 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-set(CMAKE_CXX_FLAGS_RELEASE " -O3")
+set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -O3 -ffunction-sections -fdata-sections")
+set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3 -ffunction-sections -fdata-sections")
 # force static linking for C/C++ runtime
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -static-libgcc -static-libstdc++")
 
@@ -41,11 +42,16 @@ FetchContent_Declare(
     GIT_TAG release-3.4.2
     GIT_SHALLOW TRUE
     GIT_PROGRESS TRUE
+    OVERRIDE_FIND_PACKAGE
 )
 set(SDL_SHARED OFF CACHE BOOL "" FORCE)
 set(SDL_STATIC ON CACHE BOOL "" FORCE)
 set(SDL_TEST OFF CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(SDL3)
+
+# SDL3 is already supplied by the parent project through FetchContent.
+# Do not make SDL3_image download/configure another SDL3 copy.
+set(SDL3IMAGE_VENDORED OFF CACHE BOOL "" FORCE)
 
 #----- SDL_image ----- 
 
@@ -306,7 +312,22 @@ add_executable(Physarum
     ${MY_SOURCE_FILES}
 )
 
+include(CheckIPOSupported)
+check_ipo_supported(RESULT ipoSupported OUTPUT ipoError LANGUAGES CXX)
+
+if(ipoSupported)
+    set_property(TARGET Physarum PROPERTY INTERPROCEDURAL_OPTIMIZATION_RELEASE TRUE)
+else()
+    message(WARNING "Release LTO is unavailable: ${ipoError}")
+endif()
+
 target_compile_definitions(Physarum PUBLIC $<$<CONFIG:Debug>:_DEBUG> $<$<CONFIG:Release>:NDEBUG>)
+
+target_link_options(Physarum PRIVATE
+    $<$<CONFIG:Release>:-Wl,--gc-sections>
+    $<$<CONFIG:Release>:-Wl,-O1>
+    $<$<CONFIG:Release>:-Wl,--strip-all>
+)
 
 target_link_libraries(Physarum
     PUBLIC ImGui

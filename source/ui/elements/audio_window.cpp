@@ -1,10 +1,12 @@
 #include "audio_window.h"
 
 #include <cmath>
+#include <vector>
 
 #include "implot.h"
 
 #include "../ui_helpers.h"
+#include "../../audio/audio_device_manager.h"
 
 AudioWindow::AudioWindow() {
     heatmapData_.reserve(512 * 32);
@@ -22,12 +24,13 @@ void AudioWindow::render(ApplicationState* appState) {
 	ImGui::Checkbox("Enable Audio Processing", (bool*)&appState->slimeSettings.reactToAudio);
 	ImGui::SameLine(); HelpMarker("When enabled, the slime movement will react to audio input. Make sure to select an audio input device in the Audio menu.");
 	
+	std::vector<AudioDeviceInfo>* availableDevices = appState->availableAudioHardware;
+
 	if (ImGui::BeginListBox("Audio Hardware")) {
-		for (unsigned int n = 0; n < availableHardwareDevices_.size(); n++) {
-			const bool is_selected = (selectedHardwareDevice_ == n);
-			if (ImGui::Selectable(availableHardwareDevices_[n].c_str(), is_selected)) {
-				selectedHardwareDevice_ = n;
-				appState->currentAudioHardware = getSelectedHardwareDevice();
+		for (unsigned int n = 0; n < availableDevices->size(); n++) {
+			const bool is_selected = availableDevices->at(n).logicalID != 0;
+			if (ImGui::Selectable(availableDevices->at(n).name, is_selected)) {
+				appState->usedAudioHardwareIndex = n;
 				notify(Event::AUDIO_HARDWARE_CHANGE);
 			}
 			// Set the initial focus when opening the combo (scrolling + keyboard navigation focus)
@@ -188,13 +191,4 @@ void AudioWindow::render(ApplicationState* appState) {
 	ImGui::End();
 
 	*(appState->hasNewSpectrumData) = false;
-}
-
-void AudioWindow::addHardwareDeviceNames(const std::vector<std::string>& deviceNames) {
-	availableHardwareDevices_.clear();
-	availableHardwareDevices_.reserve(deviceNames.size());
-
-	for(unsigned int i = 0; i < deviceNames.size(); i++) {
-		availableHardwareDevices_.push_back(deviceNames[i]);
-	}
 }

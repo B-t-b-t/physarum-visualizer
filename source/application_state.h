@@ -5,6 +5,7 @@
 #include <vector>
 
 #include "uniforms.h"
+#include "audio/audio_device_manager.h"
 #include "utility/parameter_parser.h"
 
 
@@ -53,7 +54,8 @@ public:
 	bool lockAngles = true;
 	bool fullscreen = false;
 	bool autoPresetSwitching = false;
-	std::string currentAudioHardware = "";
+	std::vector<AudioDeviceInfo>* availableAudioHardware = nullptr;
+	size_t usedAudioHardwareIndex = 0;
 	int newTextureWidth = 1600;
 	int newTextureHeight = 896;
 	int numParticles = 300000;

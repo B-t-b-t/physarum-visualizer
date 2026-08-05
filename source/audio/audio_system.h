@@ -20,6 +20,7 @@ public:
 
     ~AudioSystem();
 
+    void update();
     void computeSpectrum();
 
     int getAudioRate() const { return inSpec_.freq; }

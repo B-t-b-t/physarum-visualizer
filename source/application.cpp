@@ -26,12 +26,6 @@ Application::Application(Parameters params)
 	ui_.getWindow("NewCanvasModal")->addObserver(Event::NEW_CANVAS, &simulation_);
 	ui_.getWindow("NewCanvasModal")->addObserver(Event::NEW_CANVAS, &ubo_manager_);
 
-	//------------------------------------------------------
-	// Initialize Audio Recording and Processing
-	std::vector<std::string> availableAudioHardwareNames = audioSystem_.getAvailableHardwareDeviceNames();
-	audioWindow_ = dynamic_cast<AudioWindow*>(ui_.getWindow("AudioWindow"));
-	audioWindow_->addHardwareDeviceNames(availableAudioHardwareNames);
-
 	prevCounter_ = SDL_GetPerformanceCounter();
 	counterFrequency_ = SDL_GetPerformanceFrequency(); //SDL Timer Frequency for Audio Beat Analysis and Auto Preset Switching
 }
@@ -65,6 +59,8 @@ void Application::run() {
 
 		//------------------------------------------------------
 		// Audio Processing
+		audioSystem_.update();
+		
 		if(appState_->slimeSettings.reactToAudio) {
 			audioSystem_.computeSpectrum();
 			musicAnalysis_.analyzeMusic(audioSystem_.getSpectrumDiff(), frameTime);
@@ -76,7 +72,6 @@ void Application::run() {
 		
 		//------------------------------------------------------
 		// ImGui Draw Call
-		audioWindow_->addHardwareDeviceNames(audioSystem_.getAvailableHardwareDeviceNames());
 		ui_.display();
 		
 		//------------------------------------------------------

@@ -6,6 +6,7 @@ AudioSystem::AudioSystem(ApplicationState* appState, std::string deviceName)
 
 	//check available devices and populate device vector
 	deviceManager_.checkForAvailableDevices();
+	appState_->availableAudioHardware = deviceManager_.getAvailableDevices();
 	bool success = deviceManager_.openDevice(deviceName);
 
 	if(success) {
@@ -100,7 +101,7 @@ AudioSystem::~AudioSystem() {
 
 void AudioSystem::onNotify(const Event event) {
 	if(event == Event::AUDIO_HARDWARE_CHANGE) {
-		selectHardwareDevice(appState_->currentAudioHardware);
+		selectHardwareDevice(appState_->availableAudioHardware->at(appState_->usedAudioHardwareIndex).name);
 	}
 }
 
@@ -122,6 +123,14 @@ void AudioSystem::selectHardwareDevice(std::string deviceName) {
 		hasNewAudioData_ = false;
 		hasNewSpectrumData_ = false;
 		appState_->slimeSettings.reactToAudio = false;	//turn off audio reaction if no device is available
+	}
+}
+
+void AudioSystem::update() {
+	bool areDevicesOpen = deviceManager_.processAudioDeviceEvents();
+
+	if(!areDevicesOpen) {
+		selectHardwareDevice("No Device");	//close device if no devices are available
 	}
 }
 

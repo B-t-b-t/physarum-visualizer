@@ -10,6 +10,8 @@
 struct AudioDeviceInfo {
     const char* name;
     SDL_AudioDeviceID hardwareID = 0;
+    SDL_AudioDeviceID logicalID = 0;    //0 for unbound, otherwise bound and in use
+    SDL_AudioSpec currentAudioSpec_;
 };
 
 class AudioDeviceManager {
@@ -17,23 +19,24 @@ public:
     AudioDeviceManager();
     ~AudioDeviceManager();
 
-    void checkForAvailableDevices();
+    bool checkForAvailableDevices();
 
     bool openDevice(const std::string& deviceName);
     void closeCurrentDevice();
+    bool processAudioDeviceEvents();
 
-    SDL_AudioDeviceID getCurrentLogicalDeviceID() const { return currentLogicalID_; }
-    SDL_AudioSpec getCurrentAudioSpec() const { return currentAudioSpec_; }
-    int getSampleRate() const { return currentAudioSpec_.freq; }
+    SDL_AudioDeviceID getCurrentLogicalDeviceID() const { return availableDevices_[usedDeviceIndex_].logicalID; }
+    SDL_AudioSpec getCurrentAudioSpec() const { return availableDevices_[usedDeviceIndex_].currentAudioSpec_; }
+    int getSampleRate() const { return availableDevices_[usedDeviceIndex_].currentAudioSpec_.freq; }
 
+    std::vector<AudioDeviceInfo>* getAvailableDevices() { return &availableDevices_; }
     std::vector<std::string> getAvailableDeviceNames();
     int getNumAvailableDevices() const { return availableDevices_.size(); }
     bool hasDevices() const { return !availableDevices_.empty(); }
 
 private:
     std::vector<AudioDeviceInfo> availableDevices_;
-    SDL_AudioDeviceID currentLogicalID_ = 0;
-    SDL_AudioSpec currentAudioSpec_;
+    size_t usedDeviceIndex_;
 
     std::optional<size_t> findDeviceIndex(const std::string& deviceName) const;
 };
