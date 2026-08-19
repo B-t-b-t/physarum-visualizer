@@ -14,6 +14,11 @@ AudioWindow::AudioWindow() {
 
 	heatMapChange_.reserve(512 * 32);
 	heatMapChange_.resize(512 * 32, 0.0);
+
+	frequencyXAxis_ = new std::vector<double>();
+	for(int i = 0; i < 2048; i++) {
+		frequencyXAxis_->push_back(i * ((24000 - 11.7188) / 2048));
+	}
 }
 
 void AudioWindow::render(ApplicationState* appState) {
@@ -44,31 +49,76 @@ void AudioWindow::render(ApplicationState* appState) {
 
     if (ImGui::CollapsingHeader("Audio Graph")) {
 		if (ImPlot::BeginPlot("Audio")) {
-			ImPlot::SetupAxes("t","y", ImPlotAxisFlags_None, ImPlotAxisFlags_AutoFit);
+			ImPlotSpec spec;
+			spec.LineColor = ImVec4(1.0f, 1.0f, 1.0f, 1.0f);
+			spec.Flags = ImPlotItemFlags_NoLegend;
+			ImPlot::SetupAxes("t","y", ImPlotAxisFlags_AutoFit, ImPlotAxisFlags_None);
+			ImPlot::SetupAxisLimits(ImAxis_Y1, -1.1, 1.1, ImGuiCond_Always);
 			ImPlot::SetupAxisFormat(ImAxis_X1, TimeFormatter, (void*)"s");
 			ImPlot::SetupFinish();
-			ImPlot::PlotLineG("Audio##2", MyDataGetter, appState->audioBuffer->data(), appState->audioBuffer->size());
-			//ImPlot::PlotLine("Audio", audioBuffer.data(), bufferSize);
-			//ImPlot::SetNextMarkerStyle(ImPlotMarker_Circle);
+			ImPlot::PlotLineG("Audio##2", MyDataGetter, appState->audioBuffer->data(), appState->audioBuffer->size(), spec);
 			ImPlot::EndPlot();
 		}
 	}
 	if (ImGui::CollapsingHeader("Audio Spectrum")) {
 
-		if (ImPlot::BeginPlot("Audio Spectrum##2")) {
-			ImPlot::SetupAxes("Frequency (Hz)", "Magnitude", ImPlotAxisFlags_None, ImPlotAxisFlags_AutoFit);
-			//static ImPlotDragToolFlags flags = ImPlotDragToolFlags_None;
-			//ImPlot::SetupAxisLimits(ImAxis_Y1, 0, 700, ImGuiCond_Always);
-			ImPlot::SetupAxisFormat(ImAxis_X1, FrequencyFormatter, (void*)"Hz");
-			//ImPlot::SetupAxisScale(ImAxis_Y1, ImPlotScale_Log10);  // Log scale for magnitude
-			//double beatBeginnFreq = 11.0f;//state_.beatBeginn * (1 / (bufferSize / (double)audioRate));
-			ImPlot::SetupFinish();
-			ImPlot::PlotLine("Spectrum", appState->spectrum->data(), 2048);
-			//ImPlot::PlotInfLines("BeatRange", beatRange, 2);
-			//ImPlot::PlotInfLines("FringeRange", fringeRange, 2);
-			//ImPlot::PlotInfLines("BeatLimits", beatLimits, 2, ImPlotInfLinesFlags_Horizontal);
-			//ImPlot::PlotBars("Spectrum", spectrum.data(), 100, 1.0, 0.5);
+		const double start_subBass = 20;
+		const double start_bass = 60;
+		const double start_lowMidRange = 250;
+		const double start_midRange = 500;
+		const double start_upperMidRange = 2000;
+		const double start_presence = 4000;
+		const double start_brilliance = 6000;
+		const double end_brilliance = 20000;
 
+		static double freqBands[] = {start_subBass, start_bass, start_lowMidRange, start_midRange, start_upperMidRange, start_presence, start_brilliance, end_brilliance};
+
+		if (ImPlot::BeginPlot("Audio Spectrum##2")) {
+			ImPlot::SetupAxes("Frequency [Hz]", "Magnitude", ImPlotAxisFlags_AutoFit, ImPlotAxisFlags_AutoFit);
+			ImPlot::SetupAxisLimits(ImAxis_Y1, 0, 100, ImGuiCond_Always);
+
+			ImPlot::SetupAxisScale(ImAxis_X1, ImPlotScale_Log10);
+			ImPlot::SetupAxisFormat(ImAxis_X1, FrequencyFormatter, (void*)"Hz");
+			ImPlot::SetupAxisLimits(ImAxis_X1, 16, 24000, ImGuiCond_Always);
+			
+			ImPlot::PushStyleColor(ImPlotCol_AxisText, ImVec4(1.0f, 0.78f, 0.39f, 0.9f));
+			ImPlot::SetupAxis(ImAxis_X2, "Frequency Bands [Hz]", ImPlotAxisFlags_Opposite | ImPlotAxisFlags_NoGridLines | ImPlotAxisFlags_NoLabel);
+			ImPlot::SetupAxisScale(ImAxis_X2, ImPlotScale_Log10);
+			ImPlot::SetupAxisFormat(ImAxis_X2, FrequencyFormatter, (void*)"Hz");
+			ImPlot::SetupAxisLimits(ImAxis_X2, 16, 24000, ImGuiCond_Always);
+
+			ImPlot::SetupAxisTicks(ImAxis_X2, &start_subBass, 1, nullptr, false);
+			ImPlot::SetupAxisTicks(ImAxis_X2, &start_bass, 1, nullptr, false);
+			ImPlot::SetupAxisTicks(ImAxis_X2, &start_lowMidRange, 1, nullptr, false);
+			ImPlot::SetupAxisTicks(ImAxis_X2, &start_midRange, 1, nullptr, false);
+			ImPlot::SetupAxisTicks(ImAxis_X2, &start_upperMidRange, 1, nullptr, false);
+			ImPlot::SetupAxisTicks(ImAxis_X2, &start_presence, 1, nullptr, false);
+			ImPlot::SetupAxisTicks(ImAxis_X2, &start_brilliance, 1, nullptr, false);
+			ImPlot::SetupAxisTicks(ImAxis_X2, &end_brilliance, 1, nullptr, false);
+			ImPlot::PopStyleColor();
+			
+			ImPlot::SetupFinish();
+
+			ImPlotSpec spec;
+			spec.LineColor = ImVec4(1.0f, 1.0f, 1.0f, 1.0f);
+			spec.Flags = ImPlotItemFlags_NoLegend;
+			ImPlot::PlotLine("Spectrum", frequencyXAxis_->data(), appState->spectrum->data(), 2048, spec);
+
+			ImPlot::PushStyleColor(ImPlotCol_InlayText, ImVec4(1.0f, 0.78f, 0.39f, 0.9f));
+			ImPlot::PlotText("Sub Bass", (start_bass + start_subBass) / 2 - 5, 70);
+			ImPlot::PlotText("Bass", (start_lowMidRange + start_bass) / 2 - 30, 70);
+			ImPlot::PlotText("     Low\nMid Range", (start_midRange + start_lowMidRange) / 2 - 20, 70);
+			ImPlot::PlotText("Mid Range", (start_upperMidRange + start_midRange) / 2 - 250, 70);
+			ImPlot::PlotText("   Upper\nMid Range", (start_presence + start_upperMidRange) / 2 - 100, 70);
+			ImPlot::PlotText("Presence", (start_brilliance + start_presence) / 2 - 50, 70);
+			ImPlot::PlotText("Brilliance", (end_brilliance + start_brilliance) / 2 - 2000, 70);
+
+			ImPlot::PopStyleColor();
+			
+			ImPlotSpec lineSpec;
+			lineSpec.LineColor = ImVec4(1.0f, 0.78f, 0.39f, 0.9f);
+			lineSpec.Flags = ImPlotItemFlags_NoLegend;
+			ImPlot::PlotInfLines("Frequency Bands", freqBands, 8, lineSpec);
 			ImPlot::EndPlot();
 		}
 	}
@@ -91,21 +141,22 @@ void AudioWindow::render(ApplicationState* appState) {
 
 		static float scale_min       = 0.0f;
 		static float scale_max       = 100;
-		//static const char* xlabels[] = {"C1","C2","C3","C4","C5","C6","C7"};
-		//static const char* ylabels[] = {"R1","R2","R3","R4","R5","R6","R7"};
+		static const char* xlabels[] = {"0", "0.68", "1.37", "2.05", "2.73"};
+		static const char* ylabels[] = {"0", "3000", "6000", "9000", "12000", "15000", "18000", "21000", "24000"};
 
 		static ImPlotColormap map = ImPlotColormap_Hot;
 
 		ImGui::SetNextItemWidth(225);
 		ImGui::DragFloatRange2("Min / Max",&scale_min, &scale_max, 0.01f, -20, 20);
 		
-		static ImPlotAxisFlags axes_flags = ImPlotAxisFlags_Lock | ImPlotAxisFlags_NoGridLines | ImPlotAxisFlags_NoTickMarks;
+		static ImPlotAxisFlags axes_flags = ImPlotAxisFlags_Lock | ImPlotAxisFlags_NoGridLines;
 		
 		ImPlot::PushColormap(map);
 
 		if (ImPlot::BeginPlot("##Spectrum History",ImVec2(512,768),ImPlotFlags_NoLegend|ImPlotFlags_NoMouseText)) {
-			ImPlot::SetupAxes("Time", "Frequency (Hz)", axes_flags, axes_flags);
-			//ImPlot::SetupAxisTicks(ImAxis_X1,0 + 1.0/14.0, 1 - 1.0/14.0, 7, xlabels);
+			ImPlot::SetupAxes("Time [s]", "Frequency [Hz]", axes_flags, axes_flags);
+			ImPlot::SetupAxisTicks(ImAxis_X1, 0.0, 1.0, 5, xlabels);
+			ImPlot::SetupAxisTicks(ImAxis_Y1, 0.0, 1.0, 9, ylabels);
 			ImPlot::SetupFinish();
 			ImPlotSpec spec;
 			ImPlot::PlotHeatmap("heat", heatmapData_.data(), 512, 32, scale_min, scale_max, nullptr, ImPlotPoint(0,1), ImPlotPoint(1,0), spec);
@@ -115,8 +166,9 @@ void AudioWindow::render(ApplicationState* appState) {
 		ImGui::SameLine();
 
 		if (ImPlot::BeginPlot("##Spectrum Change History",ImVec2(512,768),ImPlotFlags_NoLegend|ImPlotFlags_NoMouseText)) {
-			ImPlot::SetupAxes("Time", "Frequency (Hz)", axes_flags, axes_flags);
-			//ImPlot::SetupAxisTicks(ImAxis_X1,0 + 1.0/14.0, 1 - 1.0/14.0, 7, xlabels);
+			ImPlot::SetupAxes("Time [s]", "Frequency [Hz]", axes_flags, axes_flags);
+			ImPlot::SetupAxisTicks(ImAxis_X1, 0.0, 1.0, 5, xlabels);
+			ImPlot::SetupAxisTicks(ImAxis_Y1, 0.0, 1.0, 9, ylabels);
 			ImPlot::SetupFinish();
 			ImPlotSpec spec;
 			ImPlot::PlotHeatmap("heat", heatMapChange_.data(), 512, 32, scale_min, scale_max, nullptr, ImPlotPoint(0,1), ImPlotPoint(1,0), spec);

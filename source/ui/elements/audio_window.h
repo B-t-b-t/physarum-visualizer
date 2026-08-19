@@ -12,6 +12,7 @@ public:
     void render(ApplicationState* appState) override;
 
 private:
+	std::vector<double>* frequencyXAxis_;
 
 	std::vector<double> heatmapData_;
 	std::vector<double> heatMapChange_;

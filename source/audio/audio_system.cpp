@@ -20,7 +20,6 @@ AudioSystem::AudioSystem(ApplicationState* appState, std::string deviceName)
 		if (streamIn != nullptr) {
 
 			if (SDL_BindAudioStream(deviceManager_.getCurrentLogicalDeviceID(), streamIn)) {
-				SDL_SetAudioStreamGain(streamIn, 0.2);
 		
 				//set Audio Buffer values to 0 (necessary?)
 				for(int i = 0; i < BUFFER_SIZE; i++) {

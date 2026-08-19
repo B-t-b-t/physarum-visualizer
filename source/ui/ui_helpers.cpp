@@ -37,24 +37,24 @@ int TimeFormatter(double value, char* buff, int size, void* data) {
 	}
     for (int i = 0; i < 7; ++i) {
         if (fabs(value) >= v[i]) {
-            return snprintf(buff,static_cast<size_t>(size),"%g %s%s",value/v[i],p[i],unit);
+            return snprintf(buff,static_cast<size_t>(size),"%.2f %s%s",value/v[i],p[i],unit);
         }
     }
-    return snprintf(buff,static_cast<size_t>(size),"%g %s%s",value/v[6],p[6],unit);
+    return snprintf(buff,static_cast<size_t>(size),"%.2f %s%s",value/v[6],p[6],unit);
 }
 
 int FrequencyFormatter(double value, char* buff, int size, void* data) {
     const char* unit = (const char*)data;
     static double v[]      = {1000000000,1000000,1000,1,0.001,0.000001,0.000000001};
     static const char* p[] = {"G","M","k","","m","u","n"};
-	value = value * (1 / (4096 / (double)48000));
+	//value = value * (1 / (4096 / (double)48000));
     if (fabs(value) < std::numeric_limits<double>::epsilon()) {
         return snprintf(buff,static_cast<size_t>(size),"0 %s", unit);
     }
     for (int i = 0; i < 7; ++i) {
         if (fabs(value) >= v[i]) {
-            return snprintf(buff,static_cast<size_t>(size),"%g %s%s",value/v[i],p[i],unit);
+            return snprintf(buff,static_cast<size_t>(size),"%.2f %s%s",value/v[i],p[i],unit);
         }
     }
-    return snprintf(buff,static_cast<size_t>(size),"%g %s%s",value/v[6],p[6],unit);
+    return snprintf(buff,static_cast<size_t>(size),"%.2f %s%s",value/v[6],p[6],unit);
 }

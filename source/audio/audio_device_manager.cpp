@@ -37,7 +37,6 @@ bool AudioDeviceManager::checkForAvailableDevices() {
             }
 
             if(name != nullptr && formatSuccess) {
-                spec.channels = 1; // Force mono
                 availableDevices_.push_back({name, rawDeviceArray[i], 0, spec});
                 SDL_Log("Recording device #%d (Hardware-ID: %d): '%s'", i, rawDeviceArray[i], name);
             }
