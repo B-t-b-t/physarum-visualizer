@@ -52,7 +52,9 @@ void AudioWindow::render(ApplicationState* appState) {
 			ImPlotSpec spec;
 			spec.LineColor = ImVec4(1.0f, 1.0f, 1.0f, 1.0f);
 			spec.Flags = ImPlotItemFlags_NoLegend;
-			ImPlot::SetupAxes("t","y", ImPlotAxisFlags_AutoFit, ImPlotAxisFlags_None);
+			ImPlotAxisFlags axes_flags = ImPlotAxisFlags_AutoFit | ImPlotAxisFlags_NoMenus | ImPlotAxisFlags_NoSideSwitch | ImPlotAxisFlags_NoHighlight;
+
+			ImPlot::SetupAxes("t","y", axes_flags, axes_flags);
 			ImPlot::SetupAxisLimits(ImAxis_Y1, -1.1, 1.1, ImGuiCond_Always);
 			ImPlot::SetupAxisFormat(ImAxis_X1, TimeFormatter, (void*)"s");
 			ImPlot::SetupFinish();
@@ -74,7 +76,9 @@ void AudioWindow::render(ApplicationState* appState) {
 		static double freqBands[] = {start_subBass, start_bass, start_lowMidRange, start_midRange, start_upperMidRange, start_presence, start_brilliance, end_brilliance};
 
 		if (ImPlot::BeginPlot("Audio Spectrum##2")) {
-			ImPlot::SetupAxes("Frequency [Hz]", "Magnitude", ImPlotAxisFlags_AutoFit, ImPlotAxisFlags_AutoFit);
+
+			ImPlotAxisFlags axes_flags = ImPlotAxisFlags_AutoFit | ImPlotAxisFlags_NoMenus | ImPlotAxisFlags_NoSideSwitch | ImPlotAxisFlags_NoHighlight;
+			ImPlot::SetupAxes("Frequency [Hz]", "Magnitude", axes_flags, axes_flags);
 			ImPlot::SetupAxisLimits(ImAxis_Y1, 0, 100, ImGuiCond_Always);
 
 			ImPlot::SetupAxisScale(ImAxis_X1, ImPlotScale_Log10);
@@ -149,7 +153,7 @@ void AudioWindow::render(ApplicationState* appState) {
 		ImGui::SetNextItemWidth(225);
 		ImGui::DragFloatRange2("Min / Max",&scale_min, &scale_max, 0.01f, -20, 20);
 		
-		static ImPlotAxisFlags axes_flags = ImPlotAxisFlags_Lock | ImPlotAxisFlags_NoGridLines;
+		static ImPlotAxisFlags axes_flags = ImPlotAxisFlags_Lock | ImPlotAxisFlags_NoGridLines | ImPlotAxisFlags_NoMenus | ImPlotAxisFlags_NoSideSwitch | ImPlotAxisFlags_NoHighlight;
 		
 		ImPlot::PushColormap(map);
 
