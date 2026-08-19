@@ -16,7 +16,7 @@ AudioSystem::AudioSystem(ApplicationState* appState, std::string deviceName)
 		outSpec_.freq = inSpec_.freq;
 
 		//create audio data stream with SDL
-		SDL_AudioStream *streamIn = SDL_CreateAudioStream(&inSpec_, &inSpec_);
+		SDL_AudioStream *streamIn = SDL_CreateAudioStream(&inSpec_, &outSpec_);
 		if (streamIn != nullptr) {
 
 			if (SDL_BindAudioStream(deviceManager_.getCurrentLogicalDeviceID(), streamIn)) {

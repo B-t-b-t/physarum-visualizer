@@ -2,6 +2,7 @@
 #define AUDIO_SYSTEM_H
 
 #include <iostream>
+#include <stdfloat>
 #include <vector>
 
 #include <SDL3/SDL.h>
@@ -52,7 +53,7 @@ private:
 
     int bufferSize_ = BUFFER_SIZE;
     std::vector<double> audioBuffer_;
-	int16_t Buf_[BUFFER_SIZE];
+	std::float32_t Buf_[BUFFER_SIZE];
 
     AudioProcessor audioProcessor_ = AudioProcessor(BUFFER_SIZE);
 	std::vector<double> spectrum_;

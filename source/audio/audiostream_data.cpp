@@ -1,6 +1,6 @@
 #include "audiostream_data.h"
 
-AudioStreamData::AudioStreamData(SDL_AudioStream* streamId, short* buffer, unsigned int bufferSize, SDL_Mutex* mutex, bool hasNewAudioData, bool isShuttingDown) 
+AudioStreamData::AudioStreamData(SDL_AudioStream* streamId, std::float32_t* buffer, unsigned int bufferSize, SDL_Mutex* mutex, bool hasNewAudioData, bool isShuttingDown) 
     : streamId_(streamId), buffer_(buffer), bufferSize_(bufferSize), mutex_(mutex), hasNewAudioData_(hasNewAudioData), isShuttingDown_(isShuttingDown) {
 
 }
