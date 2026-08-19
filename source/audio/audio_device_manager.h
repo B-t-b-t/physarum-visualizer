@@ -25,9 +25,9 @@ public:
     void closeCurrentDevice();
     bool processAudioDeviceEvents();
 
-    SDL_AudioDeviceID getCurrentLogicalDeviceID() const { return availableDevices_[usedDeviceIndex_].logicalID; }
-    SDL_AudioSpec getCurrentAudioSpec() const { return availableDevices_[usedDeviceIndex_].currentAudioSpec_; }
-    int getSampleRate() const { return availableDevices_[usedDeviceIndex_].currentAudioSpec_.freq; }
+    SDL_AudioDeviceID getCurrentLogicalDeviceID() const { return usedDeviceIndex_ ? availableDevices_[*usedDeviceIndex_].logicalID : 0; }
+    SDL_AudioSpec getCurrentAudioSpec() const { return usedDeviceIndex_ ? availableDevices_[*usedDeviceIndex_].currentAudioSpec_ : SDL_AudioSpec{}; }
+    int getSampleRate() const { return usedDeviceIndex_ ? availableDevices_[*usedDeviceIndex_].currentAudioSpec_.freq : 0; }
 
     std::vector<AudioDeviceInfo>* getAvailableDevices() { return &availableDevices_; }
     std::vector<std::string> getAvailableDeviceNames();
@@ -36,7 +36,7 @@ public:
 
 private:
     std::vector<AudioDeviceInfo> availableDevices_;
-    size_t usedDeviceIndex_;
+    std::optional<size_t> usedDeviceIndex_{};
 
     std::optional<size_t> findDeviceIndex(const std::string& deviceName) const;
 };

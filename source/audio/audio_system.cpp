@@ -7,64 +7,70 @@ AudioSystem::AudioSystem(ApplicationState* appState, std::string deviceName)
 	//check available devices and populate device vector
 	deviceManager_.checkForAvailableDevices();
 	appState_->availableAudioHardware = deviceManager_.getAvailableDevices();
-	bool success = deviceManager_.openDevice(deviceName);
+	bool isDeviceOpen = deviceManager_.openDevice(deviceName);
 
-	if(success) {
+	if(isDeviceOpen) {
 		inSpec_ = deviceManager_.getCurrentAudioSpec();
-		inSpec_.channels = 1;	// Force mono
+		outSpec_.format = SDL_AUDIO_F32LE;	//use float for FFT
+		outSpec_.channels = 1;	//use just mono for FFT
+		outSpec_.freq = inSpec_.freq;
 
 		//create audio data stream with SDL
 		SDL_AudioStream *streamIn = SDL_CreateAudioStream(&inSpec_, &inSpec_);
-		if (!streamIn) {
-			SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Couldn't create an audio stream for recording: %s!", SDL_GetError());
-		} else if (!SDL_BindAudioStream(deviceManager_.getCurrentLogicalDeviceID(), streamIn)) {
-			SDL_DestroyAudioStream(streamIn);
-			streamIn = nullptr;
-			SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Couldn't bind an audio stream for recording: %s!", SDL_GetError());
-		}
+		if (streamIn != nullptr) {
 
-		SDL_SetAudioStreamGain(streamIn, 0.2);
-
-		//set Audio Buffer values to 0 (necessary?)
-		for(int i = 0; i < BUFFER_SIZE; i++) {
-			Buf_[i] = 0;
-		}
-		audioBuffer_.insert(audioBuffer_.begin(), Buf_, Buf_ + BUFFER_SIZE);
-
-
-		//set up SDL Timer with seperate Audio Recording Thread via callback
-		SDL_Mutex *mutex = SDL_CreateMutex();
-
-		if (!mutex) {
-			SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Couldn't create mutex\n");
-		}
+			if (SDL_BindAudioStream(deviceManager_.getCurrentLogicalDeviceID(), streamIn)) {
+				SDL_SetAudioStreamGain(streamIn, 0.2);
 		
-		data_ = AudioStreamData(streamIn, Buf_, BUFFER_SIZE, mutex, false, false);
-		audioTimer_ = 100;
+				//set Audio Buffer values to 0 (necessary?)
+				for(int i = 0; i < BUFFER_SIZE; i++) {
+					Buf_[i] = 0;
+				}
+				audioBuffer_.insert(audioBuffer_.begin(), Buf_, Buf_ + BUFFER_SIZE);
+		
+		
+				//set up SDL Timer with seperate Audio Recording Thread via callback
+				SDL_Mutex *mutex = SDL_CreateMutex();
+		
+				if (!mutex) {
+					SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Couldn't create mutex\n");
+				}
+				
+				data_ = AudioStreamData(streamIn, Buf_, BUFFER_SIZE, mutex, false, false);
+				audioTimer_ = 100;
+		
+				timerID_ = SDL_AddTimer(audioTimer_, getAudioCallback, &data_);
+				if(timerID_ == 0) {
+					std::cerr << SDL_GetError() << std::endl;
+				}
+		
+				std::cout << "Buffer Size: " << sizeof(Buf_) << std::endl;
+		
+				std::cout << "Sample Length: " << BUFFER_SIZE / (double)getAudioRate() << "s" << std::endl;
+				std::cout << "Min Frequency: " << 1 / (BUFFER_SIZE / (double)getAudioRate()) << "Hz" << std::endl;
+				std::cout << "Max Frequency: " << getAudioRate() / 2 << "Hz" << std::endl;
+				std::cout << "Number of Frequency Bins: " << BUFFER_SIZE / 2 << std::endl;
+		
+		
+				spectrum_.assign(audioProcessor_.getSpectrumSize(), 0.0);
+				previousSpectrum_.assign(audioProcessor_.getSpectrumSize(), 0.0);
+				spectrumDiff_.assign(audioProcessor_.getSpectrumSize(), 0.0);
 
-		timerID_ = SDL_AddTimer(audioTimer_, getAudioCallback, &data_);
-		if(timerID_ == 0) {
-			std::cerr << SDL_GetError() << std::endl;
+				appState_->audioBuffer = &audioBuffer_;
+				appState_->spectrum = &spectrum_;
+				appState_->spectrumDiff = &spectrumDiff_;
+				appState_->bufferSize = BUFFER_SIZE;
+				appState_->hasNewSpectrumData = &hasNewSpectrumData_;
+			} else {
+				SDL_DestroyAudioStream(streamIn);
+				streamIn = nullptr;
+				SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Couldn't bind an audio stream for recording: %s!", SDL_GetError());
+			}
+
+		} else {
+			SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Couldn't create an audio stream for recording: %s!", SDL_GetError());
 		}
-
-		std::cout << "Buffer Size: " << sizeof(Buf_) << std::endl;
-
-		std::cout << "Sample Length: " << BUFFER_SIZE / (double)getAudioRate() << "s" << std::endl;
-		std::cout << "Min Frequency: " << 1 / (BUFFER_SIZE / (double)getAudioRate()) << "Hz" << std::endl;
-		std::cout << "Max Frequency: " << getAudioRate() / 2 << "Hz" << std::endl;
-		std::cout << "Number of Frequency Bins: " << BUFFER_SIZE / 2 << std::endl;
-
-
-		spectrum_.assign(audioProcessor_.getSpectrumSize(), 0.0);
-		previousSpectrum_.assign(audioProcessor_.getSpectrumSize(), 0.0);
-		spectrumDiff_.assign(audioProcessor_.getSpectrumSize(), 0.0);
 	}
-
-	appState_->audioBuffer = &audioBuffer_;
-	appState_->spectrum = &spectrum_;
-	appState_->spectrumDiff = &spectrumDiff_;
-	appState_->bufferSize = BUFFER_SIZE;
-	appState_->hasNewSpectrumData = &hasNewSpectrumData_;
 }
 
 AudioSystem::~AudioSystem() {
@@ -72,7 +78,6 @@ AudioSystem::~AudioSystem() {
 	if(data_.mutex_ != nullptr) {
 		SDL_LockMutex(data_.mutex_);
 		data_.isShuttingDown_ = true;	//signal audio callback to stop timer and exit
-		data_.streamId_ = nullptr;
 		SDL_UnlockMutex(data_.mutex_);
 	}
 
@@ -112,8 +117,6 @@ void AudioSystem::selectHardwareDevice(std::string deviceName) {
 
 	bool isOpen = deviceManager_.openDevice(deviceName);
 	inSpec_ = deviceManager_.getCurrentAudioSpec();
-
-	inSpec_.channels = 1;	//use just mono (why?)
 
 	//bind new device to input stream
 	if(isOpen) {

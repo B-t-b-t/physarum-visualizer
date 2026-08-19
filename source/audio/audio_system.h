@@ -46,7 +46,8 @@ public:
 private:
     AudioDeviceManager deviceManager_;
 
-    SDL_AudioSpec inSpec_;
+    SDL_AudioSpec inSpec_{};
+    SDL_AudioSpec outSpec_{};
 	AudioStreamData data_;
 
     int bufferSize_ = BUFFER_SIZE;
