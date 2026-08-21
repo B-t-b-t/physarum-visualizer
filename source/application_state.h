@@ -1,6 +1,7 @@
 #ifndef APPLICATION_STATE_H
 #define APPLICATION_STATE_H
 
+#include <map>
 #include <string>
 #include <vector>
 
@@ -54,7 +55,7 @@ public:
 	bool lockAngles = true;
 	bool fullscreen = false;
 	bool autoPresetSwitching = false;
-	std::vector<AudioDeviceInfo>* availableAudioHardware = nullptr;
+	std::map<SDL_AudioDeviceID, AudioDeviceInfo>* availableAudioHardware = nullptr;
 	size_t usedAudioHardwareIndex = 0;
 	int newTextureWidth = 1600;
 	int newTextureHeight = 896;

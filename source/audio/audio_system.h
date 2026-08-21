@@ -17,39 +17,26 @@
 
 class AudioSystem : public Observer{
 public:
-    AudioSystem(ApplicationState* appState, std::string deviceName = "");
-
+    AudioSystem(ApplicationState* appState);
     ~AudioSystem();
 
     void update();
     void computeSpectrum();
 
-    int getAudioRate() const { return inSpec_.freq; }
-    Uint32 getAudioTimer() { return audioTimer_; }
-    void setAudioTimer(Uint32 audioTimer) { audioTimer_ = audioTimer; }
-    std::vector<double>& getAudioBuffer() { return audioBuffer_; }
-    std::vector<double>& getSpectrum() { return spectrum_; }
     std::vector<double>& getSpectrumDiff() { return spectrumDiff_; }
-    int getBufferSize() const { return bufferSize_; }
 
-    std::vector<std::string> getAvailableHardwareDeviceNames() { return deviceManager_.getAvailableDeviceNames(); }
-    int getNumAvailableHardwareDevices() { return deviceManager_.getNumAvailableDevices(); }
-    void selectHardwareDevice(std::string deviceName);
-
-    bool hasNewAudioData() const { return hasNewAudioData_; }
-    void setHasNewAudioData(bool hasNew) { hasNewAudioData_ = hasNew; }
-
-    bool hasNewSpectrumData() const { return hasNewSpectrumData_; }
-    void setHasNewSpectrumData(bool hasNew) { hasNewSpectrumData_ = hasNew; }
+    void selectRecordingDevice(SDL_AudioDeviceID hardwareID);
 
     void onNotify(const Event event) override;
+
+    void createAudioStream();
 
 private:
     AudioDeviceManager deviceManager_;
 
     SDL_AudioSpec inSpec_{};
     SDL_AudioSpec outSpec_{};
-	AudioStreamData data_;
+	AudioStreamData audioStreamData_;
 
     int bufferSize_ = BUFFER_SIZE;
     std::vector<double> audioBuffer_;

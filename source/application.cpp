@@ -8,7 +8,7 @@ Application::Application(Parameters params)
 	ubo_manager_{UniformBufferManager(appState_)},
 	simulation_{Simulation(&ubo_manager_, &ui_, params.customParticleCount)},
 	renderer_{std::make_unique<Renderer>(&ubo_manager_, appState_)},
-	audioSystem_{AudioSystem(appState_, params.audioDevice)},
+	audioSystem_{AudioSystem(appState_)},
 	presetSystem_{PresetSystem("./presets/", ".psf", &ui_)},
 	colorPresetSystem_{ColorPresetSystem("./presets/", ".pcsf", &ui_)},
 	musicAnalysis_{MusicAnalysis(appState_)}
