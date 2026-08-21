@@ -41,7 +41,7 @@ Window::Window(const std::string& title, ApplicationState* appState, bool custom
 	SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE, 8);
 	SDL_GL_SetAttribute(SDL_GL_BUFFER_SIZE, 32);
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-	#if _DEBUG
+	#if DEBUG
 			SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_DEBUG_FLAG);
 	#else
 			SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_FORWARD_COMPATIBLE_FLAG);
@@ -124,7 +124,7 @@ Window::Window(const std::string& title, ApplicationState* appState, bool custom
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glEnable(GL_LINE_SMOOTH);
 
-	#if _DEBUG
+	#if DEBUG
 	setOpenGLDebugCallback();
 	#endif
 

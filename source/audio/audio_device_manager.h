@@ -24,7 +24,7 @@ public:
 
     bool openDevice(SDL_AudioDeviceID hardwareID);
     void closeOpenDevice();
-    bool processAudioDeviceEvents();
+    bool processAudioDeviceChanges();
 
     std::optional<AudioDeviceInfo> getOpenDevice() const { return openDeviceID_ ? std::optional<AudioDeviceInfo>(connectedDevices_.at(*openDeviceID_)) : std::nullopt; }
     std::map<SDL_AudioDeviceID, AudioDeviceInfo>* getAvailableDevices() { return &connectedDevices_; }

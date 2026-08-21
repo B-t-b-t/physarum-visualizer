@@ -91,12 +91,13 @@ void AudioSystem::createAudioStream() {
 			std::cerr << SDL_GetError() << std::endl;
 		}
 
+		#if DEBUG
 		std::cout << "Buffer Size: " << sizeof(Buf_) << std::endl;
-
 		std::cout << "Sample Length: " << BUFFER_SIZE / (double)inSpec_.freq << "s" << std::endl;
 		std::cout << "Min Frequency: " << 1 / (BUFFER_SIZE / (double)inSpec_.freq) << "Hz" << std::endl;
 		std::cout << "Max Frequency: " << inSpec_.freq / 2 << "Hz" << std::endl;
 		std::cout << "Number of Frequency Bins: " << BUFFER_SIZE / 2 << std::endl;
+		#endif
 	} else {
 		SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Couldn't create an audio stream for recording: %s!", SDL_GetError());
 	}

@@ -40,7 +40,9 @@ bool AudioDeviceManager::checkConnectedDevices() {
             }
 
             connectedDevices_.emplace(rawDeviceArray[i], AudioDeviceInfo{name, rawDeviceArray[i], 0, spec});
+            #if DEBUG
             SDL_Log("Found recording device #%d (Hardware-ID: %d): '%s'", i, rawDeviceArray[i], name);
+            #endif
         }
     }
     
@@ -92,10 +94,12 @@ bool AudioDeviceManager::openDevice(SDL_AudioDeviceID hardwareID) {
         connectedDevices_[hardwareID].logicalID = logicalID;
         openDeviceID_ = hardwareID;
 
+        #if DEBUG
         std::cout << "Opened audio device: " << connectedDevices_[*openDeviceID_].name << std::endl;
         std::cout << "  Format: " << SDL_GetAudioFormatName(connectedDevices_[*openDeviceID_].audioSpec.format)
                   << " Channels: " << connectedDevices_[*openDeviceID_].audioSpec.channels
                   << " Frequency: " << connectedDevices_[*openDeviceID_].audioSpec.freq << std::endl;
+        #endif
 
     } else {
         SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Couldn't open audio device: %s \n", SDL_GetError());

@@ -321,7 +321,7 @@ else()
     message(WARNING "Release LTO is unavailable: ${ipoError}")
 endif()
 
-target_compile_definitions(Physarum PUBLIC $<$<CONFIG:Debug>:_DEBUG> $<$<CONFIG:Release>:NDEBUG>)
+target_compile_definitions(Physarum PUBLIC $<$<CONFIG:Debug>:DEBUG> $<$<CONFIG:Release>:NDEBUG>)
 
 target_link_options(Physarum PRIVATE
     $<$<CONFIG:Release>:-Wl,--gc-sections>

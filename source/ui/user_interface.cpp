@@ -104,7 +104,7 @@ void UserInterface::mainMenuBarGUI() {
 				*showDebugWindow = *showDebugWindow ? false : true;
 			}
 			
-			#if _DEBUG
+			#if DEBUG
 			ImGui::Separator();
 			if (ImGui::MenuItem("ImGui Demo", "", showImGUIDemo_)) {showImGUIDemo_ = showImGUIDemo_ ? false : true;}
 			if (ImGui::MenuItem("ImPlot Demo", "", showImPlotDemo_)) {showImPlotDemo_ = showImPlotDemo_ ? false : true;}
