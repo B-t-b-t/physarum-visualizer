@@ -4,11 +4,39 @@ void PresetWindow::render(ApplicationState* appState) {
     if(!visible) { return; }
 
 	ImGui::Begin("Preset", &visible);
+
+	if (ImGui::BeginTabBar("Preset Types")) {
+		if (ImGui::BeginTabItem("Behaviour")) {
+			behaviourPresetGUI(appState);
+			ImGui::EndTabItem();
+		}
+		if (ImGui::BeginTabItem("Color")) {
+			colorPresetGUI(appState);
+			ImGui::EndTabItem();
+		}
+		if (ImGui::BeginTabItem("Image")) {
+			imagePresetGUI(appState);
+			ImGui::EndTabItem();
+		}
+		if (ImGui::BeginTabItem("Text")) {
+			textPresetGUI(appState);
+			ImGui::EndTabItem();
+		}
+		ImGui::EndTabBar();
+	}
+	ImGui::SeparatorText("Shared Options");
+	ImGui::Checkbox("Auto Preset Switching", &appState->autoPresetSwitching);
+	ImGui::SliderInt("Switch at Beat Volume", &appState->beatVolumeSwitch, 0, 50);
+
+	ImGui::End();
+}
+
+void PresetWindow::behaviourPresetGUI(ApplicationState* appState) {
 	//--------------------------------
 	//Preset System
 	//--------------------------------
 	static char presetNameChar[128] = "";
-	ImGui::InputTextWithHint("Preset Name", "Preset Name", presetNameChar, IM_ARRAYSIZE(presetNameChar));
+	ImGui::InputTextWithHint("Preset Name", "Preset Name", presetNameChar, IM_ARRAYSIZE(presetNameChar), ImGuiInputTextFlags_CharsNoBlank);
 
 	static bool presetAlreadyExists = false;
 
@@ -56,13 +84,15 @@ void PresetWindow::render(ApplicationState* appState) {
 		ImGui::EndListBox();
 	}
 
-	ImGui::Separator();
+	ImGui::SliderInt("Preset Time Intervall [s]", &appState->presetIntervall, 2, 60);
+}
 
+void PresetWindow::colorPresetGUI(ApplicationState* appState) {
 	//--------------------------------
 	//Color Preset System
 	//--------------------------------
 	static char colorPresetNameChar[128] = "";
-	ImGui::InputTextWithHint("Color Preset Name", "Color Preset Name", colorPresetNameChar, IM_ARRAYSIZE(colorPresetNameChar));
+	ImGui::InputTextWithHint("Color Preset Name", "Color Preset Name", colorPresetNameChar, IM_ARRAYSIZE(colorPresetNameChar), ImGuiInputTextFlags_CharsNoBlank);
 
 	static bool colorPresetAlreadyExists = false;
 
@@ -110,8 +140,10 @@ void PresetWindow::render(ApplicationState* appState) {
 		ImGui::EndListBox();
 	}
 
-	ImGui::Separator();
+	ImGui::SliderInt("Color Preset Time Intervall [s]", &appState->colorPresetIntervall, 2, 60);
+}
 
+void PresetWindow::imagePresetGUI(ApplicationState* appState) {
 	//--------------------------------
 	//Picture Selection
 	//--------------------------------
@@ -138,13 +170,13 @@ void PresetWindow::render(ApplicationState* appState) {
 	ImGui::SliderFloat("Trail Mask Influence", &appState->universalShaderSettings.trailMaskInfluence, 0.0f, 5.0f);
 	ImGui::SliderFloat("Trail Mask Scale", &appState->universalShaderSettings.trailMaskScale, 0.1f, 10.0f);
 	ImGui::SliderInt("Trail Mask Time Intervall [s]", &appState->trailMaskIntervall, 2, 60);
+}
 
-	ImGui::Separator();
+void PresetWindow::textPresetGUI(ApplicationState* appState) {
+	//--------------------------------
+	//Text Selection
+	//--------------------------------
+	appState = appState; // To avoid unused parameter warning
 
-	ImGui::Checkbox("Auto Preset Switching", &appState->autoPresetSwitching);
-	ImGui::SliderInt("Preset Time Intervall [s]", &appState->presetIntervall, 2, 60);
-	ImGui::SliderInt("Color Preset Time Intervall [s]", &appState->colorPresetIntervall, 2, 60);
-	ImGui::SliderInt("Switch at Beat Volume", &appState->beatVolumeSwitch, 0, 50);
-
-	ImGui::End();
+	ImGui::InputText("no blank", txtBuffer_, IM_COUNTOF(txtBuffer_));
 }
