@@ -41,28 +41,17 @@ TrailMapController::TrailMapController(std::string pictureFilePath, std::string 
         activeTrailMaskIndex_ = i;
         loadTrailMaskFromImage(trailMasks_[i].imageName);
     }
+
+    loadTrailMaskFromFont("Roboto-Medium");
     activeTrailMaskIndex_ = 0;	//reset to first image after loading all images into GPU memory
 }
 
-void TrailMapController::loadTrailMaskFromImage(std::string imageName) {
-    SDL_Surface* surface = IMG_Load((pictureFilePath_ + imageName + pictureFileExtension_).c_str());
-    if(surface == nullptr) {
-        std::cerr << "ERROR: Failed to load image: " << SDL_GetError() << std::endl;
-        return;
-    }
+void TrailMapController::loadTrailMaskFromFont(std::string fontName) {
 
-    SDL_Surface* formattedSurface = SDL_ConvertSurface(surface, SDL_PIXELFORMAT_RGBA32);
-    SDL_DestroySurface(surface);
+    SDL_Surface* loadedImage = loadImageFromFont("./res/fonts/", fontName, ".ttf");
 
-    if(formattedSurface == nullptr) {
-        std::cerr << "ERROR: Failed to convert surface format: " << SDL_GetError() << std::endl;
-        return;
-    }
-
-    if(!SDL_FlipSurface(formattedSurface, SDL_FLIP_VERTICAL)) { //flip vertically for OpenGL coordinate system
-        std::cerr << "ERROR: Failed to flip texture: " << SDL_GetError() << std::endl;
-        SDL_DestroySurface(formattedSurface);
-        return;
+    if(loadedImage == nullptr) {
+        return; //error message already printed in loadImageFromFile
     }
 
     GLuint trailMaskTextureID;
@@ -75,24 +64,65 @@ void TrailMapController::loadTrailMaskFromImage(std::string imageName) {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);  //border color is default (0,0,0,0)
 
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-    glPixelStorei(GL_UNPACK_ROW_LENGTH, formattedSurface->pitch / 4);
+    glPixelStorei(GL_UNPACK_ROW_LENGTH, loadedImage->w);
 
     glTexImage2D(
         GL_TEXTURE_2D,
         0,
         GL_RGBA32F,
-        formattedSurface->w,
-        formattedSurface->h,
+        loadedImage->w,
+        loadedImage->h,
         0,
         GL_RGBA,
         GL_UNSIGNED_BYTE,
-        formattedSurface->pixels
+        loadedImage->pixels
     );
 
     glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
     glBindTexture(GL_TEXTURE_2D, 0);
 
-    SDL_DestroySurface(formattedSurface);
+    SDL_DestroySurface(loadedImage);
+
+    trailMasks_[activeTrailMaskIndex_].textureID = trailMaskTextureID;
+    trailMasks_[activeTrailMaskIndex_].loadedToGPU = true;
+}
+
+void TrailMapController::loadTrailMaskFromImage(std::string imageName) {
+
+    SDL_Surface* loadedImage = loadImageFromFile(pictureFilePath_, imageName, pictureFileExtension_);
+
+    if(loadedImage == nullptr) {
+        return; //error message already printed in loadImageFromFile
+    }
+
+    GLuint trailMaskTextureID;
+    glGenTextures(1, &trailMaskTextureID);
+    glBindTexture(GL_TEXTURE_2D, trailMaskTextureID);
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);  //to avoid repetition when scaling
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);  //border color is default (0,0,0,0)
+
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+    glPixelStorei(GL_UNPACK_ROW_LENGTH, loadedImage->w);
+
+    glTexImage2D(
+        GL_TEXTURE_2D,
+        0,
+        GL_RGBA32F,
+        loadedImage->w,
+        loadedImage->h,
+        0,
+        GL_RGBA,
+        GL_UNSIGNED_BYTE,
+        loadedImage->pixels
+    );
+
+    glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
+    glBindTexture(GL_TEXTURE_2D, 0);
+
+    SDL_DestroySurface(loadedImage);
 
     trailMasks_[activeTrailMaskIndex_].textureID = trailMaskTextureID;
     trailMasks_[activeTrailMaskIndex_].loadedToGPU = true;
@@ -104,12 +134,15 @@ void TrailMapController::loadPictureNames(UserInterface* ui) {
     
     std::vector<std::string> pictureNames;
 
-    loadFileNames(pictureFilePath_, pictureFileExtension_, pictureNames);
+    getFileNamesInDirectory(pictureFilePath_, pictureFileExtension_, pictureNames);
 
     for (std::string pictureName : pictureNames) {
         window->addPictureName(pictureName);
         trailMasks_.push_back({pictureName, 0, false});
     }
+
+    window->addPictureName("fontAtlas");
+    trailMasks_.push_back({"fontAtlas", 0, false});
 }
 
 /*Loads Images indirectly, where the selection in the ListBox of the window is set and a call to handleUIRequests is made later in main()

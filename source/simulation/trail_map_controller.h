@@ -17,6 +17,7 @@ public:
     TrailMapController() = default;
     TrailMapController(std::string pictureFilePath, std::string pictureFileExtension, GLuint textureUnit, UserInterface* ui);
     void loadTrailMaskFromImage(std::string imageName);
+    void loadTrailMaskFromFont(std::string fontName);
     void loadPictureNames(UserInterface* ui);
     void bindToTextureUnit(GLuint textureUnit);
 

@@ -98,7 +98,7 @@ void PresetSystem::loadPresetNames(UserInterface* ui) {
 
     PresetWindow *window = dynamic_cast<PresetWindow*>(ui->getWindow("PresetWindow"));
     std::vector<std::string> presetNames;
-    loadFileNames(presetFilePath_, fileExtension_, presetNames);
+    getFileNamesInDirectory(presetFilePath_, fileExtension_, presetNames);
 
     for (std::string &presetName : presetNames) {
         window->addPresetName(presetName);
