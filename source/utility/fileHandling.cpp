@@ -2,7 +2,6 @@
 
 #include <dirent.h>
 #include <fstream>
-#include <iostream>
 
 #include <SDL3_image/SDL_image.h>
 
@@ -77,7 +76,7 @@ SDL_Surface* loadImageFromFile(std::string filePath, std::string fileName, std::
 
 SDL_Surface* loadImageFromFont(std::string filePath, std::string fileName, std::string fileExtension) {
     if(fileExtension != ".ttf") {
-        std::cerr << "Unsupported font format: " << fileExtension << std::endl;
+        SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Unsupported font format: %s", fileExtension.c_str());
         return nullptr;
     }
 
