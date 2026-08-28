@@ -39,14 +39,16 @@ enum class TexelFormat {
 // In which texel layout should data be interpreted, when transfering to GPU memory
 enum class TextureDataFormat {
 	RGBA = GL_RGBA,	//RGBA data format
-	R = GL_RED_INTEGER		//R data format
+	R = GL_RED_INTEGER,		//R data format
+	NOT_PROVIDED = 0	//to prevent calling the constructor with data but no dataFormat
 };
 
 // In which data type should the color channels of the data be interpreted, when transfering to GPU memory
 enum class TextureDataType {
 	FLOAT = GL_FLOAT,
 	UINT = GL_UNSIGNED_INT,
-	UBYTE = GL_UNSIGNED_BYTE
+	UBYTE = GL_UNSIGNED_BYTE,
+	NOT_PROVIDED = 0	//to prevent calling the constructor with data but no dataType
 };
 
 struct TextureProperties {
@@ -54,6 +56,7 @@ struct TextureProperties {
 	int height{0};
 	TexelFormat texelFormat{TexelFormat::RGBA32F};
 
+	//std::optional because not all textures need a fixed texture or image unit
 	std::optional<GLuint> textureUnit{};
 	std::optional<GLuint> imageUnit{}; // whether to bind the texture as an image for read/write-access like in a compute shader
 
@@ -62,15 +65,17 @@ struct TextureProperties {
 	float borderColor[4]{0.0f, 0.0f, 0.0f, 1.0f};
 
 	bool generateMipmaps{true};
-	TextureMinFilter minFilter{TextureMinFilter::NEAREST_MIPMAP_LINEAR};
-	TextureMagFilter magFilter{TextureMagFilter::LINEAR};
+	//std::optional because not all texel types support min/mag filtering, e.g. R_UINT
+	//when not set, OPENGL defaults these values to (min: NEAREST_MIPMAP_LINEAR and mag: LINEAR)
+	std::optional<TextureMinFilter> minFilter{};
+	std::optional<TextureMagFilter> magFilter{};
 };
 
 class Texture {
 public:
 
 	Texture() = default;
-	Texture(TextureProperties properties, const void* data = nullptr, TextureDataFormat dataFormat = TextureDataFormat::RGBA, TextureDataType dataType = TextureDataType::FLOAT, int bytesPerRow = 4);
+	Texture(TextureProperties properties, const void* data = nullptr, TextureDataFormat dataFormat = TextureDataFormat::NOT_PROVIDED, TextureDataType dataType = TextureDataType::NOT_PROVIDED, int bytesPerRow = -1);
 	Texture(const Texture&) = delete; // Prevent copying because of OpenGL resource management
 	Texture& operator=(Texture&& other) noexcept;
 	Texture(Texture&& other) noexcept;
@@ -85,6 +90,8 @@ public:
 	void resizeTexture(int width, int height);	//Don't use this function for textures that have been initialized with external image data, it will delete the data!
 
 private:
+
+	void ensureValidProperties(TextureProperties* properties, void* data, TextureDataFormat* dataFormat, TextureDataType* dataType, int bytesPerRow);
 
 	GLuint textureID_{0};
 	TextureProperties properties_;

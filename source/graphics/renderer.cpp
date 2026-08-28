@@ -9,8 +9,8 @@ Renderer::Renderer(UniformBufferManager* uboManager, ApplicationState* appState)
     app_uss_{appState_->universalShaderSettings},
     texTrail_{TextureProperties{.width = app_uss_.textureWidth, .height = app_uss_.textureHeight, .textureUnit = 0, .imageUnit = 0}},    //Texture Unit 0
 	texTrailNonDiffused_{TextureProperties{.width = app_uss_.textureWidth, .height = app_uss_.textureHeight, .textureUnit = 1, .imageUnit = 1}},	//Texture Unit 1
-	newTexParticles_{TextureProperties{.width = app_uss_.textureWidth, .height = app_uss_.textureHeight, .texelFormat = TexelFormat::R_UINT, .textureUnit = 2, .imageUnit = 2, .minFilter = TextureMinFilter::NEAREST, .magFilter = TextureMagFilter::NEAREST}, nullptr, TextureDataFormat::R, TextureDataType::UINT},		//Texture Unit 2
-	oldTexParticles_{TextureProperties{.width = app_uss_.textureWidth, .height = app_uss_.textureHeight, .texelFormat = TexelFormat::R_UINT, .textureUnit = 3, .imageUnit = 3, .minFilter = TextureMinFilter::NEAREST, .magFilter = TextureMagFilter::NEAREST}, nullptr, TextureDataFormat::R, TextureDataType::UINT},		//Texture Unit 3
+	newTexParticles_{TextureProperties{.width = app_uss_.textureWidth, .height = app_uss_.textureHeight, .texelFormat = TexelFormat::R_UINT, .textureUnit = 2, .imageUnit = 2}},		//Texture Unit 2
+	oldTexParticles_{TextureProperties{.width = app_uss_.textureWidth, .height = app_uss_.textureHeight, .texelFormat = TexelFormat::R_UINT, .textureUnit = 3, .imageUnit = 3}},		//Texture Unit 3
 	texCollisions_{TextureProperties{.width = app_uss_.textureWidth, .height = app_uss_.textureHeight, .textureUnit = 4, .imageUnit = 4}}		//Texture Unit 4
 {
     uboManager->attachUBOs({rasterizationPipeline_.getProgramID()});
