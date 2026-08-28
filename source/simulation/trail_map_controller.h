@@ -29,12 +29,12 @@ public:
 private:
     struct TrailMask {
         std::string imageName;
-        GLuint textureID;
+        Texture texture;
         bool loadedToGPU = false;
     };
 
     bool checkTimeTable(std::string imageName);
-
+    void loadImageFromSurface(SDL_Surface* surface);
 
     SDL_Surface* loadedImage_;
 

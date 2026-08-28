@@ -49,83 +49,35 @@ TrailMapController::TrailMapController(std::string pictureFilePath, std::string 
 void TrailMapController::loadTrailMaskFromFont(std::string fontName) {
 
     SDL_Surface* loadedImage = loadImageFromFont("./res/fonts/", fontName, ".ttf");
-
-    if(loadedImage == nullptr) {
-        return; //error message already printed in loadImageFromFile
-    }
-
-    GLuint trailMaskTextureID;
-    glGenTextures(1, &trailMaskTextureID);
-    glBindTexture(GL_TEXTURE_2D, trailMaskTextureID);
-
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);  //to avoid repetition when scaling
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);  //border color is default (0,0,0,0)
-
-    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-    glPixelStorei(GL_UNPACK_ROW_LENGTH, loadedImage->w);
-
-    glTexImage2D(
-        GL_TEXTURE_2D,
-        0,
-        GL_RGBA32F,
-        loadedImage->w,
-        loadedImage->h,
-        0,
-        GL_RGBA,
-        GL_UNSIGNED_BYTE,
-        loadedImage->pixels
-    );
-
-    glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
-    glBindTexture(GL_TEXTURE_2D, 0);
-
-    SDL_DestroySurface(loadedImage);
-
-    trailMasks_[activeTrailMaskIndex_].textureID = trailMaskTextureID;
-    trailMasks_[activeTrailMaskIndex_].loadedToGPU = true;
+    loadImageFromSurface(loadedImage);
 }
 
 void TrailMapController::loadTrailMaskFromImage(std::string imageName) {
 
     SDL_Surface* loadedImage = loadImageFromFile(pictureFilePath_, imageName, pictureFileExtension_);
+    loadImageFromSurface(loadedImage);
+}
 
-    if(loadedImage == nullptr) {
+void TrailMapController::loadImageFromSurface(SDL_Surface* surface) {
+    if(surface == nullptr) {
         return; //error message already printed in loadImageFromFile
     }
 
-    GLuint trailMaskTextureID;
-    glGenTextures(1, &trailMaskTextureID);
-    glBindTexture(GL_TEXTURE_2D, trailMaskTextureID);
+    TextureProperties properties;
+    properties.width = surface->w;
+    properties.height = surface->h;
+    properties.wrapX = TextureWrap::CLAMP_TO_BORDER;
+    properties.wrapY = TextureWrap::CLAMP_TO_BORDER;
+    properties.minFilter = TextureMinFilter::LINEAR;
+    properties.magFilter = TextureMagFilter::LINEAR;
+    properties.generateMipmaps = false;
 
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);  //to avoid repetition when scaling
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);  //border color is default (0,0,0,0)
-
-    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-    glPixelStorei(GL_UNPACK_ROW_LENGTH, loadedImage->w);
-
-    glTexImage2D(
-        GL_TEXTURE_2D,
-        0,
-        GL_RGBA32F,
-        loadedImage->w,
-        loadedImage->h,
-        0,
-        GL_RGBA,
-        GL_UNSIGNED_BYTE,
-        loadedImage->pixels
-    );
-
-    glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
-    glBindTexture(GL_TEXTURE_2D, 0);
-
-    SDL_DestroySurface(loadedImage);
-
-    trailMasks_[activeTrailMaskIndex_].textureID = trailMaskTextureID;
+    Texture tempTexture(properties, surface->pixels, TextureDataFormat::RGBA, TextureDataType::UBYTE, surface->pitch);
+    
+    trailMasks_[activeTrailMaskIndex_].texture = std::move(tempTexture);
     trailMasks_[activeTrailMaskIndex_].loadedToGPU = true;
+
+    SDL_DestroySurface(surface);
 }
 
 void TrailMapController::loadPictureNames(UserInterface* ui) {
@@ -138,11 +90,11 @@ void TrailMapController::loadPictureNames(UserInterface* ui) {
 
     for (std::string pictureName : pictureNames) {
         window->addPictureName(pictureName);
-        trailMasks_.push_back({pictureName, 0, false});
+        trailMasks_.push_back({pictureName, Texture(), false});
     }
 
     window->addPictureName("fontAtlas");
-    trailMasks_.push_back({"fontAtlas", 0, false});
+    trailMasks_.push_back({"fontAtlas", Texture(), false});
 }
 
 /*Loads Images indirectly, where the selection in the ListBox of the window is set and a call to handleUIRequests is made later in main()
@@ -189,7 +141,7 @@ void TrailMapController::autoSwitchPictures(UserInterface* ui, Uint64 timeInSeco
 void TrailMapController::bindToTextureUnit(GLuint textureUnit) { 
     textureUnit_ = textureUnit;
     glActiveTexture(GL_TEXTURE0 + textureUnit_);
-    glBindTexture(GL_TEXTURE_2D, trailMasks_[activeTrailMaskIndex_].textureID);
+    glBindTexture(GL_TEXTURE_2D, trailMasks_[activeTrailMaskIndex_].texture.getID());
 }
 
 void TrailMapController::onNotify(const Event event) {
@@ -207,7 +159,7 @@ void TrailMapController::onNotify(const Event event) {
 
                     if(trailMasks_[i].loadedToGPU) {
                         glActiveTexture(GL_TEXTURE0 + textureUnit_);
-                        glBindTexture(GL_TEXTURE_2D, trailMasks_[i].textureID);
+                        glBindTexture(GL_TEXTURE_2D, trailMasks_[i].texture.getID());
                         break;
                     } else {
                         loadTrailMaskFromImage(pictureName);
