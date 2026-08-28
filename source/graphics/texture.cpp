@@ -1,52 +1,62 @@
 #include "texture.h"
 
-Texture::Texture(int width, int height, TextureType textureType, GLuint textureUnit, bool generateMipmaps, bool useImageBinding) {
-	width_ = width;
-	height_ = height;
-	textureFormat_ = resolveFormat(textureType);
-	generateMipmaps_ = generateMipmaps;
+#include <cassert>
 
-	// Integer textures don't support GL_LINEAR, only GL_NEAREST
-    bool isIntegerFormat = (textureType == TextureType::R_UINT);
+Texture::Texture(TextureProperties properties, const void* data, TextureDataFormat dataFormat, TextureDataType dataType, int bytesPerRow) {
+	assert(properties.width > 0 && properties.height > 0);
+	assert(properties.minFilter <= TextureMinFilter::LINEAR || (properties.minFilter >= TextureMinFilter::NEAREST_MIPMAP_NEAREST && properties.generateMipmaps == true));
+	assert(properties.texelFormat != TexelFormat::R_UINT || (properties.texelFormat == TexelFormat::R_UINT && properties.minFilter == TextureMinFilter::NEAREST && properties.magFilter == TextureMagFilter::NEAREST));
+
+	properties_ = properties;
 
 	glGenTextures(1, &textureID_);
-	glActiveTexture(GL_TEXTURE0 + textureUnit);
-	glBindTexture(GL_TEXTURE_2D, textureID_);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	
-	if (generateMipmaps_ && !isIntegerFormat) {
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-	} else {
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, isIntegerFormat ? GL_NEAREST : GL_LINEAR);
+
+	if(properties_.textureUnit) {
+		glActiveTexture(GL_TEXTURE0 + *(properties_.textureUnit));
 	}
 
-	glTexImage2D(GL_TEXTURE_2D, 0, textureFormat_.internalFormat, width_, height_, 0, textureFormat_.format, textureFormat_.type, NULL);
+	glBindTexture(GL_TEXTURE_2D, textureID_);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, (GLint) properties_.wrapX);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, (GLint) properties_.wrapY);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, (GLint) properties_.magFilter);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, (GLint) properties_.minFilter);
 
-	if (generateMipmaps_ && !isIntegerFormat) {
+	//set alignment of bytes per row
+	if(data) {
+		//get largest possible alignment
+		int byteAlignment = 1;
+		if(bytesPerRow % 2 == 0) { byteAlignment = 2; }
+		if(bytesPerRow % 4 == 0) { byteAlignment = 4; }
+		if(bytesPerRow % 8 == 0) { byteAlignment = 8; }
+
+		glPixelStorei(GL_UNPACK_ALIGNMENT, byteAlignment);
+		glPixelStorei(GL_UNPACK_ROW_LENGTH, properties.width);
+	}
+
+	glTexImage2D(GL_TEXTURE_2D, 0, (GLint) properties.texelFormat, properties_.width, properties_.height, 0, (GLenum) dataFormat, (GLenum) dataType, data);
+
+	// restore alignment to default values
+	if(data) {
+		glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
+		glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
+	}
+
+	if (properties.generateMipmaps) {
 		glGenerateMipmap(GL_TEXTURE_2D);
 	}
 	
-	if(useImageBinding) {
-		glBindImageTexture(textureUnit, textureID_, 0, GL_FALSE, 0, GL_READ_WRITE, static_cast<GLenum>(textureFormat_.internalFormat));
+	if(properties.imageUnit) {
+		glBindImageTexture(*(properties.imageUnit), textureID_, 0, GL_FALSE, 0, GL_READ_WRITE, (GLenum) properties.texelFormat);
 	}
 
-	textureUnit_ = textureUnit;
+	glBindTexture(GL_TEXTURE_2D, 0);
 }
 
 Texture::Texture(Texture&& other) noexcept 
 	:	textureID_(other.textureID_),
-		textureUnit_(other.textureUnit_),
-		width_(other.width_),
-		height_(other.height_),
-		generateMipmaps_(other.generateMipmaps_) 
+		properties_(other.properties_)
 {
 	other.textureID_ = 0; // Prevent the moved-from object from deleting the texture
-	other.textureUnit_ = 0;
-	other.width_ = 0;
-	other.height_ = 0;
-	other.generateMipmaps_ = false;
 }
 
 Texture& Texture::operator=(Texture&& other) noexcept {
@@ -55,40 +65,28 @@ Texture& Texture::operator=(Texture&& other) noexcept {
 			glDeleteTextures(1, &textureID_);
 		}
 		textureID_ = other.textureID_;
-		textureUnit_ = other.textureUnit_;
-		width_ = other.width_;
-		height_ = other.height_;
-		generateMipmaps_ = other.generateMipmaps_;
+		properties_ = other.properties_;
 		
 		other.textureID_ = 0; // Prevent the moved-from object from deleting the texture
-		other.textureUnit_ = 0;
-		other.width_ = 0;
-		other.height_ = 0;
-		other.generateMipmaps_ = false;
 	}
 	return *this;
 }
 
 void Texture::resizeTexture(int width, int height) {
-	width_ = width;
-	height_ = height;
+	properties_.width = width;
+	properties_.height = height;
 
-	glActiveTexture(GL_TEXTURE0 + textureUnit_);
+	if(properties_.textureUnit) {
+		glActiveTexture(GL_TEXTURE0 + *(properties_.textureUnit));
+	}
+	
 	glBindTexture(GL_TEXTURE_2D, textureID_);
-	glTexImage2D(GL_TEXTURE_2D, 0, textureFormat_.internalFormat, width_, height_, 0, textureFormat_.format, textureFormat_.type, NULL);
-	if (generateMipmaps_) {
+	glTexImage2D(GL_TEXTURE_2D, 0, (GLint) properties_.texelFormat, properties_.width, properties_.height, 0, GL_RGBA, GL_FLOAT, NULL);
+	if (properties_.generateMipmaps) {
 		glGenerateMipmap(GL_TEXTURE_2D);
 	}
 }
 
 Texture::~Texture() {
 	  if (textureID_ != 0) glDeleteTextures(1, &textureID_);
-}
-
-Texture::TextureFormats Texture::resolveFormat(TextureType textureType) {
-	switch (textureType) {
-		case TextureType::RGBA_FLOAT: return { GL_RGBA32F, GL_RGBA, GL_FLOAT };
-		case TextureType::R_UINT: return { GL_R32UI, GL_RED_INTEGER, GL_UNSIGNED_INT };
-		default: return { GL_RGBA32F, GL_RGBA, GL_FLOAT };	//return standard
-	}
 }
