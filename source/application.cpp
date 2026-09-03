@@ -1,6 +1,7 @@
 #include "application.h"
 
 #include "utility/event.h"
+#include "utility/parameter_parser.h"
 
 Application::Application(Parameters params) 
  :  appState_{ApplicationState::getInstance(params)},

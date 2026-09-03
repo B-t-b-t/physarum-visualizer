@@ -1,8 +1,6 @@
 #ifndef APPLICATION_H
 #define APPLICATION_H
 
-#include <memory>
-
 #include "color_preset_system.h"
 #include "input_handler.h"
 #include "preset_system.h"
@@ -12,10 +10,10 @@
 #include "./graphics/renderer.h"
 #include "./graphics/uniform_buffer_manager.h"
 #include "./simulation/simulation.h"
-#include "./simulation/trail_map_controller.h"
-#include "./utility/parameter_parser.h"
 #include "./ui/elements/audio_window.h"
 #include "./ui/user_interface.h"
+
+struct Parameters;	//forward declaration of Parameters struct
 
 class Application {
 
