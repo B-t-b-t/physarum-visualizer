@@ -1,7 +1,10 @@
 #include "audio_processor.h"
 
+#include <algorithm>  // for std::max
 #include <cmath>
 #include <cstring>
+
+#include "fftw3.h"
 
 AudioProcessor::AudioProcessor(size_t bufferSize) 
     : bufferSize_(bufferSize)

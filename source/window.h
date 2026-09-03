@@ -1,13 +1,14 @@
 #ifndef WINDOW_H
 #define WINDOW_H
 
+#include <GL/glew.h>
 #include <string>
 
-#include <GL/glew.h>
-#include <SDL3/SDL.h>
+#include "SDL3/SDL_video.h"
 
-#include "application_state.h"
 #include "utility/observer.h"
+
+class ApplicationState;	//forward declaration to avoid circular dependency
 
 #define APIENTRY GLEWAPIENTRY	//tell OpenGL debug callback function to use GLEW's calling convention macro
 

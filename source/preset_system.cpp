@@ -4,6 +4,7 @@
 #include <iostream>
 
 #include "ui/elements/preset_window.h"
+#include "utility/event.h"
 #include "utility/fileHandling.h"
 
 PresetSystem::PresetSystem(std::string presetFilePath, std::string fileExtension, UserInterface* ui)

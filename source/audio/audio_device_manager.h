@@ -1,12 +1,10 @@
 #ifndef AUDIO_DEVICE_MANAGER_H
 #define AUDIO_DEVICE_MANAGER_H
 
-#include <map>
-#include <string>
-#include <vector>
-#include <optional>
+#include <map>               // for map
+#include <optional>          // for optional, nullopt, nullopt_t
 
-#include <SDL3/SDL.h>
+#include "SDL3/SDL_audio.h"  // for SDL_AudioDeviceID, SDL_AudioSpec
 
 struct AudioDeviceInfo {
     const char* name;

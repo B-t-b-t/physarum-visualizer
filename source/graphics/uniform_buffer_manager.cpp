@@ -1,5 +1,12 @@
 #include "uniform_buffer_manager.h"
 
+#include "GL/glew.h"               // for GLuint, GL_INVALID_INDEX, glGetUni...
+#include <utility>                 // for get
+
+#include "../application_state.h"  // for ApplicationState
+#include "../uniforms.h"           // for FragmentShaderSettings, ParameterS...
+#include "../utility/event.h"      // for Event
+
 UniformBufferManager::UniformBufferManager(ApplicationState* appState)
  : appState_(appState) {
     uboMap_.try_emplace("UniversalShaderSettings", std::make_unique<UniformBufferObject>("UniversalShaderSettings", appState_->universalShaderSettings, 0));

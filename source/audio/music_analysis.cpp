@@ -1,5 +1,7 @@
 #include "music_analysis.h"
 
+#include <cmath>
+
 MusicAnalysis::MusicAnalysis(ApplicationState* appState) : appState_(appState) {
     velocityBassReactionTarget_ = appState_->slimeSettings.velocityBassReaction;
 	velocityBassReactionSmooth_ = appState_->slimeSettings.velocityBassReaction;

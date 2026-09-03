@@ -1,13 +1,17 @@
 #ifndef APPLICATION_STATE_H
 #define APPLICATION_STATE_H
 
-#include <map>
-#include <string>
-#include <vector>
+#include "imgui.h"           // for ImVec4
+#include <map>               // for map
+#include <stddef.h>          // for size_t
+#include <string>            // for basic_string, string
+#include <vector>            // for vector
 
-#include "uniforms.h"
-#include "audio/audio_device_manager.h"
-#include "utility/parameter_parser.h"
+#include "SDL3/SDL_audio.h"  // for SDL_AudioDeviceID
+#include "uniforms.h"        // for FragmentShaderSettings, ParameterSettings
+
+struct AudioDeviceInfo;	//forward declaration of AudioDeviceInfo struct
+struct Parameters;	//forward declaration of Parameters struct
 
 
 enum class TextureMask {

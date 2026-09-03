@@ -4,7 +4,7 @@
 #include <string>
 #include <vector>
 
-#include <SDL3/SDL.h>
+#include <SDL3/SDL_surface.h>
 
 typedef struct {
    char character; //the character this info belongs to

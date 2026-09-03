@@ -1,6 +1,13 @@
 #include "new_canvas_modal.h"
 
 #include <iostream>
+#include <stddef.h>
+
+#include "imgui.h"
+
+#include "../../application_state.h"
+#include "../../uniforms.h"
+#include "../../utility/event.h"
 
 void NewCanvasModal::render(ApplicationState* appState) {
 	if (visible) {

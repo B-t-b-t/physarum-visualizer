@@ -1,6 +1,16 @@
 #include "window.h"
 
-#include <iostream>
+#include <stdlib.h>             // for exit, NULL
+#include <iostream>             // for basic_ostream, operator<<, endl, cout
+#include "GL/glew.h"            // for GLenum, GL_DONT_CARE, glEnable, GLuint
+#include "SDL3/SDL_error.h"     // for SDL_GetError
+#include "SDL3/SDL_events.h"    // for SDL_EventType, SDL_EventAction, SDL_P...
+#include "SDL3/SDL_init.h"      // for SDL_INIT_AUDIO, SDL_INIT_CAMERA, SDL_...
+#include "SDL3/SDL_rect.h"      // for SDL_Rect
+
+#include "application_state.h"  // for ApplicationState
+#include "uniforms.h"           // for UniversalShaderSettings
+#include "utility/event.h"      // for Event
 
 
 Window::Window(const std::string& title, ApplicationState* appState, bool customResolution)

@@ -1,9 +1,15 @@
 #include "fileHandling.h"
 
-#include <dirent.h>
-#include <fstream>
-
-#include <SDL3_image/SDL_image.h>
+#include <dirent.h>                       // for DIR, closedir, dirent, opendir
+#include <fstream>                        // for basic_ifstream, basic_ios, ios
+#include <stddef.h>                       // for size_t, NULL
+#include <stdint.h>                       // for uint8_t
+#include "SDL3/SDL_error.h"               // for SDL_GetError
+#include "SDL3/SDL_log.h"                 // for SDL_LogCategory, SDL_LogError
+#include "SDL3/SDL_pixels.h"              // for SDL_PixelFormat
+#include "SDL3/SDL_stdinc.h"              // for SDL_memmove
+#include "SDL3/SDL_surface.h"             // for SDL_Surface, SDL_DestroySur...
+#include "SDL3_image/SDL_image.h"         // for IMG_Load, IMG_SaveJPG, IMG_...
 
 //stb_truetype needs to be compiled with less strict warnings as the rest of the project
 #if defined(__GNUC__) || defined(__clang__) || defined(__MINGW32__) || defined(__MINGW64__)

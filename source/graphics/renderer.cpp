@@ -1,5 +1,7 @@
 #include "renderer.h"
 
+#include "../utility/event.h"
+
 Renderer::Renderer(UniformBufferManager* uboManager, ApplicationState* appState)
  :  drawCanvas_(Canvas()),
     vertexShader_{Shader("./res/vertex.vs", ShaderType::VERTEX_SHADER)},

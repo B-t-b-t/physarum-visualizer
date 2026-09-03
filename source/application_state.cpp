@@ -1,5 +1,7 @@
 #include "application_state.h"
 
+#include "utility/parameter_parser.h"  // for Parameters
+
 ApplicationState* ApplicationState::singleton_ = nullptr;
 
 ApplicationState* ApplicationState::getInstance(Parameters& params) {

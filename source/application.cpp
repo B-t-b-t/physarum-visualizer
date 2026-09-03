@@ -1,5 +1,7 @@
 #include "application.h"
 
+#include "utility/event.h"
+
 Application::Application(Parameters params) 
  :  appState_{ApplicationState::getInstance(params)},
 	window_{Window("Physarum", appState_, params.customResolution)},

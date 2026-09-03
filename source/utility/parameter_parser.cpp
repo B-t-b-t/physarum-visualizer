@@ -1,7 +1,8 @@
 #include "parameter_parser.h"
 
-#include <cstring>
-#include <iostream>
+#include <cstring>   // for strcmp
+#include <iostream>  // for basic_ostream, cout, endl
+#include <stdlib.h>  // for atoi, atof
 
 bool parseParameters(int argc, char* argv[], Parameters &params) {
 

@@ -1,7 +1,9 @@
 #include "font_atlas.h"
 
-#include "SDL3/SDL.h"
+#include <optional>
+#include "SDL3/SDL_surface.h"
 
+#include "../utility/fileHandling.h"
 #include "texture.h"
 
 FontAtlas::FontAtlas(std::string fontFileName) {

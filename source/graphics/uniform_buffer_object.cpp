@@ -1,5 +1,7 @@
 #include "uniform_buffer_object.h"
 
+#include "GL/glew.h"  // for glDeleteBuffers
+
 UniformBufferObject::UniformBufferObject(UniformBufferObject&& rhs) {
     this->blockName_ = rhs.blockName_;
     this->uniformBufferObjectID_ = rhs.uniformBufferObjectID_;

@@ -8,6 +8,7 @@
 
 #include "../ui_helpers.h"
 #include "../../audio/audio_device_manager.h"
+#include "../../utility/event.h"
 
 AudioWindow::AudioWindow() {
     heatmapData_.reserve(512 * 32);

@@ -1,10 +1,10 @@
 #ifndef AUDIO_PROCESSOR_H
 #define AUDIO_PROCESSOR_H
 
-#include <complex>
+#include <stddef.h> // for size_t
 #include <vector>
 
-#include <fftw3.h>
+#include "fftw3.h"
 
 class AudioProcessor {
 public:

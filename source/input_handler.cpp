@@ -1,6 +1,12 @@
 #include "input_handler.h"
 
-#include <iostream>
+#include <iostream>            // for basic_ostream, char_traits, cout, endl
+
+#include "imgui_impl_sdl3.h"   // for ImGui_ImplSDL3_ProcessEvent
+#include "SDL3/SDL_events.h"   // for SDL_EventType, SDL_Event, SDL_EventAction
+#include "SDL3/SDL_keycode.h"  // for SDLK_ESCAPE, SDLK_F11
+
+class ApplicationState; // Forward declaration of ApplicationState class
 
 InputHandler::InputHandler(ApplicationState* appState)
  : appState_{appState}

@@ -1,9 +1,8 @@
 #ifndef OBSERVER_H
 #define OBSERVER_H
 
-#include "event.h"
-
 class Observable;   //forward declaration to avoid circular dependency
+enum class Event;      //forward declaration to avoid circular dependency
 
 class Observer {
 

@@ -1,5 +1,6 @@
 #include "framebuffer.h"
 
+#include <GL/glew.h>
 #include <iostream>
 
 FrameBuffer::FrameBuffer() {

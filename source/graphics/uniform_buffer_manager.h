@@ -1,14 +1,16 @@
 #ifndef UNIFORM_BUFFER_MANAGER_H
 #define UNIFORM_BUFFER_MANAGER_H
 
+#include <GL/glew.h>
 #include <initializer_list>
 #include <memory>
 #include <string>
 #include <unordered_map>
 
 #include "uniform_buffer_object.h"
-#include "../application_state.h"
 #include "../utility/observer.h"
+
+class ApplicationState;  //forward declaration to avoid circular dependency
 
 class UniformBufferManager : public Observer {
 

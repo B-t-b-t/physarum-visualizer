@@ -1,6 +1,11 @@
 #include "particle_data.h"
 
+#include <cmath>
 #include <fstream>
+#include <GL/glew.h>
+#include <iostream>
+#include <stdlib.h>
+
 
 ParticleData::ParticleData() {
 }

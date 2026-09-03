@@ -1,10 +1,7 @@
 #ifndef INPUT_HANDLER_H
 #define INPUT_HANDLER_H
 
-#include "imgui_impl_sdl3.h"
-#include <SDL3/SDL.h>
-
-#include "application_state.h"
+class ApplicationState; // Forward declaration of ApplicationState class
 
 class InputHandler {
 

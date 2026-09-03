@@ -4,9 +4,8 @@
 #include <list>
 #include <unordered_map>
 
-#include "event.h"
-
 class Observer;  //forward declaration to avoid circular dependency
+enum class Event; //forward declaration to avoid circular dependency
 
 class Observable {
     public: 

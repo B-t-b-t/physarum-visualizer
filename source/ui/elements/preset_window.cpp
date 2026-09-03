@@ -1,5 +1,7 @@
 #include "preset_window.h"
 
+#include "../../utility/event.h"
+
 void PresetWindow::render(ApplicationState* appState) {
     if(!visible) { return; }
 

@@ -13,6 +13,19 @@ set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3 -ffunction-sections 
 # force static linking for C/C++ runtime
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -static-libgcc -static-libstdc++")
 
+option(ENABLE_IWYU "Run include-what-you-use during compilation when available" ON)
+
+if(ENABLE_IWYU)
+    find_program(IWYU NAMES include-what-you-use iwyu)
+
+    if(IWYU)
+        set(CMAKE_CXX_INCLUDE_WHAT_YOU_USE "${IWYU};--driver-mode=g++")
+        message(STATUS "include-what-you-use enabled: ${IWYU}")
+    else()
+        message(STATUS "include-what-you-use was not found; continuing without it")
+    endif()
+endif()
+
 #====== Dependency Management =====
 
 include(FetchContent)

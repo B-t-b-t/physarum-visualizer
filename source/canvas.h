@@ -3,8 +3,6 @@
 
 #include <vector>
 
-#include <GL/glew.h>
-
 class Canvas
 {
 private:

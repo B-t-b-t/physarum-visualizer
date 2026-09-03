@@ -1,12 +1,8 @@
 #ifndef SHADER_H
 #define SHADER_H
 
-#include <string>
-#include <unordered_map>
-
 #include <GL/glew.h>
-
-#include "../ui/user_interface.h"
+#include <string>
 
 enum class ShaderType {
     NONE,

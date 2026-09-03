@@ -1,9 +1,11 @@
-#include <iostream>
-#include <math.h>
-
-#include "imgui.h"
-
 #include "ui_helpers.h"
+
+#include <limits>    // for numeric_limits
+#include <math.h>    // for fabs
+#include <stdio.h>   // for size_t, snprintf
+
+#include "imgui.h"   // for BeginItemTooltip, EndTooltip, GetFontSize, PopTe...
+#include <implot.h>  // for ImPlotPoint
 
 // Helper to display a little (?) mark which shows a tooltip when hovered.
 // In your own code you may want to display an actual icon if you are using a merged icon fonts (see docs/FONTS.md)

@@ -1,6 +1,10 @@
 #include "observable.h"
 
+#include <utility>
+
 #include "observer.h"
+
+enum class Event; //forward declaration to avoid circular dependency
 
 Observable::~Observable() {
     for(auto& pair : observers_) {

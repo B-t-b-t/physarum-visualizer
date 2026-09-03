@@ -1,10 +1,8 @@
 #ifndef UNIFORM_BUFFER_OBJECT_H
 #define UNIFORM_BUFFER_OBJECT_H
 
-#include <iostream>
-#include <string>
-
-#include <GL/glew.h>
+#include <GL/glew.h>  // for GL_UNIFORM_BUFFER, GLuint, glBindBuffer, GL_DYN...
+#include <string>     // for basic_string, string
 
 class UniformBufferObject {
 

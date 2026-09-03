@@ -1,9 +1,6 @@
 #include "canvas.h"
 
-#include <complex>
-#include <iostream>
-
-#include <GL/glew.h>
+#include <GL/glew.h>  // for GL_ARRAY_BUFFER, GL_FALSE, GL_FLOAT, glBindVert...
 
 Canvas::Canvas()
 {

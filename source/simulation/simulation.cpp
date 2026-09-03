@@ -1,5 +1,7 @@
 #include "simulation.h"
 
+#include "../utility/event.h"
+
 Simulation::Simulation(UniformBufferManager* uboManager, UserInterface* ui, bool customParticleCount)
  : 	trailDiffusionShader_{Shader("./res/TrailDiffusion.cs", ShaderType::COMPUTE_SHADER)},
 	trailDiffusionProgram_{ShaderProgram("TrailDiffusionProgram", {&trailDiffusionShader_})},

@@ -1,10 +1,11 @@
 #include "shader.h"
 
-#include <fstream>
-#include <iostream>
-#include <sstream>
+#include <fstream>           // for basic_ostream, basic_ifstream, operator<<
+#include <iostream>          // for cerr
+#include <stddef.h>          // for size_t, NULL
 
-#include <SDL3/SDL.h>
+#include "GL/glew.h"         // for GLuint, GLchar, GLenum, GLint, glDeleteS...
+#include "SDL3/SDL_video.h"  // for SDL_GLAttr, SDL_GL_GetAttribute
 
 static GLuint createShader(const std::string& text, GLenum shaderType, const std::string& fileName);
 static std::string readTextFromFile(const std::string& fileName);

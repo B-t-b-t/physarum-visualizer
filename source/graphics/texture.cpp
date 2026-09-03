@@ -1,6 +1,8 @@
 #include "texture.h"
 
-#include <cassert>
+#include <cassert>    // for assert
+#include "GL/glew.h"  // for GL_TEXTURE_2D, GLint, glPixelStorei, glTexParam...
+#include <stddef.h>   // for NULL
 
 Texture::Texture(TextureProperties properties, const void* data, TextureDataFormat dataFormat, TextureDataType dataType, int bytesPerRow) {
 

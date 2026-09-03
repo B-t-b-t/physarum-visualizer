@@ -9,6 +9,7 @@
 
 #include "../application_state.h"
 #include "../ui/elements/preset_window.h"
+#include "../utility/event.h"
 #include "../utility/fileHandling.h"
 
 bool TrailMapController::checkTimeTable(std::string imageName) {

@@ -1,5 +1,7 @@
 #include "audio_system.h"
 
+#include "../utility/event.h"
+
 AudioSystem::AudioSystem(ApplicationState* appState) 
  : appState_{appState} 
 {

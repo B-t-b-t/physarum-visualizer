@@ -1,11 +1,12 @@
 #ifndef FONT_ATLAS_H
 #define FONT_ATLAS_H
 
-#include <string>
-#include <vector>
-#include "texture.h"
+#include <string>                     // for string
+#include <vector>                     // for vector
 
-#include "../utility/fileHandling.h"
+#include "../utility/fileHandling.h"  // for FontCharInfo
+#include "GL/glew.h"                  // for GLuint
+#include "texture.h"                  // for Texture
 
 class FontAtlas {
 public:

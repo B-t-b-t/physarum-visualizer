@@ -1,6 +1,11 @@
 #include "audio_device_manager.h"
 
-#include <iostream>
+#include <iostream>           // for basic_ostream, char_traits, operator<<
+
+#include "SDL3/SDL_error.h"   // for SDL_GetError
+#include "SDL3/SDL_events.h"  // for SDL_EventType, SDL_Event, SDL_EventAction
+#include "SDL3/SDL_log.h"     // for SDL_Log, SDL_LogCategory, SDL_LogError
+#include "SDL3/SDL_stdinc.h"  // for SDL_free
 
 AudioDeviceManager::AudioDeviceManager() {
     checkConnectedDevices();  //initial check for available devices

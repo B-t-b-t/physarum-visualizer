@@ -1,8 +1,7 @@
 #ifndef PARTICLE_DATA_H
 #define PARTICLE_DATA_H
 
-#include <iostream>
-#include <math.h>
+#include <string>
 #include <vector>
 
 #include <GL/glew.h>
