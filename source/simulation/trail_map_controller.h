@@ -7,7 +7,9 @@
 #include <GL/glew.h>
 #include <SDL3/SDL.h>
 
+#include "../graphics/font_atlas.h"
 #include "../graphics/texture.h"
+#include "../graphics/text_texture.h"
 #include "../ui/user_interface.h"
 #include "../utility/observer.h"
 
@@ -17,7 +19,7 @@ public:
     TrailMapController() = default;
     TrailMapController(std::string pictureFilePath, std::string pictureFileExtension, GLuint textureUnit, UserInterface* ui);
     void loadTrailMaskFromImage(std::string imageName);
-    void loadTrailMaskFromFont(std::string fontName);
+    //void loadTrailMaskFromFont(std::string fontName);
     void loadPictureNames(UserInterface* ui);
     void bindToTextureUnit(GLuint textureUnit);
 
@@ -30,6 +32,7 @@ private:
     struct TrailMask {
         std::string imageName;
         Texture texture;
+        bool isText = false;
         bool loadedToGPU = false;
     };
 
@@ -37,6 +40,7 @@ private:
     void loadImageFromSurface(SDL_Surface* surface);
 
     SDL_Surface* loadedImage_;
+    TextTexture textImage_;
 
     std::vector<TrailMask> trailMasks_;
 
@@ -44,6 +48,8 @@ private:
     std::string pictureFileExtension_ = ".png";
     GLuint textureUnit_;	//Default Texture Unit for Trail Mask Texture
     //UserInterface &ui_;
+
+    FontAtlas fontAtlas_;
 
     size_t activeTrailMaskIndex_;
     SDL_Time timeTicks_;

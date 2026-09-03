@@ -35,23 +35,30 @@ bool TrailMapController::checkTimeTable(std::string imageName) {
 
 
 TrailMapController::TrailMapController(std::string pictureFilePath, std::string pictureFileExtension, GLuint textureUnit, UserInterface* ui)
- : pictureFilePath_(pictureFilePath), pictureFileExtension_(pictureFileExtension), textureUnit_(textureUnit) {
+ : pictureFilePath_(pictureFilePath), 
+   pictureFileExtension_(pictureFileExtension), 
+   textureUnit_(textureUnit),
+   fontAtlas_{FontAtlas("Roboto-Medium")}
+{
     loadPictureNames(ui);
     for(size_t i = 0; i < trailMasks_.size(); ++i) {
         activeTrailMaskIndex_ = i;
         loadTrailMaskFromImage(trailMasks_[i].imageName);
     }
+    ApplicationState* appState = ui->getState();
 
-    loadTrailMaskFromFont("Roboto-Medium");
+    textImage_ = TextTexture(appState->universalShaderSettings.textureWidth, appState->universalShaderSettings.textureHeight, appState);
+    textImage_.createTexture(appState->textPreset, fontAtlas_);
+    textImage_.textureToFile();
+    trailMasks_[activeTrailMaskIndex_].texture = std::move(textImage_);
+
     activeTrailMaskIndex_ = 0;	//reset to first image after loading all images into GPU memory
 }
-
+/*
 void TrailMapController::loadTrailMaskFromFont(std::string fontName) {
 
-    SDL_Surface* loadedImage = loadImageFromFont("./res/fonts/", fontName, ".ttf");
-    loadImageFromSurface(loadedImage);
 }
-
+*/
 void TrailMapController::loadTrailMaskFromImage(std::string imageName) {
 
     SDL_Surface* loadedImage = loadImageFromFile(pictureFilePath_, imageName, pictureFileExtension_);
@@ -90,11 +97,11 @@ void TrailMapController::loadPictureNames(UserInterface* ui) {
 
     for (std::string pictureName : pictureNames) {
         window->addPictureName(pictureName);
-        trailMasks_.push_back({pictureName, Texture(), false});
+        trailMasks_.push_back({pictureName, Texture(), false, false});
     }
 
-    window->addPictureName("fontAtlas");
-    trailMasks_.push_back({"fontAtlas", Texture(), false});
+    window->addPictureName("text");
+    trailMasks_.push_back({"text", Texture(), true, false});
 }
 
 /*Loads Images indirectly, where the selection in the ListBox of the window is set and a call to handleUIRequests is made later in main()

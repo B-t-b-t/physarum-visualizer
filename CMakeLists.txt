@@ -231,10 +231,12 @@ set(MY_HEADER_FILES
     source/audio/audio_system.h
     source/audio/music_analysis.h
     source/graphics/bloom.h
+    source/graphics/font_atlas.h
     source/graphics/framebuffer.h
     source/graphics/renderer.h
     source/graphics/shader.h
     source/graphics/shader_program.h
+    source/graphics/text_texture.h
     source/graphics/texture.h
     source/graphics/uniform_buffer_manager.h
     source/graphics/uniform_buffer_object.h
@@ -271,11 +273,13 @@ set(MY_SOURCE_FILES
     source/audio/audiostream_data.cpp
     source/audio/audio_system.cpp
     source/audio/audio_processor.cpp
-    source/graphics/framebuffer.cpp
     source/graphics/bloom.cpp
+    source/graphics/font_atlas.cpp
+    source/graphics/framebuffer.cpp
     source/graphics/renderer.cpp
     source/graphics/shader.cpp
     source/graphics/shader_program.cpp
+    source/graphics/text_texture.cpp
     source/graphics/texture.cpp
     source/graphics/uniform_buffer_manager.cpp
     source/graphics/uniform_buffer_object.cpp

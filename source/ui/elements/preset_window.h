@@ -33,8 +33,6 @@ private:
 	std::vector<std::string> pictureNames_;
 	unsigned int selectedPictureName_ = 0;
 
-	char txtBuffer_[32] = "sample";
-
 	void behaviourPresetGUI(ApplicationState* appState);
 	void colorPresetGUI(ApplicationState* appState);
 	void imagePresetGUI(ApplicationState* appState);

@@ -176,7 +176,9 @@ void PresetWindow::textPresetGUI(ApplicationState* appState) {
 	//--------------------------------
 	//Text Selection
 	//--------------------------------
-	appState = appState; // To avoid unused parameter warning
+	char txtBuffer[32] = "sample";
 
-	ImGui::InputText("no blank", txtBuffer_, IM_COUNTOF(txtBuffer_));
+	ImGui::InputText("no blank", txtBuffer, IM_COUNTOF(txtBuffer));
+
+	appState->textPreset = std::string(txtBuffer);
 }

@@ -74,7 +74,7 @@ SDL_Surface* loadImageFromFile(std::string filePath, std::string fileName, std::
     return formattedSurface;
 }
 
-SDL_Surface* loadImageFromFont(std::string filePath, std::string fileName, std::string fileExtension) {
+SDL_Surface* loadImageFromFont(std::string filePath, std::string fileName, std::string fileExtension, std::vector<FontCharInfo>& fontCharInfos, int* firstChar_Out, int* numberOfChars_Out) {
     if(fileExtension != ".ttf") {
         SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Unsupported font format: %s", fileExtension.c_str());
         return nullptr;
@@ -101,6 +101,10 @@ SDL_Surface* loadImageFromFont(std::string filePath, std::string fileName, std::
     const int numberOfChars = 95;   //95 characters in total, so ends at ASCII 126(~)
     float fontSize = 64.0f;    //font height in pixel
 
+    *firstChar_Out = firstChar;
+    *numberOfChars_Out = numberOfChars;
+
+
     stbtt_packedchar packedChars[numberOfChars];    //used for rendering single char via vertex quad
     stbtt_aligned_quad alignedQuads[numberOfChars]; //used for rendering single char via vertex quad
 
@@ -112,6 +116,26 @@ SDL_Surface* loadImageFromFont(std::string filePath, std::string fileName, std::
     for (int i = 0; i < numberOfChars; i++) {
         float xPos, yPos;
         stbtt_GetPackedQuad(packedChars, fontAtlasWidth, fontAtlasHeight, i, &xPos, &yPos, &alignedQuads[i], 0);
+    }
+
+    fontCharInfos.resize(numberOfChars);
+    for(size_t i = 0; i < numberOfChars; i++) {
+        fontCharInfos[i].character = static_cast<char>(firstChar + i);
+        fontCharInfos[i].x0 = packedChars[i].x0;
+        fontCharInfos[i].y0 = packedChars[i].y0;
+        fontCharInfos[i].x1 = packedChars[i].x1;
+        fontCharInfos[i].y1 = packedChars[i].y1;
+        fontCharInfos[i].sizeX = packedChars[i].x1 - packedChars[i].x0;
+        fontCharInfos[i].sizeY = packedChars[i].y1 - packedChars[i].y0;
+        fontCharInfos[i].xoff = packedChars[i].xoff;
+        fontCharInfos[i].yoff = packedChars[i].yoff;
+        fontCharInfos[i].xadvance = packedChars[i].xadvance;
+        fontCharInfos[i].xoff2 = packedChars[i].xoff2;
+        fontCharInfos[i].yoff2 = packedChars[i].yoff2;
+        fontCharInfos[i].s0 = alignedQuads[i].s0;
+        fontCharInfos[i].s1 = alignedQuads[i].s1;
+        fontCharInfos[i].t0 = alignedQuads[i].t0;
+        fontCharInfos[i].t1 = alignedQuads[i].t1;
     }
 
     std::vector<uint8_t> fontAtlasRGBA(static_cast<size_t>(fontAtlasWidth * fontAtlasHeight * 4));
@@ -146,14 +170,14 @@ SDL_Surface* loadImageFromFont(std::string filePath, std::string fileName, std::
     SDL_memmove(fontAtlasSurface->pixels, fontAtlasRGBA.data(), fontAtlasRGBA.size());
 
     SDL_UnlockSurface(fontAtlasSurface);
-
+/*
     // Match the orientation used by loadImageFromFile().
     if(!SDL_FlipSurface(fontAtlasSurface, SDL_FLIP_VERTICAL)) {
         SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "ERROR: Failed to flip to OpenGL orientation for image: %s", SDL_GetError());
         SDL_DestroySurface(fontAtlasSurface);
         return nullptr;
     }
-
+*/
     //cleanup of buffers, as they were manually allocated
     delete[] fontAtlasBitmap;
     delete[] fontDataBuf;
@@ -161,10 +185,16 @@ SDL_Surface* loadImageFromFont(std::string filePath, std::string fileName, std::
     return fontAtlasSurface;
 }
 
-bool saveImageToFile(SDL_Surface* surface, std::string filePath, std::string fileName, std::string fileExtension) {
+bool saveImageToFile(SDL_Surface* surface, std::string filePath, std::string fileName, std::string fileExtension, bool isFlipped) {
     std::string fullPath = filePath + fileName + fileExtension;
     bool saveSuccess = false;
     bool wrongExtension = false;
+
+    if(isFlipped) {
+        if(!SDL_FlipSurface(surface, SDL_FLIP_VERTICAL)) { //flip vertically back from OpenGL coordinate system
+            SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Failed to flip from OpenGL orientation during saving of image %s: %s", fileName.c_str(), SDL_GetError());
+        }
+    }
 
     if (fileExtension == ".png") {
         saveSuccess = IMG_SavePNG(surface, fullPath.c_str());
@@ -177,6 +207,13 @@ bool saveImageToFile(SDL_Surface* surface, std::string filePath, std::string fil
         SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Failed to save image %s: %s", fileName.c_str(), SDL_GetError());
         if(wrongExtension) {
             SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Unsupported image format: %s", fileExtension.c_str());
+        }
+    }
+
+    // Flip back to OpenGL orientation after saving, so the surface remains in the correct orientation for further use
+    if(isFlipped) {
+        if(!SDL_FlipSurface(surface, SDL_FLIP_VERTICAL)) { //flip vertically to OpenGL coordinate system
+            SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Failed to flip to OpenGL orientation during saving of image %s: %s", fileName.c_str(), SDL_GetError());
         }
     }
 
