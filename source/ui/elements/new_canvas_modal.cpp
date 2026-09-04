@@ -1,13 +1,14 @@
 #include "new_canvas_modal.h"
 
-#include <iostream>
-#include <stddef.h>
+#include <iostream>                   // for basic_ostream, char_traits, bas...
+#include <stddef.h>                   // for NULL
+#include <string>                     // for basic_string
+#include <variant>                    // for variant
 
-#include "imgui.h"
-
-#include "../../application_state.h"
-#include "../../uniforms.h"
-#include "../../utility/event.h"
+#include "../../application_state.h"  // for ApplicationState
+#include "../../uniforms.h"           // for SlimeSettings, UniversalShaderS...
+#include "../../utility/event.h"      // for EventType, UserEvent
+#include "imgui.h"                    // for ImVec2, Separator, SliderFloat
 
 void NewCanvasModal::render(ApplicationState* appState) {
 	if (visible) {
@@ -62,7 +63,7 @@ void NewCanvasModal::render(ApplicationState* appState) {
 		ImGui::Checkbox("Collision Detection", (bool*)&(appState->universalShaderSettings.collisionDetection));
 
 		if (ImGui::Button("OK", ImVec2(120, 0))) {  visible = false;
-                                                    notify(Event::NEW_CANVAS);
+                                                    notify(UserEvent{EventType::NEW_CANVAS, 0});
                                                     //new canvas has been created, update the appState accordingly
                                                     appState->universalShaderSettings.textureWidth = appState->newTextureWidth;
                                                     appState->universalShaderSettings.textureHeight = appState->newTextureHeight;

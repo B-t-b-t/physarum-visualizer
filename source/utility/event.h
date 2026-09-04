@@ -2,8 +2,10 @@
 #define EVENT_H
 
 #include <iostream>
+#include <string>
+#include <variant>
 
-enum class Event {
+enum class EventType {
     WINDOW_RESIZE,
     TEXTURE_RESIZE,
     FULLSCREEN_TOGGLE,
@@ -13,9 +15,17 @@ enum class Event {
     LOAD_PRESET,
     SAVE_COLOR_PRESET,
     LOAD_COLOR_PRESET,
-    LOAD_NEW_PICTURE
+    LOAD_NEW_PICTURE,
+    CREATE_NEW_TEXT_TEXTURE,
+    EDIT_TEXT_TEXTURE,
+    DELETE_TEXT_TEXTURE
 };
 
-std::ostream& operator<<(std::ostream& os, const Event& c);
+std::ostream& operator<<(std::ostream& os, const EventType& c);
+
+struct UserEvent {
+    EventType type;
+    std::variant<int, float, std::string> data;
+};
 
 #endif // EVENT_H

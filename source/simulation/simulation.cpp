@@ -46,9 +46,9 @@ void Simulation::updateParticleParameters() {
 	particleData_.createAndSend(appState_->numParticles, appState_->universalShaderSettings.textureWidth, appState_->universalShaderSettings.textureHeight);
 }
 
-void Simulation::onNotify(const Event event) {
-	switch(event) {
-		case Event::NEW_CANVAS:
+void Simulation::onNotify(const UserEvent event) {
+	switch(event.type) {
+		case EventType::NEW_CANVAS:
 			updateParticleParameters();
 			break;
 		default:

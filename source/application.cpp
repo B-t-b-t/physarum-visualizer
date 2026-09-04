@@ -18,16 +18,19 @@ Application::Application(Parameters params)
 {
 	//------------------------------------------------------
 	//Register Observers for immediate reaction to Events
-	ui_.getWindow("VisualSettingsWindow")->addObserver(Event::FULLSCREEN_TOGGLE, &window_);
-	ui_.getWindow("AudioWindow")->addObserver(Event::AUDIO_HARDWARE_CHANGE, &audioSystem_);
-	ui_.getWindow("PresetWindow")->addObserver(Event::SAVE_PRESET, &presetSystem_);
-	ui_.getWindow("PresetWindow")->addObserver(Event::LOAD_PRESET, &presetSystem_);
-	ui_.getWindow("PresetWindow")->addObserver(Event::SAVE_COLOR_PRESET, &colorPresetSystem_);
-	ui_.getWindow("PresetWindow")->addObserver(Event::LOAD_COLOR_PRESET, &colorPresetSystem_);
-	ui_.getWindow("PresetWindow")->addObserver(Event::LOAD_NEW_PICTURE, simulation_.getTrailMapController());
-	ui_.getWindow("NewCanvasModal")->addObserver(Event::NEW_CANVAS, renderer_.get());
-	ui_.getWindow("NewCanvasModal")->addObserver(Event::NEW_CANVAS, &simulation_);
-	ui_.getWindow("NewCanvasModal")->addObserver(Event::NEW_CANVAS, &ubo_manager_);
+	ui_.getWindow("VisualSettingsWindow")->addObserver(EventType::FULLSCREEN_TOGGLE, &window_);
+	ui_.getWindow("AudioWindow")->addObserver(EventType::AUDIO_HARDWARE_CHANGE, &audioSystem_);
+	ui_.getWindow("PresetWindow")->addObserver(EventType::SAVE_PRESET, &presetSystem_);
+	ui_.getWindow("PresetWindow")->addObserver(EventType::LOAD_PRESET, &presetSystem_);
+	ui_.getWindow("PresetWindow")->addObserver(EventType::SAVE_COLOR_PRESET, &colorPresetSystem_);
+	ui_.getWindow("PresetWindow")->addObserver(EventType::LOAD_COLOR_PRESET, &colorPresetSystem_);
+	ui_.getWindow("PresetWindow")->addObserver(EventType::LOAD_NEW_PICTURE, simulation_.getTrailMapController());
+	ui_.getWindow("PresetWindow")->addObserver(EventType::CREATE_NEW_TEXT_TEXTURE, simulation_.getTrailMapController());
+	ui_.getWindow("PresetWindow")->addObserver(EventType::EDIT_TEXT_TEXTURE, simulation_.getTrailMapController());
+	ui_.getWindow("PresetWindow")->addObserver(EventType::DELETE_TEXT_TEXTURE, simulation_.getTrailMapController());
+	ui_.getWindow("NewCanvasModal")->addObserver(EventType::NEW_CANVAS, renderer_.get());
+	ui_.getWindow("NewCanvasModal")->addObserver(EventType::NEW_CANVAS, &simulation_);
+	ui_.getWindow("NewCanvasModal")->addObserver(EventType::NEW_CANVAS, &ubo_manager_);
 
 	prevCounter_ = SDL_GetPerformanceCounter();
 	counterFrequency_ = SDL_GetPerformanceFrequency(); //SDL Timer Frequency for Audio Beat Analysis and Auto Preset Switching

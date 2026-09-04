@@ -48,7 +48,7 @@ public:
 	SDL_Window* getWindow() const { return window_; }
 	SDL_GLContext getGLContext() const { return glContext_; }
 
-	void onNotify(const Event event) override;
+	void onNotify(const UserEvent event) override;
 
 private:
 

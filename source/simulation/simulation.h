@@ -19,7 +19,7 @@ public:
     void updateParticleParameters();
     TrailMapController* getTrailMapController() { return &trailMapController_; }
 
-    void onNotify(const Event event) override;
+    void onNotify(const UserEvent event) override;
 
 private:
     ApplicationState* appState_;

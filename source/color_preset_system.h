@@ -35,7 +35,7 @@ public:
 
 	void autoSwitchPresets(UserInterface* ui, Uint64 timeInSeconds);
 
-	void onNotify(const Event event) override;
+	void onNotify(const UserEvent event) override;
 
 private:
 

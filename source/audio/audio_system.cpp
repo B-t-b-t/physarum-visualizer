@@ -56,8 +56,8 @@ AudioSystem::~AudioSystem() {
 	}
 }
 
-void AudioSystem::onNotify(const Event event) {
-	if(event == Event::AUDIO_HARDWARE_CHANGE) {
+void AudioSystem::onNotify(const UserEvent event) {
+	if(event.type == EventType::AUDIO_HARDWARE_CHANGE) {
 		selectRecordingDevice(appState_->usedAudioHardwareIndex);
 	}
 }

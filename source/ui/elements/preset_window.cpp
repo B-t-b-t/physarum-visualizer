@@ -2,6 +2,7 @@
 
 #include "../../utility/event.h"
 #include "../../simulation/trail_map_controller.h"
+#include "misc/cpp/imgui_stdlib.cpp"	//for string parameters in text input fields
 
 void PresetWindow::render(ApplicationState* appState) {
     if(!visible) { return; }
@@ -53,7 +54,7 @@ void PresetWindow::behaviourPresetGUI(ApplicationState* appState) {
 
 		if(!presetAlreadyExists) {
 			addPresetName(std::string(presetNameChar));
-			notify(Event::SAVE_PRESET);
+			notify(UserEvent{EventType::SAVE_PRESET, 0});
 			//appState->saveToPreset = true;
 		}
 
@@ -75,7 +76,7 @@ void PresetWindow::behaviourPresetGUI(ApplicationState* appState) {
 			if (ImGui::Selectable(presetNames_[n].c_str(), is_selected)) {
 				selectedPresetName_ = n;
 				//appState->loadFromPreset = true;
-				notify(Event::LOAD_PRESET);
+				notify(UserEvent{EventType::LOAD_PRESET, 0});
 				std::cout << "Selected Preset: " << presetNames_[n] << std::endl;
 			}
 			// Set the initial focus when opening the combo (scrolling + keyboard navigation focus)
@@ -110,7 +111,7 @@ void PresetWindow::colorPresetGUI(ApplicationState* appState) {
 		if(!colorPresetAlreadyExists) {
 			addColorPresetName(std::string(colorPresetNameChar));
 			//appState->saveToColorPreset = true;
-			notify(Event::SAVE_COLOR_PRESET);
+			notify(UserEvent{EventType::SAVE_COLOR_PRESET, 0});
 		}
 
 		colorPresetNameChar[0] = '\0';
@@ -131,7 +132,7 @@ void PresetWindow::colorPresetGUI(ApplicationState* appState) {
 			if (ImGui::Selectable(colorPresetNames_[n].c_str(), is_selected)) {
 				selectedColorPresetName_ = n;
 				//appState->loadFromColorPreset = true;
-				notify(Event::LOAD_COLOR_PRESET);
+				notify(UserEvent{EventType::LOAD_COLOR_PRESET, 0});
 				std::cout << "Selected Color Preset: " << colorPresetNames_[n] << std::endl;
 			}
 			// Set the initial focus when opening the combo (scrolling + keyboard navigation focus)
@@ -156,10 +157,10 @@ void PresetWindow::imagePresetGUI(ApplicationState* appState) {
 		if(trailMasks != nullptr) {
 			for (unsigned int i = 0; i < trailMasks->size(); ++i) {
 				const bool is_selected = (usedTrailMaskIndex == i);
-
-				if (ImGui::Selectable((*trailMasks)[i].imageName.c_str(), is_selected)) {
+				bool isImageMask = !((*trailMasks)[i].isText);
+				if (isImageMask && ImGui::Selectable((*trailMasks)[i].imageName.c_str(), is_selected)) {
 					appState->usedTrailMaskIndex = i;
-					notify(Event::LOAD_NEW_PICTURE);
+					notify(UserEvent{EventType::LOAD_NEW_PICTURE, 0});
 					std::cout << "Selected Picture: " << (*trailMasks)[i].imageName << std::endl;
 				}
 				// Set the initial focus when opening the combo (scrolling + keyboard navigation focus)
@@ -181,9 +182,68 @@ void PresetWindow::textPresetGUI(ApplicationState* appState) {
 	//--------------------------------
 	//Text Selection
 	//--------------------------------
-	char txtBuffer[32] = "sample";
 
-	ImGui::InputText("no blank", txtBuffer, IM_COUNTOF(txtBuffer));
+	if (ImGui::BeginListBox("Text Presets")) {
+		std::vector<TrailMask>* trailMasks = appState->trailMasks;
+		size_t usedTrailMaskIndex = appState->usedTrailMaskIndex;
+		if(trailMasks != nullptr) {
+			for (unsigned int i = 0; i < trailMasks->size(); ++i) {
+				const bool is_selected = (usedTrailMaskIndex == i);
+				bool isTextMask = (*trailMasks)[i].isText;
+				if (isTextMask && ImGui::Selectable((*trailMasks)[i].imageName.c_str(), is_selected)) {
+					appState->usedTrailMaskIndex = i;
+					notify(UserEvent{EventType::LOAD_NEW_PICTURE, 0});
+					std::cout << "Selected Picture: " << (*trailMasks)[i].imageName << std::endl;
+				}
+				//uses last item as Popup ID
+                if (ImGui::BeginPopupContextItem()) {
 
-	appState->textPreset = std::string(txtBuffer);
+					ImGui::Text("Edit text:");
+					ImGui::InputText("##edittext", &(appState->textPreset));
+					if (ImGui::Button("OK")) {
+						notify(UserEvent{EventType::EDIT_TEXT_TEXTURE, 0});
+						ImGui::CloseCurrentPopup();
+					}
+					ImGui::SameLine();
+					if (ImGui::Button("Cancel")) {
+						ImGui::CloseCurrentPopup();
+					}
+					ImGui::SameLine();
+					if (ImGui::Button("Delete")) {
+						notify(UserEvent{EventType::DELETE_TEXT_TEXTURE, 0});
+						ImGui::CloseCurrentPopup();
+					}
+					ImGui::EndPopup();
+                }
+
+				// Set the initial focus when opening the combo (scrolling + keyboard navigation focus)
+				if (is_selected) {
+					ImGui::SetItemDefaultFocus();
+				}
+
+				ImGui::SetItemTooltip("Right-click to Edit or Delete");
+			}
+		}
+
+		ImGui::EndListBox();
+	}
+	if(ImGui::Button("New Text")) { ImGui::OpenPopup("New Text"); }
+
+	if(ImGui::BeginPopupModal("New Text", NULL, ImGuiWindowFlags_AlwaysAutoResize)) {
+		ImGui::Text("Enter new text:");
+		static char newTextBuffer[32] = "";
+		ImGui::InputText("##newtext", newTextBuffer, IM_COUNTOF(newTextBuffer));
+		if (ImGui::Button("OK")) {
+			appState->textPreset = std::string(newTextBuffer);
+			notify(UserEvent{EventType::CREATE_NEW_TEXT_TEXTURE, 0});
+			ImGui::CloseCurrentPopup();
+		}
+		ImGui::SameLine();
+		if (ImGui::Button("Cancel")) {
+			ImGui::CloseCurrentPopup();
+		}
+		ImGui::EndPopup();
+	}
+
+	ImGui::Button("Edit Text");
 }

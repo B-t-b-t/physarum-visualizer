@@ -37,9 +37,9 @@ void UniformBufferManager::updateUBOs() {
     uboMap_["ParameterSettings"]->updateUniformBufferObject(appState_->parameterSettings);
 }
 
-void UniformBufferManager::onNotify(const Event event) {
-    switch(event) {
-        case Event::NEW_CANVAS:
+void UniformBufferManager::onNotify(const UserEvent event) {
+    switch(event.type) {
+        case EventType::NEW_CANVAS:
             updateUBOs();
             break;
         default:

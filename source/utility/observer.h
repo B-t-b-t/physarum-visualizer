@@ -2,7 +2,7 @@
 #define OBSERVER_H
 
 class Observable;   //forward declaration to avoid circular dependency
-enum class Event;      //forward declaration to avoid circular dependency
+struct UserEvent;      //forward declaration to avoid circular dependency
 
 class Observer {
 
@@ -12,7 +12,7 @@ public:
     Observer() = default;
     virtual ~Observer();
 
-    virtual void onNotify(const Event event) = 0;
+    virtual void onNotify(const UserEvent event) = 0;
     
 protected:
     void setObservable(Observable* observable);

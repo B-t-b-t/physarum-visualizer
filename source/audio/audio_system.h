@@ -27,7 +27,7 @@ public:
 
     void selectRecordingDevice(SDL_AudioDeviceID hardwareID);
 
-    void onNotify(const Event event) override;
+    void onNotify(const UserEvent event) override;
 
     void createAudioStream();
 

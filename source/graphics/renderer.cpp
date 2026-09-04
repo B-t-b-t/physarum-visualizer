@@ -95,9 +95,9 @@ void Renderer::resizeTextures(const int newWidth, const int newHeight) {
     //glViewport(0, 0, newWidth, newHeight);
 }
 
-void Renderer::onNotify(const Event event) {
-    switch(event) {
-        case Event::NEW_CANVAS:
+void Renderer::onNotify(const UserEvent event) {
+    switch(event.type) {
+        case EventType::NEW_CANVAS:
             if(appState_->newTextureWidth != app_uss_.textureWidth || appState_->newTextureHeight != app_uss_.textureHeight) {
                 resizeTextures(appState_->newTextureWidth, appState_->newTextureHeight);
             }

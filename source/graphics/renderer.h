@@ -26,7 +26,7 @@ public:
 
     void resizeTextures(const int newWidth, const int newHeight);
 
-    void onNotify(const Event event) override;
+    void onNotify(const UserEvent event) override;
 
 private:
 

@@ -26,14 +26,14 @@ public:
     TrailMapController() = default;
     TrailMapController(std::string pictureFilePath, std::string pictureFileExtension, GLuint textureUnit, ApplicationState* appState);
     void loadTrailMaskFromImage(std::string imageName);
-    //void loadTrailMaskFromFont(std::string fontName);
+    void loadTrailMaskFromText(std::string text);
     void loadPictureNames();
     void bindToTextureUnit(GLuint textureUnit);
 
 	void autoSwitchPictures(Uint64 timeInSeconds);
     void loadRandomPicture();
-
-    void onNotify(const Event event) override;
+    void deleteTrailMask(size_t index);
+    void onNotify(const UserEvent event) override;
 
 private:
 

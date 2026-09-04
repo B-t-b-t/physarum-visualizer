@@ -27,7 +27,7 @@ public:
     void attachUBOs(std::initializer_list<GLuint> shaderProgramIDs);
     void updateUBOs();
 
-    void onNotify(const Event event) override;
+    void onNotify(const UserEvent event) override;
 
 private:
 

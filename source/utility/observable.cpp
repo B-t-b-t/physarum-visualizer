@@ -2,9 +2,8 @@
 
 #include <utility>
 
+#include "event.h"
 #include "observer.h"
-
-enum class Event; //forward declaration to avoid circular dependency
 
 Observable::~Observable() {
     for(auto& pair : observers_) {
@@ -15,21 +14,14 @@ Observable::~Observable() {
     }
 }
 
-void Observable::notify(const Event event) {
-    ObserverList& obsList = observers_[event];
+void Observable::notify(const UserEvent event) {
+    ObserverList& obsList = observers_[event.type];
     for(Observer* observer : obsList) {
         observer->onNotify(event);
     }
 }
 
-void Observable::notifyAll() {
-    for(const auto& pair : observers_) {
-        Event event = pair.first;
-        notify(event);
-    }
-}
-
-void Observable::addObserver(Event event, Observer* observer) {
+void Observable::addObserver(EventType event, Observer* observer) {
     if(observer) {
         ObserverList& obsList = observers_[event];
         obsList.push_back(observer);
@@ -37,7 +29,7 @@ void Observable::addObserver(Event event, Observer* observer) {
     }
 }
 
-void Observable::removeObserver(Event event, Observer* observer) {
+void Observable::removeObserver(EventType event, Observer* observer) {
     if(observer) {
         ObserverList& obsList = observers_[event];
         obsList.remove(observer);

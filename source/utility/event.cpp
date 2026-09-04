@@ -1,17 +1,20 @@
 #include "event.h"
 
-std::ostream& operator<<(std::ostream& os, const Event& c) {
+std::ostream& operator<<(std::ostream& os, const EventType& c) {
     switch (c) {
-        case Event::WINDOW_RESIZE:    return os << "WINDOW_RESIZE";
-        case Event::TEXTURE_RESIZE:   return os << "TEXTURE_RESIZE";
-        case Event::FULLSCREEN_TOGGLE: return os << "FULLSCREEN_TOGGLE";
-        case Event::NEW_CANVAS:       return os << "NEW_CANVAS";
-        case Event::AUDIO_HARDWARE_CHANGE: return os << "AUDIO_HARDWARE_CHANGE";
-        case Event::SAVE_PRESET:      return os << "SAVE_PRESET";
-        case Event::LOAD_PRESET:      return os << "LOAD_PRESET";
-        case Event::SAVE_COLOR_PRESET: return os << "SAVE_COLOR_PRESET";
-        case Event::LOAD_COLOR_PRESET: return os << "LOAD_COLOR_PRESET";
-        case Event::LOAD_NEW_PICTURE: return os << "LOAD_NEW_PICTURE";
+        case EventType::WINDOW_RESIZE:    return os << "WINDOW_RESIZE";
+        case EventType::TEXTURE_RESIZE:   return os << "TEXTURE_RESIZE";
+        case EventType::FULLSCREEN_TOGGLE: return os << "FULLSCREEN_TOGGLE";
+        case EventType::NEW_CANVAS:       return os << "NEW_CANVAS";
+        case EventType::AUDIO_HARDWARE_CHANGE: return os << "AUDIO_HARDWARE_CHANGE";
+        case EventType::SAVE_PRESET:      return os << "SAVE_PRESET";
+        case EventType::LOAD_PRESET:      return os << "LOAD_PRESET";
+        case EventType::SAVE_COLOR_PRESET: return os << "SAVE_COLOR_PRESET";
+        case EventType::LOAD_COLOR_PRESET: return os << "LOAD_COLOR_PRESET";
+        case EventType::LOAD_NEW_PICTURE: return os << "LOAD_NEW_PICTURE";
+        case EventType::CREATE_NEW_TEXT_TEXTURE: return os << "CREATE_NEW_TEXT_TEXTURE";
+        case EventType::EDIT_TEXT_TEXTURE: return os << "EDIT_TEXT_TEXTURE";
+        case EventType::DELETE_TEXT_TEXTURE: return os << "DELETE_TEXT_TEXTURE";
         default:                      return os << "<Missing String Representation for Event Enum>";
     }
 }

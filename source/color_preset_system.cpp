@@ -117,15 +117,15 @@ void ColorPresetSystem::autoSwitchPresets(UserInterface* ui, Uint64 timeInSecond
     }
 }
 
-void ColorPresetSystem::onNotify(const Event event) {
+void ColorPresetSystem::onNotify(const UserEvent event) {
     PresetWindow *window = dynamic_cast<PresetWindow*>(observable_);
 
-    switch (event) {
-        case Event::SAVE_COLOR_PRESET:
+    switch (event.type) {
+        case EventType::SAVE_COLOR_PRESET:
             createPreset(std::string(window->getLastColorPresetName()), appState_);
             savePreset(std::string(window->getLastColorPresetName()));
             break;
-        case Event::LOAD_COLOR_PRESET: {
+        case EventType::LOAD_COLOR_PRESET: {
             std::string presetName = std::string(window->getSelectedColorPresetName());
             loadPreset(presetName);
             setUIState(appState_, presetName);

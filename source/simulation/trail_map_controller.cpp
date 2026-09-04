@@ -48,21 +48,24 @@ TrailMapController::TrailMapController(std::string pictureFilePath, std::string 
         loadTrailMaskFromImage(trailMasks_[i].imageName);
     }
 
-    textImage_ = TextTexture(appState_->universalShaderSettings.textureWidth, appState_->universalShaderSettings.textureHeight, appState_);
-    textImage_.createTexture(appState_->textPreset, fontAtlas_);
-    textImage_.textureToFile();
-    trailMasks_[activeTrailMaskIndex_].texture = std::move(textImage_);
+    //textImage_ = TextTexture(appState_->universalShaderSettings.textureWidth, appState_->universalShaderSettings.textureHeight, appState_);
+    //textImage_.createTexture(appState_->textPreset, fontAtlas_);
+    //textImage_.textureToFile();
+    //trailMasks_[activeTrailMaskIndex_].texture = std::move(textImage_);
 
     activeTrailMaskIndex_ = 0;	//reset to first image after loading all images into GPU memory
 
     appState_->trailMasks = &trailMasks_;
     appState_->usedTrailMaskIndex = activeTrailMaskIndex_;
 }
-/*
-void TrailMapController::loadTrailMaskFromFont(std::string fontName) {
 
+void TrailMapController::loadTrailMaskFromText(std::string text) {
+    textImage_ = TextTexture(appState_->universalShaderSettings.textureWidth, appState_->universalShaderSettings.textureHeight, appState_);
+    textImage_.createTexture(text, fontAtlas_);
+    //textImage_.textureToFile();
+    trailMasks_.push_back({text, std::move(textImage_), true, true});
 }
-*/
+
 void TrailMapController::loadTrailMaskFromImage(std::string imageName) {
 
     SDL_Surface* loadedImage = loadImageFromFile(pictureFilePath_, imageName, pictureFileExtension_);
@@ -101,7 +104,7 @@ void TrailMapController::loadPictureNames() {
         trailMasks_.push_back({pictureName, Texture(), false, false});
     }
 
-    trailMasks_.push_back({"text", Texture(), true, false});
+    //trailMasks_.push_back({"text", Texture(), true, false});
 }
 
 /*Loads Images indirectly, where the selection in the ListBox of the window is set and a call to handleUIRequests is made later in main()
@@ -148,10 +151,33 @@ void TrailMapController::bindToTextureUnit(GLuint textureUnit) {
     glBindTexture(GL_TEXTURE_2D, trailMasks_[activeTrailMaskIndex_].texture.getID());
 }
 
-void TrailMapController::onNotify(const Event event) {
+void TrailMapController::deleteTrailMask(size_t index) {
 
-    switch (event) {
-        case Event::LOAD_NEW_PICTURE:
+    //copy all Trail Masks to member vector except the one to be deleted
+    std::vector<TrailMask> tempMasks = std::move(trailMasks_);
+    trailMasks_.clear();
+    trailMasks_.reserve(tempMasks.size() - 1);
+
+    for(size_t i = 0; i < tempMasks.size(); ++i) {
+        if(i != index) {
+            trailMasks_.push_back(std::move(tempMasks[i]));
+        }
+    }
+
+    //ensure activeTrailMaskIndex_ is within bounds after deletion
+    if(index < activeTrailMaskIndex_) {
+        --activeTrailMaskIndex_;
+    } else if(index == activeTrailMaskIndex_) {
+        activeTrailMaskIndex_ = 0;
+    }
+
+    appState_->usedTrailMaskIndex = activeTrailMaskIndex_;
+}
+
+void TrailMapController::onNotify(const UserEvent event) {
+
+    switch (event.type) {
+        case EventType::LOAD_NEW_PICTURE:
         {
             activeTrailMaskIndex_ = appState_->usedTrailMaskIndex;
 
@@ -161,6 +187,21 @@ void TrailMapController::onNotify(const Event event) {
             } else {
                 loadTrailMaskFromImage(trailMasks_[activeTrailMaskIndex_].imageName);
             }
+            break;
+        }
+        case EventType::CREATE_NEW_TEXT_TEXTURE:
+        {
+            loadTrailMaskFromText(appState_->textPreset);
+            break;
+        }
+        case EventType::EDIT_TEXT_TEXTURE:
+        {
+            //editTrailMaskFromText(appState_->textPreset);
+            break;
+        }
+        case EventType::DELETE_TEXT_TEXTURE:
+        {
+            deleteTrailMask(appState_->usedTrailMaskIndex);
             break;
         }
         default:

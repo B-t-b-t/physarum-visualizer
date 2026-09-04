@@ -217,9 +217,9 @@ void Window::printOpenGLExtensions() {
 	std::cout << "----------------------" << std::endl;
 }
 
-void Window::onNotify(const Event event) {
-	switch (event) {
-		case Event::FULLSCREEN_TOGGLE:
+void Window::onNotify(const UserEvent event) {
+	switch (event.type) {
+		case EventType::FULLSCREEN_TOGGLE:
 			setFullscreen();		//check if fullscreen mode changed in UI and set it
 			break;
 		default:

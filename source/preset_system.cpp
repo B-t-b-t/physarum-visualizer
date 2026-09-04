@@ -148,15 +148,15 @@ void PresetSystem::autoSwitchPresets(UserInterface* ui, Uint64 timeInSeconds) {
     }
 }
 
-void PresetSystem::onNotify(const Event event) {
+void PresetSystem::onNotify(const UserEvent event) {
     PresetWindow *window = dynamic_cast<PresetWindow*>(observable_);
 
-    switch (event) {
-        case Event::SAVE_PRESET:
+    switch (event.type) {
+        case EventType::SAVE_PRESET:
             createPreset(std::string(window->getLastPresetName()), appState_);
             savePreset(std::string(window->getLastPresetName()));
             break;
-        case Event::LOAD_PRESET: {
+        case EventType::LOAD_PRESET: {
             std::string presetName = std::string(window->getSelectedPresetName());
             loadPreset(presetName);
             setUIState(appState_, presetName);
