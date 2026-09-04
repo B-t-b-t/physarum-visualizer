@@ -29,12 +29,20 @@ public:
 
     TextTexture() = default;
     TextTexture(int width, int height, ApplicationState* appState);
+    TextTexture(const TextTexture&) = delete;   //avoid copying
+    TextTexture& operator=(const TextTexture&) = delete;
+    TextTexture(TextTexture&&);
+    TextTexture& operator=(TextTexture&&);
+    ~TextTexture();
+
     void createTexture(std::string text, FontAtlas& fontAtlas);
     void textureToFile();
 
 private:
 
-    ShaderProgram textRenderProgram_;
+    static ShaderProgram textRenderProgram_;
+    static bool isShaderProgramInitialized_;
+    
     FrameBuffer outputFrameBuffer_;
 
     ApplicationState* appState_{nullptr};

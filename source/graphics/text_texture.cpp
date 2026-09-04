@@ -5,15 +5,63 @@
 
 #include "../utility/fileHandling.h"
 
+ShaderProgram TextTexture::textRenderProgram_{};
+bool TextTexture::isShaderProgramInitialized_ = false;
+
 TextTexture::TextTexture(int width, int height, ApplicationState* appState)
  : Texture(TextureProperties{.width = width, .height = height, .wrapX = TextureWrap::CLAMP_TO_EDGE, .wrapY = TextureWrap::CLAMP_TO_EDGE}),
    outputFrameBuffer_(),
    appState_(appState)
 {
-    Shader vertexShader = Shader("./res/text_vertex.vs", ShaderType::VERTEX_SHADER);
-    Shader fragmentShader = Shader("./res/text_fragment.fs", ShaderType::FRAGMENT_SHADER);
-    textRenderProgram_ = ShaderProgram("TextRenderPipeline", {&vertexShader, &fragmentShader});
+    //share shader program among all instances because it is expensive
+    if(!isShaderProgramInitialized_) {
+        Shader vertexShader = Shader("./res/text_vertex.vs", ShaderType::VERTEX_SHADER);
+        Shader fragmentShader = Shader("./res/text_fragment.fs", ShaderType::FRAGMENT_SHADER);
+        textRenderProgram_ = ShaderProgram("TextRenderPipeline", {&vertexShader, &fragmentShader});
+        isShaderProgramInitialized_ = true;
+    }
+
     outputFrameBuffer_.attachTexture(GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, getID(), 0);
+}
+
+TextTexture::TextTexture(TextTexture&& other) 
+ : Texture(std::move(other)),
+   outputFrameBuffer_(std::move(other.outputFrameBuffer_)),
+   appState_(other.appState_),
+   quadVertices_(std::move(other.quadVertices_)),
+   m_VAO(other.m_VAO),
+   m_VBO(other.m_VBO)
+{
+    other.appState_ = nullptr;
+    other.m_VAO = 0;
+    other.m_VBO = 0;
+}
+
+TextTexture& TextTexture::operator=(TextTexture&& rhs) {
+    if (this != &rhs) {
+        Texture::operator=(std::move(rhs));
+        outputFrameBuffer_ = std::move(rhs.outputFrameBuffer_);
+        appState_ = rhs.appState_;
+        quadVertices_ = std::move(rhs.quadVertices_);
+        m_VAO = rhs.m_VAO;
+        m_VBO = rhs.m_VBO;
+
+        rhs.appState_ = nullptr;
+        rhs.m_VAO = 0;
+        rhs.m_VBO = 0;
+    }
+    return *this;
+}
+
+TextTexture::~TextTexture() {
+    // VAO = 0 is ignored by glDeleteVertexArrays, but check anyway
+    if (m_VAO != 0) {
+        glDeleteVertexArrays(1, &m_VAO);
+    }
+    // VBO = 0 is ignored by glDeleteBuffers, but check anyway
+    if (m_VBO != 0) {
+        glDeleteBuffers(1, &m_VBO);
+    }
 }
 
 void TextTexture::createTexture(std::string text, FontAtlas& fontAtlas) {
@@ -109,7 +157,7 @@ void TextTexture::createTexture(std::string text, FontAtlas& fontAtlas) {
     textRenderProgram_.use();
 
     const GLint fontAtlasLocation = glGetUniformLocation(
-        textRenderProgram_.getProgramID(), // Use the ShaderProgram program-ID getter used by this project.
+        textRenderProgram_.getProgramID(),
         "fontAtlas"
     );
 
