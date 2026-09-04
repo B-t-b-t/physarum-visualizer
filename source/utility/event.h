@@ -25,7 +25,11 @@ std::ostream& operator<<(std::ostream& os, const EventType& c);
 
 struct UserEvent {
     EventType type;
-    std::variant<int, float, std::string> data;
+
+    //two values, e.g. if an event requires an index (data) and what changes at this index (additionalData)
+    //or resizing a texture (width and height)
+    std::variant<int, float, std::string> data_1;
+    std::variant<int, float, std::string> data_2;
 };
 
 #endif // EVENT_H

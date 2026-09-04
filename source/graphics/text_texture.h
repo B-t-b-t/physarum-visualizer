@@ -35,7 +35,7 @@ public:
     TextTexture& operator=(TextTexture&&);
     ~TextTexture();
 
-    void createTexture(std::string text, FontAtlas& fontAtlas);
+    void createTexture(std::string& text, FontAtlas& fontAtlas);
     void textureToFile();
 
 private:
@@ -48,8 +48,8 @@ private:
     ApplicationState* appState_{nullptr};
 
     std::vector<Vertex> quadVertices_{};
-    unsigned int m_VAO;
-	unsigned int m_VBO;
+    unsigned int m_VAO{0};
+	unsigned int m_VBO{0};
 };
 
 #endif // TEXT_TEXTURE_H

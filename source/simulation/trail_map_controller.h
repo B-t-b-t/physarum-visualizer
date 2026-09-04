@@ -1,8 +1,9 @@
 #ifndef TRAIL_MAP_CONTROLLER_H
 #define TRAIL_MAP_CONTROLLER_H
 
-#include <vector>
+#include <memory>
 #include <string>
+#include <vector>
 
 #include <GL/glew.h>
 #include <SDL3/SDL.h>
@@ -15,7 +16,7 @@
 
 struct TrailMask {
         std::string imageName;
-        Texture texture;
+        std::unique_ptr<Texture> texture;
         bool isText = false;
         bool loadedToGPU = false;
 };
@@ -32,6 +33,7 @@ public:
 
 	void autoSwitchPictures(Uint64 timeInSeconds);
     void loadRandomPicture();
+    void editTextTrailMask(int index, std::string newText);
     void deleteTrailMask(size_t index);
     void onNotify(const UserEvent event) override;
 

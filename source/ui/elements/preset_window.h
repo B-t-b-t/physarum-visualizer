@@ -25,6 +25,9 @@ private:
 	std::vector<std::string> colorPresetNames_;
 	unsigned int selectedColorPresetName_ = 0;
 
+	bool isEditingTextPreset_{false};
+	std::string textToEdit_{""};
+
 	void behaviourPresetGUI(ApplicationState* appState);
 	void colorPresetGUI(ApplicationState* appState);
 	void imagePresetGUI(ApplicationState* appState);

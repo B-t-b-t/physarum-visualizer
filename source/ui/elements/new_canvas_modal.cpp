@@ -63,7 +63,7 @@ void NewCanvasModal::render(ApplicationState* appState) {
 		ImGui::Checkbox("Collision Detection", (bool*)&(appState->universalShaderSettings.collisionDetection));
 
 		if (ImGui::Button("OK", ImVec2(120, 0))) {  visible = false;
-                                                    notify(UserEvent{EventType::NEW_CANVAS, 0});
+                                                    notify(UserEvent{EventType::NEW_CANVAS, 0, 0});
                                                     //new canvas has been created, update the appState accordingly
                                                     appState->universalShaderSettings.textureWidth = appState->newTextureWidth;
                                                     appState->universalShaderSettings.textureHeight = appState->newTextureHeight;

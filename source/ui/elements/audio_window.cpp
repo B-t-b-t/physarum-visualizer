@@ -38,7 +38,7 @@ void AudioWindow::render(ApplicationState* appState) {
 			const bool is_selected = deviceEntry.second.logicalID != 0;
 			if (ImGui::Selectable(deviceEntry.second.name, is_selected)) {
 				appState->usedAudioHardwareIndex = deviceEntry.first;
-				notify(UserEvent{EventType::AUDIO_HARDWARE_CHANGE, 0});
+				notify(UserEvent{EventType::AUDIO_HARDWARE_CHANGE, 0, 0});
 			}
 			// Set the initial focus when opening the combo (scrolling + keyboard navigation focus)
 			if (is_selected) {

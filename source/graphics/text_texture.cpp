@@ -22,6 +22,23 @@ TextTexture::TextTexture(int width, int height, ApplicationState* appState)
     }
 
     outputFrameBuffer_.attachTexture(GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, getID(), 0);
+
+    //create VAO and VBO for later use
+    glGenVertexArrays(1, &m_VAO);
+    glBindVertexArray(m_VAO);
+    
+    glGenBuffers(1, &m_VBO);
+    glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
+    
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, position));
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, color));
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, texCoord));
+    glEnableVertexAttribArray(2);
+
+    glBindVertexArray(0);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
 TextTexture::TextTexture(TextTexture&& other) 
@@ -64,7 +81,7 @@ TextTexture::~TextTexture() {
     }
 }
 
-void TextTexture::createTexture(std::string text, FontAtlas& fontAtlas) {
+void TextTexture::createTexture(std::string& text, FontAtlas& fontAtlas) {
     quadVertices_.clear();
     quadVertices_.reserve(text.size() * 6); //6 vertices per character (2 triangles)
 
@@ -139,18 +156,11 @@ void TextTexture::createTexture(std::string text, FontAtlas& fontAtlas) {
     }
 
     //send quads on GPU
-    glGenVertexArrays(1, &m_VAO);
-	glBindVertexArray(m_VAO);
-	glGenBuffers(1, &m_VBO);
-	glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
+    glBindVertexArray(m_VAO);
+    glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
+    
 	glBufferData(GL_ARRAY_BUFFER, static_cast<GLsizeiptr>(quadVertices_.size() * sizeof(Vertex)), &quadVertices_.front(), GL_STATIC_DRAW);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, position));
-	glEnableVertexAttribArray(0);
-    glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, color));
-    glEnableVertexAttribArray(1);
-	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, texCoord));
-	glEnableVertexAttribArray(2);
-
+    
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, fontAtlas.getTextureID());
 
