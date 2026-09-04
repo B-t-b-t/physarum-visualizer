@@ -1,6 +1,7 @@
 #include "preset_window.h"
 
 #include "../../utility/event.h"
+#include "../../simulation/trail_map_controller.h"
 
 void PresetWindow::render(ApplicationState* appState) {
     if(!visible) { return; }
@@ -150,19 +151,21 @@ void PresetWindow::imagePresetGUI(ApplicationState* appState) {
 	//Picture Selection
 	//--------------------------------
 	if (ImGui::BeginListBox("Pictures")) {
+		std::vector<TrailMask>* trailMasks = appState->trailMasks;
+		size_t usedTrailMaskIndex = appState->usedTrailMaskIndex;
+		if(trailMasks != nullptr) {
+			for (unsigned int i = 0; i < trailMasks->size(); ++i) {
+				const bool is_selected = (usedTrailMaskIndex == i);
 
-		for (unsigned int n = 0; n < pictureNames_.size(); n++)
-		{
-			const bool is_selected = (selectedPictureName_ == n);
-			if (ImGui::Selectable(pictureNames_[n].c_str(), is_selected)) {
-				selectedPictureName_ = n;
-				//appState->loadNewPicture = true;
-				notify(Event::LOAD_NEW_PICTURE);
-				std::cout << "Selected Picture: " << pictureNames_[n] << std::endl;
-			}
-			// Set the initial focus when opening the combo (scrolling + keyboard navigation focus)
-			if (is_selected) {
-				ImGui::SetItemDefaultFocus();
+				if (ImGui::Selectable((*trailMasks)[i].imageName.c_str(), is_selected)) {
+					appState->usedTrailMaskIndex = i;
+					notify(Event::LOAD_NEW_PICTURE);
+					std::cout << "Selected Picture: " << (*trailMasks)[i].imageName << std::endl;
+				}
+				// Set the initial focus when opening the combo (scrolling + keyboard navigation focus)
+				if (is_selected) {
+					ImGui::SetItemDefaultFocus();
+				}
 			}
 		}
 

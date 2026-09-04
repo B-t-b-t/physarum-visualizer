@@ -7,34 +7,35 @@
 #include <GL/glew.h>
 #include <SDL3/SDL.h>
 
+#include "../application_state.h"
 #include "../graphics/font_atlas.h"
 #include "../graphics/texture.h"
 #include "../graphics/text_texture.h"
-#include "../ui/user_interface.h"
 #include "../utility/observer.h"
+
+struct TrailMask {
+        std::string imageName;
+        Texture texture;
+        bool isText = false;
+        bool loadedToGPU = false;
+};
 
 class TrailMapController : public Observer {
 public:
 
     TrailMapController() = default;
-    TrailMapController(std::string pictureFilePath, std::string pictureFileExtension, GLuint textureUnit, UserInterface* ui);
+    TrailMapController(std::string pictureFilePath, std::string pictureFileExtension, GLuint textureUnit, ApplicationState* appState);
     void loadTrailMaskFromImage(std::string imageName);
     //void loadTrailMaskFromFont(std::string fontName);
-    void loadPictureNames(UserInterface* ui);
+    void loadPictureNames();
     void bindToTextureUnit(GLuint textureUnit);
 
-	void autoSwitchPictures(UserInterface* ui, Uint64 timeInSeconds);
-    void loadRandomPicture(UserInterface* ui);
+	void autoSwitchPictures(Uint64 timeInSeconds);
+    void loadRandomPicture();
 
     void onNotify(const Event event) override;
 
 private:
-    struct TrailMask {
-        std::string imageName;
-        Texture texture;
-        bool isText = false;
-        bool loadedToGPU = false;
-    };
 
     bool checkTimeTable(std::string imageName);
     void loadImageFromSurface(SDL_Surface* surface);
@@ -47,7 +48,7 @@ private:
     std::string pictureFilePath_ = "./res/pictures/";
     std::string pictureFileExtension_ = ".png";
     GLuint textureUnit_;	//Default Texture Unit for Trail Mask Texture
-    //UserInterface &ui_;
+    ApplicationState* appState_ = nullptr;
 
     FontAtlas fontAtlas_;
 

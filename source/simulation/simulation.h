@@ -7,14 +7,13 @@
 #include "../graphics/shader_program.h"
 #include "../graphics/uniform_buffer_manager.h"
 #include "../application_state.h"
-#include "../ui/user_interface.h"
 #include "../utility/observer.h"
 
 class Simulation : public Observer {
 
 public:
 
-    Simulation(UniformBufferManager* uboManager, UserInterface* ui, bool customParticleCount);
+    Simulation(UniformBufferManager* uboManager, ApplicationState* appState, bool customParticleCount);
 
     void simulateStep();
     void updateParticleParameters();
@@ -23,6 +22,8 @@ public:
     void onNotify(const Event event) override;
 
 private:
+    ApplicationState* appState_;
+
     ParticleData particleData_;
 
     Shader trailDiffusionShader_;
@@ -32,7 +33,6 @@ private:
 
     TrailMapController trailMapController_;
 
-    ApplicationState* appState_;
 };
 
 #endif // SIMULATION_H

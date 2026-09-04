@@ -12,7 +12,7 @@
 
 struct AudioDeviceInfo;	//forward declaration of AudioDeviceInfo struct
 struct Parameters;	//forward declaration of Parameters struct
-
+struct TrailMask;	//forward declaration of TrailMask struct
 
 enum class TextureMask {
         TRAIL = 0,
@@ -59,8 +59,19 @@ public:
 	bool lockAngles = true;
 	bool fullscreen = false;
 	bool autoPresetSwitching = false;
+
+	// Audio Hardware Selection via List Box
 	std::map<SDL_AudioDeviceID, AudioDeviceInfo>* availableAudioHardware = nullptr;
 	size_t usedAudioHardwareIndex = 0;
+
+	// Behaviour Preset Selection via List Box
+
+	// Color Preset Selection via List Box
+
+	// Trail Mask Selection via List Box
+	std::vector<TrailMask>* trailMasks = nullptr;
+	size_t usedTrailMaskIndex = 0;
+
 	int newTextureWidth = 1600;
 	int newTextureHeight = 896;
 	int numParticles = 300000;

@@ -2,17 +2,16 @@
 
 #include "../utility/event.h"
 
-Simulation::Simulation(UniformBufferManager* uboManager, UserInterface* ui, bool customParticleCount)
- : 	trailDiffusionShader_{Shader("./res/TrailDiffusion.cs", ShaderType::COMPUTE_SHADER)},
+Simulation::Simulation(UniformBufferManager* uboManager, ApplicationState* appState, bool customParticleCount)
+ : 	appState_{appState},
+ 	trailDiffusionShader_{Shader("./res/TrailDiffusion.cs", ShaderType::COMPUTE_SHADER)},
 	trailDiffusionProgram_{ShaderProgram("TrailDiffusionProgram", {&trailDiffusionShader_})},
 	particleBehaviourShader_{Shader("./res/ParticleBehaviour.cs", ShaderType::COMPUTE_SHADER)},
 	particleBehaviourProgram_{ShaderProgram("ParticleBehaviourProgram", {&particleBehaviourShader_})},
-	trailMapController_{TrailMapController("./res/pictures/", ".png", 16, ui)}	//Texture Unit 16 for Trail Mask Texture
+	trailMapController_{TrailMapController("./res/pictures/", ".png", 16, appState_)}	//Texture Unit 16 for Trail Mask Texture
 {
 	//------------------------------------------------------
 	// Calculate new simulation parameters based on window properties or user input
-	appState_ = ui->getState();
-
 	int textureWidth = appState_->universalShaderSettings.textureWidth;
 	int textureHeight = appState_->universalShaderSettings.textureHeight;
 	int workGroupDivider = appState_->workGroupDivider;

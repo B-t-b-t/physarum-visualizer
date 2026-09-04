@@ -35,25 +35,28 @@ bool TrailMapController::checkTimeTable(std::string imageName) {
 }
 
 
-TrailMapController::TrailMapController(std::string pictureFilePath, std::string pictureFileExtension, GLuint textureUnit, UserInterface* ui)
+TrailMapController::TrailMapController(std::string pictureFilePath, std::string pictureFileExtension, GLuint textureUnit, ApplicationState* appState)
  : pictureFilePath_(pictureFilePath), 
    pictureFileExtension_(pictureFileExtension), 
    textureUnit_(textureUnit),
+   appState_(appState),
    fontAtlas_{FontAtlas("Roboto-Medium")}
 {
-    loadPictureNames(ui);
+    loadPictureNames();
     for(size_t i = 0; i < trailMasks_.size(); ++i) {
         activeTrailMaskIndex_ = i;
         loadTrailMaskFromImage(trailMasks_[i].imageName);
     }
-    ApplicationState* appState = ui->getState();
 
-    textImage_ = TextTexture(appState->universalShaderSettings.textureWidth, appState->universalShaderSettings.textureHeight, appState);
-    textImage_.createTexture(appState->textPreset, fontAtlas_);
+    textImage_ = TextTexture(appState_->universalShaderSettings.textureWidth, appState_->universalShaderSettings.textureHeight, appState_);
+    textImage_.createTexture(appState_->textPreset, fontAtlas_);
     textImage_.textureToFile();
     trailMasks_[activeTrailMaskIndex_].texture = std::move(textImage_);
 
     activeTrailMaskIndex_ = 0;	//reset to first image after loading all images into GPU memory
+
+    appState_->trailMasks = &trailMasks_;
+    appState_->usedTrailMaskIndex = activeTrailMaskIndex_;
 }
 /*
 void TrailMapController::loadTrailMaskFromFont(std::string fontName) {
@@ -88,59 +91,52 @@ void TrailMapController::loadImageFromSurface(SDL_Surface* surface) {
     SDL_DestroySurface(surface);
 }
 
-void TrailMapController::loadPictureNames(UserInterface* ui) {
-
-    PresetWindow *window = dynamic_cast<PresetWindow*>(ui->getWindow("PresetWindow"));
+void TrailMapController::loadPictureNames() {
     
     std::vector<std::string> pictureNames;
 
     getFileNamesInDirectory(pictureFilePath_, pictureFileExtension_, pictureNames);
 
     for (std::string pictureName : pictureNames) {
-        window->addPictureName(pictureName);
         trailMasks_.push_back({pictureName, Texture(), false, false});
     }
 
-    window->addPictureName("text");
     trailMasks_.push_back({"text", Texture(), true, false});
 }
 
 /*Loads Images indirectly, where the selection in the ListBox of the window is set and a call to handleUIRequests is made later in main()
     !UGLY and confusing, please rewrite!!
 */
-void TrailMapController::loadRandomPicture(UserInterface* ui) {
+void TrailMapController::loadRandomPicture() {
     if(!trailMasks_.empty()) {
         
         SDL_GetCurrentTime(&timeTicks_);
         SDL_TimeToDateTime(timeTicks_, &dateTime_, true);
         
-        unsigned int randomIndex = (unsigned int) (rand() % (int)trailMasks_.size());
-        std::string imageName = trailMasks_[randomIndex].imageName;
+        unsigned int randomIndex = 0;
+        std::string imageName = "";
         
-        while(!checkTimeTable(imageName)) {
+        // try until a random picture passes the timetable check
+        do {   
             randomIndex = (unsigned int) (rand() % (int)trailMasks_.size());
             imageName = trailMasks_[randomIndex].imageName;
-        }
+        } while(!checkTimeTable(imageName));
         
-        PresetWindow *window = dynamic_cast<PresetWindow*>(ui->getWindow("PresetWindow"));
-        window->setSelectedPicture(randomIndex);
         activeTrailMaskIndex_ = randomIndex;
+        appState_->usedTrailMaskIndex = randomIndex;
         
     } else {
         std::cerr << "WARN: No pictures available to auto switch" << std::endl;
     }
 }
 
-void TrailMapController::autoSwitchPictures(UserInterface* ui, Uint64 timeInSeconds) {
-
-    ApplicationState* appState = ui->getState();
-
+void TrailMapController::autoSwitchPictures(Uint64 timeInSeconds) {
     //Timed Auto Preset Switching
-    if(appState->autoPresetSwitching) {
-        if((timeInSeconds % (Uint64)appState->trailMaskIntervall == 0) && !timeOut_ && appState->slimeSettings.velocityBassReaction > appState->beatVolumeSwitch) {
-            loadRandomPicture(ui);
+    if(appState_->autoPresetSwitching) {
+        if((timeInSeconds % (Uint64)appState_->trailMaskIntervall == 0) && !timeOut_ && appState_->slimeSettings.velocityBassReaction > appState_->beatVolumeSwitch) {
+            loadRandomPicture();
             timeOut_ = true;
-        } else if((timeInSeconds % (Uint64)appState->trailMaskIntervall > 0) && timeOut_){
+        } else if((timeInSeconds % (Uint64)appState_->trailMaskIntervall > 0) && timeOut_){
             timeOut_ = false;
         }
     }
@@ -153,27 +149,17 @@ void TrailMapController::bindToTextureUnit(GLuint textureUnit) {
 }
 
 void TrailMapController::onNotify(const Event event) {
-    PresetWindow *window = dynamic_cast<PresetWindow*>(observable_);
 
     switch (event) {
         case Event::LOAD_NEW_PICTURE:
         {
-            std::string pictureName = std::string(window->getSelectedPictureName());
+            activeTrailMaskIndex_ = appState_->usedTrailMaskIndex;
 
-            //binds selected image or loads it into GPU memory if not already loaded
-            for(size_t i = 0; i < trailMasks_.size(); ++i) {
-                if(trailMasks_[i].imageName == pictureName) {
-                    activeTrailMaskIndex_ = i;
-
-                    if(trailMasks_[i].loadedToGPU) {
-                        glActiveTexture(GL_TEXTURE0 + textureUnit_);
-                        glBindTexture(GL_TEXTURE_2D, trailMasks_[i].texture.getID());
-                        break;
-                    } else {
-                        loadTrailMaskFromImage(pictureName);
-                        break;
-                    }
-                }
+            if(trailMasks_[activeTrailMaskIndex_].loadedToGPU) {
+                glActiveTexture(GL_TEXTURE0 + textureUnit_);
+                glBindTexture(GL_TEXTURE_2D, trailMasks_[activeTrailMaskIndex_].texture.getID());
+            } else {
+                loadTrailMaskFromImage(trailMasks_[activeTrailMaskIndex_].imageName);
             }
             break;
         }
