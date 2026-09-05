@@ -37,6 +37,8 @@ private:
 	std::vector<std::string> colorPresetNames_;
 	unsigned int selectedColorPresetName_ = 0;
 
+    bool linkTrailMaskScales_ = true;
+
 	bool isEditingTextPreset_{false};
 	std::string textToEdit_{""};
 

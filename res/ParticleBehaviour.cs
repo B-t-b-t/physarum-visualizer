@@ -39,8 +39,12 @@ layout(std140, binding = 0) uniform UniversalShaderSettings {
     int timeTicks;
 
     float trailMaskInfluence;
-	float trailMaskScale;
-	vec2 trailMaskPosition;
+    float trailMaskScaleX;
+    float trailMaskScaleY;
+    float _padding0;
+
+    vec2 trailMaskPosition;
+    vec2 _padding1;
 
     vec4 mouseInputs; // x, y, leftClick, rightClick
 };
@@ -99,6 +103,17 @@ Particle moveParticle(Particle particle, float beatVel, float ds, vec3 speciesCo
 SensedTrail sensingTrail(Particle particle, float beatSensorDistance, float da, vec3 speciesColor, vec3 speciesMask);
 Particle rotateToNewDirection(Particle particle, SensedTrail sensedTrail, float ds);
 
+vec2 getTrailMaskCoordinates(ivec2 sensePos);
+
+vec2 getTrailMaskCoordinates(ivec2 sensePos) {
+    const vec2 normalizedSensePos = vec2(sensePos) /
+        vec2(textureWidth, textureHeight);
+    const vec2 trailMaskScale = vec2(trailMaskScaleX, trailMaskScaleY);
+
+    return trailMaskScale * (normalizedSensePos - 0.5f) +
+        0.5f +
+        trailMaskPosition;
+}
 
 void main() {
 
@@ -283,7 +298,7 @@ SensedTrail sensingTrail(Particle particle, float beatSensorDistance, float da, 
         sensedTrail.left = dot(speciesColor.rgb, sensedPixelValue.rgb);
     }
 
-    vec2 trailMaskPos = vec2((trailMaskScale * (sensePos / vec2(textureWidth, textureHeight) - 0.5f)) + 0.5f);    //transalte with 0.5 to scale from center
+    vec2 trailMaskPos = getTrailMaskCoordinates(sensePos);
     sensedPixelValue = trailMaskInfluence * textureLod(texTrailMask, trailMaskPos, 0.0f);
     sensedTrail.left += dot(speciesColor.rgb, sensedPixelValue.rgb);
 
@@ -300,7 +315,7 @@ SensedTrail sensingTrail(Particle particle, float beatSensorDistance, float da, 
         sensedTrail.front = dot(speciesColor.rgb, sensedPixelValue.rgb);
     }
 
-    trailMaskPos = vec2((trailMaskScale * (sensePos / vec2(textureWidth, textureHeight) - 0.5f)) + 0.5f);
+    trailMaskPos = getTrailMaskCoordinates(sensePos);
     sensedPixelValue = trailMaskInfluence * textureLod(texTrailMask, trailMaskPos, 0.0f);
     sensedTrail.front += dot(speciesColor.rgb, sensedPixelValue.rgb);
 
@@ -317,7 +332,7 @@ SensedTrail sensingTrail(Particle particle, float beatSensorDistance, float da, 
         sensedTrail.right = dot(speciesColor.rgb, sensedPixelValue.rgb);
     }
 
-    trailMaskPos = vec2((trailMaskScale * (sensePos / vec2(textureWidth, textureHeight) - 0.5f)) + 0.5f);
+    trailMaskPos = getTrailMaskCoordinates(sensePos);
     sensedPixelValue = trailMaskInfluence * textureLod(texTrailMask, trailMaskPos, 0.0f);
     sensedTrail.right += dot(speciesColor.rgb, sensedPixelValue.rgb);
 

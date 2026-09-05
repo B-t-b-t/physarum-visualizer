@@ -15,8 +15,12 @@ struct alignas(16) UniversalShaderSettings {
     int timeTicks = 0;
 
     float trailMaskInfluence = 1.0f;
-    float trailMaskScale = 1.0f;
+    float trailMaskScaleX = 1.0f;
+    float trailMaskScaleY = 1.0f;
+    float _padding0 = 0.0f;
+
     ImVec2 trailMaskPosition = ImVec2(0.0f, 0.0f);
+    ImVec2 _padding1 = ImVec2(0.0f, 0.0f);
 
     ImVec4 mouseInputs = ImVec4(0.0f, 0.0f, 0.0f, 0.0f); // x, y, leftClick, rightClick
 };

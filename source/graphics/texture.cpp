@@ -107,6 +107,8 @@ void Texture::ensureValidProperties(TextureProperties* properties, void* data, T
 	assert(properties->texelFormat != TexelFormat::R_UINT || (properties->texelFormat == TexelFormat::R_UINT && (properties->minFilter == TextureMinFilter::NEAREST || !properties->minFilter)));
 	assert(properties->texelFormat != TexelFormat::R_UINT || (properties->texelFormat == TexelFormat::R_UINT && (properties->magFilter == TextureMagFilter::NEAREST || !properties->magFilter)));
 
+	bytesPerRow = bytesPerRow;	//to disable unused variable warning in release build
+
 	//===== Quality of Life Section =====
 	//reduces the number of parameters required for the constructor for certain texture configs
 

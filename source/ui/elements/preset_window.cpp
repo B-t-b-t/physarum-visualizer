@@ -277,11 +277,48 @@ void PresetWindow::imagePresetGUI(ApplicationState* appState) {
         0.0f,
         5.0f
     );
-    ImGui::SliderFloat(
-        "Trail Mask Scale",
-        &appState->universalShaderSettings.trailMaskScale,
+    if(ImGui::Button(
+        linkTrailMaskScales_ ? "Unlink Trail Mask Scales" : "Link Trail Mask Scales"
+    )) {
+        linkTrailMaskScales_ = !linkTrailMaskScales_;
+
+        if(linkTrailMaskScales_) {
+            appState->universalShaderSettings.trailMaskScaleY =
+                appState->universalShaderSettings.trailMaskScaleX;
+        }
+    }
+
+    if(ImGui::SliderFloat(
+        "Trail Mask Scale X",
+        &appState->universalShaderSettings.trailMaskScaleX,
         0.1f,
         10.0f
+    ) && linkTrailMaskScales_) {
+        appState->universalShaderSettings.trailMaskScaleY =
+            appState->universalShaderSettings.trailMaskScaleX;
+    }
+
+    if(ImGui::SliderFloat(
+        "Trail Mask Scale Y",
+        &appState->universalShaderSettings.trailMaskScaleY,
+        0.1f,
+        10.0f
+    ) && linkTrailMaskScales_) {
+        appState->universalShaderSettings.trailMaskScaleX =
+            appState->universalShaderSettings.trailMaskScaleY;
+    }
+
+    ImGui::SliderFloat(
+        "Trail Mask Position X",
+        &appState->universalShaderSettings.trailMaskPosition.x,
+        -1.0f,
+        1.0f
+    );
+    ImGui::SliderFloat(
+        "Trail Mask Position Y",
+        &appState->universalShaderSettings.trailMaskPosition.y,
+        -1.0f,
+        1.0f
     );
     ImGui::SliderInt(
         "Trail Mask Time Intervall [s]",
@@ -477,4 +514,60 @@ void PresetWindow::textPresetGUI(ApplicationState* appState) {
 
         ImGui::EndPopup();
     }
+
+        ImGui::SliderFloat(
+        "Trail Mask Influence",
+        &appState->universalShaderSettings.trailMaskInfluence,
+        0.0f,
+        5.0f
+    );
+    if(ImGui::Button(
+        linkTrailMaskScales_ ? "Unlink Trail Mask Scales" : "Link Trail Mask Scales"
+    )) {
+        linkTrailMaskScales_ = !linkTrailMaskScales_;
+
+        if(linkTrailMaskScales_) {
+            appState->universalShaderSettings.trailMaskScaleY =
+                appState->universalShaderSettings.trailMaskScaleX;
+        }
+    }
+
+    if(ImGui::SliderFloat(
+        "Trail Mask Scale X",
+        &appState->universalShaderSettings.trailMaskScaleX,
+        0.1f,
+        10.0f
+    ) && linkTrailMaskScales_) {
+        appState->universalShaderSettings.trailMaskScaleY =
+            appState->universalShaderSettings.trailMaskScaleX;
+    }
+
+    if(ImGui::SliderFloat(
+        "Trail Mask Scale Y",
+        &appState->universalShaderSettings.trailMaskScaleY,
+        0.1f,
+        10.0f
+    ) && linkTrailMaskScales_) {
+        appState->universalShaderSettings.trailMaskScaleX =
+            appState->universalShaderSettings.trailMaskScaleY;
+    }
+
+    ImGui::SliderFloat(
+        "Trail Mask Position X",
+        &appState->universalShaderSettings.trailMaskPosition.x,
+        -1.0f,
+        1.0f
+    );
+    ImGui::SliderFloat(
+        "Trail Mask Position Y",
+        &appState->universalShaderSettings.trailMaskPosition.y,
+        -1.0f,
+        1.0f
+    );
+    ImGui::SliderInt(
+        "Trail Mask Time Intervall [s]",
+        &appState->trailMaskIntervall,
+        2,
+        60
+    );
 }
