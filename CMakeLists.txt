@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.30.0)
-project(Physarum VERSION 0.6.0 LANGUAGES CXX)
+project(Physarum VERSION 0.6.3 LANGUAGES CXX)
 
 cmake_policy(SET CMP0072 NEW)
 

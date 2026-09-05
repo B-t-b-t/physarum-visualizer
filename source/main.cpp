@@ -16,7 +16,7 @@ int main(int argc, char* argv[]) {
 	}
 
 	std::cout << "====================" << std::endl 
-			  << "Physarum 0.6.0-alpha" << std::endl
+			  << "Physarum 0.6.3-alpha" << std::endl
 			  << "====================" << std::endl;
 			   
 	Application app(params);

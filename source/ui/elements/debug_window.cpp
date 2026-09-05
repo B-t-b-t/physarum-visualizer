@@ -117,7 +117,7 @@ void DebugWindow::render(ApplicationState* appState) {
 		ImGui::Text("Mouse wheel: %.1f", guiIO_->MouseWheel);
 	}
 	ImGui::Separator();
-	ImGui::Text("Version: 0.6.0-alpha");
+	ImGui::Text("Version: 0.6.3-alpha");
 	ImGui::SameLine();
 	ImGui::Text("Performance: %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 
