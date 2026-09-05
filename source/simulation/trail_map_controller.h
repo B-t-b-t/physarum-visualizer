@@ -7,18 +7,23 @@
 
 #include <GL/glew.h>
 #include <SDL3/SDL.h>
+#include <toml.hpp>
 
 #include "../application_state.h"
 #include "../graphics/font_atlas.h"
 #include "../graphics/texture.h"
 #include "../graphics/text_texture.h"
+#include "../utility/event.h"
 #include "../utility/observer.h"
 
 struct TrailMask {
         std::string imageName;
         std::unique_ptr<Texture> texture;
-        bool isText = false;
-        bool loadedToGPU = false;
+        bool isText{false};
+        bool loadedToGPU{false};
+        bool hasTimeSlot{false};
+        SDL_Time beginTimeSlot{};
+        SDL_Time endTimeSlot{};
 };
 
 class TrailMapController : public Observer {
@@ -26,6 +31,7 @@ public:
 
     TrailMapController() = default;
     TrailMapController(std::string pictureFilePath, std::string pictureFileExtension, GLuint textureUnit, ApplicationState* appState);
+    ~TrailMapController();
     void loadTrailMaskFromImage(std::string imageName);
     void loadTrailMaskFromText(std::string text);
     void loadPictureNames();
@@ -33,13 +39,16 @@ public:
 
 	void autoSwitchPictures(Uint64 timeInSeconds);
     void loadRandomPicture();
-    void editTextTrailMask(int index, std::string newText);
+    void editTextTrailMask(int index, TrailMaskData newData);
     void deleteTrailMask(size_t index);
+    void editTrailMaskTimeSlot(int index, const TrailMaskData& newData);
     void onNotify(const UserEvent event) override;
 
 private:
 
     bool checkTimeTable(std::string imageName);
+    bool loadFromToml();
+    bool saveToToml();
     void loadImageFromSurface(SDL_Surface* surface);
 
     SDL_Surface* loadedImage_;
@@ -57,6 +66,8 @@ private:
     size_t activeTrailMaskIndex_;
     SDL_Time timeTicks_;
     SDL_DateTime dateTime_;
+
+    toml::value timeTable_{};
 
     bool timeOut_ = false;
 };

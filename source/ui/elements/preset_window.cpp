@@ -149,113 +149,332 @@ void PresetWindow::colorPresetGUI(ApplicationState* appState) {
 
 void PresetWindow::imagePresetGUI(ApplicationState* appState) {
 	//--------------------------------
-	//Picture Selection
-	//--------------------------------
-	if (ImGui::BeginListBox("Pictures")) {
-		std::vector<TrailMask>* trailMasks = appState->trailMasks;
-		size_t usedTrailMaskIndex = appState->usedTrailMaskIndex;
-		if(trailMasks != nullptr) {
-			for (unsigned int i = 0; i < trailMasks->size(); ++i) {
-				const bool is_selected = (usedTrailMaskIndex == i);
-				bool isImageMask = !((*trailMasks)[i].isText);
-				if (isImageMask && ImGui::Selectable((*trailMasks)[i].imageName.c_str(), is_selected)) {
+    //Picture Selection
+    //--------------------------------
+    static bool editTimeSlot = false;
+    static int editDayBegin = 1;
+    static int editHourBegin = 0;
+    static int editMinuteBegin = 0;
+    static int editDayEnd = 1;
+    static int editHourEnd = 0;
+    static int editMinuteEnd = 0;
+
+    if(ImGui::BeginListBox("Pictures")) {
+        std::vector<TrailMask>* trailMasks = appState->trailMasks;
+        const size_t usedTrailMaskIndex = appState->usedTrailMaskIndex;
+
+        if(trailMasks != nullptr) {
+            for(unsigned int i = 0; i < trailMasks->size(); ++i) {
+                TrailMask& trailMask = (*trailMasks)[i];
+
+                if(trailMask.isText) {
+                    continue;
+                }
+
+                ImGui::PushID(static_cast<int>(i));
+
+				//display if entry has a time slot
+				const bool isSelected = (usedTrailMaskIndex == i);
+				const std::string displayName = trailMask.imageName +
+					(trailMask.hasTimeSlot ? " (t)" : "");
+
+				if(ImGui::Selectable(displayName.c_str(), isSelected)) {
 					appState->usedTrailMaskIndex = i;
 					notify(UserEvent{EventType::LOAD_NEW_PICTURE, 0, 0});
-					std::cout << "Selected Picture: " << (*trailMasks)[i].imageName << std::endl;
+					std::cout << "Selected Picture: " << trailMask.imageName << std::endl;
 				}
-				// Set the initial focus when opening the combo (scrolling + keyboard navigation focus)
-				if (is_selected) {
-					ImGui::SetItemDefaultFocus();
-				}
-			}
-		}
 
-		ImGui::EndListBox();
-	}
+                if(ImGui::IsItemClicked(ImGuiMouseButton_Right)) {
+                    editTimeSlot = trailMask.hasTimeSlot;
+                    editDayBegin = 1;
+                    editHourBegin = 0;
+                    editMinuteBegin = 0;
+                    editDayEnd = 1;
+                    editHourEnd = 0;
+                    editMinuteEnd = 0;
 
-	ImGui::SliderFloat("Trail Mask Influence", &appState->universalShaderSettings.trailMaskInfluence, 0.0f, 5.0f);
-	ImGui::SliderFloat("Trail Mask Scale", &appState->universalShaderSettings.trailMaskScale, 0.1f, 10.0f);
-	ImGui::SliderInt("Trail Mask Time Intervall [s]", &appState->trailMaskIntervall, 2, 60);
+                    SDL_DateTime beginDateTime{};
+                    SDL_DateTime endDateTime{};
+
+                    if(trailMask.hasTimeSlot &&
+                       SDL_TimeToDateTime(trailMask.beginTimeSlot, &beginDateTime, true) &&
+                       SDL_TimeToDateTime(trailMask.endTimeSlot, &endDateTime, true)) {
+                        editDayBegin = static_cast<int>(beginDateTime.day);
+                        editHourBegin = static_cast<int>(beginDateTime.hour);
+                        editMinuteBegin = static_cast<int>(beginDateTime.minute);
+                        editDayEnd = static_cast<int>(endDateTime.day);
+                        editHourEnd = static_cast<int>(endDateTime.hour);
+                        editMinuteEnd = static_cast<int>(endDateTime.minute);
+                    }
+                }
+
+                if(ImGui::BeginPopupContextItem("ImagePresetContext")) {
+                    ImGui::Text("Edit time slot for: %s", trailMask.imageName.c_str());
+                    ImGui::Separator();
+
+                    ImGui::Checkbox("Time Slot", &editTimeSlot);
+
+                    if(editTimeSlot) {
+                        ImGui::Text("Begin:");
+                        ImGui::DragInt("Day Begin", &editDayBegin, 1, 1, 31);
+                        ImGui::DragInt("Hour Begin", &editHourBegin, 1, 0, 23);
+                        ImGui::DragInt("Minute Begin", &editMinuteBegin, 1, 0, 59);
+
+                        ImGui::Text("End:");
+                        ImGui::DragInt("Day End", &editDayEnd, 1, 1, 31);
+                        ImGui::DragInt("Hour End", &editHourEnd, 1, 0, 23);
+                        ImGui::DragInt("Minute End", &editMinuteEnd, 1, 0, 59);
+                    }
+
+                    ImGui::Separator();
+
+                    if(ImGui::Button("OK")) {
+                        TrailMaskData trailMaskData{
+							.newName = trailMask.imageName,
+							.isText = false,
+                            .hasTimeSlot = editTimeSlot,
+                            .dayBegin = editDayBegin,
+                            .hourBegin = editHourBegin,
+                            .minuteBegin = editMinuteBegin,
+                            .dayEnd = editDayEnd,
+                            .hourEnd = editHourEnd,
+                            .minuteEnd = editMinuteEnd
+                        };
+
+                        notify(UserEvent{
+                            EventType::EDIT_TRAIL_MASK_TIME_SLOT,
+                            static_cast<int>(i),
+                            trailMaskData
+                        });
+
+                        ImGui::CloseCurrentPopup();
+                    }
+
+                    ImGui::SameLine();
+
+                    if(ImGui::Button("Cancel")) {
+                        ImGui::CloseCurrentPopup();
+                    }
+
+                    ImGui::EndPopup();
+                }
+
+                if(isSelected) {
+                    ImGui::SetItemDefaultFocus();
+                }
+
+                ImGui::SetItemTooltip("Right-click to edit the time slot");
+                ImGui::PopID();
+            }
+        }
+
+        ImGui::EndListBox();
+    }
+
+    ImGui::SliderFloat(
+        "Trail Mask Influence",
+        &appState->universalShaderSettings.trailMaskInfluence,
+        0.0f,
+        5.0f
+    );
+    ImGui::SliderFloat(
+        "Trail Mask Scale",
+        &appState->universalShaderSettings.trailMaskScale,
+        0.1f,
+        10.0f
+    );
+    ImGui::SliderInt(
+        "Trail Mask Time Intervall [s]",
+        &appState->trailMaskIntervall,
+        2,
+        60
+    );
 }
 
 void PresetWindow::textPresetGUI(ApplicationState* appState) {
-	//--------------------------------
-	//Text Selection
-	//--------------------------------
+    //--------------------------------
+    //Text Selection
+    //--------------------------------
+    static bool editTimeSlot = false;
+    static int editDayBegin = 1;
+    static int editHourBegin = 0;
+    static int editMinuteBegin = 0;
+    static int editDayEnd = 1;
+    static int editHourEnd = 0;
+    static int editMinuteEnd = 0;
 
-	if (ImGui::BeginListBox("Text Presets")) {
-		std::vector<TrailMask>* trailMasks = appState->trailMasks;
-		size_t usedTrailMaskIndex = appState->usedTrailMaskIndex;
-		if(trailMasks != nullptr) {
-			for (unsigned int i = 0; i < trailMasks->size(); ++i) {
-				const bool is_selected = (usedTrailMaskIndex == i);
-				bool isTextMask = (*trailMasks)[i].isText;
-				if (isTextMask && ImGui::Selectable((*trailMasks)[i].imageName.c_str(), is_selected)) {
-					appState->usedTrailMaskIndex = i;
-					notify(UserEvent{EventType::LOAD_NEW_PICTURE, 0, 0});
-					std::cout << "Selected Text: " << (*trailMasks)[i].imageName << std::endl;
-				}
+    if (ImGui::BeginListBox("Text Presets")) {
+        std::vector<TrailMask>* trailMasks = appState->trailMasks;
+        size_t usedTrailMaskIndex = appState->usedTrailMaskIndex;
 
-				//to prevent overwriting the text while being edited
-				if(!isEditingTextPreset_) {
-					textToEdit_ = (*trailMasks)[i].imageName;
-				}
+        if(trailMasks != nullptr) {
+            for (unsigned int i = 0; i < trailMasks->size(); ++i) {
+                TrailMask& trailMask = (*trailMasks)[i];
 
-				//uses last item as Popup ID
-                if (ImGui::BeginPopupContextItem()) {
-					isEditingTextPreset_ = true;
-					ImGui::Text("Edit text:");
-					ImGui::InputTextMultiline("##edittext", &textToEdit_, ImVec2(-FLT_MIN, ImGui::GetTextLineHeight() * 8), ImGuiInputTextFlags_CallbackCharFilter, TextFilters::FilterASCII);
-					if (ImGui::Button("OK")) {
-						notify(UserEvent{EventType::EDIT_TEXT_TEXTURE, (int)i, textToEdit_});
-						textToEdit_ = "";
-						isEditingTextPreset_ = false;
-						ImGui::CloseCurrentPopup();
-					}
-					ImGui::SameLine();
-					if (ImGui::Button("Cancel")) {
-						textToEdit_ = "";
-						isEditingTextPreset_ = false;
-						ImGui::CloseCurrentPopup();
-					}
-					ImGui::SameLine();
-					if (ImGui::Button("Delete")) {
-						notify(UserEvent{EventType::DELETE_TEXT_TEXTURE, (int)i, textToEdit_});
-						textToEdit_ = "";
-						isEditingTextPreset_ = false;
-						ImGui::CloseCurrentPopup();
-					}
-					ImGui::EndPopup();
+                if(!trailMask.isText) {
+                    continue;
                 }
 
-				// Set the initial focus when opening the combo (scrolling + keyboard navigation focus)
-				if (is_selected) {
-					ImGui::SetItemDefaultFocus();
+                ImGui::PushID(static_cast<int>(i));
+
+				//display if entry has a time slot
+				const bool isSelected = (usedTrailMaskIndex == i);
+				const std::string displayName = trailMask.imageName +
+					(trailMask.hasTimeSlot ? " (t)" : "");
+
+				if(ImGui::Selectable(displayName.c_str(), isSelected)) {
+					appState->usedTrailMaskIndex = i;
+					notify(UserEvent{EventType::LOAD_NEW_PICTURE, 0, 0});
+					std::cout << "Selected Text: " << trailMask.imageName << std::endl;
 				}
 
-				ImGui::SetItemTooltip("Right-click to Edit or Delete");
-			}
-		}
+                if(ImGui::BeginPopupContextItem("TextPresetContext")) {
+                    if(ImGui::IsWindowAppearing()) {
+                        isEditingTextPreset_ = true;
+                        textToEdit_ = trailMask.imageName;
 
-		ImGui::EndListBox();
-	}
-	ImGui::SameLine();
-	if(ImGui::Button("New Text")) { ImGui::OpenPopup("New Text"); }
+                        editTimeSlot = trailMask.hasTimeSlot;
+                        editDayBegin = 1;
+                        editHourBegin = 0;
+                        editMinuteBegin = 0;
+                        editDayEnd = 1;
+                        editHourEnd = 0;
+                        editMinuteEnd = 0;
 
-	if(ImGui::BeginPopupModal("New Text", NULL, ImGuiWindowFlags_AlwaysAutoResize)) {
-		ImGui::Text("Enter new text:");
-		static std::string newTextBuffer = "";
-		ImGui::InputTextMultiline("##newtext", &newTextBuffer, ImVec2(-FLT_MIN, ImGui::GetTextLineHeight() * 8), ImGuiInputTextFlags_CallbackCharFilter, TextFilters::FilterASCII);
-		if (ImGui::Button("OK")) {
-			notify(UserEvent{EventType::CREATE_NEW_TEXT_TEXTURE, newTextBuffer, 0});
-			newTextBuffer = "";
-			ImGui::CloseCurrentPopup();
-		}
-		ImGui::SameLine();
-		if (ImGui::Button("Cancel")) {
-			newTextBuffer = "";
-			ImGui::CloseCurrentPopup();
-		}
-		ImGui::EndPopup();
-	}
+                        SDL_DateTime beginDateTime{};
+                        SDL_DateTime endDateTime{};
+
+                        if(trailMask.hasTimeSlot &&
+                           SDL_TimeToDateTime(trailMask.beginTimeSlot, &beginDateTime, true) &&
+                           SDL_TimeToDateTime(trailMask.endTimeSlot, &endDateTime, true)) {
+                            editDayBegin = static_cast<int>(beginDateTime.day);
+                            editHourBegin = static_cast<int>(beginDateTime.hour);
+                            editMinuteBegin = static_cast<int>(beginDateTime.minute);
+                            editDayEnd = static_cast<int>(endDateTime.day);
+                            editHourEnd = static_cast<int>(endDateTime.hour);
+                            editMinuteEnd = static_cast<int>(endDateTime.minute);
+                        }
+                    }
+
+                    ImGui::Text("Edit text:");
+                    ImGui::InputTextMultiline(
+                        "##edittext",
+                        &textToEdit_,
+                        ImVec2(-FLT_MIN, ImGui::GetTextLineHeight() * 8),
+                        ImGuiInputTextFlags_CallbackCharFilter,
+                        TextFilters::FilterASCII
+                    );
+
+                    ImGui::Separator();
+                    ImGui::Checkbox("Time Slot", &editTimeSlot);
+
+                    if(editTimeSlot) {
+                        ImGui::Text("Begin:");
+                        ImGui::DragInt("Day Begin", &editDayBegin, 1, 1, 31);
+                        ImGui::DragInt("Hour Begin", &editHourBegin, 1, 0, 23);
+                        ImGui::DragInt("Minute Begin", &editMinuteBegin, 1, 0, 59);
+
+                        ImGui::Text("End:");
+                        ImGui::DragInt("Day End", &editDayEnd, 1, 1, 31);
+                        ImGui::DragInt("Hour End", &editHourEnd, 1, 0, 23);
+                        ImGui::DragInt("Minute End", &editMinuteEnd, 1, 0, 59);
+                    }
+
+                    ImGui::Separator();
+
+                    if(ImGui::Button("OK")) {
+                        TrailMaskData trailMaskData{
+                            .newName = textToEdit_,
+                            .isText = true,
+                            .hasTimeSlot = editTimeSlot,
+                            .dayBegin = editDayBegin,
+                            .hourBegin = editHourBegin,
+                            .minuteBegin = editMinuteBegin,
+                            .dayEnd = editDayEnd,
+                            .hourEnd = editHourEnd,
+                            .minuteEnd = editMinuteEnd
+                        };
+
+                        notify(UserEvent{
+                            EventType::EDIT_TEXT_TEXTURE,
+                            static_cast<int>(i),
+                            trailMaskData
+                        });
+
+                        textToEdit_.clear();
+                        isEditingTextPreset_ = false;
+                        ImGui::CloseCurrentPopup();
+                    }
+
+                    ImGui::SameLine();
+
+                    if(ImGui::Button("Cancel")) {
+                        textToEdit_.clear();
+                        isEditingTextPreset_ = false;
+                        ImGui::CloseCurrentPopup();
+                    }
+
+                    ImGui::SameLine();
+
+                    if(ImGui::Button("Delete")) {
+                        notify(UserEvent{
+                            EventType::DELETE_TEXT_TEXTURE,
+                            static_cast<int>(i),
+                            textToEdit_
+                        });
+
+                        textToEdit_.clear();
+                        isEditingTextPreset_ = false;
+                        ImGui::CloseCurrentPopup();
+                    }
+
+                    ImGui::EndPopup();
+                }
+
+                if(isSelected) {
+                    ImGui::SetItemDefaultFocus();
+                }
+
+                ImGui::SetItemTooltip("Right-click to Edit or Delete");
+                ImGui::PopID();
+            }
+        }
+
+        ImGui::EndListBox();
+    }
+
+    ImGui::SameLine();
+    if(ImGui::Button("New Text")) {
+        ImGui::OpenPopup("New Text");
+    }
+
+    if(ImGui::BeginPopupModal("New Text", NULL, ImGuiWindowFlags_AlwaysAutoResize)) {
+        ImGui::Text("Enter new text:");
+        static std::string newTextBuffer = "";
+
+        ImGui::InputTextMultiline(
+            "##newtext",
+            &newTextBuffer,
+            ImVec2(-FLT_MIN, ImGui::GetTextLineHeight() * 8),
+            ImGuiInputTextFlags_CallbackCharFilter,
+            TextFilters::FilterASCII
+        );
+
+        ImGui::Separator();
+
+        if(ImGui::Button("OK")) {
+            notify(UserEvent{EventType::CREATE_NEW_TEXT_TEXTURE, newTextBuffer, 0});
+            newTextBuffer.clear();
+            ImGui::CloseCurrentPopup();
+        }
+
+        ImGui::SameLine();
+
+        if(ImGui::Button("Cancel")) {
+            newTextBuffer.clear();
+            ImGui::CloseCurrentPopup();
+        }
+
+        ImGui::EndPopup();
+    }
 }
