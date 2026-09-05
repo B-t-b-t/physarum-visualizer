@@ -33,6 +33,9 @@ private:
 
 	ImGuiIO *guiIO_;
 
+	SDL_Window* window_;
+	SDL_GLContext glContext_;
+
 	bool showImGUIDemo_ = false;
 	bool showImPlotDemo_ = false;
 

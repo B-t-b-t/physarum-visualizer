@@ -12,6 +12,7 @@
 #include "uniforms.h"           // for UniversalShaderSettings
 #include "utility/event.h"      // for Event
 
+#include "imgui_impl_sdl3.h"
 
 Window::Window(const std::string& title, ApplicationState* appState, bool customResolution)
  : appState_{appState}

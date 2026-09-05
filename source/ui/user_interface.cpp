@@ -11,21 +11,25 @@
 inline void ImGui_StyleNuklearDarkGray();
 
 UserInterface::UserInterface(SDL_Window* window, SDL_GLContext glContext, ApplicationState* appState)
- : state_(appState)
+ : state_(appState),
+   window_(window),
+   glContext_(glContext)
  {
 		
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
 	ImPlot::CreateContext();
 
+	guiIO_ = &ImGui::GetIO();
+	guiIO_->ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+	guiIO_->ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
+	
 	//ImGui::StyleColorsDark();
 	ImGui_StyleNuklearDarkGray();
 
 	ImGui_ImplSDL3_InitForOpenGL(window, glContext);
 	ImGui_ImplOpenGL3_Init();
 
-	guiIO_ = &ImGui::GetIO();
-	guiIO_->ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 	guiIO_->Fonts->AddFontFromFileTTF("res/fonts/Roboto-Medium.ttf", 16.0f);
 
 	initWindows();
@@ -71,6 +75,14 @@ void UserInterface::display() {
 
 	ImGui::Render();
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
+	if (guiIO_->ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+	{
+		ImGui::UpdatePlatformWindows();
+		ImGui::RenderPlatformWindowsDefault();
+
+		SDL_GL_MakeCurrent(window_, glContext_);
+	}
 }
 
 void UserInterface::mainMenuBarGUI() {
