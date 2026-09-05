@@ -168,8 +168,27 @@ Window::~Window() {
 
 void Window::updateViewport() {
 
-    SDL_GetWindowSizeInPixels(window_, &windowWidth_, &windowHeight_);   // Get the window size in pixels
-    glViewport(0, 0, windowWidth_, windowHeight_);						  // Update viewport to match window size
+	int logicalWidth = 0;
+	int logicalHeight = 0;
+	int pixelWidth = 0;
+	int pixelHeight = 0;
+
+	SDL_GetWindowSize(window_, &logicalWidth, &logicalHeight);
+	SDL_GetWindowSizeInPixels(window_, &pixelWidth, &pixelHeight);	// Get the window size in pixels
+
+	windowWidth_ = pixelWidth;
+	windowHeight_ = pixelHeight;
+
+	fractionalScalingFactor_ =
+		logicalWidth > 0
+			? static_cast<float>(pixelWidth) / static_cast<float>(logicalWidth)
+			: 1.0f;
+
+	glViewport(0, 0, pixelWidth, pixelHeight);	// Update viewport to match window size
+
+	appState_->universalShaderSettings.windowWidth = pixelWidth;
+	appState_->universalShaderSettings.windowHeight = pixelHeight;
+	appState_->fractionalScalingFactor = fractionalScalingFactor_;
 }
 
 void Window::setFullscreen(){
@@ -187,22 +206,47 @@ void Window::swapBuffers() {
 }
 
 void Window::processWindowEvents() {
-    SDL_Event windowEvent;
-	SDL_PumpEvents(); //necessary to update the event queue with latest events
+	SDL_Event event;
+	const SDL_WindowID mainWindowID = SDL_GetWindowID(window_);
+	bool mainWindowResized = false;
 
-	//filter for quitting through window close button
-	if(SDL_PeepEvents(&windowEvent, 1, SDL_GETEVENT, SDL_EVENT_QUIT, SDL_EVENT_QUIT) || appState_->exitProgram) {
-		isClosing_ = true;
-		return;	//polling for other events unnecessary after quit
-	}
-    
-    //filter just keyboard and mouse events
-	while (SDL_PeepEvents(&windowEvent, 1, SDL_GETEVENT, SDL_EVENT_WINDOW_FIRST, SDL_EVENT_WINDOW_LAST)) {
+	while (SDL_PollEvent(&event)) {
+		//required for detached ImGui viewport windows.
+		ImGui_ImplSDL3_ProcessEvent(&event);
 
-		switch (windowEvent.type) {
+		if (event.type == SDL_EVENT_QUIT) {
+			isClosing_ = true;
+			continue;
+		}
+
+		if (event.type == SDL_EVENT_WINDOW_CLOSE_REQUESTED &&
+			event.window.windowID == mainWindowID) {
+			isClosing_ = true;
+			continue;
+		}
+
+		switch (event.type) {
+			case SDL_EVENT_WINDOW_RESIZED:
+			case SDL_EVENT_WINDOW_PIXEL_SIZE_CHANGED:
+			case SDL_EVENT_WINDOW_DISPLAY_CHANGED:
+			case SDL_EVENT_WINDOW_DISPLAY_SCALE_CHANGED:
+				//never resize the main renderer for an ImGui platform window.
+				if (event.window.windowID == mainWindowID) {
+					mainWindowResized = true;
+				}
+				break;
+
 			default:
 				break;
 		}
+	}
+
+	if (mainWindowResized) {
+		updateViewport();
+	}
+
+	if (appState_->exitProgram) {
+		isClosing_ = true;
 	}
 }
 

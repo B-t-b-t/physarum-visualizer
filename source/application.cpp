@@ -53,8 +53,8 @@ void Application::run() {
 
 		//------------------------------------------------------
 		// handle user input through keyboard, mouse and window
-		inputHandler_.processUserInput();
 		window_.processWindowEvents();
+		inputHandler_.processUserInput(window_.getWindow());
 
 		//------------------------------------------------------
 		// setting Uniforms for later use in Draw Call

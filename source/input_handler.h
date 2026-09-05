@@ -2,13 +2,14 @@
 #define INPUT_HANDLER_H
 
 class ApplicationState; // Forward declaration of ApplicationState class
+#include "SDL3/SDL_video.h"   // for SDL_Window
 
 class InputHandler {
 
 public:
     InputHandler(ApplicationState* appState);
 
-    void processUserInput();
+    void processUserInput(SDL_Window* window);
 
 private:
 
