@@ -4,6 +4,18 @@
 #include "base_window.h"
 #include "../user_interface.h"
 
+struct TextFilters {
+	//filter for ASCII characters (printable characters and newline)
+	static int FilterASCII(ImGuiInputTextCallbackData* data) {
+		if ((unsigned char)data->EventChar >= ' ' && (unsigned char)data->EventChar <= '~') {
+			return 0;
+		} else if((unsigned char)data->EventChar == '\n') {
+			return 0;
+		}
+		return 1;
+	}
+};
+
 class PresetWindow : public BaseWindow {
 
 public:

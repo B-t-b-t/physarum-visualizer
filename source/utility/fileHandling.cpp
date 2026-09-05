@@ -80,7 +80,7 @@ SDL_Surface* loadImageFromFile(std::string filePath, std::string fileName, std::
     return formattedSurface;
 }
 
-SDL_Surface* loadImageFromFont(std::string filePath, std::string fileName, std::string fileExtension, std::vector<FontCharInfo>& fontCharInfos, int* firstChar_Out, int* numberOfChars_Out) {
+SDL_Surface* loadImageFromFont(std::string filePath, std::string fileName, std::string fileExtension, std::vector<FontCharInfo>& fontCharInfos, int* firstChar_Out, int* numberOfChars_Out, float* fontSize_Out) {
     if(fileExtension != ".ttf") {
         SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Unsupported font format: %s", fileExtension.c_str());
         return nullptr;
@@ -109,7 +109,7 @@ SDL_Surface* loadImageFromFont(std::string filePath, std::string fileName, std::
 
     *firstChar_Out = firstChar;
     *numberOfChars_Out = numberOfChars;
-
+    *fontSize_Out = fontSize;
 
     stbtt_packedchar packedChars[numberOfChars];    //used for rendering single char via vertex quad
     stbtt_aligned_quad alignedQuads[numberOfChars]; //used for rendering single char via vertex quad

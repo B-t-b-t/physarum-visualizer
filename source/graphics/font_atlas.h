@@ -15,12 +15,14 @@ public:
     std::vector<FontCharInfo>& getFontCharInfos() { return fontCharInfos_; }
     int getFirstChar() { return firstChar_; }
     int getNumberOfChars() { return numberOfChars_; }
+    int getFontSize() { return fontSize_; }
     GLuint getTextureID() { return fontAtlas_.getID(); }
 
 private:
 
     int firstChar_{0};
     int numberOfChars_{0};
+    float fontSize_{0.0f};
     std::vector<FontCharInfo> fontCharInfos_{};
 
     Texture fontAtlas_;

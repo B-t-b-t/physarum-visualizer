@@ -8,7 +8,7 @@
 
 FontAtlas::FontAtlas(std::string fontFileName) {
 
-    SDL_Surface* loadedImage = loadImageFromFont("./res/fonts/", fontFileName, ".ttf", fontCharInfos_, &firstChar_, &numberOfChars_);
+    SDL_Surface* loadedImage = loadImageFromFont("./res/fonts/", fontFileName, ".ttf", fontCharInfos_, &firstChar_, &numberOfChars_, &fontSize_);
     saveImageToFile(loadedImage, "./", "fontAtlas", ".png", false);
 
     if(loadedImage == nullptr) {

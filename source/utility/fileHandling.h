@@ -18,7 +18,7 @@ typedef struct {
 void getFileNamesInDirectory(std::string directoryPath, std::string fileExtension, std::vector<std::string>& fileNames);
 
 SDL_Surface* loadImageFromFile(std::string filePath, std::string fileName, std::string fileExtension);
-SDL_Surface* loadImageFromFont(std::string filePath, std::string fileName, std::string fileExtension, std::vector<FontCharInfo>& fontInfos, int* firstChar_Out, int* numberOfChars_Out);
+SDL_Surface* loadImageFromFont(std::string filePath, std::string fileName, std::string fileExtension, std::vector<FontCharInfo>& fontInfos, int* firstChar_Out, int* numberOfChars_Out, float* fontSize_Out);
 
 bool saveImageToFile(SDL_Surface* surface, std::string filePath, std::string fileName, std::string fileExtension, bool isFlipped);
 

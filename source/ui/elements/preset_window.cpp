@@ -205,8 +205,7 @@ void PresetWindow::textPresetGUI(ApplicationState* appState) {
                 if (ImGui::BeginPopupContextItem()) {
 					isEditingTextPreset_ = true;
 					ImGui::Text("Edit text:");
-					ImGui::InputText("##edittext", &textToEdit_);
-
+					ImGui::InputTextMultiline("##edittext", &textToEdit_, ImVec2(-FLT_MIN, ImGui::GetTextLineHeight() * 8), ImGuiInputTextFlags_CallbackCharFilter, TextFilters::FilterASCII);
 					if (ImGui::Button("OK")) {
 						notify(UserEvent{EventType::EDIT_TEXT_TEXTURE, (int)i, textToEdit_});
 						textToEdit_ = "";
@@ -246,7 +245,7 @@ void PresetWindow::textPresetGUI(ApplicationState* appState) {
 	if(ImGui::BeginPopupModal("New Text", NULL, ImGuiWindowFlags_AlwaysAutoResize)) {
 		ImGui::Text("Enter new text:");
 		static std::string newTextBuffer = "";
-		ImGui::InputTextMultiline("##newtext", &newTextBuffer);
+		ImGui::InputTextMultiline("##newtext", &newTextBuffer, ImVec2(-FLT_MIN, ImGui::GetTextLineHeight() * 8), ImGuiInputTextFlags_CallbackCharFilter, TextFilters::FilterASCII);
 		if (ImGui::Button("OK")) {
 			notify(UserEvent{EventType::CREATE_NEW_TEXT_TEXTURE, newTextBuffer, 0});
 			newTextBuffer = "";

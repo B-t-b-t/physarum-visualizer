@@ -102,57 +102,78 @@ void TextTexture::createTexture(std::string& text, FontAtlas& fontAtlas) {
 
     std::vector<FontCharInfo>& fontCharInfos = fontAtlas.getFontCharInfos();
     int firstChar = fontAtlas.getFirstChar();
+    int numberOfChars = fontAtlas.getNumberOfChars();
+    float fontSize = fontAtlas.getFontSize();
+
+    float maxDimension_X = 0.0f;
+    textDimensions.y = fontSize * pixelSize.y * textScale;  //initial height for the first line of text
 
     for(const char c : text) {
-        FontCharInfo charInfo = fontCharInfos[(size_t)(c - firstChar)];
+        if(c >= firstChar && c < (firstChar + numberOfChars)) {
+            FontCharInfo charInfo = fontCharInfos[(size_t)(c - firstChar)];
+            textDimensions.x += charInfo.xadvance * pixelSize.x * textScale;
+            maxDimension_X = std::max(maxDimension_X, textDimensions.x);    //get the maximum width of the widest text line
+        
+        }
+        if(c == '\n') {
+            textDimensions.x = 0.0f;    //reset x dimension for the new line
+            textDimensions.y -= fontSize * pixelSize.y * textScale;
+        }
 
-        textDimensions.x += charInfo.xadvance * pixelSize.x * textScale;
-        textDimensions.y = std::max(textDimensions.y, (charInfo.y1 - charInfo.y0) * pixelSize.y * textScale);
+        //textDimensions.y = std::max(textDimensions.y, (charInfo.y1 - charInfo.y0) * pixelSize.y * textScale);
     }
-    position.x -= textDimensions.x / 2.0f;
+    position.x -= maxDimension_X / 2.0f;
     position.y -= textDimensions.y / 2.0f;
+
+    ImVec2 localPosition = position;
 
     //create quad vertices and texture coordinates for each character in the text
     for(const char c : text) {
-        FontCharInfo charInfo = fontCharInfos[(size_t)(c - firstChar)];
+        if(c >= firstChar && c < (firstChar + numberOfChars)) {
+            FontCharInfo charInfo = fontCharInfos[(size_t)(c - firstChar)];
 
-        //width and height of the glyph bounding box in normalized coordinates (x = [-1, 1] y = [-1, 1])
-        ImVec2 glyphSize = ImVec2(charInfo.sizeX * pixelSize.x * textScale, 
-                                  charInfo.sizeY * pixelSize.y * textScale);
-        //position of the bottom left corner of the glyph bounding box in normalized coordinates (x = [-1, 1] y = [-1, 1])
-        ImVec2 glyphBoundingBoxBottomLeft = ImVec2(position.x + (charInfo.xoff * pixelSize.x * textScale), 
-                                                   position.y - (charInfo.yoff + charInfo.y1 - charInfo.y0) * pixelSize.y * textScale);
+            //width and height of the glyph bounding box in normalized coordinates (x = [-1, 1] y = [-1, 1])
+            ImVec2 glyphSize = ImVec2(charInfo.sizeX * pixelSize.x * textScale, 
+                                    charInfo.sizeY * pixelSize.y * textScale);
+            //position of the bottom left corner of the glyph bounding box in normalized coordinates (x = [-1, 1] y = [-1, 1])
+            ImVec2 glyphBoundingBoxBottomLeft = ImVec2(localPosition.x + (charInfo.xoff * pixelSize.x * textScale), 
+                                                    localPosition.y - (charInfo.yoff + charInfo.y1 - charInfo.y0) * pixelSize.y * textScale);
 
 
-        //the order of vertices of a quad goes top-right, top-left, bottom-left, bottom-right
-        ImVec2 glyphVertices[4] = 
-        {
-            { glyphBoundingBoxBottomLeft.x + glyphSize.x, glyphBoundingBoxBottomLeft.y + glyphSize.y },
-            { glyphBoundingBoxBottomLeft.x, glyphBoundingBoxBottomLeft.y + glyphSize.y },
-            { glyphBoundingBoxBottomLeft.x, glyphBoundingBoxBottomLeft.y },
-            { glyphBoundingBoxBottomLeft.x + glyphSize.x, glyphBoundingBoxBottomLeft.y }
-        };
+            //the order of vertices of a quad goes top-right, top-left, bottom-left, bottom-right
+            ImVec2 glyphVertices[4] = 
+            {
+                { glyphBoundingBoxBottomLeft.x + glyphSize.x, glyphBoundingBoxBottomLeft.y + glyphSize.y },
+                { glyphBoundingBoxBottomLeft.x, glyphBoundingBoxBottomLeft.y + glyphSize.y },
+                { glyphBoundingBoxBottomLeft.x, glyphBoundingBoxBottomLeft.y },
+                { glyphBoundingBoxBottomLeft.x + glyphSize.x, glyphBoundingBoxBottomLeft.y }
+            };
 
-        ImVec2 glyphTextureCoords[4] = 
-        {
-            { charInfo.s1, charInfo.t0 },
-            { charInfo.s0, charInfo.t0 },
-            { charInfo.s0, charInfo.t1 },
-            { charInfo.s1, charInfo.t1 },
-        };
+            ImVec2 glyphTextureCoords[4] = 
+            {
+                { charInfo.s1, charInfo.t0 },
+                { charInfo.s0, charInfo.t0 },
+                { charInfo.s0, charInfo.t1 },
+                { charInfo.s1, charInfo.t1 },
+            };
 
-        // order = [0, 1, 2, 0, 2, 3] is meant to represent 2 triangles: 
-        // one by glyphVertices[0], glyphVertices[1], glyphVertices[2] and one by glyphVertices[0], glyphVertices[2], glyphVertices[3]
-        for(int i = 0; i < 6; i++) {
-            quadVertices_.push_back(Vertex(glyphVertices[order[i]],
-                0.0f,
-                color,
-                glyphTextureCoords[order[i]]
-            ));
+            // order = [0, 1, 2, 0, 2, 3] is meant to represent 2 triangles: 
+            // one by glyphVertices[0], glyphVertices[1], glyphVertices[2] and one by glyphVertices[0], glyphVertices[2], glyphVertices[3]
+            for(int i = 0; i < 6; i++) {
+                quadVertices_.push_back(Vertex(glyphVertices[order[i]],
+                    0.0f,
+                    color,
+                    glyphTextureCoords[order[i]]
+                ));
+            }
+
+            //advance the position for the next character
+            localPosition.x += charInfo.xadvance * pixelSize.x * textScale;
+        } else if(c == '\n') {  //newlines
+            
+            localPosition.y -= fontSize * pixelSize.y * textScale;
+            localPosition.x = position.x;
         }
-
-        //advance the position for the next character
-        position.x += charInfo.xadvance * pixelSize.x * textScale;
     }
 
     //send quads on GPU
