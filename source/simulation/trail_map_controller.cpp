@@ -13,30 +13,29 @@
 #include "../utility/fileHandling.h"
 
 bool TrailMapController::checkTimeTable(std::string imageName) {
+    for(const TrailMask& trailMask : trailMasks_) {
+        if(trailMask.imageName != imageName) {
+            continue;
+        }
 
-    //if no entry for the image is found, it is always valid to use
-    if(!timeTable_.contains(imageName)) {
-        return true;
+        //trail masks without a time slot are always valid
+        if(!trailMask.hasTimeSlot) {
+            return true;
+        }
+
+        SDL_Time currentTime{};
+        if(!SDL_GetCurrentTime(&currentTime)) {
+            std::cerr << "Failed to get the current time: "
+                      << SDL_GetError() << std::endl;
+            return false;
+        }
+
+        return currentTime >= trailMask.beginTimeSlot &&
+               currentTime <= trailMask.endTimeSlot;
     }
 
-    const auto& entry = toml::find(timeTable_, imageName);
-
-    //text trail masks without a time slot are always available
-    if(!entry.contains("begin") || !entry.contains("end")) {
-        return true;
-    }
-
-    const auto beginDateTime = toml::find<toml::local_datetime>(entry, "begin");
-    const auto endDateTime = toml::find<toml::local_datetime>(entry, "end");
-
-    SDL_Time begin = beginDateTime.operator time_t() * 1000000000;    //convert to nanoseconds for SDL3
-    SDL_Time end = endDateTime.operator time_t() * 1000000000;
-
-    //compare if current time is within parsed time window
-    SDL_Time current;
-    SDL_GetCurrentTime(&current);
-
-    return current >= begin && current <= end;
+    //a trail mask not present in the list cannot be selected.
+    return false;
 }
 
 bool TrailMapController::loadFromToml() {
