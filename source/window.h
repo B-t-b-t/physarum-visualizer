@@ -4,11 +4,11 @@
 #include <GL/glew.h>
 #include <string>
 
+#include "SDL3/SDL_events.h"    // for SDL_EventType, SDL_EventAction, SDL_P...
 #include "SDL3/SDL_video.h"
 
+#include "application_state.h"  // for ApplicationState
 #include "utility/observer.h"
-
-class ApplicationState;	//forward declaration to avoid circular dependency
 
 #define APIENTRY GLEWAPIENTRY	//tell OpenGL debug callback function to use GLEW's calling convention macro
 
@@ -30,8 +30,8 @@ public:
 	void setFullscreen();
 
 	void swapBuffers();
-	void processWindowEvents();
-	bool isClosing() { return isClosing_; };
+	void processWindowEvents(SDL_Event* event);
+	bool isClosing() { return isClosing_ || appState_->exitProgram; };	//poll appState to immediately react in main loop to exit request from UI
 	SDL_Window* getWindow() { return window_; }
 	virtual ~Window();
 

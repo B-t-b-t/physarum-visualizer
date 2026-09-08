@@ -12,8 +12,6 @@
 #include "uniforms.h"           // for UniversalShaderSettings
 #include "utility/event.h"      // for Event
 
-#include "imgui_impl_sdl3.h"
-
 Window::Window(const std::string& title, ApplicationState* appState, bool customResolution)
  : appState_{appState}
 {
@@ -205,40 +203,35 @@ void Window::swapBuffers() {
 	SDL_GL_SwapWindow(window_);
 }
 
-void Window::processWindowEvents() {
-	SDL_Event event;
+void Window::processWindowEvents(SDL_Event* event) {
+
 	const SDL_WindowID mainWindowID = SDL_GetWindowID(window_);
 	bool mainWindowResized = false;
 
-	while (SDL_PollEvent(&event)) {
-		//required for detached ImGui viewport windows.
-		ImGui_ImplSDL3_ProcessEvent(&event);
+	if (event->type == SDL_EVENT_QUIT) {
+		isClosing_ = true;
+		return;
+	}
 
-		if (event.type == SDL_EVENT_QUIT) {
-			isClosing_ = true;
-			continue;
-		}
+	if (event->type == SDL_EVENT_WINDOW_CLOSE_REQUESTED &&
+		event->window.windowID == mainWindowID) {
+		isClosing_ = true;
+		return;
+	}
 
-		if (event.type == SDL_EVENT_WINDOW_CLOSE_REQUESTED &&
-			event.window.windowID == mainWindowID) {
-			isClosing_ = true;
-			continue;
-		}
+	switch (event->type) {
+		case SDL_EVENT_WINDOW_RESIZED:
+		case SDL_EVENT_WINDOW_PIXEL_SIZE_CHANGED:
+		case SDL_EVENT_WINDOW_DISPLAY_CHANGED:
+		case SDL_EVENT_WINDOW_DISPLAY_SCALE_CHANGED:
+			//never resize the main renderer when an UI window is active
+			if (event->window.windowID == mainWindowID) {
+				mainWindowResized = true;
+			}
+			break;
 
-		switch (event.type) {
-			case SDL_EVENT_WINDOW_RESIZED:
-			case SDL_EVENT_WINDOW_PIXEL_SIZE_CHANGED:
-			case SDL_EVENT_WINDOW_DISPLAY_CHANGED:
-			case SDL_EVENT_WINDOW_DISPLAY_SCALE_CHANGED:
-				//never resize the main renderer for an ImGui platform window.
-				if (event.window.windowID == mainWindowID) {
-					mainWindowResized = true;
-				}
-				break;
-
-			default:
-				break;
-		}
+		default:
+			break;
 	}
 
 	if (mainWindowResized) {

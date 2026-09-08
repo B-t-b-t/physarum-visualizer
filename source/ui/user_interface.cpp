@@ -64,33 +64,6 @@ void UserInterface::display() {
 	ImGui_ImplSDL3_NewFrame();
 	ImGui::NewFrame();
 
-    /*if (!guiIO_->WantCaptureMouse) {
-        int logicalWidth = 0;
-        int logicalHeight = 0;
-        int pixelWidth = 0;
-        int pixelHeight = 0;
-
-        SDL_GetWindowSize(window_, &logicalWidth, &logicalHeight);
-        SDL_GetWindowSizeInPixels(window_, &pixelWidth, &pixelHeight);
-
-        const float mouseXInPixels =
-            logicalWidth > 0
-                ? guiIO_->MousePos.x * static_cast<float>(pixelWidth) / static_cast<float>(logicalWidth)
-                : 0.0f;
-
-        const float mouseYInPixels =
-            logicalHeight > 0
-                ? guiIO_->MousePos.y * static_cast<float>(pixelHeight) / static_cast<float>(logicalHeight)
-                : 0.0f;
-
-        state_->universalShaderSettings.mouseInputs = ImVec4(
-            mouseXInPixels,
-            mouseYInPixels,
-            ImGui::IsMouseDown(0),
-            ImGui::IsMouseDown(1)
-        );
-    }*/
-
 	mainMenuBarGUI();
 
 	//right click context menu
@@ -145,17 +118,17 @@ void UserInterface::display() {
 }
 
 void UserInterface::mainMenuBarGUI() {
-    ImGuiIO& io = ImGui::GetIO();
     const ImGuiViewport* mainViewport = ImGui::GetMainViewport();
 
     //with ImGui multi-viewports enabled, MousePos can be desktop-relative.
-    const float mouseYInMainViewport = io.MousePos.y - mainViewport->Pos.y;
+    const float mouseYInMainViewport = guiIO_->MousePos.y - mainViewport->Pos.y;
 
 	if (mouseYInMainViewport >= 0.0f && mouseYInMainViewport <= 200.0f && ImGui::BeginMainMenuBar()) {
         if (ImGui::BeginMenu("File")) {
 			if (ImGui::MenuItem("New Canvas")) {windows_.at("NewCanvasModal")->visible = true;}
 			ImGui::Separator();
-            if (ImGui::MenuItem("Exit")) {state_->exitProgram = true;}
+            if (ImGui::MenuItem("Exit")) {
+				state_->exitProgram = true;}
             ImGui::EndMenu();
         }
         if (ImGui::BeginMenu("View")) {

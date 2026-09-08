@@ -53,8 +53,18 @@ void Application::run() {
 
 		//------------------------------------------------------
 		// handle user input through keyboard, mouse and window
-		window_.processWindowEvents();
-		inputHandler_.processUserInput(window_.getWindow());
+		SDL_Event event;
+		while (SDL_PollEvent(&event)) {
+			ImGui_ImplSDL3_ProcessEvent(&event);	//give ImGui access to SDL3 input and let it decide if it needs to capture the input
+			window_.processWindowEvents(&event);	//always process window events
+
+			//don't process user input if the UI wants to capture it
+			if(!ui_.wantsInput()) {
+				inputHandler_.processUserInput(&event, window_.getWindow());
+			} else {
+				inputHandler_.cleanUpInput();
+			}
+		}
 
 		//------------------------------------------------------
 		// setting Uniforms for later use in Draw Call

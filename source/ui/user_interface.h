@@ -25,6 +25,7 @@ public:
 	void display();
 	BaseWindow* getWindow(std::string windowName) {return windows_.at(windowName).get();}
 	ApplicationState* getState() { return state_; }
+	bool wantsInput() { return guiIO_->WantCaptureMouse || guiIO_->WantCaptureKeyboard; }
 
 private:
 
