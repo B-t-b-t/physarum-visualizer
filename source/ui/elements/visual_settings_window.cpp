@@ -48,20 +48,12 @@ void VisualSettingsWindow::render(ApplicationState* appState) {
 		ImGui::SliderFloat("Vignette Sharpness", &appState->fragmentShaderSettings.vignetteSharpness, 1.0f, 10.0f);
 		ImGui::SliderFloat("Vignette Inner Radius", &appState->fragmentShaderSettings.vignetteInnerRadius, 0.5f, 10.0f);
 
-		if(ImGui::SliderFloat("Vignette X Dimension", &appState->fragmentShaderSettings.vignetteXDimension, 0.0f, 10.0f)) {
-			if(lockVignetteDimensions_) {
-				appState->fragmentShaderSettings.vignetteYDimension = appState->fragmentShaderSettings.vignetteXDimension;
-			}
-		}
-		if(ImGui::SliderFloat("Vignette Y Dimension", &appState->fragmentShaderSettings.vignetteYDimension, 0.0f, 10.0f)) {
-			if(lockVignetteDimensions_) {
-				appState->fragmentShaderSettings.vignetteXDimension = appState->fragmentShaderSettings.vignetteYDimension;
-			}
-		}
+		ImGui::LinkBegin("##Link Vignette Dimensions", &lockVignetteDimensions_, 2.0f);
 
-		if(ImGui::link("##Link Vignette Dimensions", &lockVignetteDimensions_, 2, 2.0f)) {
-			appState->fragmentShaderSettings.vignetteYDimension = appState->fragmentShaderSettings.vignetteXDimension;
-		}
+		ImGui::LinkSliderFloat("Vignette X Dimension", &appState->fragmentShaderSettings.vignetteXDimension, 0.0f, 10.0f);
+		ImGui::LinkSliderFloat("Vignette Y Dimension", &appState->fragmentShaderSettings.vignetteYDimension, 0.0f, 10.0f); 
+
+		ImGui::LinkEnd();
 
 		ImGui::Separator();
 	}

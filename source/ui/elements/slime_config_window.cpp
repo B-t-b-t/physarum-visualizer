@@ -9,20 +9,12 @@ void SlimeConfigWindow::render(ApplicationState* appState) {
 	
 	ImGui::SliderFloat("v", &appState->slimeSettings.v, 0.0f, 3.0f);
 
-	if(ImGui::SliderInt("Rotation Angle", &appState->slimeSettings.rotationAngle, 0, 180)) {
-		if(appState->lockAngles) {
-			appState->slimeSettings.angle = appState->slimeSettings.rotationAngle;
-		}
-	}
-	if(ImGui::SliderInt("Sensing Angle ", &appState->slimeSettings.angle, 0, 180)) {
-		if(appState->lockAngles) {
-			appState->slimeSettings.rotationAngle = appState->slimeSettings.angle;
-		}
-	}
+	ImGui::LinkBegin("##Link Angles", &appState->lockAngles, 2.0f);
 
-	if(ImGui::link("##Link Angles", &appState->lockAngles, 2, 2.0f)) {
-		appState->slimeSettings.angle = appState->slimeSettings.rotationAngle;
-	}
+	ImGui::LinkSliderInt("Rotation Angle", &appState->slimeSettings.rotationAngle, 0, 180);
+	ImGui::LinkSliderInt("Sensing Angle ", &appState->slimeSettings.angle, 0, 180);
+
+	ImGui::LinkEnd();
 	
 	ImGui::SliderInt("Sensor Distance", &appState->slimeSettings.sensorDistance, 1, 100);
 	ImGui::SliderFloat("Deposition Strength", &appState->slimeSettings.depositionStrength, 0.0f, 10.0f);
@@ -31,29 +23,13 @@ void SlimeConfigWindow::render(ApplicationState* appState) {
 
 	ImGui::Separator();
 	
-	if(ImGui::ColorEdit3("Color Species 0", (float*)&appState->slimeSettings.slimeColor0)) {
-		if(appState->lockSlimeColor) {
-			appState->slimeSettings.slimeColor1 = appState->slimeSettings.slimeColor0;
-			appState->slimeSettings.slimeColor2 = appState->slimeSettings.slimeColor0;
-		}
-	}
-	if(ImGui::ColorEdit3("Color Species 1", (float*)&appState->slimeSettings.slimeColor1)) {
-		if(appState->lockSlimeColor) {
-			appState->slimeSettings.slimeColor0 = appState->slimeSettings.slimeColor1;
-			appState->slimeSettings.slimeColor2 = appState->slimeSettings.slimeColor1;
-		}
-	}
-	if(ImGui::ColorEdit3("Color Species 2", (float*)&appState->slimeSettings.slimeColor2)) {
-		if(appState->lockSlimeColor) {
-			appState->slimeSettings.slimeColor0 = appState->slimeSettings.slimeColor2;
-			appState->slimeSettings.slimeColor1 = appState->slimeSettings.slimeColor2;
-		}
-	}
-	
-	if(ImGui::link("##Link Slime Colors", &appState->lockSlimeColor, 3, 2.0f)) {
-		appState->slimeSettings.slimeColor1 = appState->slimeSettings.slimeColor0;
-		appState->slimeSettings.slimeColor2 = appState->slimeSettings.slimeColor0;
-	}
+	ImGui::LinkBegin("##Link Slime Colors", &appState->lockSlimeColor, 2.0f);
+
+	ImGui::LinkColorEdit3("Color Species 0", (float*)&appState->slimeSettings.slimeColor0);
+	ImGui::LinkColorEdit3("Color Species 1", (float*)&appState->slimeSettings.slimeColor1);
+	ImGui::LinkColorEdit3("Color Species 2", (float*)&appState->slimeSettings.slimeColor2);
+
+	ImGui::LinkEnd();
 
 	ImGui::Separator();
 	
