@@ -7,38 +7,40 @@ void SlimeConfigWindow::render(ApplicationState* appState) {
 
     ImGui::Begin("Slime Config", &visible);
 	
-	ImGui::SliderFloat("v", &appState->slimeSettings.v, 0.0f, 3.0f);
+	ImGui::SeparatorText("Particle Behavior");
+
+	ImGui::SliderFloat("Velocity", &appState->slimeSettings.v, 0.0f, 3.0f);
 
 	ImGui::LinkBegin("##Link Angles", &appState->lockAngles, 2.0f);
-
 	ImGui::LinkSliderInt("Rotation Angle", &appState->slimeSettings.rotationAngle, 0, 180);
 	ImGui::LinkSliderInt("Sensing Angle ", &appState->slimeSettings.angle, 0, 180);
-
 	ImGui::LinkEnd();
 	
 	ImGui::SliderInt("Sensor Distance", &appState->slimeSettings.sensorDistance, 1, 100);
-	ImGui::SliderFloat("Deposition Strength", &appState->slimeSettings.depositionStrength, 0.0f, 10.0f);
-	ImGui::SliderFloat("diffusionWeight", &appState->trailDiffusionSettings.diffusionWeight, 0.0f, 1.0f);
-	ImGui::SliderFloat("decay", &appState->trailDiffusionSettings.decay, 0.0f, 1.0f);
 
-	ImGui::Separator();
-	
-	ImGui::LinkBegin("##Link Slime Colors", &appState->lockSlimeColor, 2.0f);
-
-	ImGui::LinkColorEdit3("Color Species 0", (float*)&appState->slimeSettings.slimeColor0);
-	ImGui::LinkColorEdit3("Color Species 1", (float*)&appState->slimeSettings.slimeColor1);
-	ImGui::LinkColorEdit3("Color Species 2", (float*)&appState->slimeSettings.slimeColor2);
-
-	ImGui::LinkEnd();
-
-	ImGui::Separator();
-	
-	ImGui::Checkbox("Use Particle Mask instead of Color", (bool*)&appState->slimeSettings.useMask);
-	
 	ImGui::Checkbox("Collision Detection", (bool*)&appState->universalShaderSettings.collisionDetection);
 	if(appState->universalShaderSettings.collisionDetection) {
-		ImGui::SliderInt("Density Limit", (int*)&appState->slimeSettings.densityLimit, 1, 20);
+		ImGui::SliderInt("Max Density", (int*)&appState->slimeSettings.densityLimit, 1, 20);
 	}
+
+	ImGui::SeparatorText("Trail");
+
+	ImGui::SliderFloat("Deposition", &appState->slimeSettings.depositionStrength, 0.0f, 10.0f);
+	ImGui::SliderFloat("Diffusion Weight", &appState->trailDiffusionSettings.diffusionWeight, 0.0f, 1.0f);
+	ImGui::SliderFloat("Decay", &appState->trailDiffusionSettings.decay, 0.0f, 1.0f);
+
+	ImGui::SeparatorText("Colors");
+	
+	ImGui::LinkBegin("##Link Slime Colors", &appState->lockSlimeColor, 2.0f);
+	ImGui::LinkColorEdit3("Species 0", (float*)&appState->slimeSettings.slimeColor0);
+	ImGui::LinkColorEdit3("Species 1", (float*)&appState->slimeSettings.slimeColor1);
+	ImGui::LinkColorEdit3("Species 2", (float*)&appState->slimeSettings.slimeColor2);
+	ImGui::LinkEnd();
+	
+	ImGui::Checkbox("Use Particle Mask instead of Color", (bool*)&appState->slimeSettings.useMask);
+
+	ImGui::SeparatorText("Misc");
+	
 
 	ImGui::Checkbox("Enable Parameters", (bool*)&appState->parameterSettings.enableParameters);
 	if(appState->parameterSettings.enableParameters) {

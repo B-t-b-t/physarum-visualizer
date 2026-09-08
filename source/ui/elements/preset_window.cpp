@@ -11,19 +11,23 @@ void PresetWindow::render(ApplicationState* appState) {
 	ImGui::Begin("Preset", &visible);
 
 	if (ImGui::BeginTabBar("Preset Types")) {
-		if (ImGui::BeginTabItem("Behaviour")) {
+        //Fontawesome: Barcode Icon (Unicode: 0xF02A)
+		if (ImGui::BeginTabItem(" Behaviour")) {
 			behaviourPresetGUI(appState);
 			ImGui::EndTabItem();
 		}
-		if (ImGui::BeginTabItem("Color")) {
+        //Fontawesome: Palette Icon (Unicode: 0xF53F)
+		if (ImGui::BeginTabItem(" Color")) {
 			colorPresetGUI(appState);
 			ImGui::EndTabItem();
 		}
-		if (ImGui::BeginTabItem("Image")) {
+        //Fontawesome: Images Icon (Unicode: 0xF302)
+		if (ImGui::BeginTabItem(" Image")) {
 			imagePresetGUI(appState);
 			ImGui::EndTabItem();
 		}
-		if (ImGui::BeginTabItem("Text")) {
+        //Fontawesome: Font Icon (Unicode: 0xF031)
+		if (ImGui::BeginTabItem(" Text")) {
 			textPresetGUI(appState);
 			ImGui::EndTabItem();
 		}
@@ -40,36 +44,8 @@ void PresetWindow::behaviourPresetGUI(ApplicationState* appState) {
 	//--------------------------------
 	//Preset System
 	//--------------------------------
-	static char presetNameChar[128] = "";
-	ImGui::InputTextWithHint("Preset Name", "Preset Name", presetNameChar, IM_ARRAYSIZE(presetNameChar), ImGuiInputTextFlags_CharsNoBlank);
-
-	static bool presetAlreadyExists = false;
-
-	if (ImGui::Button("Save Preset") && presetNameChar[0] != '\0') {
-
-		for(unsigned int i = 0; i < presetNames_.size(); i++) {
-			if(presetNames_[i] == std::string(presetNameChar)) {
-				presetAlreadyExists = true;
-			}
-		}
-
-		if(!presetAlreadyExists) {
-			addPresetName(std::string(presetNameChar));
-			notify(UserEvent{EventType::SAVE_PRESET, 0, 0});
-			//appState->saveToPreset = true;
-		}
-
-		presetNameChar[0] = '\0';
-	}
-
-	if(presetAlreadyExists && ImGui::IsItemHovered()){
-		ImGui::SameLine();
-		ImGui::Text("Preset with this name already exists!");
-	} else {
-		presetAlreadyExists = false;
-	}
-
-	if (ImGui::BeginListBox("Presets")) {
+    ImGui::SeparatorText("Selection");
+	if (ImGui::BeginListBox("##Behavior Selection")) {
 
 		for (unsigned int n = 0; n < presetNames_.size(); n++)
 		{
@@ -89,43 +65,67 @@ void PresetWindow::behaviourPresetGUI(ApplicationState* appState) {
 		ImGui::EndListBox();
 	}
 
-	ImGui::SliderInt("Preset Time Intervall [s]", &appState->presetIntervall, 2, 60);
+    ImGui::SameLine();
+    //Fontawesome Plus Symbol (Unicode: 0xF0FE)
+    if(ImGui::Button(" Add")) {
+        ImGui::OpenPopup("New Behavior");
+    }
+
+    if(ImGui::BeginPopupModal("New Behavior", NULL, ImGuiWindowFlags_AlwaysAutoResize)) {
+        
+        static char presetNameChar[128] = "";
+        ImGui::InputTextWithHint("##New Behavior Name", "Name", presetNameChar, IM_ARRAYSIZE(presetNameChar), ImGuiInputTextFlags_CharsNoBlank);
+
+        static bool presetAlreadyExists = false;
+
+        ImGui::Separator();
+
+        if (ImGui::Button("Save") && presetNameChar[0] != '\0') {
+
+            for(unsigned int i = 0; i < presetNames_.size(); i++) {
+                if(presetNames_[i] == std::string(presetNameChar)) {
+                    presetAlreadyExists = true;
+                }
+            }
+
+            if(!presetAlreadyExists) {
+                addPresetName(std::string(presetNameChar));
+                notify(UserEvent{EventType::SAVE_PRESET, 0, 0});
+                //appState->saveToPreset = true;
+            }
+
+            presetNameChar[0] = '\0';
+            ImGui::CloseCurrentPopup();
+        }
+
+        ImGui::SameLine();
+
+        if(ImGui::Button("Cancel")) {
+            presetNameChar[0] = '\0';
+            ImGui::CloseCurrentPopup();
+        }
+
+        if(presetAlreadyExists && ImGui::IsItemHovered()){
+            ImGui::Text("Behavior with this name already exists!");
+        } else {
+            presetAlreadyExists = false;
+        }
+
+        ImGui::EndPopup();
+    }
+
+    ImGui::SeparatorText("Settings");
+
+	ImGui::SliderInt("Switch Intervall [s]", &appState->presetIntervall, 2, 60);
 }
 
 void PresetWindow::colorPresetGUI(ApplicationState* appState) {
 	//--------------------------------
 	//Color Preset System
 	//--------------------------------
-	static char colorPresetNameChar[128] = "";
-	ImGui::InputTextWithHint("Color Preset Name", "Color Preset Name", colorPresetNameChar, IM_ARRAYSIZE(colorPresetNameChar), ImGuiInputTextFlags_CharsNoBlank);
+    ImGui::SeparatorText("Selection");
 
-	static bool colorPresetAlreadyExists = false;
-
-	if (ImGui::Button("Save Color Preset") && colorPresetNameChar[0] != '\0') {
-
-		for(unsigned int i = 0; i < colorPresetNames_.size(); i++) {
-			if(colorPresetNames_[i] == std::string(colorPresetNameChar)) {
-				colorPresetAlreadyExists = true;
-			}
-		}
-
-		if(!colorPresetAlreadyExists) {
-			addColorPresetName(std::string(colorPresetNameChar));
-			//appState->saveToColorPreset = true;
-			notify(UserEvent{EventType::SAVE_COLOR_PRESET, 0, 0});
-		}
-
-		colorPresetNameChar[0] = '\0';
-	}
-
-	if(colorPresetAlreadyExists && ImGui::IsItemHovered()){
-		ImGui::SameLine();
-		ImGui::Text("Color Preset with this name already exists!");
-	} else {
-		colorPresetAlreadyExists = false;
-	}
-
-	if (ImGui::BeginListBox("Color Presets")) {
+	if (ImGui::BeginListBox("##Color Selection")) {
 
 		for (unsigned int n = 0; n < colorPresetNames_.size(); n++)
 		{
@@ -145,7 +145,58 @@ void PresetWindow::colorPresetGUI(ApplicationState* appState) {
 		ImGui::EndListBox();
 	}
 
-	ImGui::SliderInt("Color Preset Time Intervall [s]", &appState->colorPresetIntervall, 2, 60);
+        ImGui::SameLine();
+    //Fontawesome Plus Symbol (Unicode: 0xF0FE)
+    if(ImGui::Button(" Add")) {
+        ImGui::OpenPopup("New Color");
+    }
+
+    if(ImGui::BeginPopupModal("New Color", NULL, ImGuiWindowFlags_AlwaysAutoResize)) {
+        
+        static char colorPresetNameChar[128] = "";
+        ImGui::InputTextWithHint("##New Color Name", "Name", colorPresetNameChar, IM_ARRAYSIZE(colorPresetNameChar), ImGuiInputTextFlags_CharsNoBlank);
+
+        static bool presetAlreadyExists = false;
+
+        ImGui::Separator();
+
+        if (ImGui::Button("Save") && colorPresetNameChar[0] != '\0') {
+
+            for(unsigned int i = 0; i < colorPresetNames_.size(); i++) {
+                if(colorPresetNames_[i] == std::string(colorPresetNameChar)) {
+                    presetAlreadyExists = true;
+                }
+            }
+
+            if(!presetAlreadyExists) {
+                addColorPresetName(std::string(colorPresetNameChar));
+                notify(UserEvent{EventType::SAVE_COLOR_PRESET, 0, 0});
+                //appState->saveToColorPreset = true;
+            }
+
+            colorPresetNameChar[0] = '\0';
+            ImGui::CloseCurrentPopup();
+        }
+
+        ImGui::SameLine();
+
+        if(ImGui::Button("Cancel")) {
+            colorPresetNameChar[0] = '\0';
+            ImGui::CloseCurrentPopup();
+        }
+
+        if(presetAlreadyExists && ImGui::IsItemHovered()){
+            ImGui::Text("Color with this name already exists!");
+        } else {
+            presetAlreadyExists = false;
+        }
+
+        ImGui::EndPopup();
+    }
+
+    ImGui::SeparatorText("Settings");
+
+	ImGui::SliderInt("Switch Intervall [s]", &appState->colorPresetIntervall, 2, 60);
 }
 
 void PresetWindow::imagePresetGUI(ApplicationState* appState) {
@@ -160,7 +211,10 @@ void PresetWindow::imagePresetGUI(ApplicationState* appState) {
     static int editHourEnd = 0;
     static int editMinuteEnd = 0;
 
-    if(ImGui::BeginListBox("Pictures")) {
+    ImGui::Text("Influence the Trail with an Image:");
+    ImGui::SeparatorText("Selection");
+
+    if(ImGui::BeginListBox("##Images")) {
         std::vector<TrailMask>* trailMasks = appState->trailMasks;
         const size_t usedTrailMaskIndex = appState->usedTrailMaskIndex;
 
@@ -182,7 +236,7 @@ void PresetWindow::imagePresetGUI(ApplicationState* appState) {
 				if(ImGui::Selectable(displayName.c_str(), isSelected)) {
 					appState->usedTrailMaskIndex = i;
 					notify(UserEvent{EventType::LOAD_NEW_PICTURE, 0, 0});
-					std::cout << "Selected Picture: " << trailMask.imageName << std::endl;
+					std::cout << "Selected Image: " << trailMask.imageName << std::endl;
 				}
 
                 if(ImGui::IsItemClicked(ImGuiMouseButton_Right)) {
@@ -210,7 +264,7 @@ void PresetWindow::imagePresetGUI(ApplicationState* appState) {
                 }
 
                 if(ImGui::BeginPopupContextItem("ImagePresetContext")) {
-                    ImGui::Text("Edit time slot for: %s", trailMask.imageName.c_str());
+                    ImGui::Text("Edit Image: %s", trailMask.imageName.c_str());
                     ImGui::Separator();
 
                     ImGui::Checkbox("Time Slot", &editTimeSlot);
@@ -229,7 +283,7 @@ void PresetWindow::imagePresetGUI(ApplicationState* appState) {
 
                     ImGui::Separator();
 
-                    if(ImGui::Button("OK")) {
+                    if(ImGui::Button("Ok")) {
                         TrailMaskData trailMaskData{
 							.newName = trailMask.imageName,
 							.isText = false,
@@ -264,7 +318,7 @@ void PresetWindow::imagePresetGUI(ApplicationState* appState) {
                     ImGui::SetItemDefaultFocus();
                 }
 
-                ImGui::SetItemTooltip("Right-click to edit the time slot");
+                ImGui::SetItemTooltip("Right-click to edit");
                 ImGui::PopID();
             }
         }
@@ -272,8 +326,10 @@ void PresetWindow::imagePresetGUI(ApplicationState* appState) {
         ImGui::EndListBox();
     }
 
+    ImGui::SeparatorText("Settings");
+
     ImGui::SliderFloat(
-        "Trail Mask Influence",
+        "Strength",
         &appState->universalShaderSettings.trailMaskInfluence,
         0.0f,
         5.0f
@@ -282,14 +338,14 @@ void PresetWindow::imagePresetGUI(ApplicationState* appState) {
     ImGui::LinkBegin("##Link Trail Mask Scales", &linkTrailMaskScales_, 2.0f);
 
     ImGui::LinkSliderFloat(
-        "Trail Mask Scale X",
+        "Width",
         &appState->universalShaderSettings.trailMaskScaleX,
         0.1f,
         10.0f
     );
     
     ImGui::LinkSliderFloat(
-        "Trail Mask Scale Y",
+        "Height",
         &appState->universalShaderSettings.trailMaskScaleY,
         0.1f,
         10.0f
@@ -298,19 +354,19 @@ void PresetWindow::imagePresetGUI(ApplicationState* appState) {
     ImGui::LinkEnd();
 
     ImGui::SliderFloat(
-        "Trail Mask Position X",
+        "Position Horizontal",
         &appState->universalShaderSettings.trailMaskPosition.x,
         -1.0f,
         1.0f
     );
     ImGui::SliderFloat(
-        "Trail Mask Position Y",
+        "Position Vertical",
         &appState->universalShaderSettings.trailMaskPosition.y,
         -1.0f,
         1.0f
     );
     ImGui::SliderInt(
-        "Trail Mask Time Intervall [s]",
+        "Switch Intervall [s]",
         &appState->trailMaskIntervall,
         2,
         60
@@ -329,9 +385,13 @@ void PresetWindow::textPresetGUI(ApplicationState* appState) {
     static int editHourEnd = 0;
     static int editMinuteEnd = 0;
 
-    if (ImGui::BeginListBox("Text Presets")) {
-        std::vector<TrailMask>* trailMasks = appState->trailMasks;
+    ImGui::Text("Influence the Trail with a Text:");
+    ImGui::SeparatorText("Selection");
+
+    
+    if (ImGui::BeginListBox("##Text Presets")) {
         size_t usedTrailMaskIndex = appState->usedTrailMaskIndex;
+        std::vector<TrailMask>* trailMasks = appState->trailMasks;
 
         if(trailMasks != nullptr) {
             for (unsigned int i = 0; i < trailMasks->size(); ++i) {
@@ -408,7 +468,7 @@ void PresetWindow::textPresetGUI(ApplicationState* appState) {
 
                     ImGui::Separator();
 
-                    if(ImGui::Button("OK")) {
+                    if(ImGui::Button("Ok")) {
                         TrailMaskData trailMaskData{
                             .newName = textToEdit_,
                             .isText = true,
@@ -442,7 +502,8 @@ void PresetWindow::textPresetGUI(ApplicationState* appState) {
 
                     ImGui::SameLine();
 
-                    if(ImGui::Button("Delete")) {
+                    //Fontawesome Trash Symbol (Unicode: 0xF2ED)
+                    if(ImGui::Button(" Delete")) {
                         notify(UserEvent{
                             EventType::DELETE_TEXT_TEXTURE,
                             static_cast<int>(i),
@@ -461,7 +522,7 @@ void PresetWindow::textPresetGUI(ApplicationState* appState) {
                     ImGui::SetItemDefaultFocus();
                 }
 
-                ImGui::SetItemTooltip("Right-click to Edit or Delete");
+                ImGui::SetItemTooltip("Right-click to Edit");
                 ImGui::PopID();
             }
         }
@@ -470,7 +531,8 @@ void PresetWindow::textPresetGUI(ApplicationState* appState) {
     }
 
     ImGui::SameLine();
-    if(ImGui::Button("New Text")) {
+    //Fontawesome Plus Symbol (Unicode: 0xF0FE)
+    if(ImGui::Button(" New")) {
         ImGui::OpenPopup("New Text");
     }
 
@@ -488,7 +550,7 @@ void PresetWindow::textPresetGUI(ApplicationState* appState) {
 
         ImGui::Separator();
 
-        if(ImGui::Button("OK")) {
+        if(ImGui::Button("Ok")) {
             notify(UserEvent{EventType::CREATE_NEW_TEXT_TEXTURE, newTextBuffer, 0});
             newTextBuffer.clear();
             ImGui::CloseCurrentPopup();
@@ -504,24 +566,26 @@ void PresetWindow::textPresetGUI(ApplicationState* appState) {
         ImGui::EndPopup();
     }
 
-        ImGui::SliderFloat(
-        "Trail Mask Influence",
-        &appState->universalShaderSettings.trailMaskInfluence,
-        0.0f,
-        5.0f
+    ImGui::SeparatorText("Settings");
+
+    ImGui::SliderFloat(
+    "Strength",
+    &appState->universalShaderSettings.trailMaskInfluence,
+    0.0f,
+    5.0f
     );
 
     ImGui::LinkBegin("##Link Trail Mask Scales", &linkTrailMaskScales_, 2.0f);
 
     ImGui::LinkSliderFloat(
-        "Trail Mask Scale X",
+        "Width",
         &appState->universalShaderSettings.trailMaskScaleX,
         0.1f,
         10.0f
     );
 
     ImGui::LinkSliderFloat(
-        "Trail Mask Scale Y",
+        "Height",
         &appState->universalShaderSettings.trailMaskScaleY,
         0.1f,
         10.0f
@@ -530,19 +594,19 @@ void PresetWindow::textPresetGUI(ApplicationState* appState) {
     ImGui::LinkEnd();
 
     ImGui::SliderFloat(
-        "Trail Mask Position X",
+        "Position Horizontal",
         &appState->universalShaderSettings.trailMaskPosition.x,
         -1.0f,
         1.0f
     );
     ImGui::SliderFloat(
-        "Trail Mask Position Y",
+        "Position Vertical",
         &appState->universalShaderSettings.trailMaskPosition.y,
         -1.0f,
         1.0f
     );
     ImGui::SliderInt(
-        "Trail Mask Time Intervall [s]",
+        "Switch Intervall [s]",
         &appState->trailMaskIntervall,
         2,
         60
