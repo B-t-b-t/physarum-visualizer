@@ -31,6 +31,11 @@ UserInterface::UserInterface(SDL_Window* window, SDL_GLContext glContext, Applic
 	ImGui_ImplOpenGL3_Init();
 
 	guiIO_->Fonts->AddFontFromFileTTF("res/fonts/Roboto-Medium.ttf", 16.0f);
+	ImFontConfig config;
+	config.MergeMode = true;
+	float iconSize = 12.0f; //make icons smaller than the main font, otherwise they would appear too large
+	config.GlyphMinAdvanceX = iconSize; //make icons monospaced
+	guiIO_->Fonts->AddFontFromFileTTF("res/fonts/Font_Awesome_Solid.otf", iconSize, &config);
 
 	initWindows();
 }
@@ -88,8 +93,39 @@ void UserInterface::display() {
 
 	mainMenuBarGUI();
 
+	//right click context menu
+	if(ImGui::IsMouseClicked(ImGuiMouseButton_Right)) {
+		ImGui::OpenPopup("RightClickContextMenu");
+	}
+
+	if (ImGui::BeginPopup("RightClickContextMenu")) {
+		if (ImGui::MenuItem("Slime Config")) {
+			bool* showSlimeWindow = &(windows_.at("SlimeConfigWindow")->visible);
+			*showSlimeWindow = *showSlimeWindow ? false : true;
+		}
+		if (ImGui::MenuItem("Visual Settings")) { 
+			bool* showVisualSettingsWindow = &(windows_.at("VisualSettingsWindow")->visible);
+			*showVisualSettingsWindow = *showVisualSettingsWindow ? false : true;
+		}
+		if (ImGui::MenuItem("Preset")) {
+			bool* showPresetWindow = &(windows_.at("PresetWindow")->visible);
+			*showPresetWindow = *showPresetWindow ? false : true;
+		}
+		if (ImGui::MenuItem("Audio")) {
+			bool* showAudioWindow = &(windows_.at("AudioWindow")->visible);
+			*showAudioWindow = *showAudioWindow ? false : true;
+		}
+		if (ImGui::MenuItem("Debug")) {
+			bool* showDebugWindow = &(windows_.at("DebugWindow")->visible);
+			*showDebugWindow = *showDebugWindow ? false : true;
+		}
+		ImGui::EndPopup();
+	}
+
+	#if DEBUG
 	if(showImGUIDemo_) {ImGui::ShowDemoWindow();}
 	if(showImPlotDemo_) {ImPlot::ShowDemoWindow();}
+	#endif
 
 	for(auto& kv : windows_) {
 		auto& w = kv.second;
@@ -123,23 +159,23 @@ void UserInterface::mainMenuBarGUI() {
             ImGui::EndMenu();
         }
         if (ImGui::BeginMenu("View")) {
-            if (ImGui::MenuItem("Slime Config", "")) { 
+            if (ImGui::MenuItem("Slime Config")) { 
 				bool* showSlimeWindow = &(windows_.at("SlimeConfigWindow")->visible);
 				*showSlimeWindow = *showSlimeWindow ? false : true;
 			}
-			if (ImGui::MenuItem("Visual Settings", "")) { 
+			if (ImGui::MenuItem("Visual Settings")) { 
 				bool* showVisualSettingsWindow = &(windows_.at("VisualSettingsWindow")->visible);
 				*showVisualSettingsWindow = *showVisualSettingsWindow ? false : true;
 			}
-			if (ImGui::MenuItem("Preset", "")) {
+			if (ImGui::MenuItem("Preset")) {
 				bool* showPresetWindow = &(windows_.at("PresetWindow")->visible);
 				*showPresetWindow = *showPresetWindow ? false : true;
 			}
-            if (ImGui::MenuItem("Audio", "")) {
+            if (ImGui::MenuItem("Audio")) {
 				bool* showAudioWindow = &(windows_.at("AudioWindow")->visible);
 				*showAudioWindow = *showAudioWindow ? false : true;
 			}
-			if (ImGui::MenuItem("Debug", "")) {
+			if (ImGui::MenuItem("Debug")) {
 				bool* showDebugWindow = &(windows_.at("DebugWindow")->visible);
 				*showDebugWindow = *showDebugWindow ? false : true;
 			}

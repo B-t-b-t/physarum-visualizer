@@ -173,10 +173,10 @@ void PresetWindow::imagePresetGUI(ApplicationState* appState) {
 
                 ImGui::PushID(static_cast<int>(i));
 
-				//display if entry has a time slot
+				//display clock symbol (0xF017) if entry has a time slot
 				const bool isSelected = (usedTrailMaskIndex == i);
 				const std::string displayName = trailMask.imageName +
-					(trailMask.hasTimeSlot ? " (t)" : "");
+					(trailMask.hasTimeSlot ? "  " : "");
 
 				if(ImGui::Selectable(displayName.c_str(), isSelected)) {
 					appState->usedTrailMaskIndex = i;
@@ -354,10 +354,10 @@ void PresetWindow::textPresetGUI(ApplicationState* appState) {
 
                 ImGui::PushID(static_cast<int>(i));
 
-				//display if entry has a time slot
+                //display clock symbol (0xF017) if entry has a time slot
 				const bool isSelected = (usedTrailMaskIndex == i);
 				const std::string displayName = trailMask.imageName +
-					(trailMask.hasTimeSlot ? " (t)" : "");
+					(trailMask.hasTimeSlot ? "  " : "");
 
 				if(ImGui::Selectable(displayName.c_str(), isSelected)) {
 					appState->usedTrailMaskIndex = i;

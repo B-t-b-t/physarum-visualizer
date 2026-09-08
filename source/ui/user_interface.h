@@ -36,8 +36,10 @@ private:
 	SDL_Window* window_;
 	SDL_GLContext glContext_;
 
+	#if DEBUG
 	bool showImGUIDemo_ = false;
 	bool showImPlotDemo_ = false;
+	#endif
 
 	void initWindows();
 
