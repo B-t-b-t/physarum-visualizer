@@ -1,15 +1,29 @@
 #include "slime_config_window.h"
 
+#include "link_element.h"
+
 void SlimeConfigWindow::render(ApplicationState* appState) {
     if(!visible) { return; }
 
     ImGui::Begin("Slime Config", &visible);
 	
 	ImGui::SliderFloat("v", &appState->slimeSettings.v, 0.0f, 3.0f);
-	ImGui::SliderInt("Rotation Angle", &appState->slimeSettings.rotationAngle, 0, 180);
-	ImGui::SliderInt("Sensor Angle", &appState->slimeSettings.angle, 0, 180);
+
+	if(ImGui::SliderInt("Rotation Angle", &appState->slimeSettings.rotationAngle, 0, 180)) {
+		if(appState->lockAngles) {
+			appState->slimeSettings.angle = appState->slimeSettings.rotationAngle;
+		}
+	}
+	if(ImGui::SliderInt("Sensing Angle ", &appState->slimeSettings.angle, 0, 180)) {
+		if(appState->lockAngles) {
+			appState->slimeSettings.rotationAngle = appState->slimeSettings.angle;
+		}
+	}
+
+	if(ImGui::link("##Link Angles", &appState->lockAngles, 2, 2.0f)) {
+		appState->slimeSettings.angle = appState->slimeSettings.rotationAngle;
+	}
 	
-	ImGui::Checkbox("Lock Angles", &appState->lockAngles);
 	ImGui::SliderInt("Sensor Distance", &appState->slimeSettings.sensorDistance, 1, 100);
 	ImGui::SliderFloat("Deposition Strength", &appState->slimeSettings.depositionStrength, 0.0f, 10.0f);
 	ImGui::SliderFloat("diffusionWeight", &appState->trailDiffusionSettings.diffusionWeight, 0.0f, 1.0f);
@@ -17,12 +31,30 @@ void SlimeConfigWindow::render(ApplicationState* appState) {
 
 	ImGui::Separator();
 	
-	ImGui::Checkbox("Lock Slime Color to Color 0", &appState->lockSlimeColor);
+	if(ImGui::ColorEdit3("Color Species 0", (float*)&appState->slimeSettings.slimeColor0)) {
+		if(appState->lockSlimeColor) {
+			appState->slimeSettings.slimeColor1 = appState->slimeSettings.slimeColor0;
+			appState->slimeSettings.slimeColor2 = appState->slimeSettings.slimeColor0;
+		}
+	}
+	if(ImGui::ColorEdit3("Color Species 1", (float*)&appState->slimeSettings.slimeColor1)) {
+		if(appState->lockSlimeColor) {
+			appState->slimeSettings.slimeColor0 = appState->slimeSettings.slimeColor1;
+			appState->slimeSettings.slimeColor2 = appState->slimeSettings.slimeColor1;
+		}
+	}
+	if(ImGui::ColorEdit3("Color Species 2", (float*)&appState->slimeSettings.slimeColor2)) {
+		if(appState->lockSlimeColor) {
+			appState->slimeSettings.slimeColor0 = appState->slimeSettings.slimeColor2;
+			appState->slimeSettings.slimeColor1 = appState->slimeSettings.slimeColor2;
+		}
+	}
 	
-	ImGui::ColorEdit3("Slime Color 0", (float*)&appState->slimeSettings.slimeColor0);
-	ImGui::ColorEdit3("Slime Color 1", (float*)&appState->slimeSettings.slimeColor1);
-	ImGui::ColorEdit3("Slime Color 2", (float*)&appState->slimeSettings.slimeColor2);
-	
+	if(ImGui::link("##Link Slime Colors", &appState->lockSlimeColor, 3, 2.0f)) {
+		appState->slimeSettings.slimeColor1 = appState->slimeSettings.slimeColor0;
+		appState->slimeSettings.slimeColor2 = appState->slimeSettings.slimeColor0;
+	}
+
 	ImGui::Separator();
 	
 	ImGui::Checkbox("Use Particle Mask instead of Color", (bool*)&appState->slimeSettings.useMask);

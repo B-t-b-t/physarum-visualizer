@@ -260,6 +260,7 @@ set(MY_HEADER_FILES
     source/ui/elements/audio_window.h
     source/ui/elements/base_window.h
     source/ui/elements/debug_window.h
+    source/ui/elements/link_element.h
     source/ui/elements/new_canvas_modal.h
     source/ui/elements/preset_window.h
     source/ui/elements/slime_config_window.h
@@ -302,6 +303,7 @@ set(MY_SOURCE_FILES
     source/ui/user_interface.cpp
     source/ui/elements/audio_window.cpp
     source/ui/elements/debug_window.cpp
+    source/ui/elements/link_element.cpp
     source/ui/elements/new_canvas_modal.cpp
     source/ui/elements/preset_window.cpp
     source/ui/elements/slime_config_window.cpp

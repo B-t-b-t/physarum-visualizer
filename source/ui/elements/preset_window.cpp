@@ -3,6 +3,7 @@
 #include "../../utility/event.h"
 #include "../../simulation/trail_map_controller.h"
 #include "misc/cpp/imgui_stdlib.cpp"	//for string parameters in text input fields
+#include "link_element.h"
 
 void PresetWindow::render(ApplicationState* appState) {
     if(!visible) { return; }
@@ -277,16 +278,6 @@ void PresetWindow::imagePresetGUI(ApplicationState* appState) {
         0.0f,
         5.0f
     );
-    if(ImGui::Button(
-        linkTrailMaskScales_ ? "Unlink Trail Mask Scales" : "Link Trail Mask Scales"
-    )) {
-        linkTrailMaskScales_ = !linkTrailMaskScales_;
-
-        if(linkTrailMaskScales_) {
-            appState->universalShaderSettings.trailMaskScaleY =
-                appState->universalShaderSettings.trailMaskScaleX;
-        }
-    }
 
     if(ImGui::SliderFloat(
         "Trail Mask Scale X",
@@ -297,7 +288,7 @@ void PresetWindow::imagePresetGUI(ApplicationState* appState) {
         appState->universalShaderSettings.trailMaskScaleY =
             appState->universalShaderSettings.trailMaskScaleX;
     }
-
+    
     if(ImGui::SliderFloat(
         "Trail Mask Scale Y",
         &appState->universalShaderSettings.trailMaskScaleY,
@@ -305,7 +296,12 @@ void PresetWindow::imagePresetGUI(ApplicationState* appState) {
         10.0f
     ) && linkTrailMaskScales_) {
         appState->universalShaderSettings.trailMaskScaleX =
-            appState->universalShaderSettings.trailMaskScaleY;
+        appState->universalShaderSettings.trailMaskScaleY;
+    }
+
+    if(ImGui::link("Link##first_second", &linkTrailMaskScales_, 2, 2.0f)) {
+        appState->universalShaderSettings.trailMaskScaleY =
+        appState->universalShaderSettings.trailMaskScaleX;
     }
 
     ImGui::SliderFloat(
@@ -521,16 +517,6 @@ void PresetWindow::textPresetGUI(ApplicationState* appState) {
         0.0f,
         5.0f
     );
-    if(ImGui::Button(
-        linkTrailMaskScales_ ? "Unlink Trail Mask Scales" : "Link Trail Mask Scales"
-    )) {
-        linkTrailMaskScales_ = !linkTrailMaskScales_;
-
-        if(linkTrailMaskScales_) {
-            appState->universalShaderSettings.trailMaskScaleY =
-                appState->universalShaderSettings.trailMaskScaleX;
-        }
-    }
 
     if(ImGui::SliderFloat(
         "Trail Mask Scale X",
@@ -550,6 +536,11 @@ void PresetWindow::textPresetGUI(ApplicationState* appState) {
     ) && linkTrailMaskScales_) {
         appState->universalShaderSettings.trailMaskScaleX =
             appState->universalShaderSettings.trailMaskScaleY;
+    }
+
+    if(ImGui::link("Link##first_second", &linkTrailMaskScales_, 2, 2.0f)) {
+        appState->universalShaderSettings.trailMaskScaleY =
+        appState->universalShaderSettings.trailMaskScaleX;
     }
 
     ImGui::SliderFloat(
