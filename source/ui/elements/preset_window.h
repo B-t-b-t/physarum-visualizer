@@ -1,15 +1,18 @@
 #ifndef PRESET_WINDOW_H
 #define PRESET_WINDOW_H
 
+#include <cstdint>
+
 #include "base_window.h"
 #include "../user_interface.h"
 
 struct TextFilters {
 	//filter for ASCII characters (printable characters and newline)
 	static int FilterASCII(ImGuiInputTextCallbackData* data) {
-		if ((unsigned char)data->EventChar >= ' ' && (unsigned char)data->EventChar <= '~') {
+		//convert everything to fixed width 32-bit to catch every UNICODE character
+		if ((uint32_t)data->EventChar >= (uint32_t)' ' && (uint32_t)data->EventChar <= (uint32_t)'~') {
 			return 0;
-		} else if((unsigned char)data->EventChar == '\n') {
+		} else if((uint32_t)data->EventChar == (uint32_t)'\n') {
 			return 0;
 		}
 		return 1;

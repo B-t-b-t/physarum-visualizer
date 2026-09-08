@@ -468,7 +468,7 @@ void PresetWindow::textPresetGUI(ApplicationState* appState) {
 
                     ImGui::Separator();
 
-                    if(ImGui::Button("Ok")) {
+                    if(ImGui::Button("Ok") && !textToEdit_.empty()) {
                         TrailMaskData trailMaskData{
                             .newName = textToEdit_,
                             .isText = true,
@@ -550,7 +550,7 @@ void PresetWindow::textPresetGUI(ApplicationState* appState) {
 
         ImGui::Separator();
 
-        if(ImGui::Button("Ok")) {
+        if(ImGui::Button("Ok") && !newTextBuffer.empty()) {
             notify(UserEvent{EventType::CREATE_NEW_TEXT_TEXTURE, newTextBuffer, 0});
             newTextBuffer.clear();
             ImGui::CloseCurrentPopup();
