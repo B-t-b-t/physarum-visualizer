@@ -57,6 +57,7 @@ public:
 	bool lockSlimeColor = false;
 	bool lockParticleColor = false;
 	bool lockAngles = true;
+	bool lockAngleBiases = true;
 	bool fullscreen = false;
 	bool autoPresetSwitching = false;
 

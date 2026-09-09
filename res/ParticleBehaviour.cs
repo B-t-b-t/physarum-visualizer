@@ -55,11 +55,13 @@ layout(std140, binding = 1) uniform SlimeSettings {
     int rotationAngle;
     int angle;
 
+    int rotationAngleBias;
+    int sensingAngleBias;
     int sensorDistance;
     uint densityLimit;
+
     int useMask;
     float velocityBassReaction;
-
     int reactToAudio;
     int angleBassReaction;
 
@@ -285,8 +287,10 @@ SensedTrail sensingTrail(Particle particle, float beatSensorDistance, float da, 
     SensedTrail sensedTrail = SensedTrail(0.0f, 0.0f, 0.0f);
     vec4 sensedPixelValue;
 
+    float angleBias = 2.0f * 3.1415926535f * ((sensingAngleBias) / 360.0f);
+
     //sense left Pixel
-    ivec2 sensePos = ivec2(particle.position.x + beatSensorDistance * cos(particle.angle + da), particle.position.y + beatSensorDistance * sin(particle.angle + da));
+    ivec2 sensePos = ivec2(particle.position.x + beatSensorDistance * cos(particle.angle + da + angleBias), particle.position.y + beatSensorDistance * sin(particle.angle + da + angleBias));
 
     sensePos = wrapCoordinates_i(sensePos, textureWidth, textureHeight);
 
@@ -303,7 +307,7 @@ SensedTrail sensingTrail(Particle particle, float beatSensorDistance, float da, 
     sensedTrail.left += dot(speciesColor.rgb, sensedPixelValue.rgb);
 
     //sense front Pixel
-    sensePos = ivec2(particle.position.x + beatSensorDistance * cos(particle.angle), particle.position.y + beatSensorDistance * sin(particle.angle));
+    sensePos = ivec2(particle.position.x + beatSensorDistance * cos(particle.angle + angleBias), particle.position.y + beatSensorDistance * sin(particle.angle + angleBias));
 
     sensePos = wrapCoordinates_i(sensePos, textureWidth, textureHeight);
 
@@ -320,7 +324,7 @@ SensedTrail sensingTrail(Particle particle, float beatSensorDistance, float da, 
     sensedTrail.front += dot(speciesColor.rgb, sensedPixelValue.rgb);
 
     //sense right Pixel
-    sensePos = ivec2(particle.position.x + beatSensorDistance * cos(particle.angle - da), particle.position.y + beatSensorDistance * sin(particle.angle - da));
+    sensePos = ivec2(particle.position.x + beatSensorDistance * cos(particle.angle - da + angleBias), particle.position.y + beatSensorDistance * sin(particle.angle - da + angleBias));
 
     sensePos = wrapCoordinates_i(sensePos, textureWidth, textureHeight);
 
@@ -341,6 +345,8 @@ SensedTrail sensingTrail(Particle particle, float beatSensorDistance, float da, 
 
 Particle rotateToNewDirection(Particle particle, SensedTrail sensedTrail, float ds) {
 
+    float angleBias = 2.0f * 3.1415926535f * ((rotationAngleBias) / 360.0f);
+
     //front strongest
     if((sensedTrail.front > sensedTrail.left) && (sensedTrail.front > sensedTrail.right)) {
         return particle;
@@ -350,16 +356,16 @@ Particle rotateToNewDirection(Particle particle, SensedTrail sensedTrail, float 
     if((sensedTrail.front <= sensedTrail.left) && (sensedTrail.front <= sensedTrail.right)) {
         float randomTurn = scaleToRange01(hash(uint(particle.position.x * particle.position.y + timeTicks)));
         
-        particle.angle = particle.angle + ds * 2 * (randomTurn - 0.5f);  //turn random
+        particle.angle = particle.angle + (ds + angleBias) * 2 * (randomTurn - 0.5f);  //turn random
         return particle;
     }
 
     if(sensedTrail.left < sensedTrail.right) {  //right strongest
-        particle.angle = particle.angle - ds;   //turn right
+        particle.angle = particle.angle - ds + angleBias;   //turn right
         return particle;
     }
     else if(sensedTrail.right < sensedTrail.left) { //left strongest
-        particle.angle = particle.angle + ds;       //turn left
+        particle.angle = particle.angle + ds + angleBias;       //turn left
         return particle;
     } else {
         return particle;

@@ -34,15 +34,15 @@ struct alignas(16) SlimeSettings {
     int rotationAngle = 20;
     int angle = 20;
 
+    int rotationAngleBias = 0;
+    int sensingAngleBias = 0;
     int sensorDistance = 9;
     unsigned int densityLimit = 10;
+
     int useMask = false;
     float velocityBassReaction = 0.0f;
-
     int reactToAudio = false;
     int angleBassReaction = 0;
-    int _padding1; // Padding for alignment
-    int _padding2; // Padding for alignment
 
     ImVec4 slimeColor0 = ImVec4(0.0f, 1.0f, 1.0f, 1.0f);
     ImVec4 slimeColor1 = ImVec4(0.0f, 1.0f, 1.0f, 1.0f);

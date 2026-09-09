@@ -15,6 +15,10 @@ void SlimeConfigWindow::render(ApplicationState* appState) {
 	ImGui::LinkSliderInt("Rotation Angle", &appState->slimeSettings.rotationAngle, 0, 180);
 	ImGui::LinkSliderInt("Sensing Angle ", &appState->slimeSettings.angle, 0, 180);
 	ImGui::LinkEnd();
+	ImGui::LinkBegin("##Link Angle Biases", &appState->lockAngleBiases, 2.0f);
+	ImGui::LinkSliderInt("Rotation Angle Bias", &appState->slimeSettings.rotationAngleBias, -180, 180);
+	ImGui::LinkSliderInt("Sensing Angle Bias", &appState->slimeSettings.sensingAngleBias, -180, 180);
+	ImGui::LinkEnd();
 	
 	ImGui::SliderInt("Sensor Distance", &appState->slimeSettings.sensorDistance, 1, 100);
 
