@@ -4,7 +4,7 @@ out vec4 FragColor;
 
 /*layout(pixel_center_integer) in vec4 gl_FragCoord;*/
 
-in vec2 TexCoord;
+in vec2 TexCoord;	//origin bottom left, range [0.0f, 1.0f]
 layout (binding = 0) uniform sampler2D texTrail;
 layout (binding = 1) uniform sampler2D texTrailNonDiffused;
 layout (binding = 2) uniform usampler2D newTexParticles;
@@ -39,10 +39,14 @@ layout(std140, binding = 0) uniform UniversalShaderSettings {
 	int timeTicks;
 
 	float trailMaskInfluence;
-	float trailMaskScale;
-	vec2 trailMaskPosition;
+	float trailMaskScaleX;
+	float trailMaskScaleY;
+	float _padding0;
 
-    vec4 mouseInputs; // x, y, leftClick, rightClick
+	vec2 trailMaskPosition;
+	vec2 _padding1;
+
+    vec4 mouseInputs; // x, y, leftClick, rightClick	//origin top-left range: [0.0f, windowSize in pixel]
 };
 
 layout(std140, binding = 3) uniform FragmentShaderSettings {
@@ -172,6 +176,17 @@ void main() {
 	FragColor = vec4(composited, 1.0);
 
 	//FragColor = vec4(finalRGB, 1.0) + debugOverlay;
+
+	//draw circle around mouse if interacting with simulation
+	if(mouseInputs.z > 0.0f) {
+		float radius = 100.0f;
+		float thickness = 1.0f; //line thickness is 2*value because of abs() in circle formula below
+		vec2 relativeTexelPos = vec2(TexCoord.x * windowWidth - mouseInputs.x, (-1.0f * TexCoord.y + 1.0f) * windowHeight - mouseInputs.y);
+		//using length() as circle formula: r = (x^2 + y^2)^0.5 
+		if(abs(length(relativeTexelPos) - radius) <= thickness) {
+			FragColor = vec4(0.7f, 0.7f, 0.7f, 1.0f);
+		}
+	}
 
 	//vignette effect
 	if(vignetteEffect == 1) {

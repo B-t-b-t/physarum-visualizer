@@ -17,7 +17,15 @@ layout(std140, binding = 0) uniform UniversalShaderSettings {
     int renderParticles;
     int renderCollisions;
     int collisionDetection;
-    int timeTicks;
+	  int timeTicks;
+
+	  float trailMaskInfluence;
+	  float trailMaskScaleX;
+    float trailMaskScaleY;
+    float _padding0;
+
+    vec2 trailMaskPosition;
+    vec2 _padding1;
 
     vec4 mouseInputs; // x, y, leftClick, rightClick
 };
