@@ -328,12 +328,18 @@ void PresetWindow::imagePresetGUI(ApplicationState* appState) {
 
     ImGui::SeparatorText("Settings");
 
-    ImGui::SliderFloat(
+    if(ImGui::SliderFloat(
         "Strength",
         &appState->universalShaderSettings.trailMaskInfluence,
         0.0f,
         5.0f
-    );
+    )) {
+        notify(UserEvent{
+            EventType::TRAIL_MASK_STRENGTH_CHANGED,
+            0,
+            appState->universalShaderSettings.trailMaskInfluence
+        });
+    }
 
     ImGui::LinkBegin("##Link Trail Mask Scales", &linkTrailMaskScales_, 2.0f);
 
@@ -370,6 +376,13 @@ void PresetWindow::imagePresetGUI(ApplicationState* appState) {
         &appState->trailMaskIntervall,
         2,
         60
+    );
+
+    ImGui::SliderInt(
+        "Disable at Sensor Distance >=",
+        &appState->disableAtSensorDistance,
+        1,
+        100
     );
 }
 
@@ -568,12 +581,18 @@ void PresetWindow::textPresetGUI(ApplicationState* appState) {
 
     ImGui::SeparatorText("Settings");
 
-    ImGui::SliderFloat(
-    "Strength",
-    &appState->universalShaderSettings.trailMaskInfluence,
-    0.0f,
-    5.0f
-    );
+    if(ImGui::SliderFloat(
+        "Strength",
+        &appState->universalShaderSettings.trailMaskInfluence,
+        0.0f,
+        5.0f
+    )) {
+        notify(UserEvent{
+            EventType::TRAIL_MASK_STRENGTH_CHANGED,
+            0,
+            appState->universalShaderSettings.trailMaskInfluence
+        });
+    }
 
     ImGui::LinkBegin("##Link Trail Mask Scales", &linkTrailMaskScales_, 2.0f);
 
@@ -610,5 +629,12 @@ void PresetWindow::textPresetGUI(ApplicationState* appState) {
         &appState->trailMaskIntervall,
         2,
         60
+    );
+
+    ImGui::SliderInt(
+        "Disable at Sensor Distance >=",
+        &appState->disableAtSensorDistance,
+        1,
+        100
     );
 }

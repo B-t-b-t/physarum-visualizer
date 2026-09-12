@@ -64,6 +64,7 @@ private:
     FontAtlas fontAtlas_;
 
     size_t activeTrailMaskIndex_;
+    float trailMaskStrengthTemp_ = 1.0f;
     SDL_Time timeTicks_;
     SDL_DateTime dateTime_;
 

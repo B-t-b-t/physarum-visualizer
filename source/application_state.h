@@ -83,6 +83,7 @@ public:
 	int presetIntervall = 30;	//in seconds
 	int colorPresetIntervall = 30;	//in seconds
 	int trailMaskIntervall = 30;	//in seconds
+	int disableAtSensorDistance = 15;
 
 	TextureMask selectedTextureMask = TextureMask::TRAIL;
 

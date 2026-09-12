@@ -184,6 +184,7 @@ TrailMapController::TrailMapController(std::string pictureFilePath, std::string 
 
     appState_->trailMasks = &trailMasks_;
     appState_->usedTrailMaskIndex = activeTrailMaskIndex_;
+    trailMaskStrengthTemp_ = appState_->universalShaderSettings.trailMaskInfluence;
 }
 
 TrailMapController::~TrailMapController() {
@@ -251,6 +252,15 @@ void TrailMapController::loadRandomPicture() {
             imageName = trailMasks_[randomIndex].imageName;
         } while(!checkTimeTable(imageName));
         
+        //QUICK HACK: trailMasks get visually ugly, when the sensor distance is too large
+        //reduce strength to 0 temporarily to allow slime behavior and colors to appear as intended
+        if(appState_->slimeSettings.sensorDistance > appState_->disableAtSensorDistance) {
+            //trailMaskStrengthTemp_ = appState_->universalShaderSettings.trailMaskInfluence;
+            appState_->universalShaderSettings.trailMaskInfluence = 0.0f;
+        } else {
+            appState_->universalShaderSettings.trailMaskInfluence = trailMaskStrengthTemp_; //restore previous value
+        }
+
         activeTrailMaskIndex_ = randomIndex;
         appState_->usedTrailMaskIndex = randomIndex;
         
@@ -436,6 +446,13 @@ void TrailMapController::onNotify(const UserEvent event) {
                 std::get<int>(event.data_1),
                 std::get<TrailMaskData>(event.data_2)
             );
+            break;
+        }
+        case EventType::TRAIL_MASK_STRENGTH_CHANGED:
+        {
+            if(appState_->universalShaderSettings.trailMaskInfluence > 0.0f) {
+                trailMaskStrengthTemp_ = std::get<float>(event.data_2);
+            }
             break;
         }
         default:

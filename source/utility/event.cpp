@@ -16,6 +16,7 @@ std::ostream& operator<<(std::ostream& os, const EventType& c) {
         case EventType::CREATE_NEW_TEXT_TEXTURE: return os << "CREATE_NEW_TEXT_TEXTURE";
         case EventType::EDIT_TEXT_TEXTURE: return os << "EDIT_TEXT_TEXTURE";
         case EventType::DELETE_TEXT_TEXTURE: return os << "DELETE_TEXT_TEXTURE";
+        case EventType::TRAIL_MASK_STRENGTH_CHANGED: return os << "TRAIL_MASK_STRENGTH_CHANGED";
         default:                      return os << "<Missing String Representation for Event Enum>";
     }
 }
