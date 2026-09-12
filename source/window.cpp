@@ -115,7 +115,7 @@ Window::Window(const std::string& title, ApplicationState* appState, bool custom
 	}
 
 	SDL_SetWindowResizable(window_, true);		// Allow window resizing
-	SDL_GL_SetSwapInterval(0);					// Enable V-Sync
+	SDL_GL_SetSwapInterval(1);					// Enable V-Sync
 	SDL_MaximizeWindow(window_);				// necessary, because SDL_GetDisplayUsableBounds() doesn't work with Wayland
 
 	updateViewport();
