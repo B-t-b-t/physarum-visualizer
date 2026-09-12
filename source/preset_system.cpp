@@ -25,6 +25,9 @@ void PresetSystem::createPreset(std::string presetName, ApplicationState* appSta
     preset.lockAngles = appState->lockAngles;
     preset.rotationAngle = appState->slimeSettings.rotationAngle;
     preset.angle = appState->slimeSettings.angle;
+    preset.lockAngleBiases = appState->lockAngleBiases;
+    preset.rotationAngleBias = appState->slimeSettings.rotationAngleBias;
+    preset.angleBias = appState->slimeSettings.sensingAngleBias;
     preset.sensorDistance = appState->slimeSettings.sensorDistance;
     preset.diffusionWeight = appState->trailDiffusionSettings.diffusionWeight;
     preset.decay = appState->trailDiffusionSettings.decay;
@@ -47,6 +50,9 @@ void PresetSystem::savePreset(std::string fileName) {
     file << "LockAngles= " << preset.lockAngles << std::endl;
     file << "RotationAngle= " << preset.rotationAngle << std::endl;
     file << "Angle= " << preset.angle << std::endl;
+    file << "LockAngleBiases= " << preset.lockAngleBiases << std::endl;
+    file << "RotationAngleBias= " << preset.rotationAngleBias << std::endl;
+    file << "AngleBias= " << preset.angleBias << std::endl;
     file << "SensorDistance= " << preset.sensorDistance << std::endl;
     file << "DiffusionWeight= " << preset.diffusionWeight << std::endl;
     file << "Decay= " << preset.decay << std::endl;
@@ -83,6 +89,12 @@ void PresetSystem::loadPreset(std::string fileName) {
             preset.rotationAngle = std::stof(value);
         else if (key == "Angle")
             preset.angle = std::stof(value);
+        else if (key == "LockAngleBiases")
+            preset.lockAngleBiases = std::stoi(value);
+        else if (key == "RotationAngleBias")
+            preset.rotationAngleBias = std::stof(value);
+        else if (key == "AngleBias")
+            preset.angleBias = std::stof(value);
         else if (key == "SensorDistance")
             preset.sensorDistance = std::stof(value);
         else if (key == "DiffusionWeight")
@@ -129,6 +141,9 @@ void PresetSystem::setUIState(ApplicationState* appState, std::string presetName
     appState->lockAngles = preset.lockAngles;
     appState->slimeSettings.rotationAngle = preset.rotationAngle;
     appState->slimeSettings.angle = preset.angle;
+    appState->lockAngleBiases = preset.lockAngleBiases;
+    appState->slimeSettings.rotationAngleBias = preset.rotationAngleBias;
+    appState->slimeSettings.sensingAngleBias = preset.angleBias;
     appState->slimeSettings.sensorDistance = preset.sensorDistance;
     appState->trailDiffusionSettings.diffusionWeight = preset.diffusionWeight;
     appState->trailDiffusionSettings.decay = preset.decay;

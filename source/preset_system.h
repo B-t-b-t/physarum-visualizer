@@ -20,6 +20,9 @@ struct Preset {
 	bool lockAngles;
 	int rotationAngle;
 	int angle;
+	int lockAngleBiases;
+	int rotationAngleBias;
+	int angleBias;
 	int sensorDistance;
 	float diffusionWeight;
 	float decay;
