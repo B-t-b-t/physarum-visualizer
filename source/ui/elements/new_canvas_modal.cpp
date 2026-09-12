@@ -30,8 +30,43 @@ void NewCanvasModal::render(ApplicationState* appState) {
 
 		ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0, 0));
 		ImGui::InputInt("New Texture Width", &(appState->newTextureWidth), 8, 8, ImGuiInputTextFlags_CharsNoBlank);
+		ImGui::SameLine();
+		if (ImGui::SmallButton("/2##newWidth")) {
+			appState->newTextureWidth = static_cast<int>(appState->newTextureWidth / 2.0f);
+		}
+		ImGui::SameLine();
+		if (ImGui::SmallButton("/1.5##newWidth")) {
+			appState->newTextureWidth = static_cast<int>(appState->newTextureWidth / 1.5f);
+		}
+		ImGui::SameLine();
+		if (ImGui::SmallButton("x1.5##newWidth")) {
+			appState->newTextureWidth = static_cast<int>(appState->newTextureWidth * 1.5f);
+		}
+		ImGui::SameLine();
+		if (ImGui::SmallButton("x2##newWidth")) {
+			appState->newTextureWidth *= 2;
+		}
+
 		appState->newTextureWidth = appState->newTextureWidth - (appState->newTextureWidth % 8);
+
 		ImGui::InputInt("New Texture Height", &(appState->newTextureHeight), 8, 8, ImGuiInputTextFlags_CharsNoBlank);
+				ImGui::SameLine();
+		if (ImGui::SmallButton("/2##newHeight")) {
+			appState->newTextureHeight = static_cast<int>(appState->newTextureHeight / 2.0f);
+		}
+		ImGui::SameLine();
+		if (ImGui::SmallButton("/1.5##newHeight")) {
+			appState->newTextureHeight = static_cast<int>(appState->newTextureHeight / 1.5f);
+		}
+		ImGui::SameLine();
+		if (ImGui::SmallButton("x1.5##newHeight")) {
+			appState->newTextureHeight = static_cast<int>(appState->newTextureHeight * 1.5f);
+		}
+		ImGui::SameLine();
+		if (ImGui::SmallButton("x2##newHeight")) {
+			appState->newTextureHeight *= 2;
+		}
+
 		appState->newTextureHeight = appState->newTextureHeight - (appState->newTextureHeight % 8);
 		appState->newNumParticles = appState->slimeRatio * appState->newTextureWidth * appState->newTextureHeight;
 		ImGui::InputInt("Number of Particles", &(appState->newNumParticles), 8, 8, ImGuiInputTextFlags_CharsNoBlank);
@@ -41,7 +76,7 @@ void NewCanvasModal::render(ApplicationState* appState) {
 		ImGui::PopStyleVar();
 		ImGui::Separator();
 
-		ImGui::SliderFloat("v", &(appState->slimeSettings.v), 0.0f, 3.0f);
+		ImGui::SliderFloat("Velocity", &(appState->slimeSettings.v), 0.0f, 3.0f);
 		ImGui::SliderInt("Rotation Angle", &(appState->slimeSettings.rotationAngle), 0, 180);
 		ImGui::SliderInt("Sensor Angle", &(appState->slimeSettings.angle), 0, 180);
 		
