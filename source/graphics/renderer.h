@@ -2,6 +2,7 @@
 #define RENDERER_H
 
 #include "bloom.h"
+#include "framebuffer.h"
 #include "shader.h"
 #include "shader_program.h"
 #include "texture.h"
@@ -45,6 +46,9 @@ private:
     Texture newTexParticles_;		//Texture Unit 2
     Texture oldTexParticles_;		//Texture Unit 3
     Texture texCollisions_;         //Texture Unit 4
+
+    FrameBuffer outputFrameBuffer_;
+    Texture previewTexture_;
 };
 
 #endif // RENDERER_H

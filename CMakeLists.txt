@@ -264,6 +264,7 @@ set(MY_HEADER_FILES
     source/ui/elements/new_canvas_modal.h
     source/ui/elements/preset_window.h
     source/ui/elements/slime_config_window.h
+    source/ui/elements/view_window.h
     source/ui/elements/visual_settings_window.h
     source/utility/event.h
     source/utility/fileHandling.h
@@ -307,6 +308,7 @@ set(MY_SOURCE_FILES
     source/ui/elements/new_canvas_modal.cpp
     source/ui/elements/preset_window.cpp
     source/ui/elements/slime_config_window.cpp
+    source/ui/elements/view_window.cpp
     source/ui/elements/visual_settings_window.cpp
     source/utility/event.cpp
     source/utility/fileHandling.cpp

@@ -87,6 +87,9 @@ public:
 
 	TextureMask selectedTextureMask = TextureMask::TRAIL;
 
+	unsigned int previewTexture = 0;
+	bool isViewWindowVisible = false;
+
 	std::string textPreset = "default";
 
 	ImVec4 clearColor = ImVec4(0.0f, 0.0f, 0.0f, 0.0f);

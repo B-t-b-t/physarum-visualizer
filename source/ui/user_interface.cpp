@@ -6,6 +6,7 @@
 #include "elements/new_canvas_modal.h"
 #include "elements/preset_window.h"
 #include "elements/slime_config_window.h"
+#include "elements/view_window.h"
 #include "elements/visual_settings_window.h"
 
 inline void ImGui_StyleNuklearDarkGray();
@@ -54,6 +55,7 @@ void UserInterface::initWindows() {
 	windows_.emplace("AudioWindow", std::make_unique<AudioWindow>());
 	windows_.emplace("DebugWindow", std::make_unique<DebugWindow>());
 	windows_.emplace("NewCanvasModal", std::make_unique<NewCanvasModal>());
+	windows_.emplace("ViewWindow", std::make_unique<ViewWindow>());
 
 	(dynamic_cast<DebugWindow*>(windows_.at("DebugWindow").get()))->setGuiIO(guiIO_);
 }
@@ -88,6 +90,10 @@ void UserInterface::display() {
 			bool* showAudioWindow = &(windows_.at("AudioWindow")->visible);
 			*showAudioWindow = *showAudioWindow ? false : true;
 		}
+		if (ImGui::MenuItem("View")) {
+			bool* showViewWindow = &(windows_.at("ViewWindow")->visible);
+			*showViewWindow = *showViewWindow ? false : true;
+		}
 		if (ImGui::MenuItem("Debug")) {
 			bool* showDebugWindow = &(windows_.at("DebugWindow")->visible);
 			*showDebugWindow = *showDebugWindow ? false : true;
@@ -104,6 +110,9 @@ void UserInterface::display() {
 		auto& w = kv.second;
 		if (w && w->visible) { w->render(state_); }
 	}
+
+	//to disable costly drawing to outputFramebuffer in Renderer just for ViewWindow
+	state_->isViewWindowVisible = windows_.at("ViewWindow")->visible;
 
 	ImGui::Render();
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
@@ -147,6 +156,10 @@ void UserInterface::mainMenuBarGUI() {
             if (ImGui::MenuItem("Audio")) {
 				bool* showAudioWindow = &(windows_.at("AudioWindow")->visible);
 				*showAudioWindow = *showAudioWindow ? false : true;
+			}
+			if (ImGui::MenuItem("View")) {
+				bool* showViewWindow = &(windows_.at("ViewWindow")->visible);
+				*showViewWindow = *showViewWindow ? false : true;
 			}
 			if (ImGui::MenuItem("Debug")) {
 				bool* showDebugWindow = &(windows_.at("DebugWindow")->visible);
