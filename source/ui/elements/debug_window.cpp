@@ -73,16 +73,18 @@ void DebugWindow::render(ApplicationState* appState) {
 
 	ImGui::SeparatorText("Infos");
 	ImGui::Text("Number of Particles: %d", appState->numParticles);
-	ImGui::Text("WindowWidth: %d TextureWidth: %d NewTextureWidth: %d Height: %d TextureHeight: %d NewTextureHeight: %d", appState->universalShaderSettings.windowWidth, appState->universalShaderSettings.textureWidth, appState->newTextureWidth, appState->universalShaderSettings.windowHeight, appState->universalShaderSettings.textureHeight, appState->newTextureHeight);
+	ImGui::Text("Window:		 %dx%d", appState->universalShaderSettings.windowWidth, appState->universalShaderSettings.windowHeight);
+	ImGui::Text("Texture:		  %dx%d", appState->universalShaderSettings.textureWidth, appState->universalShaderSettings.textureHeight);
+	ImGui::Text("New Texture: %dx%d", appState->newTextureWidth, appState->newTextureHeight);
 	ImGui::Text("Fullscreen: %d", appState->fullscreen);
 
 	if(ImGui::CollapsingHeader("Display Infos")) {
 		ImGui::Text("Number of Displays: %d", debugInfos_.numberOfDisplays);
 		if (debugInfos_.displayMode) {
 			ImGui::Text("Current Display ID: %d", debugInfos_.displayMode->displayID);
-			ImGui::Text("Real Display Resolution: %dx%d @ %fHz", (int)(debugInfos_.displayMode->w * debugInfos_.displayMode->pixel_density), (int)(debugInfos_.displayMode->h * debugInfos_.displayMode->pixel_density), debugInfos_.displayMode->refresh_rate);
+			ImGui::Text("Real Display Resolution: 	%dx%d @ %fHz", (int)(debugInfos_.displayMode->w * debugInfos_.displayMode->pixel_density), (int)(debugInfos_.displayMode->h * debugInfos_.displayMode->pixel_density), debugInfos_.displayMode->refresh_rate);
 			ImGui::Text("Scaled Display Resolution: %dx%d at Scaling Factor %.2f", debugInfos_.displayMode->w, debugInfos_.displayMode->h, (float)debugInfos_.displayMode->pixel_density);
-			ImGui::Text("Usable Display Area: %dx%d at (%d, %d)", debugInfos_.displayUsableBounds.w, debugInfos_.displayUsableBounds.h, debugInfos_.displayUsableBounds.x, debugInfos_.displayUsableBounds.y);
+			ImGui::Text("Usable Display Area: 		   %dx%d at (%d, %d)", debugInfos_.displayUsableBounds.w, debugInfos_.displayUsableBounds.h, debugInfos_.displayUsableBounds.x, debugInfos_.displayUsableBounds.y);
 			ImGui::Text("Display Format: %s", SDL_GetPixelFormatName(debugInfos_.displayMode->format));
 		}
 	}
