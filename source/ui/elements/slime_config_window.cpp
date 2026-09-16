@@ -12,14 +12,13 @@ void SlimeConfigWindow::render(ApplicationState* appState) {
 	ImGui::SliderFloat("Velocity", &appState->slimeSettings.v, 0.0f, 3.0f);
 
 	ImGui::LinkBegin("##Link Angles", &appState->lockAngles, 2.0f);
-	ImGui::LinkSliderInt("Rotation Angle", &appState->slimeSettings.rotationAngle, 0, 180);
-	ImGui::LinkSliderInt("Sensing Angle ", &appState->slimeSettings.angle, 0, 180);
+	ImGui::LinkSliderInt("Rotation Angle", &appState->slimeSettings.rotationAngle, 0, 180, "%d°");
+	ImGui::LinkSliderInt("Sensing Angle ", &appState->slimeSettings.angle, 0, 180, "%d°");
 	ImGui::LinkEnd();
 	ImGui::LinkBegin("##Link Angle Biases", &appState->lockAngleBiases, 2.0f);
-	ImGui::LinkSliderInt("Rotation Angle Bias", &appState->slimeSettings.rotationAngleBias, -180, 180);
-	ImGui::LinkSliderInt("Sensing Angle Bias", &appState->slimeSettings.sensingAngleBias, -180, 180);
+	ImGui::LinkSliderInt("Rotation Angle Bias", &appState->slimeSettings.rotationAngleBias, -180, 180, "%d°");
+	ImGui::LinkSliderInt("Sensing Angle Bias", &appState->slimeSettings.sensingAngleBias, -180, 180, "%d°");
 	ImGui::LinkEnd();
-	
 	ImGui::SliderInt("Sensor Distance", &appState->slimeSettings.sensorDistance, 1, 100);
 
 	ImGui::Checkbox("Collision Detection", (bool*)&appState->universalShaderSettings.collisionDetection);
