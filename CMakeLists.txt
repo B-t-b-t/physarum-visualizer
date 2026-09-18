@@ -52,7 +52,7 @@ endif()
 FetchContent_Declare(
     SDL3
     GIT_REPOSITORY https://github.com/libsdl-org/SDL
-    GIT_TAG release-3.4.2
+    GIT_TAG release-3.4.16
     GIT_SHALLOW TRUE
     GIT_PROGRESS TRUE
     OVERRIDE_FIND_PACKAGE
@@ -71,7 +71,7 @@ set(SDL3IMAGE_VENDORED OFF CACHE BOOL "" FORCE)
 FetchContent_Declare(
     SDL_image
     GIT_REPOSITORY https://github.com/libsdl-org/SDL_image
-    GIT_TAG release-3.4.2
+    GIT_TAG release-3.4.6
     GIT_SHALLOW TRUE
     GIT_PROGRESS TRUE
 )
@@ -82,7 +82,7 @@ FetchContent_MakeAvailable(SDL_image)
 
 FetchContent_Declare(
     fftw3
-    URL      https://www.fftw.org/fftw-3.3.10.tar.gz
+    URL      https://www.fftw.org/fftw-3.3.11.tar.gz
 )
 set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
 set(BUILD_STATIC_LIBS ON CACHE BOOL "" FORCE)
@@ -97,7 +97,7 @@ unset(CMAKE_POLICY_VERSION_MINIMUM CACHE)
 FetchContent_Declare(
     imgui
     GIT_REPOSITORY https://github.com/ocornut/imgui
-    GIT_TAG v1.92.9-docking
+    GIT_TAG v1.92.9b-docking
     GIT_SHALLOW TRUE
     GIT_PROGRESS TRUE
 )
@@ -127,7 +127,7 @@ FetchContent_MakeAvailable(toml11)
 FetchContent_Declare(
     Catch2
     GIT_REPOSITORY https://github.com/catchorg/Catch2
-    GIT_TAG v3.14.0
+    GIT_TAG v3.16.0
     GIT_SHALLOW TRUE
     GIT_PROGRESS TRUE
 )
