@@ -56,6 +56,12 @@ void Application::run() {
 		// handle user input through keyboard, mouse and window
 		SDL_Event event;
 		while (SDL_PollEvent(&event)) {
+
+			//just for X11 enable mouse capture, otherwise ImGui windows lose mouse focus when resizing or moving window
+			//issues like stuttering, losing focus, lost mouse states,...
+			//!disable when debugging on X11, otherwise it leads to mouse issues when breaking while mouse is captured!
+			ImGui_ImplSDL3_SetMouseCaptureMode(ImGui_ImplSDL3_MouseCaptureMode_Enabled);
+
 			ImGui_ImplSDL3_ProcessEvent(&event);	//give ImGui access to SDL3 input and let it decide if it needs to capture the input
 			window_.processWindowEvents(&event);	//always process window events
 

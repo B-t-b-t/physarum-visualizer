@@ -86,6 +86,7 @@ void DebugWindow::render(ApplicationState* appState) {
 			ImGui::Text("Scaled Display Resolution: %dx%d at Scaling Factor %.2f", debugInfos_.displayMode->w, debugInfos_.displayMode->h, (float)debugInfos_.displayMode->pixel_density);
 			ImGui::Text("Usable Display Area: 		   %dx%d at (%d, %d)", debugInfos_.displayUsableBounds.w, debugInfos_.displayUsableBounds.h, debugInfos_.displayUsableBounds.x, debugInfos_.displayUsableBounds.y);
 			ImGui::Text("Display Format: %s", SDL_GetPixelFormatName(debugInfos_.displayMode->format));
+			ImGui::Text("Video Driver: %s", SDL_GetCurrentVideoDriver());
 		}
 	}
 

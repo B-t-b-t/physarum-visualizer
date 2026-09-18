@@ -61,7 +61,11 @@ Window::Window(const std::string& title, ApplicationState* appState, bool custom
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, majorVersion_);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, minorVersion_);
 
-	window_ = SDL_CreateWindow(title.c_str(), windowWidth_, windowHeight_, SDL_WINDOW_OPENGL | SDL_WINDOW_HIGH_PIXEL_DENSITY);
+	SDL_WindowFlags windowFlags = (SDL_WindowFlags)(SDL_WINDOW_OPENGL | 
+													SDL_WINDOW_HIGH_PIXEL_DENSITY | 
+													SDL_WINDOW_INPUT_FOCUS);
+
+	window_ = SDL_CreateWindow(title.c_str(), windowWidth_, windowHeight_, windowFlags);
 	glContext_ = SDL_GL_CreateContext(window_);
 
 	//reducing OpenGL Version until it works
@@ -74,7 +78,7 @@ Window::Window(const std::string& title, ApplicationState* appState, bool custom
 		SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, minorVersion_);
 		std::cerr << "Trying OpenGL Version: " << majorVersion_ << "." << minorVersion_ << std::endl;
 
-		window_ = SDL_CreateWindow(title.c_str(), windowWidth_, windowHeight_, SDL_WINDOW_OPENGL | SDL_WINDOW_HIGH_PIXEL_DENSITY);
+		window_ = SDL_CreateWindow(title.c_str(), windowWidth_, windowHeight_, windowFlags);
 		glContext_ = SDL_GL_CreateContext(window_);
 	}
 
@@ -224,15 +228,25 @@ void Window::processWindowEvents(SDL_Event* event) {
 		case SDL_EVENT_WINDOW_PIXEL_SIZE_CHANGED:
 		case SDL_EVENT_WINDOW_DISPLAY_CHANGED:
 		case SDL_EVENT_WINDOW_DISPLAY_SCALE_CHANGED:
-			//never resize the main renderer when an UI window is active
-			if (event->window.windowID == mainWindowID) {
-				mainWindowResized = true;
+			{
+				//never resize the main renderer when an UI window is active
+				if (event->window.windowID == mainWindowID) {
+					mainWindowResized = true;
+				}
 			}
 			break;
 
 		default:
 			break;
 	}
+	
+	//helps with not losing the mouse outside the window when resizing external ImGui windows in X11???
+	/*if (event->type == SDL_EVENT_WINDOW_RESIZED) {
+        SDL_Window* hoveredWindow = SDL_GetWindowFromEvent(event);
+        if(hoveredWindow) {
+			SDL_CaptureMouse(hoveredWindow);
+		}
+	}*/
 
 	if (mainWindowResized) {
 		updateViewport();
