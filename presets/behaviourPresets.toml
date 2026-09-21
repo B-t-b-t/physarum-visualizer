@@ -126,22 +126,6 @@ V = 1.5
 DiffusionWeight = 1.0
 SensorDistance = 9
 
-[Dissonant]
-Name = "Dissonant"
-RotationAngleBias = 0
-UseMask = false
-LockAngles = false
-AngleBias = 0
-CollisionDetection = false
-DepositionStrength = 0.0
-RotationAngle = 0
-Angle = 0
-LockAngleBiases = 0
-Decay = 0.0
-V = 0.0
-DiffusionWeight = 0.0
-SensorDistance = 0
-
 [Default]
 Name = "Default"
 RotationAngleBias = 0
