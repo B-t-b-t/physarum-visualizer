@@ -12,8 +12,8 @@ Application::Application(Parameters params)
 	simulation_{Simulation(&ubo_manager_, appState_, params.customParticleCount)},
 	renderer_{std::make_unique<Renderer>(&ubo_manager_, appState_)},
 	audioSystem_{AudioSystem(appState_)},
-	presetSystem_{PresetSystem("./presets/", ".psf", &ui_)},
-	colorPresetSystem_{ColorPresetSystem("./presets/", ".pcsf", &ui_)},
+	presetSystem_{PresetSystem<BehaviorPreset>("./presets/behaviourPresets.toml", appState_)},
+	colorPresetSystem_{PresetSystem<ColorPreset>("./presets/colorPresets.toml", appState_)},
 	musicAnalysis_{MusicAnalysis(appState_)}
 {
 	//------------------------------------------------------
@@ -103,8 +103,8 @@ void Application::run() {
 		window_.swapBuffers();
 
 		//Auto Switching Presets
-		presetSystem_.autoSwitchPresets(&ui_, timeInSeconds);
-		colorPresetSystem_.autoSwitchPresets(&ui_, timeInSeconds);
+		presetSystem_.autoSwitchPresets(timeInSeconds);
+		colorPresetSystem_.autoSwitchPresets(timeInSeconds);
 		simulation_.getTrailMapController()->autoSwitchPictures(timeInSeconds);
 	}
 }

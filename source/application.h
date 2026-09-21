@@ -1,7 +1,6 @@
 #ifndef APPLICATION_H
 #define APPLICATION_H
 
-#include "color_preset_system.h"
 #include "input_handler.h"
 #include "preset_system.h"
 #include "window.h"
@@ -39,8 +38,8 @@ private:
 
     AudioWindow* audioWindow_;
 
-    PresetSystem presetSystem_;
-	ColorPresetSystem colorPresetSystem_;
+    PresetSystem<BehaviorPreset> presetSystem_;
+	PresetSystem<ColorPreset> colorPresetSystem_;
 
     MusicAnalysis musicAnalysis_;
 

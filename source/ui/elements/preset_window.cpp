@@ -1,7 +1,8 @@
 #include "preset_window.h"
 
-#include "../../utility/event.h"
+#include "../../preset_system.h"
 #include "../../simulation/trail_map_controller.h"
+#include "../../utility/event.h"
 #include "misc/cpp/imgui_stdlib.cpp"	//for string parameters in text input fields
 #include "link_element.h"
 
@@ -47,14 +48,13 @@ void PresetWindow::behaviourPresetGUI(ApplicationState* appState) {
     ImGui::SeparatorText("Selection");
 	if (ImGui::BeginListBox("##Behavior Selection")) {
 
-		for (unsigned int n = 0; n < presetNames_.size(); n++)
+		for (const auto& [presetName, preset] : *appState->behaviorPresets)
 		{
-			const bool is_selected = (selectedPresetName_ == n);
-			if (ImGui::Selectable(presetNames_[n].c_str(), is_selected)) {
-				selectedPresetName_ = n;
-				//appState->loadFromPreset = true;
-				notify(UserEvent{EventType::LOAD_PRESET, 0, 0});
-				std::cout << "Selected Preset: " << presetNames_[n] << std::endl;
+			const bool is_selected = (presetName == appState->usedBehaviorPresetName);
+			if (ImGui::Selectable(presetName.c_str(), is_selected)) {
+				appState->usedBehaviorPresetName = presetName;
+				notify(UserEvent{EventType::LOAD_PRESET, presetName, 0});
+				std::cout << "Selected Preset: " << presetName << std::endl;
 			}
 			// Set the initial focus when opening the combo (scrolling + keyboard navigation focus)
 			if (is_selected) {
@@ -82,16 +82,12 @@ void PresetWindow::behaviourPresetGUI(ApplicationState* appState) {
 
         if (ImGui::Button("Save") && presetNameChar[0] != '\0') {
 
-            for(unsigned int i = 0; i < presetNames_.size(); i++) {
-                if(presetNames_[i] == std::string(presetNameChar)) {
-                    presetAlreadyExists = true;
-                }
+            if(appState->behaviorPresets->contains(std::string(presetNameChar))) {
+                presetAlreadyExists = true;
             }
 
             if(!presetAlreadyExists) {
-                addPresetName(std::string(presetNameChar));
-                notify(UserEvent{EventType::SAVE_PRESET, 0, 0});
-                //appState->saveToPreset = true;
+                notify(UserEvent{EventType::SAVE_PRESET, {presetNameChar}, 0});
             }
 
             presetNameChar[0] = '\0';
@@ -127,14 +123,14 @@ void PresetWindow::colorPresetGUI(ApplicationState* appState) {
 
 	if (ImGui::BeginListBox("##Color Selection")) {
 
-		for (unsigned int n = 0; n < colorPresetNames_.size(); n++)
+		for (const auto& [presetName, preset] : *appState->colorPresets)
 		{
-			const bool is_selected = (selectedColorPresetName_ == n);
-			if (ImGui::Selectable(colorPresetNames_[n].c_str(), is_selected)) {
-				selectedColorPresetName_ = n;
+			const bool is_selected = (presetName == appState->usedColorPresetName);
+			if (ImGui::Selectable(presetName.c_str(), is_selected)) {
+				appState->usedColorPresetName = presetName;
 				//appState->loadFromColorPreset = true;
-				notify(UserEvent{EventType::LOAD_COLOR_PRESET, 0, 0});
-				std::cout << "Selected Color Preset: " << colorPresetNames_[n] << std::endl;
+				notify(UserEvent{EventType::LOAD_COLOR_PRESET, presetName, 0});
+				std::cout << "Selected Color Preset: " << presetName << std::endl;
 			}
 			// Set the initial focus when opening the combo (scrolling + keyboard navigation focus)
 			if (is_selected) {
@@ -162,16 +158,12 @@ void PresetWindow::colorPresetGUI(ApplicationState* appState) {
 
         if (ImGui::Button("Save") && colorPresetNameChar[0] != '\0') {
 
-            for(unsigned int i = 0; i < colorPresetNames_.size(); i++) {
-                if(colorPresetNames_[i] == std::string(colorPresetNameChar)) {
-                    presetAlreadyExists = true;
-                }
+            if(appState->colorPresets->contains(std::string(colorPresetNameChar))) {
+                presetAlreadyExists = true;
             }
 
             if(!presetAlreadyExists) {
-                addColorPresetName(std::string(colorPresetNameChar));
-                notify(UserEvent{EventType::SAVE_COLOR_PRESET, 0, 0});
-                //appState->saveToColorPreset = true;
+                notify(UserEvent{EventType::SAVE_COLOR_PRESET, {colorPresetNameChar}, 0});
             }
 
             colorPresetNameChar[0] = '\0';

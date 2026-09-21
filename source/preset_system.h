@@ -1,58 +1,40 @@
 #ifndef PRESET_SYSTEM_H
 #define PRESET_SYSTEM_H
 
-#include <string>
-#include <unordered_map>
+#include <filesystem>            // for path
+#include <map>                   // for map
+#include <string>                // for operator+, operator==, basic_string
 
-#include "imgui.h"
+#include "toml.hpp"              // for format_error, find_or, make_error_info
 
-#include "application_state.h"
-#include "./ui/user_interface.h"
-#include "./utility/observer.h"
+#include "application_state.h"   // for ApplicationState
+#include "preset_types.h"        // for BehaviorPreset
+#include "uniforms.h"            // for SlimeSettings, TrailDiffusionSettings
+#include "./utility/observer.h"  // for Observer
 
-struct Preset {
-    std::string name;
-    
-	bool useMask;
-	bool collisionDetection;
-	float v;
-	float depositionStrength;
-	bool lockAngles;
-	int rotationAngle;
-	int angle;
-	int lockAngleBiases;
-	int rotationAngleBias;
-	int angleBias;
-	int sensorDistance;
-	float diffusionWeight;
-	float decay;
-};
 
+template<typename T>
 class PresetSystem : public Observer{
 public:
 
 	PresetSystem() = default;
-	PresetSystem(std::string presetFilePath, std::string fileExtension, UserInterface* ui);
+	PresetSystem(std::string presetFilePath, ApplicationState* appState);
+	~PresetSystem();
 
-    void createPreset(std::string presetName, ApplicationState* appState);
-    void savePreset(std::string fileName);
-    void loadPreset(std::string fileName);
-	void loadRandomPreset(UserInterface* ui);
-
-	void loadPresetNames(UserInterface* ui);
-	void setUIState(ApplicationState* appState, std::string presetName);
-
-	void autoSwitchPresets(UserInterface* ui, Uint64 timeInSeconds);
-
+	void autoSwitchPresets(Uint64 timeInSeconds);
 	void onNotify(const UserEvent event) override;
-
+	
 private:
+	
+    void createPreset(std::string presetName);
+    void savePresetsToFile();
+    void loadPresetsFromFile();
+	void loadRandomPreset();
 
-    std::unordered_map<std::string, Preset> presets;
+    std::map<std::string, T> presets;
+	std::string usedBehaviorPresetName_;
 
-	std::string presetFilePath_;
-	std::string fileExtension_;
-	UserInterface* ui_;
+	std::filesystem::path presetFilePath_;
 
 	ApplicationState* appState_;
 

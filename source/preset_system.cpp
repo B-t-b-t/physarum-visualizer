@@ -1,180 +1,124 @@
 #include "preset_system.h"
 
-#include <fstream>
-#include <iostream>
+#include <fstream>          // for basic_ostream, basic_ofstream, operator<<
+#include <iostream>         // for cerr
+#include <iterator>         // for next
+#include <memory>           // for make_unique
+#include <stdlib.h>         // for rand
+#include <utility>          // for pair, get
+#include <variant>          // for get
 
-#include "ui/elements/preset_window.h"
-#include "utility/event.h"
-#include "utility/fileHandling.h"
+#include "toml.hpp"         // for make_error_info, region::as_string, eithe...
 
-PresetSystem::PresetSystem(std::string presetFilePath, std::string fileExtension, UserInterface* ui)
- : presetFilePath_(presetFilePath), fileExtension_(fileExtension), ui_(ui), appState_(ui->getState())
+#include "utility/event.h"  // for UserEvent, EventType
+
+//only a few Preset Types necessary
+template class PresetSystem<BehaviorPreset>;
+template class PresetSystem<ColorPreset>;
+
+template<typename T>
+PresetSystem<T>::PresetSystem(std::string presetFilePath, ApplicationState* appState)
+ : presetFilePath_{presetFilePath}, appState_{appState}
 {
     //register all preset names with UI and presets into memory
-    loadPresetNames(ui);
-}
-
-void PresetSystem::createPreset(std::string presetName, ApplicationState* appState) {
-
-    Preset preset;
-    preset.name = presetName;
-    preset.useMask = appState->slimeSettings.useMask;
-    preset.collisionDetection = appState->universalShaderSettings.collisionDetection;
-    preset.v = appState->slimeSettings.v;
-    preset.depositionStrength = appState->slimeSettings.depositionStrength;
-    preset.lockAngles = appState->lockAngles;
-    preset.rotationAngle = appState->slimeSettings.rotationAngle;
-    preset.angle = appState->slimeSettings.angle;
-    preset.lockAngleBiases = appState->lockAngleBiases;
-    preset.rotationAngleBias = appState->slimeSettings.rotationAngleBias;
-    preset.angleBias = appState->slimeSettings.sensingAngleBias;
-    preset.sensorDistance = appState->slimeSettings.sensorDistance;
-    preset.diffusionWeight = appState->trailDiffusionSettings.diffusionWeight;
-    preset.decay = appState->trailDiffusionSettings.decay;
-
-    presets.insert({presetName, preset});
-}
-
-void PresetSystem::savePreset(std::string fileName) {
+    loadPresetsFromFile();
     
-    std::ofstream file;
-    file.open(presetFilePath_ + fileName + fileExtension_);
-
-    Preset preset = presets[fileName];
-
-    file << "Name= " << preset.name << std::endl;
-    file << "UseMask= " << preset.useMask << std::endl;
-    file << "CollisionDetection= " << preset.collisionDetection << std::endl;
-    file << "V= " << preset.v << std::endl;
-    file << "DepositionStrength= " << preset.depositionStrength << std::endl;
-    file << "LockAngles= " << preset.lockAngles << std::endl;
-    file << "RotationAngle= " << preset.rotationAngle << std::endl;
-    file << "Angle= " << preset.angle << std::endl;
-    file << "LockAngleBiases= " << preset.lockAngleBiases << std::endl;
-    file << "RotationAngleBias= " << preset.rotationAngleBias << std::endl;
-    file << "AngleBias= " << preset.angleBias << std::endl;
-    file << "SensorDistance= " << preset.sensorDistance << std::endl;
-    file << "DiffusionWeight= " << preset.diffusionWeight << std::endl;
-    file << "Decay= " << preset.decay << std::endl;
-    
-    file.close();
-}
-
-void PresetSystem::loadPreset(std::string fileName) {
-    std::ifstream file;
-    file.open(presetFilePath_ + fileName + fileExtension_);
-    
-    Preset preset;
-    std::string line;
-    while (std::getline(file, line)) {
-        size_t delimPos = line.find("= ");
-        if (delimPos == std::string::npos) continue;
-        
-        std::string key = line.substr(0, delimPos);
-        std::string value = line.substr(delimPos + 2);
-        
-        if (key == "Name")
-            preset.name = value;
-        else if (key == "UseMask")
-            preset.useMask = std::stoi(value);
-        else if (key == "CollisionDetection")
-            preset.collisionDetection = std::stoi(value);
-        else if (key == "V")
-            preset.v = std::stof(value);
-        else if (key == "DepositionStrength")
-            preset.depositionStrength = std::stof(value);
-        else if (key == "LockAngles")
-            preset.lockAngles = (bool)std::stoi(value);
-        else if (key == "RotationAngle")
-            preset.rotationAngle = std::stof(value);
-        else if (key == "Angle")
-            preset.angle = std::stof(value);
-        else if (key == "LockAngleBiases")
-            preset.lockAngleBiases = std::stoi(value);
-        else if (key == "RotationAngleBias")
-            preset.rotationAngleBias = std::stof(value);
-        else if (key == "AngleBias")
-            preset.angleBias = std::stof(value);
-        else if (key == "SensorDistance")
-            preset.sensorDistance = std::stof(value);
-        else if (key == "DiffusionWeight")
-            preset.diffusionWeight = std::stof(value);
-        else if (key == "Decay")
-            preset.decay = std::stof(value);
-    }
-    
-    presets[preset.name] = preset;
-    file.close();
-}
-
-void PresetSystem::loadPresetNames(UserInterface* ui) {
-
-    PresetWindow *window = dynamic_cast<PresetWindow*>(ui->getWindow("PresetWindow"));
-    std::vector<std::string> presetNames;
-    getFileNamesInDirectory(presetFilePath_, fileExtension_, presetNames);
-
-    for (std::string &presetName : presetNames) {
-        window->addPresetName(presetName);
-        loadPreset(presetName);
+    //differentiate between BehaviorPreset and ColorPreset pointers
+    if constexpr (std::is_same_v<T, BehaviorPreset>) {
+        appState_->behaviorPresets = &presets;
+        appState_->usedBehaviorPresetName = presets.empty() ? "" : presets.begin()->first;
+    } else if constexpr (std::is_same_v<T, ColorPreset>) {
+        appState_->colorPresets = &presets;
+        appState_->usedColorPresetName = presets.empty() ? "" : presets.begin()->first;
     }
 }
 
-void PresetSystem::loadRandomPreset(UserInterface* ui) {
+template<typename T>
+PresetSystem<T>::~PresetSystem() {
+    savePresetsToFile();
+}
+
+template<typename T>
+void PresetSystem<T>::createPreset(std::string presetName) {
+    presets.insert({presetName, T{presetName, appState_}});
+}
+
+template<typename T>
+void PresetSystem<T>::savePresetsToFile() {
+
+    toml::value presetData{toml::table{}};
+    
+    for(auto& preset : presets) {
+        presetData[preset.first] = preset.second.toTomlTable();
+    }
+
+    std::ofstream outputFile{presetFilePath_, std::ios::trunc};
+    if(!outputFile.is_open()) {
+        std::cerr << "Failed to open " << presetFilePath_.filename() << " for writing" << std::endl;
+    }
+
+    outputFile << toml::format(presetData);
+    outputFile.flush();
+
+    if(!outputFile.good()) {
+        std::cerr << "Failed to write " << presetFilePath_.filename() << std::endl;
+    }
+}
+
+template<typename T>
+void PresetSystem<T>::loadPresetsFromFile() {
+    toml::value presetData{};
+
+    //parse
+    try {
+        presetData = toml::parse(presetFilePath_);
+    } catch(const toml::exception& err) {
+        std::cerr << "Failed to parse " << presetFilePath_.filename() << ": " << err.what() << std::endl;
+    }
+
+    //fill map
+    for(auto& [presetName, presetEntry] : presetData.as_table()) {    
+        presets[presetName.c_str()] = T{presetName.c_str(), presetEntry};
+    }
+}
+
+template<typename T>
+void PresetSystem<T>::loadRandomPreset() {
 
    if(!presets.empty()) {
-        PresetWindow *window = dynamic_cast<PresetWindow*>(ui->getWindow("PresetWindow"));
         unsigned int randomIndex = (unsigned int) (rand() % (int)presets.size());
-        window->setSelectedPreset(randomIndex);
-        setUIState(ui->getState(), window->getSelectedPresetName());
+        presets[std::next(presets.begin(), randomIndex)->first].toAppState(appState_);
+        appState_->usedBehaviorPresetName = std::next(presets.begin(), randomIndex)->first;
     } else {
         std::cerr << "WARN: No presets available to auto switch" << std::endl;
     }
 }
 
-void PresetSystem::setUIState(ApplicationState* appState, std::string presetName) {
-    Preset preset = presets[presetName];
-
-    appState->slimeSettings.useMask = preset.useMask;
-    appState->universalShaderSettings.collisionDetection = preset.collisionDetection;
-    appState->slimeSettings.v = preset.v;
-    appState->slimeSettings.depositionStrength = preset.depositionStrength;
-    appState->lockAngles = preset.lockAngles;
-    appState->slimeSettings.rotationAngle = preset.rotationAngle;
-    appState->slimeSettings.angle = preset.angle;
-    appState->lockAngleBiases = preset.lockAngleBiases;
-    appState->slimeSettings.rotationAngleBias = preset.rotationAngleBias;
-    appState->slimeSettings.sensingAngleBias = preset.angleBias;
-    appState->slimeSettings.sensorDistance = preset.sensorDistance;
-    appState->trailDiffusionSettings.diffusionWeight = preset.diffusionWeight;
-    appState->trailDiffusionSettings.decay = preset.decay;
-}
-
-void PresetSystem::autoSwitchPresets(UserInterface* ui, Uint64 timeInSeconds) {
-    ApplicationState* appState = ui->getState();
+template<typename T>
+void PresetSystem<T>::autoSwitchPresets(Uint64 timeInSeconds) {
 
     //Timed Auto Preset Switching
-    if(appState->autoPresetSwitching) {
-        if((timeInSeconds % (Uint64)appState->presetIntervall == 0) && !timeOut_ && appState->slimeSettings.velocityBassReaction > appState->beatVolumeSwitch) {
-            loadRandomPreset(ui);
+    if(appState_->autoPresetSwitching) {
+        if((timeInSeconds % (Uint64)appState_->presetIntervall == 0) && !timeOut_ && appState_->slimeSettings.velocityBassReaction > appState_->beatVolumeSwitch) {
+            loadRandomPreset();
             timeOut_ = true;
-        } else if((timeInSeconds % (Uint64)appState->presetIntervall > 0) && timeOut_){
+        } else if((timeInSeconds % (Uint64)appState_->presetIntervall > 0) && timeOut_){
             timeOut_ = false;
         }
     }
 }
 
-void PresetSystem::onNotify(const UserEvent event) {
-    PresetWindow *window = dynamic_cast<PresetWindow*>(observable_);
+template<typename T>
+void PresetSystem<T>::onNotify(const UserEvent event) {
 
     switch (event.type) {
         case EventType::SAVE_PRESET:
-            createPreset(std::string(window->getLastPresetName()), appState_);
-            savePreset(std::string(window->getLastPresetName()));
+        case EventType::SAVE_COLOR_PRESET:
+            createPreset(std::get<std::string>(event.data_1));
             break;
-        case EventType::LOAD_PRESET: {
-            std::string presetName = std::string(window->getSelectedPresetName());
-            loadPreset(presetName);
-            setUIState(appState_, presetName);
+        case EventType::LOAD_PRESET: 
+        case EventType::LOAD_COLOR_PRESET: {
+            presets[std::get<std::string>(event.data_1)].toAppState(appState_);
             break;
         }
         default:

@@ -8,11 +8,14 @@
 #include <vector>            // for vector
 
 #include "SDL3/SDL_audio.h"  // for SDL_AudioDeviceID
+//#include "preset_system.h"
 #include "uniforms.h"        // for FragmentShaderSettings, ParameterSettings
 
 struct AudioDeviceInfo;	//forward declaration of AudioDeviceInfo struct
 struct Parameters;	//forward declaration of Parameters struct
 struct TrailMask;	//forward declaration of TrailMask struct
+struct BehaviorPreset;	//forward declaration of Preset struct
+struct ColorPreset;	//forward declaration of ColorPreset struct
 
 enum class TextureMask {
         TRAIL = 0,
@@ -66,8 +69,12 @@ public:
 	size_t usedAudioHardwareIndex = 0;
 
 	// Behaviour Preset Selection via List Box
+	std::map<std::string, BehaviorPreset>* behaviorPresets = nullptr;
+	std::string usedBehaviorPresetName = "";
 
 	// Color Preset Selection via List Box
+	std::map<std::string, ColorPreset>* colorPresets = nullptr;
+	std::string usedColorPresetName = "";
 
 	// Trail Mask Selection via List Box
 	std::vector<TrailMask>* trailMasks = nullptr;

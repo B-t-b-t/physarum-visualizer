@@ -1,0 +1,160 @@
+[Waves]
+Name = "Waves"
+RotationAngleBias = 0
+UseMask = true
+LockAngles = true
+AngleBias = 0
+CollisionDetection = false
+DepositionStrength = 1.0
+RotationAngle = 180
+Angle = 180
+LockAngleBiases = 1
+Decay = 0.5
+V = 0.3
+DiffusionWeight = 1.0
+SensorDistance = 12
+
+[Red]
+Name = "Red"
+RotationAngleBias = 0
+UseMask = false
+LockAngles = true
+AngleBias = 0
+CollisionDetection = true
+DepositionStrength = 1.0
+RotationAngle = 45
+Angle = 45
+LockAngleBiases = 1
+Decay = 0.5
+V = 1.5
+DiffusionWeight = 1.0
+SensorDistance = 9
+
+[RGB-lite]
+Name = "RGB-lite"
+RotationAngleBias = 0
+UseMask = true
+LockAngles = true
+AngleBias = 0
+CollisionDetection = false
+DepositionStrength = 1.0
+RotationAngle = 45
+Angle = 45
+LockAngleBiases = 1
+Decay = 0.5
+V = 1.088
+DiffusionWeight = 1.0
+SensorDistance = 41
+
+[Hexagons]
+Name = "Hexagons"
+RotationAngleBias = 0
+UseMask = true
+LockAngles = true
+AngleBias = 0
+CollisionDetection = true
+DepositionStrength = 1.0
+RotationAngle = 120
+Angle = 120
+LockAngleBiases = 1
+Decay = 0.5
+V = 3.0
+DiffusionWeight = 1.0
+SensorDistance = 45
+
+[Organic]
+Name = "Organic"
+RotationAngleBias = 0
+UseMask = false
+LockAngles = true
+AngleBias = 0
+CollisionDetection = true
+DepositionStrength = 1.0
+RotationAngle = 7
+Angle = 7
+LockAngleBiases = 1
+Decay = 0.5
+V = 3.0
+DiffusionWeight = 1.0
+SensorDistance = 12
+
+[Diffusion]
+Name = "Diffusion"
+RotationAngleBias = 0
+UseMask = true
+LockAngles = true
+AngleBias = 0
+CollisionDetection = false
+DepositionStrength = 1.0
+RotationAngle = 45
+Angle = 45
+LockAngleBiases = 1
+Decay = 0.5
+V = 0.511
+DiffusionWeight = 1.0
+SensorDistance = 9
+
+[Thinn]
+Name = "Thinn"
+RotationAngleBias = 0
+UseMask = false
+LockAngles = true
+AngleBias = 0
+CollisionDetection = false
+DepositionStrength = 1.0
+RotationAngle = 9
+Angle = 9
+LockAngleBiases = 1
+Decay = 0.5
+V = 1.5
+DiffusionWeight = 1.0
+SensorDistance = 9
+
+[Fire]
+Name = "Fire"
+RotationAngleBias = 0
+UseMask = false
+LockAngles = true
+AngleBias = 21
+CollisionDetection = false
+DepositionStrength = 1.0
+RotationAngle = 10
+Angle = 10
+LockAngleBiases = 0
+Decay = 0.5
+V = 1.5
+DiffusionWeight = 1.0
+SensorDistance = 9
+
+[Dissonant]
+Name = "Dissonant"
+RotationAngleBias = 0
+UseMask = false
+LockAngles = false
+AngleBias = 0
+CollisionDetection = false
+DepositionStrength = 0.0
+RotationAngle = 0
+Angle = 0
+LockAngleBiases = 0
+Decay = 0.0
+V = 0.0
+DiffusionWeight = 0.0
+SensorDistance = 0
+
+[Default]
+Name = "Default"
+RotationAngleBias = 0
+UseMask = false
+LockAngles = true
+AngleBias = 0
+CollisionDetection = false
+DepositionStrength = 1.0
+RotationAngle = 45
+Angle = 45
+LockAngleBiases = 1
+Decay = 0.5
+V = 1.5
+DiffusionWeight = 1.0
+SensorDistance = 9
+
