@@ -9,6 +9,8 @@ void VisualSettingsWindow::render(ApplicationState* appState) {
 	
     ImGui::Begin("Visual Settings", &visible);
 
+	ImGui::PushItemWidth(widgetWidth);
+
 	//ImGui::SliderFloat("Brightness Multiplier", &appState->fragmentShaderSettings.brightnessMultiplier, 0.0f, 10.0f);
 	ImGui::SeparatorText("Tone Mapping");
 	ImGui::Combo("##Tone Mapping", (int*)&appState->fragmentShaderSettings.toneMappingMode, "Reinhard\0Exposure\0ACES\0");
@@ -62,5 +64,6 @@ void VisualSettingsWindow::render(ApplicationState* appState) {
 		notify(UserEvent{EventType::FULLSCREEN_TOGGLE, 0, 0});
 	}
 
+	ImGui::PopItemWidth();
 	ImGui::End();
 }

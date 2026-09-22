@@ -24,6 +24,8 @@ void NewCanvasModal::render(ApplicationState* appState) {
     //BeginPopupModal returns true if Popup "New Canvas" is open
 	if (ImGui::BeginPopupModal("New Canvas", NULL, ImGuiWindowFlags_AlwaysAutoResize)) {
 
+		ImGui::PushItemWidth(widgetWidth);
+
 		ImGui::Text("Create a new Canvas?\nThis operation cannot be undone!");
 		ImGui::Separator();
 
@@ -108,6 +110,9 @@ void NewCanvasModal::render(ApplicationState* appState) {
 		ImGui::SetItemDefaultFocus();
 		ImGui::SameLine();
 		if (ImGui::Button("Cancel", ImVec2(120, 0))) { visible = false; ImGui::CloseCurrentPopup(); }
+
+		ImGui::PopItemWidth();
+
 		ImGui::EndPopup();
 	}
 }

@@ -11,6 +11,8 @@ void PresetWindow::render(ApplicationState* appState) {
 
 	ImGui::Begin("Preset", &visible);
 
+	ImGui::PushItemWidth(widgetWidth);
+
 	if (ImGui::BeginTabBar("Preset Types")) {
         //Fontawesome: Barcode Icon (Unicode: 0xF02A)
 		if (ImGui::BeginTabItem(" Behaviour")) {
@@ -38,6 +40,7 @@ void PresetWindow::render(ApplicationState* appState) {
 	ImGui::Checkbox("Auto Preset Switching", &appState->autoPresetSwitching);
 	ImGui::SliderInt("Switch at Beat Volume", &appState->beatVolumeSwitch, 0, 50);
 
+	ImGui::PopItemWidth();
 	ImGui::End();
 }
 

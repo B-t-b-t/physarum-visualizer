@@ -7,6 +7,8 @@ void SlimeConfigWindow::render(ApplicationState* appState) {
 
     ImGui::Begin("Slime Config", &visible);
 	
+	ImGui::PushItemWidth(widgetWidth);
+	
 	ImGui::SeparatorText("Particle Behavior");
 
 	ImGui::SliderFloat("Velocity", &appState->slimeSettings.v, 0.0f, 3.0f);
@@ -73,6 +75,7 @@ void SlimeConfigWindow::render(ApplicationState* appState) {
 		ImGui::SliderFloat("p12", &appState->parameterSettings.p12, 0.0f, 30.0f);
 	}
 
+	ImGui::PopItemWidth();
 	ImGui::End();
 	
 	if (appState->lockAngles) {

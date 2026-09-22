@@ -11,6 +11,8 @@ void DebugWindow::render(ApplicationState* appState) {
 
 	ImGui::Begin("Debug", &visible);
 
+	ImGui::PushItemWidth(widgetWidth);
+
 	ImGui::Checkbox("Render Particles", (bool*)&appState->universalShaderSettings.renderParticles);
 	ImGui::Checkbox("Lock Particle Color to Color 0", &appState->lockParticleColor);
 	ImGui::ColorEdit3("Particle Color 0", (float*)&appState->slimeSettings.particleColor0);
@@ -123,6 +125,8 @@ void DebugWindow::render(ApplicationState* appState) {
 	ImGui::Text("Version: 0.6.3-alpha");
 	ImGui::SameLine();
 	ImGui::Text("Performance: %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+
+	ImGui::PopItemWidth();
 
 	ImGui::End();
 

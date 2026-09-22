@@ -10,6 +10,7 @@ public:
 
     virtual void render(ApplicationState* appState) = 0;
     bool visible = false;
+    float widgetWidth = 200.0f; //used for ImGui::PushItemWidth in child windows
 };
 
 #endif // BASE_WINDOW_H

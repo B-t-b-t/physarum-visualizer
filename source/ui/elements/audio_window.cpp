@@ -28,6 +28,8 @@ void AudioWindow::render(ApplicationState* appState) {
     
     ImGui::Begin("Audio", &visible);
 
+	ImGui::PushItemWidth(widgetWidth);
+
 	ImGui::Checkbox("Enable Audio Processing", (bool*)&appState->slimeSettings.reactToAudio);
 	ImGui::SameLine(); HelpMarker("When enabled, the slime movement will react to audio input. Make sure to select an audio input device in the Audio menu.");
 	
@@ -245,6 +247,8 @@ void AudioWindow::render(ApplicationState* appState) {
 	// ImGui::SliderInt("Fringe Beginn", &state_.fringeBeginn, 0, state_.fringeEnd);
 	// ImGui::SliderInt("Fringe End", &state_.fringeEnd, state_.fringeBeginn, bufferSize / 2);
 	// ImGui::SliderInt("Fringe Divide", &state_.fringeDivide, 1, 1000);
+
+	ImGui::PopItemWidth();
 
 	ImGui::End();
 
