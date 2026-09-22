@@ -32,6 +32,32 @@ Simulation::Simulation(UniformBufferManager* uboManager, ApplicationState* appSt
 	particleData_.createAndSend(appState_->numParticles, appState_->universalShaderSettings.textureWidth, appState_->universalShaderSettings.textureHeight);
 }
 
+Simulation::Simulation(Simulation&& other) {
+	appState_ = other.appState_;
+	particleData_ = std::move(other.particleData_);
+	trailDiffusionShader_ = std::move(other.trailDiffusionShader_);
+	trailDiffusionProgram_ = std::move(other.trailDiffusionProgram_);
+	particleBehaviourShader_ = std::move(other.particleBehaviourShader_);
+	particleBehaviourProgram_ = std::move(other.particleBehaviourProgram_);
+	trailMapController_ = std::move(other.trailMapController_);
+
+	other.appState_ = nullptr;
+}
+Simulation& Simulation::operator=(Simulation&& other) {
+	if(this != &other) {
+		appState_ = other.appState_;
+		particleData_ = std::move(other.particleData_);
+		trailDiffusionShader_ = std::move(other.trailDiffusionShader_);
+		trailDiffusionProgram_ = std::move(other.trailDiffusionProgram_);
+		particleBehaviourShader_ = std::move(other.particleBehaviourShader_);
+		particleBehaviourProgram_ = std::move(other.particleBehaviourProgram_);
+		trailMapController_ = std::move(other.trailMapController_);
+
+		other.appState_ = nullptr;
+	}
+	return *this;
+}
+
 void Simulation::simulateStep() {
 	int workGroupDivider = appState_->workGroupDivider;
 	trailMapController_.bindToTextureUnit(5);	//because compute shaders use trailMask at texture unit 5

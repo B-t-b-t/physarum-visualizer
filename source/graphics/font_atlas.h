@@ -11,6 +11,12 @@
 class FontAtlas {
 public:
     FontAtlas(std::string fontFileName);
+    FontAtlas() = default;
+    FontAtlas(const FontAtlas&) = delete;
+    FontAtlas& operator=(const FontAtlas&) = delete;
+    FontAtlas(FontAtlas&&);
+    FontAtlas& operator=(FontAtlas&&);
+    ~FontAtlas() = default;
 
     std::vector<FontCharInfo>& getFontCharInfos() { return fontCharInfos_; }
     int getFirstChar() { return firstChar_; }

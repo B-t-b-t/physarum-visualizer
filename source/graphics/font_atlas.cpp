@@ -28,3 +28,22 @@ FontAtlas::FontAtlas(std::string fontFileName) {
     
     SDL_DestroySurface(loadedImage);
 }
+
+FontAtlas::FontAtlas(FontAtlas&& other) {
+    firstChar_ = other.firstChar_;
+    numberOfChars_ = other.numberOfChars_;
+    fontSize_ = other.fontSize_;
+    fontCharInfos_ = std::move(other.fontCharInfos_);
+    fontAtlas_ = std::move(other.fontAtlas_);
+}
+
+FontAtlas& FontAtlas::operator=(FontAtlas&& other) {
+    if(this != &other) {
+        firstChar_ = other.firstChar_;
+        numberOfChars_ = other.numberOfChars_;
+        fontSize_ = other.fontSize_;
+        fontCharInfos_ = std::move(other.fontCharInfos_);
+        fontAtlas_ = std::move(other.fontAtlas_);
+    }
+    return *this;
+}

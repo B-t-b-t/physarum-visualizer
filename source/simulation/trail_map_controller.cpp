@@ -187,6 +187,51 @@ TrailMapController::TrailMapController(std::string pictureFilePath, std::string 
     trailMaskStrengthTemp_ = appState_->universalShaderSettings.trailMaskInfluence;
 }
 
+TrailMapController::TrailMapController(TrailMapController&& other) {
+    pictureFilePath_ = std::move(other.pictureFilePath_);
+    pictureFileExtension_ = std::move(other.pictureFileExtension_);
+    textureUnit_ = other.textureUnit_;
+    appState_ = other.appState_;
+    fontAtlas_ = std::move(other.fontAtlas_);
+    loadedImage_ = other.loadedImage_;
+    textImage_ = std::move(other.textImage_);
+    trailMasks_ = std::move(other.trailMasks_);
+    activeTrailMaskIndex_ = other.activeTrailMaskIndex_;
+    trailMaskStrengthTemp_ = other.trailMaskStrengthTemp_;
+    timeTicks_ = other.timeTicks_;
+    dateTime_ = other.dateTime_;
+    timeTable_ = std::move(other.timeTable_);
+    timeOut_ = other.timeOut_;
+
+    other.loadedImage_ = nullptr;
+    other.textureUnit_ = 0;
+    other.appState_ = nullptr;
+}
+
+TrailMapController& TrailMapController::operator=(TrailMapController&& other) {
+    if(this != &other) {
+        pictureFilePath_ = std::move(other.pictureFilePath_);
+        pictureFileExtension_ = std::move(other.pictureFileExtension_);
+        textureUnit_ = other.textureUnit_;
+        appState_ = other.appState_;
+        fontAtlas_ = std::move(other.fontAtlas_);
+        loadedImage_ = other.loadedImage_;
+        textImage_ = std::move(other.textImage_);
+        trailMasks_ = std::move(other.trailMasks_);
+        activeTrailMaskIndex_ = other.activeTrailMaskIndex_;
+        trailMaskStrengthTemp_ = other.trailMaskStrengthTemp_;
+        timeTicks_ = other.timeTicks_;
+        dateTime_ = other.dateTime_;
+        timeTable_ = std::move(other.timeTable_);
+        timeOut_ = other.timeOut_;
+
+        other.loadedImage_ = nullptr;
+        other.textureUnit_ = 0;
+        other.appState_ = nullptr;
+    }
+    return *this;
+}
+
 TrailMapController::~TrailMapController() {
     saveToToml();
 }

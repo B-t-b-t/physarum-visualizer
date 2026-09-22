@@ -14,6 +14,11 @@ class Simulation : public Observer {
 public:
 
     Simulation(UniformBufferManager* uboManager, ApplicationState* appState, bool customParticleCount);
+    Simulation(const Simulation&) = delete;
+    Simulation& operator=(const Simulation&) = delete;
+    Simulation(Simulation&&);
+    Simulation& operator=(Simulation&&);
+    ~Simulation() = default;
 
     void simulateStep();
     void updateParticleParameters();

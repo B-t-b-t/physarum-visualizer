@@ -31,7 +31,12 @@ public:
 
     TrailMapController() = default;
     TrailMapController(std::string pictureFilePath, std::string pictureFileExtension, GLuint textureUnit, ApplicationState* appState);
+    TrailMapController(const TrailMapController&) = delete;
+    TrailMapController& operator=(const TrailMapController&) = delete;
+    TrailMapController(TrailMapController&&);
+    TrailMapController& operator=(TrailMapController&&);
     ~TrailMapController();
+    
     void loadTrailMaskFromImage(std::string imageName);
     void loadTrailMaskFromText(std::string text);
     void loadPictureNames();
