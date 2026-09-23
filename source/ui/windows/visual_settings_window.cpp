@@ -1,6 +1,6 @@
 #include "visual_settings_window.h"
 
-#include "link_element.h"
+#include "../widgets/link_widget.h"
 #include "../ui_helpers.h"
 #include "../../utility/event.h"
 

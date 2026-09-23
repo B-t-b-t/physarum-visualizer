@@ -12,7 +12,7 @@
 #include "../application_state.h"
 #include "../uniforms.h"
 #include "../audio/audio_system.h"
-#include "elements/base_window.h"
+#include "windows/base_window.h"
 
 class UserInterface {
 

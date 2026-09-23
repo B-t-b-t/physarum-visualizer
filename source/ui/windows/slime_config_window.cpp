@@ -1,6 +1,6 @@
 #include "slime_config_window.h"
 
-#include "link_element.h"
+#include "../widgets/link_widget.h"
 
 void SlimeConfigWindow::render(ApplicationState* appState) {
     if(!visible) { return; }

@@ -4,7 +4,7 @@
 #include "../../simulation/trail_map_controller.h"
 #include "../../utility/event.h"
 #include "misc/cpp/imgui_stdlib.cpp"	//for string parameters in text input fields
-#include "link_element.h"
+#include "../widgets/link_widget.h"
 
 void PresetWindow::render(ApplicationState* appState) {
     if(!visible) { return; }

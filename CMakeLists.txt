@@ -257,15 +257,15 @@ set(MY_HEADER_FILES
     source/simulation/trail_map_controller.h
     source/ui/ui_helpers.h
     source/ui/user_interface.h
-    source/ui/elements/audio_window.h
-    source/ui/elements/base_window.h
-    source/ui/elements/debug_window.h
-    source/ui/elements/link_element.h
-    source/ui/elements/new_canvas_modal.h
-    source/ui/elements/preset_window.h
-    source/ui/elements/slime_config_window.h
-    source/ui/elements/view_window.h
-    source/ui/elements/visual_settings_window.h
+    source/ui/widgets/link_widget.h
+    source/ui/windows/audio_window.h
+    source/ui/windows/base_window.h
+    source/ui/windows/debug_window.h
+    source/ui/windows/new_canvas_modal.h
+    source/ui/windows/preset_window.h
+    source/ui/windows/slime_config_window.h
+    source/ui/windows/view_window.h
+    source/ui/windows/visual_settings_window.h
     source/utility/event.h
     source/utility/fileHandling.h
     source/utility/parameter_parser.h
@@ -301,14 +301,14 @@ set(MY_SOURCE_FILES
     source/simulation/trail_map_controller.cpp
     source/ui/ui_helpers.cpp
     source/ui/user_interface.cpp
-    source/ui/elements/audio_window.cpp
-    source/ui/elements/debug_window.cpp
-    source/ui/elements/link_element.cpp
-    source/ui/elements/new_canvas_modal.cpp
-    source/ui/elements/preset_window.cpp
-    source/ui/elements/slime_config_window.cpp
-    source/ui/elements/view_window.cpp
-    source/ui/elements/visual_settings_window.cpp
+    source/ui/widgets/link_widget.cpp
+    source/ui/windows/audio_window.cpp
+    source/ui/windows/debug_window.cpp
+    source/ui/windows/new_canvas_modal.cpp
+    source/ui/windows/preset_window.cpp
+    source/ui/windows/slime_config_window.cpp
+    source/ui/windows/view_window.cpp
+    source/ui/windows/visual_settings_window.cpp
     source/utility/event.cpp
     source/utility/fileHandling.cpp
     source/utility/parameter_parser.cpp

@@ -1,13 +1,13 @@
 #include "user_interface.h"
 
 #include "ui_helpers.h"
-#include "elements/audio_window.h"
-#include "elements/debug_window.h"
-#include "elements/new_canvas_modal.h"
-#include "elements/preset_window.h"
-#include "elements/slime_config_window.h"
-#include "elements/view_window.h"
-#include "elements/visual_settings_window.h"
+#include "windows/audio_window.h"
+#include "windows/debug_window.h"
+#include "windows/new_canvas_modal.h"
+#include "windows/preset_window.h"
+#include "windows/slime_config_window.h"
+#include "windows/view_window.h"
+#include "windows/visual_settings_window.h"
 
 inline void ImGui_StyleNuklearDarkGray();
 

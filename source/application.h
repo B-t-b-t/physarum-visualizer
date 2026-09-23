@@ -9,7 +9,7 @@
 #include "./graphics/renderer.h"
 #include "./graphics/uniform_buffer_manager.h"
 #include "./simulation/simulation.h"
-#include "./ui/elements/audio_window.h"
+#include "./ui/windows/audio_window.h"
 #include "./ui/user_interface.h"
 
 struct Parameters;	//forward declaration of Parameters struct
