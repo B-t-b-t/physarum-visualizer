@@ -14,9 +14,9 @@ namespace ImGui {
  * Base size depends on font scale (text height).
  * Lightweight, no mouse interaction, hovering, ...
  * 
- * @param colors A list of colors to display.
- * @param scale The scale of the color indicator (Default: TextHeight).
- * @param borderThickness The thickness of the border around each circle (Default: 1.0f, Disable with 0.0f)
+ * @param colors A list of colors to display
+ * @param scale The scale of the color indicator (1.0f = font height)
+ * @param borderThickness The thickness of the border around each circle (0.0f for no border)
  */
 void ColorIndicator(std::initializer_list<const ImVec4> colors, float scale = 1.0f, float borderThickness = 1.0f);
 
