@@ -14,23 +14,23 @@ void PresetWindow::render(ApplicationState* appState) {
 	ImGui::PushItemWidth(widgetWidth);
 
 	if (ImGui::BeginTabBar("Preset Types")) {
-        //Fontawesome: Barcode Icon (Unicode: 0xF02A)
-		if (ImGui::BeginTabItem(" Behaviour")) {
+        //Fontawesome: fa-solid fa-barcode 
+		if (ImGui::BeginTabItem("\uf02a Behaviour")) {
 			behaviourPresetGUI(appState);
 			ImGui::EndTabItem();
 		}
-        //Fontawesome: Palette Icon (Unicode: 0xF53F)
-		if (ImGui::BeginTabItem(" Color")) {
+        //Fontawesome: fa-solid fa-palette 
+		if (ImGui::BeginTabItem("\uf53f Color")) {
 			colorPresetGUI(appState);
 			ImGui::EndTabItem();
 		}
-        //Fontawesome: Images Icon (Unicode: 0xF302)
-		if (ImGui::BeginTabItem(" Image")) {
+        //Fontawesome: fa-solid fa-images 
+		if (ImGui::BeginTabItem("\uf302 Image")) {
 			imagePresetGUI(appState);
 			ImGui::EndTabItem();
 		}
-        //Fontawesome: Font Icon (Unicode: 0xF031)
-		if (ImGui::BeginTabItem(" Text")) {
+        //Fontawesome: fa-solid fa-font 
+		if (ImGui::BeginTabItem("\uf031 Text")) {
 			textPresetGUI(appState);
 			ImGui::EndTabItem();
 		}
@@ -69,38 +69,38 @@ void PresetWindow::behaviourPresetGUI(ApplicationState* appState) {
 	}
 
     ImGui::SameLine();
-    //Fontawesome Plus Symbol (Unicode: 0xF0FE)
-    if(ImGui::Button(" Add")) {
+    //Fontawesome: fa-solid fa-square-plus 
+    if(ImGui::Button("\uf0fe Add")) {
         ImGui::OpenPopup("New Behavior");
     }
 
     if(ImGui::BeginPopupModal("New Behavior", NULL, ImGuiWindowFlags_AlwaysAutoResize)) {
         
-        static char presetNameChar[128] = "";
-        ImGui::InputTextWithHint("##New Behavior Name", "Name", presetNameChar, IM_ARRAYSIZE(presetNameChar), ImGuiInputTextFlags_CharsNoBlank);
+        static std::string newBehaviorName = "";
+        ImGui::InputTextWithHint("##New Behavior Name", "Name", &newBehaviorName, ImGuiInputTextFlags_CharsNoBlank);
 
         static bool presetAlreadyExists = false;
 
         ImGui::Separator();
 
-        if (ImGui::Button("Save") && presetNameChar[0] != '\0') {
+        if (ImGui::Button("Save") && !newBehaviorName.empty()) {
 
-            if(appState->behaviorPresets->contains(std::string(presetNameChar))) {
+            if(appState->behaviorPresets->contains(newBehaviorName)) {
                 presetAlreadyExists = true;
             }
 
             if(!presetAlreadyExists) {
-                notify(UserEvent{EventType::SAVE_PRESET, {presetNameChar}, 0});
+                notify(UserEvent{EventType::SAVE_PRESET, newBehaviorName, 0});
             }
 
-            presetNameChar[0] = '\0';
+            newBehaviorName.clear();
             ImGui::CloseCurrentPopup();
         }
 
         ImGui::SameLine();
 
         if(ImGui::Button("Cancel")) {
-            presetNameChar[0] = '\0';
+            newBehaviorName.clear();
             ImGui::CloseCurrentPopup();
         }
 
@@ -126,9 +126,14 @@ void PresetWindow::colorPresetGUI(ApplicationState* appState) {
 
 	if (ImGui::BeginListBox("##Color Selection")) {
 
+        int colorButtonId = 0;
+        float scale = 2.0f;
+        ImVec2 colorButtonSize(ImGui::GetFontSize() / scale, ImGui::GetFontSize() / scale);
+
 		for (const auto& [presetName, preset] : *appState->colorPresets)
 		{
 			const bool is_selected = (presetName == appState->usedColorPresetName);
+
 			if (ImGui::Selectable(presetName.c_str(), is_selected)) {
 				appState->usedColorPresetName = presetName;
 				//appState->loadFromColorPreset = true;
@@ -139,44 +144,58 @@ void PresetWindow::colorPresetGUI(ApplicationState* appState) {
 			if (is_selected) {
 				ImGui::SetItemDefaultFocus();
 			}
+            ImGui::Indent();
+            ImGui::SameLine();
+            ImGui::SetCursorPosY(ImGui::GetCursorPosY() + colorButtonSize.y / scale);
+            ImGui::ColorButton(("##ColorButton" + std::to_string(colorButtonId)).c_str(), preset.slimeColor0, ImGuiColorEditFlags_NoTooltip | ImGuiColorEditFlags_NoDragDrop, colorButtonSize);
+            ImGui::SameLine();
+            ImGui::SetCursorPosX(ImGui::GetCursorPosX() - colorButtonSize.x);
+            ImGui::SetCursorPosY(ImGui::GetCursorPosY() + colorButtonSize.y / scale);
+            ImGui::ColorButton(("##ColorButton" + std::to_string(colorButtonId + 1)).c_str(), preset.slimeColor1, ImGuiColorEditFlags_NoTooltip | ImGuiColorEditFlags_NoDragDrop, colorButtonSize);
+            ImGui::SameLine();
+            ImGui::SetCursorPosX(ImGui::GetCursorPosX() - colorButtonSize.x);
+            ImGui::SetCursorPosY(ImGui::GetCursorPosY() + colorButtonSize.y / scale);
+            ImGui::ColorButton(("##ColorButton" + std::to_string(colorButtonId + 2)).c_str(), preset.slimeColor2, ImGuiColorEditFlags_NoTooltip | ImGuiColorEditFlags_NoDragDrop, colorButtonSize);
+            ImGui::Unindent();
+            colorButtonId++;
 		}
 
 		ImGui::EndListBox();
 	}
 
         ImGui::SameLine();
-    //Fontawesome Plus Symbol (Unicode: 0xF0FE)
-    if(ImGui::Button(" Add")) {
+    //Fontawesome: fa-solid fa-square-plus 
+    if(ImGui::Button("\uf0fe Add")) {
         ImGui::OpenPopup("New Color");
     }
 
     if(ImGui::BeginPopupModal("New Color", NULL, ImGuiWindowFlags_AlwaysAutoResize)) {
         
-        static char colorPresetNameChar[128] = "";
-        ImGui::InputTextWithHint("##New Color Name", "Name", colorPresetNameChar, IM_ARRAYSIZE(colorPresetNameChar), ImGuiInputTextFlags_CharsNoBlank);
+        static std::string newColorName = "";
+        ImGui::InputTextWithHint("##New Color Name", "Name", &newColorName, ImGuiInputTextFlags_CharsNoBlank);
 
         static bool presetAlreadyExists = false;
 
         ImGui::Separator();
 
-        if (ImGui::Button("Save") && colorPresetNameChar[0] != '\0') {
+        if (ImGui::Button("Save") && !newColorName.empty()) {
 
-            if(appState->colorPresets->contains(std::string(colorPresetNameChar))) {
+            if(appState->colorPresets->contains(newColorName)) {
                 presetAlreadyExists = true;
             }
 
             if(!presetAlreadyExists) {
-                notify(UserEvent{EventType::SAVE_COLOR_PRESET, {colorPresetNameChar}, 0});
+                notify(UserEvent{EventType::SAVE_COLOR_PRESET, newColorName, 0});
             }
 
-            colorPresetNameChar[0] = '\0';
+            newColorName.clear();
             ImGui::CloseCurrentPopup();
         }
 
         ImGui::SameLine();
 
         if(ImGui::Button("Cancel")) {
-            colorPresetNameChar[0] = '\0';
+            newColorName.clear();
             ImGui::CloseCurrentPopup();
         }
 
@@ -223,10 +242,10 @@ void PresetWindow::imagePresetGUI(ApplicationState* appState) {
 
                 ImGui::PushID(static_cast<int>(i));
 
-				//display clock symbol (0xF017) if entry has a time slot
+				//Fontawesome: fa-solid fa-clock 
 				const bool isSelected = (usedTrailMaskIndex == i);
 				const std::string displayName = trailMask.imageName +
-					(trailMask.hasTimeSlot ? "  " : "");
+					(trailMask.hasTimeSlot ? "  \uf017" : "");
 
 				if(ImGui::Selectable(displayName.c_str(), isSelected)) {
 					appState->usedTrailMaskIndex = i;
@@ -413,10 +432,10 @@ void PresetWindow::textPresetGUI(ApplicationState* appState) {
 
                 ImGui::PushID(static_cast<int>(i));
 
-                //display clock symbol (0xF017) if entry has a time slot
+                //Fontawesome: fa-solid fa-clock 
 				const bool isSelected = (usedTrailMaskIndex == i);
 				const std::string displayName = trailMask.imageName +
-					(trailMask.hasTimeSlot ? "  " : "");
+					(trailMask.hasTimeSlot ? "  \uf017" : "");
 
 				if(ImGui::Selectable(displayName.c_str(), isSelected)) {
 					appState->usedTrailMaskIndex = i;
@@ -512,8 +531,8 @@ void PresetWindow::textPresetGUI(ApplicationState* appState) {
 
                     ImGui::SameLine();
 
-                    //Fontawesome Trash Symbol (Unicode: 0xF2ED)
-                    if(ImGui::Button(" Delete")) {
+                    //Fontawesome: fa-solid fa-trash-can 
+                    if(ImGui::Button("\uf2ed Delete")) {
                         notify(UserEvent{
                             EventType::DELETE_TEXT_TEXTURE,
                             static_cast<int>(i),
@@ -541,8 +560,8 @@ void PresetWindow::textPresetGUI(ApplicationState* appState) {
     }
 
     ImGui::SameLine();
-    //Fontawesome Plus Symbol (Unicode: 0xF0FE)
-    if(ImGui::Button(" New")) {
+    //Fontawesome: fa-solid fa-square-plus 
+    if(ImGui::Button("\uf0fe New")) {
         ImGui::OpenPopup("New Text");
     }
 
