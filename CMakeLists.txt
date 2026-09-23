@@ -257,6 +257,7 @@ set(MY_HEADER_FILES
     source/simulation/trail_map_controller.h
     source/ui/ui_helpers.h
     source/ui/user_interface.h
+    source/ui/widgets/color_indicator.h
     source/ui/widgets/link_widget.h
     source/ui/windows/audio_window.h
     source/ui/windows/base_window.h
@@ -301,6 +302,7 @@ set(MY_SOURCE_FILES
     source/simulation/trail_map_controller.cpp
     source/ui/ui_helpers.cpp
     source/ui/user_interface.cpp
+    source/ui/widgets/color_indicator.cpp
     source/ui/widgets/link_widget.cpp
     source/ui/windows/audio_window.cpp
     source/ui/windows/debug_window.cpp

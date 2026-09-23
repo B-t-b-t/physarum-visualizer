@@ -5,6 +5,7 @@
 #include "../../utility/event.h"
 #include "misc/cpp/imgui_stdlib.cpp"	//for string parameters in text input fields
 #include "../widgets/link_widget.h"
+#include "../widgets/color_indicator.h"
 
 void PresetWindow::render(ApplicationState* appState) {
     if(!visible) { return; }
@@ -122,13 +123,10 @@ void PresetWindow::colorPresetGUI(ApplicationState* appState) {
 	//--------------------------------
 	//Color Preset System
 	//--------------------------------
+
     ImGui::SeparatorText("Selection");
 
 	if (ImGui::BeginListBox("##Color Selection")) {
-
-        int colorButtonId = 0;
-        float scale = 2.0f;
-        ImVec2 colorButtonSize(ImGui::GetFontSize() / scale, ImGui::GetFontSize() / scale);
 
 		for (const auto& [presetName, preset] : *appState->colorPresets)
 		{
@@ -144,20 +142,9 @@ void PresetWindow::colorPresetGUI(ApplicationState* appState) {
 			if (is_selected) {
 				ImGui::SetItemDefaultFocus();
 			}
-            ImGui::Indent();
+
             ImGui::SameLine();
-            ImGui::SetCursorPosY(ImGui::GetCursorPosY() + colorButtonSize.y / scale);
-            ImGui::ColorButton(("##ColorButton" + std::to_string(colorButtonId)).c_str(), preset.slimeColor0, ImGuiColorEditFlags_NoTooltip | ImGuiColorEditFlags_NoDragDrop, colorButtonSize);
-            ImGui::SameLine();
-            ImGui::SetCursorPosX(ImGui::GetCursorPosX() - colorButtonSize.x);
-            ImGui::SetCursorPosY(ImGui::GetCursorPosY() + colorButtonSize.y / scale);
-            ImGui::ColorButton(("##ColorButton" + std::to_string(colorButtonId + 1)).c_str(), preset.slimeColor1, ImGuiColorEditFlags_NoTooltip | ImGuiColorEditFlags_NoDragDrop, colorButtonSize);
-            ImGui::SameLine();
-            ImGui::SetCursorPosX(ImGui::GetCursorPosX() - colorButtonSize.x);
-            ImGui::SetCursorPosY(ImGui::GetCursorPosY() + colorButtonSize.y / scale);
-            ImGui::ColorButton(("##ColorButton" + std::to_string(colorButtonId + 2)).c_str(), preset.slimeColor2, ImGuiColorEditFlags_NoTooltip | ImGuiColorEditFlags_NoDragDrop, colorButtonSize);
-            ImGui::Unindent();
-            colorButtonId++;
+            ImGui::ColorIndicator({preset.slimeColor0, preset.slimeColor1, preset.slimeColor2}, 0.5f);
 		}
 
 		ImGui::EndListBox();
