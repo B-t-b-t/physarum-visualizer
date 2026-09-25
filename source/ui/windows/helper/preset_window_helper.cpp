@@ -142,7 +142,7 @@ namespace PresetWindowHelper {
         }
     }
     //ImagePresetContext
-    void imagePresetEditModal(const char* stringID, TrailMask& trailMask, PresetWindow* presetWindow, size_t i) {
+    void imagePresetEditModal(const char* stringID, TrailMask& trailMask, PresetWindow* presetWindow, size_t atIndex) {
         if(ImGui::BeginPopupModal(stringID)) {
             
             static bool editTimeSlot = false;
@@ -211,7 +211,7 @@ namespace PresetWindowHelper {
                     .minuteEnd = editMinuteEnd
                 };
 
-                presetWindow->notify(UserEvent{ EventType::EDIT_TRAIL_MASK_TIME_SLOT, static_cast<int>(i), trailMaskData});
+                presetWindow->notify(UserEvent{ EventType::EDIT_TRAIL_MASK_TIME_SLOT, static_cast<int>(atIndex), trailMaskData});
 
                 ImGui::CloseCurrentPopup();
             }
@@ -252,7 +252,7 @@ namespace PresetWindowHelper {
         }
     }
 
-    void textPresetEditModal(const char* stringID, TrailMask& trailMask, PresetWindow* presetWindow, size_t* i) {
+    void textPresetEditModal(const char* stringID, TrailMask& trailMask, PresetWindow* presetWindow, size_t* atIndex) {
         if(ImGui::BeginPopupModal(stringID)) {
 	        static std::string textToEdit{""};
             static bool editTimeSlot = false;
@@ -316,7 +316,7 @@ namespace PresetWindowHelper {
                     .minuteEnd = editMinuteEnd
                 };
 
-                presetWindow->notify(UserEvent{EventType::TEXT_PRESET_EDIT, static_cast<int>(*i), trailMaskData});
+                presetWindow->notify(UserEvent{EventType::TEXT_PRESET_EDIT, static_cast<int>(*atIndex), trailMaskData});
 
                 textToEdit.clear();
                 ImGui::CloseCurrentPopup();
@@ -333,13 +333,33 @@ namespace PresetWindowHelper {
 
             //Fontawesome: fa-solid fa-trash-can 
             if(ImGui::Button("\uf2ed Delete")) {
-                presetWindow->notify(UserEvent{EventType::TEXT_PRESET_DELETE, static_cast<int>(*i), textToEdit});
+                presetWindow->notify(UserEvent{EventType::TEXT_PRESET_DELETE, static_cast<int>(*atIndex), 0});
 
                 textToEdit.clear();
-                *i = 0; //prevent out of bounds index, if last item was deleted
+                *atIndex = 0; //prevent out of bounds index, if last item was deleted
                 ImGui::CloseCurrentPopup();
             }
 
+            ImGui::EndPopup();
+        }
+    }
+
+    void textPresetDeleteModal(const char* stringID, TrailMask& trailMask, PresetWindow* presetWindow, size_t* atIndex) {
+        if(ImGui::BeginPopupModal(stringID, NULL, ImGuiWindowFlags_AlwaysAutoResize)) {
+            
+            ImGui::Text("Name:   %s", trailMask.imageName.c_str());
+
+            ImGui::Separator();
+
+            //Fontawesome: fa-solid fa-trash-can 
+            if (ImGui::Button("\uf2ed Delete")) {
+                presetWindow->notify(UserEvent{EventType::TEXT_PRESET_DELETE, static_cast<int>(*atIndex), 0});
+                ImGui::CloseCurrentPopup();
+            }
+            ImGui::SameLine();
+            if(ImGui::Button("Cancel")) {
+                ImGui::CloseCurrentPopup();
+            }
             ImGui::EndPopup();
         }
     }

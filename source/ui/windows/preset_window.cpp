@@ -56,24 +56,33 @@ void PresetWindow::behaviourPresetGUI(ApplicationState* appState) {
 
     ImGui::BeginChild("BehaviorSelectionChild", ImVec2(0, 0), true, ImGuiWindowFlags_MenuBar);
 
+    std::map<std::string, BehaviorPreset>* behaviorPresets = appState->behaviorPresets;
+
     if (ImGui::BeginMenuBar()) {
         //Fontawesome: fa-solid fa-square-plus 
         if(ImGui::MenuItem("\uf0fe Add")) {
             ImGui::OpenPopup("New Behavior Preset");
         }
         PresetWindowHelper::behaviorPresetAddModal("New Behavior Preset", appState, this);
-
-        //Fontawesome: fa-solid fa-trash-can 
-        if(ImGui::MenuItem("\uf2ed Delete")) {
-            ImGui::OpenPopup("Delete Behavior Preset");
-        }
-        PresetWindowHelper::behaviorPresetDeleteModal("Delete Behavior Preset", appState, this);
         
+        //only show when there is data to show or delete
+        if(behaviorPresets != nullptr && !behaviorPresets->empty()) {
+            //Fontawesome: fa-solid fa-pen-to-square 
+            if(ImGui::MenuItem("\uf044 Edit")) {
+                ImGui::OpenPopup("Edit Behavior Preset");
+            }
+            //PresetWindowHelper::behaviorPresetEditModal("Edit Behavior Preset", appState, this);
+            //Fontawesome: fa-solid fa-trash-can 
+            if(ImGui::MenuItem("\uf2ed Delete")) {
+                ImGui::OpenPopup("Delete Behavior Preset");
+            }
+            PresetWindowHelper::behaviorPresetDeleteModal("Delete Behavior Preset", appState, this);
+        }
         ImGui::EndMenuBar();
     }
 
     if(ImGui::BeginTable("##Behavior Selection", 1, ImGuiTableFlags_SizingFixedFit)) {
-		for (const auto& [presetName, preset] : *appState->behaviorPresets) {
+		for (const auto& [presetName, preset] : *behaviorPresets) {
             ImGui::TableNextRow();
             ImGui::TableNextColumn();
 			const bool is_selected = (presetName == appState->usedBehaviorPresetName);
@@ -105,6 +114,8 @@ void PresetWindow::colorPresetGUI(ApplicationState* appState) {
 
     ImGui::BeginChild("ColorSelectionChild", ImVec2(0, 0), true, ImGuiWindowFlags_MenuBar);
 
+    std::map<std::string, ColorPreset>* colorPresets = appState->colorPresets;
+
     if (ImGui::BeginMenuBar()) {
         //Fontawesome: fa-solid fa-square-plus 
         if(ImGui::MenuItem("\uf0fe Add")) {
@@ -112,18 +123,26 @@ void PresetWindow::colorPresetGUI(ApplicationState* appState) {
         }
         PresetWindowHelper::colorPresetAddModal("New Color Preset", appState, this);
 
-        //Fontawesome: fa-solid fa-trash-can 
-        if(ImGui::MenuItem("\uf2ed Delete")) {
-            ImGui::OpenPopup("Delete Color Preset");
+        //only show when there is data to show or delete
+        if(colorPresets != nullptr && !colorPresets->empty()) {
+            //Fontawesome: fa-solid fa-pen-to-square 
+            if(ImGui::MenuItem("\uf044 Edit")) {
+                ImGui::OpenPopup("Edit Color Preset");
+            }
+            //PresetWindowHelper::colorPresetEditModal("Edit Color Preset", appState, this);
+            //Fontawesome: fa-solid fa-trash-can 
+            if(ImGui::MenuItem("\uf2ed Delete")) {
+                ImGui::OpenPopup("Delete Color Preset");
+            }
+            PresetWindowHelper::colorPresetDeleteModal("Delete Color Preset", appState, this);
         }
-        PresetWindowHelper::colorPresetDeleteModal("Delete Color Preset", appState, this);
         
         ImGui::EndMenuBar();
     }
 
     if(ImGui::BeginTable("##Color Selection", 2, ImGuiTableFlags_SizingFixedFit)) {
 
-        for (const auto& [presetName, preset] : *appState->colorPresets) {
+        for (const auto& [presetName, preset] : *colorPresets) {
             ImGui::TableNextRow();
             ImGui::TableNextColumn();
             const bool is_selected = (presetName == appState->usedColorPresetName);
@@ -161,6 +180,9 @@ void PresetWindow::imagePresetGUI(ApplicationState* appState) {
 
     ImGui::BeginChild("ImageSelectionChild", ImVec2(0, 0), true, ImGuiWindowFlags_MenuBar);
 
+    std::vector<TrailMask>* trailMasks = appState->trailMasks;
+    const size_t usedTrailMaskIndex = appState->usedTrailMaskIndex;
+
     if (ImGui::BeginMenuBar()) {
         //Fontawesome: fa-solid fa-square-plus 
         if(ImGui::MenuItem("\uf0fe Add")) {
@@ -168,18 +190,25 @@ void PresetWindow::imagePresetGUI(ApplicationState* appState) {
         }
         //PresetWindowHelper::imagePresetAddModal("New Image Preset", appState, this);
 
-        //Fontawesome: fa-solid fa-trash-can 
-        if(ImGui::MenuItem("\uf2ed Delete")) {
-            ImGui::OpenPopup("Delete Image Preset");
+        //only show when there is data to show or delete
+        if(trailMasks != nullptr && !trailMasks->empty()) {
+            //Fontawesome: fa-solid fa-pen-to-square 
+            if(ImGui::MenuItem("\uf044 Edit")) {
+                ImGui::OpenPopup("Edit Image Preset");
+            }
+            //PresetWindowHelper::imagePresetEditModal("Edit Image Preset", (*trailMasks)[usedTrailMaskIndex], this, &usedTrailMaskIndex);
+
+            //Fontawesome: fa-solid fa-trash-can 
+            if(ImGui::MenuItem("\uf2ed Delete")) {
+                ImGui::OpenPopup("Delete Image Preset");
+            }
+            //PresetWindowHelper::imagePresetDeleteModal("Delete Image Preset", appState, this);
         }
-        //PresetWindowHelper::imagePresetDeleteModal("Delete Image Preset", appState, this);
         
         ImGui::EndMenuBar();
     }
 
     if(ImGui::BeginTable("##Image Selection", 2, ImGuiTableFlags_SizingFixedFit)) {
-        std::vector<TrailMask>* trailMasks = appState->trailMasks;
-        const size_t usedTrailMaskIndex = appState->usedTrailMaskIndex;
 
         if(trailMasks != nullptr) {
             static size_t editIndex = 0;
@@ -260,6 +289,9 @@ void PresetWindow::textPresetGUI(ApplicationState* appState) {
 
     ImGui::BeginChild("TextSelectionChild", ImVec2(0, 0), true, ImGuiWindowFlags_MenuBar);
 
+    size_t usedTrailMaskIndex = appState->usedTrailMaskIndex;
+    std::vector<TrailMask>* trailMasks = appState->trailMasks;
+
     if (ImGui::BeginMenuBar()) {
         //Fontawesome: fa-solid fa-square-plus 
         if(ImGui::MenuItem("\uf0fe Add")) {
@@ -267,19 +299,24 @@ void PresetWindow::textPresetGUI(ApplicationState* appState) {
         }
         PresetWindowHelper::textPresetAddModal("New Text Preset", this);
 
-        //Fontawesome: fa-solid fa-trash-can 
-        if(ImGui::MenuItem("\uf2ed Delete")) {
-            ImGui::OpenPopup("Delete Text Preset");
+        //only show when there is data to show or delete
+        if(trailMasks != nullptr && !trailMasks->empty()) {
+            //Fontawesome: fa-solid fa-pen-to-square 
+            if(ImGui::MenuItem("\uf044 Edit")) {
+                ImGui::OpenPopup("Edit Text Preset");
+            }
+            PresetWindowHelper::textPresetEditModal("Edit Text Preset", (*trailMasks)[usedTrailMaskIndex], this, &usedTrailMaskIndex);
+
+            //Fontawesome: fa-solid fa-trash-can 
+            if(ImGui::MenuItem("\uf2ed Delete")) {
+                ImGui::OpenPopup("Delete Text Preset");
+            }
+            PresetWindowHelper::textPresetDeleteModal("Delete Text Preset", (*trailMasks)[usedTrailMaskIndex], this, &usedTrailMaskIndex);
         }
-        //PresetWindowHelper::textPresetDeleteModal("Delete Text Preset", appState, this);
-        
         ImGui::EndMenuBar();
     }
 
     if(ImGui::BeginTable("##Text Selection", 2, ImGuiTableFlags_SizingFixedFit)) {
-        size_t usedTrailMaskIndex = appState->usedTrailMaskIndex;
-        std::vector<TrailMask>* trailMasks = appState->trailMasks;
-
         if(trailMasks != nullptr) {
 
             static size_t editIndex = 0;

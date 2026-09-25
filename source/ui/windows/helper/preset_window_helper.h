@@ -14,10 +14,11 @@ namespace PresetWindowHelper {
     void colorPresetAddModal(const char* stringID, ApplicationState* appState, PresetWindow* presetWindow);
     void colorPresetDeleteModal(const char* stringID, ApplicationState* appState, PresetWindow* presetWindow);
 
-    void imagePresetEditModal(const char* stringID, TrailMask& trailMask, PresetWindow* presetWindow, size_t i);
+    void imagePresetEditModal(const char* stringID, TrailMask& trailMask, PresetWindow* presetWindow, size_t atIndex);
 
     void textPresetAddModal(const char* stringID, PresetWindow* presetWindow);
-    void textPresetEditModal(const char* stringID, TrailMask& trailMask, PresetWindow* presetWindow, size_t* i);
+    void textPresetEditModal(const char* stringID, TrailMask& trailMask, PresetWindow* presetWindow, size_t* atIndex);
+    void textPresetDeleteModal(const char* stringID, TrailMask& trailMask, PresetWindow* presetWindow, size_t* atIndex);
 }
 
 #endif // PRESET_WINDOW_HELPER_H
