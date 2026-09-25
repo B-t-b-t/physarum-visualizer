@@ -52,7 +52,8 @@ void PresetWindow::behaviourPresetGUI(ApplicationState* appState) {
 	//--------------------------------
     ImGui::SeparatorText("Selection");
 
-    ImGui::PushStyleVar(ImGuiStyleVar_MenuItemRounding, 7.0f);
+    ImGui::PushStyleVar(ImGuiStyleVar_MenuItemRounding, 4.0f);
+    ImGui::PushStyleVar(ImGuiStyleVar_ChildRounding, 4.0f);
     ImGui::SetNextWindowSizeConstraints(ImVec2(ImGui::GetContentRegionAvail().x * 0.5f, ImGui::GetTextLineHeightWithSpacing() * 1), ImVec2(ImGui::GetContentRegionAvail().x * 0.5f, ImGui::GetTextLineHeightWithSpacing() * 8));
 
     ImGui::BeginChild("BehaviorSelectionChild", ImVec2(0, 0), true, ImGuiWindowFlags_MenuBar);
@@ -94,6 +95,7 @@ void PresetWindow::behaviourPresetGUI(ApplicationState* appState) {
 
     ImGui::EndChild();
     ImGui::PopStyleVar();
+    ImGui::PopStyleVar();
 
     ImGui::SeparatorText("Settings");
 
@@ -107,7 +109,8 @@ void PresetWindow::colorPresetGUI(ApplicationState* appState) {
 
     ImGui::SeparatorText("Selection");
 
-    ImGui::PushStyleVar(ImGuiStyleVar_MenuItemRounding, 7.0f);
+    ImGui::PushStyleVar(ImGuiStyleVar_MenuItemRounding, 4.0f);
+    ImGui::PushStyleVar(ImGuiStyleVar_ChildRounding, 4.0f);
     ImGui::SetNextWindowSizeConstraints(ImVec2(ImGui::GetContentRegionAvail().x * 0.5f, ImGui::GetTextLineHeightWithSpacing() * 1), ImVec2(ImGui::GetContentRegionAvail().x * 0.5f, ImGui::GetTextLineHeightWithSpacing() * 8));
 
     ImGui::BeginChild("ColorSelectionChild", ImVec2(0, 0), true, ImGuiWindowFlags_MenuBar);
@@ -155,6 +158,7 @@ void PresetWindow::colorPresetGUI(ApplicationState* appState) {
     }
 
     ImGui::EndChild();
+    ImGui::PopStyleVar();
     ImGui::PopStyleVar();
 
     ImGui::SeparatorText("Settings");
