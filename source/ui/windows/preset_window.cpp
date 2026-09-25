@@ -81,7 +81,7 @@ void PresetWindow::behaviourPresetGUI(ApplicationState* appState) {
 			const bool is_selected = (presetName == appState->usedBehaviorPresetName);
 			if (ImGui::Selectable(presetName.c_str(), is_selected, ImGuiSelectableFlags_SpanAllColumns)) {
 				appState->usedBehaviorPresetName = presetName;
-				notify(UserEvent{EventType::LOAD_PRESET, presetName, 0});
+				notify(UserEvent{EventType::BEHAVIOR_PRESET_APPLY, presetName, 0});
 				std::cout << "Selected Preset: " << presetName << std::endl;
 			}
 			// Set the initial focus when opening the combo (scrolling + keyboard navigation focus)
@@ -141,7 +141,7 @@ void PresetWindow::colorPresetGUI(ApplicationState* appState) {
             if (ImGui::Selectable(presetName.c_str(), is_selected, ImGuiSelectableFlags_SpanAllColumns)) {
                 appState->usedColorPresetName = presetName;
                 //appState->loadFromColorPreset = true;
-                notify(UserEvent{EventType::LOAD_COLOR_PRESET, presetName, 0});
+                notify(UserEvent{EventType::COLOR_PRESET_APPLY, presetName, 0});
                 std::cout << "Selected Color Preset: " << presetName << std::endl;
             }
 
@@ -196,7 +196,7 @@ void PresetWindow::imagePresetGUI(ApplicationState* appState) {
 
 				if(ImGui::Selectable(displayName.c_str(), isSelected)) {
 					appState->usedTrailMaskIndex = i;
-					notify(UserEvent{EventType::LOAD_NEW_PICTURE, 0, 0});
+					notify(UserEvent{EventType::IMAGE_PRESET_APPLY, 0, 0});
 					std::cout << "Selected Image: " << trailMask.imageName << std::endl;
 				}
 
@@ -275,7 +275,7 @@ void PresetWindow::textPresetGUI(ApplicationState* appState) {
 
 				if(ImGui::Selectable(displayName.c_str(), isSelected)) {
 					appState->usedTrailMaskIndex = i;
-					notify(UserEvent{EventType::LOAD_NEW_PICTURE, 0, 0});
+					notify(UserEvent{EventType::IMAGE_PRESET_APPLY, 0, 0});
 					std::cout << "Selected Text: " << trailMask.imageName << std::endl;
 				}
 

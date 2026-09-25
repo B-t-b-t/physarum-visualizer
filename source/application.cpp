@@ -20,16 +20,16 @@ Application::Application(Parameters params)
 	//Register Observers for immediate reaction to Events
 	ui_.getWindow("VisualSettingsWindow")->addObserver(EventType::FULLSCREEN_TOGGLE, &window_);
 	ui_.getWindow("AudioWindow")->addObserver(EventType::AUDIO_HARDWARE_CHANGE, &audioSystem_);
-	ui_.getWindow("PresetWindow")->addObserver(EventType::SAVE_PRESET, &presetSystem_);
-	ui_.getWindow("PresetWindow")->addObserver(EventType::LOAD_PRESET, &presetSystem_);
-	ui_.getWindow("PresetWindow")->addObserver(EventType::DELETE_PRESET, &presetSystem_);
-	ui_.getWindow("PresetWindow")->addObserver(EventType::SAVE_COLOR_PRESET, &colorPresetSystem_);
-	ui_.getWindow("PresetWindow")->addObserver(EventType::LOAD_COLOR_PRESET, &colorPresetSystem_);
-	ui_.getWindow("PresetWindow")->addObserver(EventType::DELETE_COLOR_PRESET, &colorPresetSystem_);
-	ui_.getWindow("PresetWindow")->addObserver(EventType::LOAD_NEW_PICTURE, simulation_.getTrailMapController());
-	ui_.getWindow("PresetWindow")->addObserver(EventType::CREATE_NEW_TEXT_TEXTURE, simulation_.getTrailMapController());
-	ui_.getWindow("PresetWindow")->addObserver(EventType::EDIT_TEXT_TEXTURE, simulation_.getTrailMapController());
-	ui_.getWindow("PresetWindow")->addObserver(EventType::DELETE_TEXT_TEXTURE, simulation_.getTrailMapController());
+	ui_.getWindow("PresetWindow")->addObserver(EventType::BEHAVIOR_PRESET_CREATE, &presetSystem_);
+	ui_.getWindow("PresetWindow")->addObserver(EventType::BEHAVIOR_PRESET_APPLY, &presetSystem_);
+	ui_.getWindow("PresetWindow")->addObserver(EventType::BEHAVIOR_PRESET_DELETE, &presetSystem_);
+	ui_.getWindow("PresetWindow")->addObserver(EventType::COLOR_PRESET_CREATE, &colorPresetSystem_);
+	ui_.getWindow("PresetWindow")->addObserver(EventType::COLOR_PRESET_APPLY, &colorPresetSystem_);
+	ui_.getWindow("PresetWindow")->addObserver(EventType::COLOR_PRESET_DELETE, &colorPresetSystem_);
+	ui_.getWindow("PresetWindow")->addObserver(EventType::IMAGE_PRESET_APPLY, simulation_.getTrailMapController());
+	ui_.getWindow("PresetWindow")->addObserver(EventType::TEXT_PRESET_CREATE, simulation_.getTrailMapController());
+	ui_.getWindow("PresetWindow")->addObserver(EventType::TEXT_PRESET_EDIT, simulation_.getTrailMapController());
+	ui_.getWindow("PresetWindow")->addObserver(EventType::TEXT_PRESET_DELETE, simulation_.getTrailMapController());
 	ui_.getWindow("PresetWindow")->addObserver(EventType::EDIT_TRAIL_MASK_TIME_SLOT, simulation_.getTrailMapController());
 	ui_.getWindow("PresetWindow")->addObserver(EventType::TRAIL_MASK_STRENGTH_CHANGED, simulation_.getTrailMapController());
 	ui_.getWindow("NewCanvasModal")->addObserver(EventType::NEW_CANVAS, renderer_.get());

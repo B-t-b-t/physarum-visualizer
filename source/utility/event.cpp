@@ -7,17 +7,17 @@ std::ostream& operator<<(std::ostream& os, const EventType& c) {
         case EventType::FULLSCREEN_TOGGLE: return os << "FULLSCREEN_TOGGLE";
         case EventType::NEW_CANVAS:       return os << "NEW_CANVAS";
         case EventType::AUDIO_HARDWARE_CHANGE: return os << "AUDIO_HARDWARE_CHANGE";
-        case EventType::SAVE_PRESET:      return os << "SAVE_PRESET";
-        case EventType::LOAD_PRESET:      return os << "LOAD_PRESET";
-        case EventType::DELETE_PRESET:      return os << "DELETE_PRESET";
-        case EventType::SAVE_COLOR_PRESET: return os << "SAVE_COLOR_PRESET";
-        case EventType::LOAD_COLOR_PRESET: return os << "LOAD_COLOR_PRESET";
-        case EventType::DELETE_COLOR_PRESET: return os << "DELETE_COLOR_PRESET";
-        case EventType::LOAD_NEW_PICTURE: return os << "LOAD_NEW_PICTURE";
+        case EventType::BEHAVIOR_PRESET_CREATE:      return os << "BEHAVIOR_PRESET_CREATE";
+        case EventType::BEHAVIOR_PRESET_APPLY:      return os << "BEHAVIOR_PRESET_APPLY";
+        case EventType::BEHAVIOR_PRESET_DELETE:      return os << "BEHAVIOR_PRESET_DELETE";
+        case EventType::COLOR_PRESET_CREATE: return os << "COLOR_PRESET_CREATE";
+        case EventType::COLOR_PRESET_APPLY: return os << "COLOR_PRESET_APPLY";
+        case EventType::COLOR_PRESET_DELETE: return os << "COLOR_PRESET_DELETE";
+        case EventType::IMAGE_PRESET_APPLY: return os << "IMAGE_PRESET_APPLY";
         case EventType::EDIT_TRAIL_MASK_TIME_SLOT: return os << "EDIT_TRAIL_MASK_TIME_SLOT";
-        case EventType::CREATE_NEW_TEXT_TEXTURE: return os << "CREATE_NEW_TEXT_TEXTURE";
-        case EventType::EDIT_TEXT_TEXTURE: return os << "EDIT_TEXT_TEXTURE";
-        case EventType::DELETE_TEXT_TEXTURE: return os << "DELETE_TEXT_TEXTURE";
+        case EventType::TEXT_PRESET_CREATE: return os << "TEXT_PRESET_CREATE";
+        case EventType::TEXT_PRESET_EDIT: return os << "TEXT_PRESET_EDIT";
+        case EventType::TEXT_PRESET_DELETE: return os << "TEXT_PRESET_DELETE";
         case EventType::TRAIL_MASK_STRENGTH_CHANGED: return os << "TRAIL_MASK_STRENGTH_CHANGED";
         default:                      return os << "<Missing String Representation for Event Enum>";
     }

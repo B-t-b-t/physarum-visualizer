@@ -112,17 +112,17 @@ template<typename T>
 void PresetSystem<T>::onNotify(const UserEvent event) {
 
     switch (event.type) {
-        case EventType::SAVE_PRESET:
-        case EventType::SAVE_COLOR_PRESET:
+        case EventType::BEHAVIOR_PRESET_CREATE:
+        case EventType::COLOR_PRESET_CREATE:
             createPreset(std::get<std::string>(event.data_1));
             break;
-        case EventType::LOAD_PRESET: 
-        case EventType::LOAD_COLOR_PRESET: {
+        case EventType::BEHAVIOR_PRESET_APPLY: 
+        case EventType::COLOR_PRESET_APPLY: {
             presets[std::get<std::string>(event.data_1)].toAppState(appState_);
             break;
         }
-        case EventType::DELETE_PRESET:
-        case EventType::DELETE_COLOR_PRESET:
+        case EventType::BEHAVIOR_PRESET_DELETE:
+        case EventType::COLOR_PRESET_DELETE:
             presets.erase(std::get<std::string>(event.data_1));
             break;
         default:

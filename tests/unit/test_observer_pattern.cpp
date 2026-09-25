@@ -48,11 +48,11 @@ TEST_CASE("Observable notifies observers registered for an event", "[observer]")
     TestObservable observable;
     RecordingObserver observer;
 
-    observable.addObserver(EventType::SAVE_PRESET, &observer);
-    observable.publish({EventType::SAVE_PRESET, std::string{"preset.psf"}, 2.0f});
+    observable.addObserver(EventType::BEHAVIOR_PRESET_CREATE, &observer);
+    observable.publish({EventType::BEHAVIOR_PRESET_CREATE, std::string{"preset.psf"}, 2.0f});
 
     REQUIRE(observer.allReceivedEvents.size() == 1);
-    CHECK(observer.allReceivedEvents[0].type == EventType::SAVE_PRESET);
+    CHECK(observer.allReceivedEvents[0].type == EventType::BEHAVIOR_PRESET_CREATE);
     CHECK(std::get<std::string>(observer.allReceivedEvents[0].data_1) == "preset.psf");
     CHECK(std::get<float>(observer.allReceivedEvents[0].data_2) == 2.0f);
 }
@@ -62,60 +62,60 @@ TEST_CASE("Observable only notifies observers subscribed to the matching event",
     RecordingObserver saveObserver;
     RecordingObserver loadObserver;
 
-    observable.addObserver(EventType::SAVE_PRESET, &saveObserver);
-    observable.addObserver(EventType::LOAD_PRESET, &loadObserver);
+    observable.addObserver(EventType::BEHAVIOR_PRESET_CREATE, &saveObserver);
+    observable.addObserver(EventType::BEHAVIOR_PRESET_APPLY, &loadObserver);
 
-    observable.publish({EventType::SAVE_PRESET, 1, 0});
-    observable.publish({EventType::LOAD_PRESET, 2, 0});
+    observable.publish({EventType::BEHAVIOR_PRESET_CREATE, 1, 0});
+    observable.publish({EventType::BEHAVIOR_PRESET_APPLY, 2, 0});
 
     REQUIRE(saveObserver.allReceivedEvents.size() == 1);
     REQUIRE(loadObserver.allReceivedEvents.size() == 1);
-    CHECK(saveObserver.allReceivedEvents[0].type == EventType::SAVE_PRESET);
-    CHECK(loadObserver.allReceivedEvents[0].type == EventType::LOAD_PRESET);
+    CHECK(saveObserver.allReceivedEvents[0].type == EventType::BEHAVIOR_PRESET_CREATE);
+    CHECK(loadObserver.allReceivedEvents[0].type == EventType::BEHAVIOR_PRESET_APPLY);
 }
 
 TEST_CASE("An observer can subscribe to multiple events", "[observer]") {
     TestObservable observable;
     RecordingObserver observer;
 
-    observable.addObserver(EventType::SAVE_PRESET, &observer);
-    observable.addObserver(EventType::LOAD_PRESET, &observer);
+    observable.addObserver(EventType::BEHAVIOR_PRESET_CREATE, &observer);
+    observable.addObserver(EventType::BEHAVIOR_PRESET_APPLY, &observer);
 
-    observable.publish({EventType::SAVE_PRESET, 0, 0});
-    observable.publish({EventType::LOAD_PRESET, 0, 0});
+    observable.publish({EventType::BEHAVIOR_PRESET_CREATE, 0, 0});
+    observable.publish({EventType::BEHAVIOR_PRESET_APPLY, 0, 0});
 
     REQUIRE(observer.allReceivedEvents.size() == 2);
-    CHECK(observer.allReceivedEvents[0].type == EventType::SAVE_PRESET);
-    CHECK(observer.allReceivedEvents[1].type == EventType::LOAD_PRESET);
+    CHECK(observer.allReceivedEvents[0].type == EventType::BEHAVIOR_PRESET_CREATE);
+    CHECK(observer.allReceivedEvents[1].type == EventType::BEHAVIOR_PRESET_APPLY);
 }
 
 TEST_CASE("Observable removes an observer from one event without affecting other events", "[observer]") {
     TestObservable observable;
     RecordingObserver observer;
 
-    observable.addObserver(EventType::SAVE_PRESET, &observer);
-    observable.addObserver(EventType::LOAD_PRESET, &observer);
+    observable.addObserver(EventType::BEHAVIOR_PRESET_CREATE, &observer);
+    observable.addObserver(EventType::BEHAVIOR_PRESET_APPLY, &observer);
 
-    observable.removeObserver(EventType::SAVE_PRESET, &observer);
-    observable.removeObserver(EventType::SAVE_PRESET, &observer);
+    observable.removeObserver(EventType::BEHAVIOR_PRESET_CREATE, &observer);
+    observable.removeObserver(EventType::BEHAVIOR_PRESET_CREATE, &observer);
 
-    observable.publish({EventType::SAVE_PRESET, 0, 0});
-    observable.publish({EventType::LOAD_PRESET, 0, 0});
+    observable.publish({EventType::BEHAVIOR_PRESET_CREATE, 0, 0});
+    observable.publish({EventType::BEHAVIOR_PRESET_APPLY, 0, 0});
 
     REQUIRE(observer.allReceivedEvents.size() == 1);
-    CHECK(observer.allReceivedEvents[0].type == EventType::LOAD_PRESET);
+    CHECK(observer.allReceivedEvents[0].type == EventType::BEHAVIOR_PRESET_APPLY);
 }
 
 TEST_CASE("Observable removes an observer from all event subscriptions", "[observer]") {
     TestObservable observable;
     RecordingObserver observer;
 
-    observable.addObserver(EventType::SAVE_PRESET, &observer);
-    observable.addObserver(EventType::LOAD_PRESET, &observer);
+    observable.addObserver(EventType::BEHAVIOR_PRESET_CREATE, &observer);
+    observable.addObserver(EventType::BEHAVIOR_PRESET_APPLY, &observer);
     observable.removeObserverAll(&observer);
 
-    observable.publish({EventType::SAVE_PRESET, 0, 0});
-    observable.publish({EventType::LOAD_PRESET, 0, 0});
+    observable.publish({EventType::BEHAVIOR_PRESET_CREATE, 0, 0});
+    observable.publish({EventType::BEHAVIOR_PRESET_APPLY, 0, 0});
 
     CHECK(observer.allReceivedEvents.empty());
 }
@@ -124,12 +124,12 @@ TEST_CASE("Observable safely handles missing subscriptions and null observers", 
     TestObservable observable;
     RecordingObserver observer;
 
-    observable.addObserver(EventType::SAVE_PRESET, nullptr);
-    observable.removeObserver(EventType::SAVE_PRESET, nullptr);
+    observable.addObserver(EventType::BEHAVIOR_PRESET_CREATE, nullptr);
+    observable.removeObserver(EventType::BEHAVIOR_PRESET_CREATE, nullptr);
     observable.removeObserverAll(nullptr);
 
-    observable.addObserver(EventType::SAVE_PRESET, &observer);
-    observable.publish({EventType::LOAD_PRESET, 0, 0});
+    observable.addObserver(EventType::BEHAVIOR_PRESET_CREATE, &observer);
+    observable.publish({EventType::BEHAVIOR_PRESET_APPLY, 0, 0});
 
     CHECK(observer.allReceivedEvents.empty());
 }
@@ -138,22 +138,22 @@ TEST_CASE("Observer destruction unsubscribes it from its observable", "[observer
     TestObservable observable;
     RecordingObserver remainingObserver;
 
-    observable.addObserver(EventType::SAVE_PRESET, &remainingObserver);
+    observable.addObserver(EventType::BEHAVIOR_PRESET_CREATE, &remainingObserver);
 
     {
         RecordingObserver temporaryObserver;
-        observable.addObserver(EventType::SAVE_PRESET, &temporaryObserver);
+        observable.addObserver(EventType::BEHAVIOR_PRESET_CREATE, &temporaryObserver);
         RecordingObserver temporaryObserver2;
-        observable.addObserver(EventType::LOAD_PRESET, &temporaryObserver2);
+        observable.addObserver(EventType::BEHAVIOR_PRESET_APPLY, &temporaryObserver2);
     }
 
-    observable.publish({EventType::SAVE_PRESET, 0, 0});
+    observable.publish({EventType::BEHAVIOR_PRESET_CREATE, 0, 0});
 
     REQUIRE(remainingObserver.allReceivedEvents.size() == 1);
     REQUIRE(observable.getRegisteredEventCount() == 2);
     REQUIRE(observable.getObserverCount() == 1);
-    REQUIRE(observable.getObserverCountForEvent(EventType::SAVE_PRESET) == 1);
-    REQUIRE(observable.getObserverCountForEvent(EventType::LOAD_PRESET) == 0);
+    REQUIRE(observable.getObserverCountForEvent(EventType::BEHAVIOR_PRESET_CREATE) == 1);
+    REQUIRE(observable.getObserverCountForEvent(EventType::BEHAVIOR_PRESET_APPLY) == 0);
 }
 
 TEST_CASE("Observable destruction allows an observer to be attached again", "[observer]") {
@@ -161,8 +161,8 @@ TEST_CASE("Observable destruction allows an observer to be attached again", "[ob
 
     {
         TestObservable firstObservable;
-        firstObservable.addObserver(EventType::SAVE_PRESET, &observer);
-        firstObservable.publish({EventType::SAVE_PRESET, 0, 0});
+        firstObservable.addObserver(EventType::BEHAVIOR_PRESET_CREATE, &observer);
+        firstObservable.publish({EventType::BEHAVIOR_PRESET_CREATE, 0, 0});
         REQUIRE(observer.getObservable() == &firstObservable);
     }
 
@@ -170,8 +170,8 @@ TEST_CASE("Observable destruction allows an observer to be attached again", "[ob
     REQUIRE(observer.getObservable() == nullptr);
 
     TestObservable secondObservable;
-    secondObservable.addObserver(EventType::SAVE_PRESET, &observer);
-    secondObservable.publish({EventType::SAVE_PRESET, 0, 0});
+    secondObservable.addObserver(EventType::BEHAVIOR_PRESET_CREATE, &observer);
+    secondObservable.publish({EventType::BEHAVIOR_PRESET_CREATE, 0, 0});
     REQUIRE(observer.getObservable() == &secondObservable);
 
     REQUIRE(observer.allReceivedEvents.size() == 2);

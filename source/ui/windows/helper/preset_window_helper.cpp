@@ -29,7 +29,7 @@ namespace PresetWindowHelper {
                 }
 
                 if(!presetAlreadyExists) {
-                    presetWindow->notify(UserEvent{EventType::SAVE_PRESET, newBehaviorName, 0});
+                    presetWindow->notify(UserEvent{EventType::BEHAVIOR_PRESET_CREATE, newBehaviorName, 0});
                 }
 
                 newBehaviorName.clear();
@@ -62,7 +62,7 @@ namespace PresetWindowHelper {
 
             //Fontawesome: fa-solid fa-trash-can 
             if (ImGui::Button("\uf2ed Delete")) {
-                presetWindow->notify(UserEvent{EventType::DELETE_PRESET, appState->usedBehaviorPresetName, 0});
+                presetWindow->notify(UserEvent{EventType::BEHAVIOR_PRESET_DELETE, appState->usedBehaviorPresetName, 0});
                 ImGui::CloseCurrentPopup();
             }
             ImGui::SameLine();
@@ -94,7 +94,7 @@ namespace PresetWindowHelper {
                 }
 
                 if(!presetAlreadyExists) {
-                    presetWindow->notify(UserEvent{EventType::SAVE_COLOR_PRESET, newColorName, 0});
+                    presetWindow->notify(UserEvent{EventType::COLOR_PRESET_CREATE, newColorName, 0});
                 }
 
                 newColorName.clear();
@@ -131,7 +131,7 @@ namespace PresetWindowHelper {
 
             //Fontawesome: fa-solid fa-trash-can 
             if (ImGui::Button("\uf2ed Delete")) {
-                presetWindow->notify(UserEvent{EventType::DELETE_COLOR_PRESET, appState->usedColorPresetName, 0});
+                presetWindow->notify(UserEvent{EventType::COLOR_PRESET_DELETE, appState->usedColorPresetName, 0});
                 ImGui::CloseCurrentPopup();
             }
             ImGui::SameLine();
@@ -236,7 +236,7 @@ namespace PresetWindowHelper {
             ImGui::Separator();
 
             if(ImGui::Button("Ok") && !newTextBuffer.empty()) {
-                presetWindow->notify(UserEvent{EventType::CREATE_NEW_TEXT_TEXTURE, newTextBuffer, 0});
+                presetWindow->notify(UserEvent{EventType::TEXT_PRESET_CREATE, newTextBuffer, 0});
                 newTextBuffer.clear();
                 ImGui::CloseCurrentPopup();
             }
@@ -316,7 +316,7 @@ namespace PresetWindowHelper {
                     .minuteEnd = editMinuteEnd
                 };
 
-                presetWindow->notify(UserEvent{EventType::EDIT_TEXT_TEXTURE, static_cast<int>(*i), trailMaskData});
+                presetWindow->notify(UserEvent{EventType::TEXT_PRESET_EDIT, static_cast<int>(*i), trailMaskData});
 
                 textToEdit.clear();
                 ImGui::CloseCurrentPopup();
@@ -333,7 +333,7 @@ namespace PresetWindowHelper {
 
             //Fontawesome: fa-solid fa-trash-can 
             if(ImGui::Button("\uf2ed Delete")) {
-                presetWindow->notify(UserEvent{EventType::DELETE_TEXT_TEXTURE, static_cast<int>(*i), textToEdit});
+                presetWindow->notify(UserEvent{EventType::TEXT_PRESET_DELETE, static_cast<int>(*i), textToEdit});
 
                 textToEdit.clear();
                 *i = 0; //prevent out of bounds index, if last item was deleted

@@ -473,7 +473,7 @@ void TrailMapController::editTrailMaskTimeSlot(int index, const TrailMaskData& n
 void TrailMapController::onNotify(const UserEvent event) {
 
     switch (event.type) {
-        case EventType::LOAD_NEW_PICTURE:
+        case EventType::IMAGE_PRESET_APPLY:
         {
             activeTrailMaskIndex_ = appState_->usedTrailMaskIndex;
 
@@ -485,17 +485,17 @@ void TrailMapController::onNotify(const UserEvent event) {
             }
             break;
         }
-        case EventType::CREATE_NEW_TEXT_TEXTURE:
+        case EventType::TEXT_PRESET_CREATE:
         {
             loadTrailMaskFromText(std::get<std::string>(event.data_1));
             break;
         }
-        case EventType::EDIT_TEXT_TEXTURE:
+        case EventType::TEXT_PRESET_EDIT:
         {
             editTextTrailMask(std::get<int>(event.data_1), std::get<TrailMaskData>(event.data_2));
             break;
         }
-        case EventType::DELETE_TEXT_TEXTURE:
+        case EventType::TEXT_PRESET_DELETE:
         {
             deleteTrailMask((size_t)std::get<int>(event.data_1));
             break;
