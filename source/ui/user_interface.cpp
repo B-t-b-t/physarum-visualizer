@@ -192,7 +192,8 @@ inline void ImGui_StyleNuklearDarkGray() {
 	style->FrameBorderSize = 1.0f;
 
 	style->WindowRounding = 10.0f;
-	style->ChildRounding = 10.0f;
+	style->ChildRounding = 4.0f;
+	style->MenuItemRounding = 4.0f;
 	style->FrameRounding = 4.0f;
 	style->PopupRounding = 4.0f;
 	style->GrabRounding = 2.0f;

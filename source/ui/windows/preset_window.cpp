@@ -52,8 +52,6 @@ void PresetWindow::behaviourPresetGUI(ApplicationState* appState) {
 	//--------------------------------
     ImGui::SeparatorText("Selection");
 
-    ImGui::PushStyleVar(ImGuiStyleVar_MenuItemRounding, 4.0f);
-    ImGui::PushStyleVar(ImGuiStyleVar_ChildRounding, 4.0f);
     ImGui::SetNextWindowSizeConstraints(ImVec2(ImGui::GetContentRegionAvail().x * 0.5f, ImGui::GetTextLineHeightWithSpacing() * 1), ImVec2(ImGui::GetContentRegionAvail().x * 0.5f, ImGui::GetTextLineHeightWithSpacing() * 8));
 
     ImGui::BeginChild("BehaviorSelectionChild", ImVec2(0, 0), true, ImGuiWindowFlags_MenuBar);
@@ -84,18 +82,12 @@ void PresetWindow::behaviourPresetGUI(ApplicationState* appState) {
 				notify(UserEvent{EventType::BEHAVIOR_PRESET_APPLY, presetName, 0});
 				std::cout << "Selected Preset: " << presetName << std::endl;
 			}
-			// Set the initial focus when opening the combo (scrolling + keyboard navigation focus)
-			if (is_selected) {
-				ImGui::SetItemDefaultFocus();
-			}
 		}
 
 		ImGui::EndTable();
 	}
 
     ImGui::EndChild();
-    ImGui::PopStyleVar();
-    ImGui::PopStyleVar();
 
     ImGui::SeparatorText("Settings");
 
@@ -109,8 +101,6 @@ void PresetWindow::colorPresetGUI(ApplicationState* appState) {
 
     ImGui::SeparatorText("Selection");
 
-    ImGui::PushStyleVar(ImGuiStyleVar_MenuItemRounding, 4.0f);
-    ImGui::PushStyleVar(ImGuiStyleVar_ChildRounding, 4.0f);
     ImGui::SetNextWindowSizeConstraints(ImVec2(ImGui::GetContentRegionAvail().x * 0.5f, ImGui::GetTextLineHeightWithSpacing() * 1), ImVec2(ImGui::GetContentRegionAvail().x * 0.5f, ImGui::GetTextLineHeightWithSpacing() * 8));
 
     ImGui::BeginChild("ColorSelectionChild", ImVec2(0, 0), true, ImGuiWindowFlags_MenuBar);
@@ -145,11 +135,6 @@ void PresetWindow::colorPresetGUI(ApplicationState* appState) {
                 std::cout << "Selected Color Preset: " << presetName << std::endl;
             }
 
-            // Set the initial focus when opening the combo (scrolling + keyboard navigation focus)
-            if (is_selected) {
-                ImGui::SetItemDefaultFocus();
-            }
-
             ImGui::TableNextColumn();
             ImGui::ColorIndicator({preset.slimeColor0, preset.slimeColor1, preset.slimeColor2}, 0.5f);
         }
@@ -158,8 +143,6 @@ void PresetWindow::colorPresetGUI(ApplicationState* appState) {
     }
 
     ImGui::EndChild();
-    ImGui::PopStyleVar();
-    ImGui::PopStyleVar();
 
     ImGui::SeparatorText("Settings");
 
@@ -174,7 +157,27 @@ void PresetWindow::imagePresetGUI(ApplicationState* appState) {
     ImGui::Text("Influence the Trail with an Image:");
     ImGui::SeparatorText("Selection");
 
-    if(ImGui::BeginListBox("##Images")) {
+    ImGui::SetNextWindowSizeConstraints(ImVec2(ImGui::GetContentRegionAvail().x * 0.5f, ImGui::GetTextLineHeightWithSpacing() * 1), ImVec2(ImGui::GetContentRegionAvail().x * 0.5f, ImGui::GetTextLineHeightWithSpacing() * 8));
+
+    ImGui::BeginChild("ImageSelectionChild", ImVec2(0, 0), true, ImGuiWindowFlags_MenuBar);
+
+    if (ImGui::BeginMenuBar()) {
+        //Fontawesome: fa-solid fa-square-plus 
+        if(ImGui::MenuItem("\uf0fe Add")) {
+            ImGui::OpenPopup("New Image Preset");
+        }
+        //PresetWindowHelper::imagePresetAddModal("New Image Preset", appState, this);
+
+        //Fontawesome: fa-solid fa-trash-can 
+        if(ImGui::MenuItem("\uf2ed Delete")) {
+            ImGui::OpenPopup("Delete Image Preset");
+        }
+        //PresetWindowHelper::imagePresetDeleteModal("Delete Image Preset", appState, this);
+        
+        ImGui::EndMenuBar();
+    }
+
+    if(ImGui::BeginTable("##Image Selection", 2, ImGuiTableFlags_SizingFixedFit)) {
         std::vector<TrailMask>* trailMasks = appState->trailMasks;
         const size_t usedTrailMaskIndex = appState->usedTrailMaskIndex;
 
@@ -183,33 +186,35 @@ void PresetWindow::imagePresetGUI(ApplicationState* appState) {
             static bool isRightClicked = false;
 
             for(unsigned int i = 0; i < trailMasks->size(); ++i) {
+
                 TrailMask& trailMask = (*trailMasks)[i];
 
-                if(trailMask.isText) {
-                    continue;
+                if(!trailMask.isText) {
+                    ImGui::TableNextRow();
+                    ImGui::TableNextColumn();
+                } else {
+                    continue;       //filter out text presets
                 }
 
-				//Fontawesome: fa-solid fa-clock 
 				const bool isSelected = (usedTrailMaskIndex == i);
-				const std::string displayName = trailMask.imageName +
-					(trailMask.hasTimeSlot ? "  \uf017" : "");
 
-				if(ImGui::Selectable(displayName.c_str(), isSelected)) {
+				if(ImGui::Selectable(trailMask.imageName.c_str(), isSelected, ImGuiSelectableFlags_SpanAllColumns)) {
 					appState->usedTrailMaskIndex = i;
 					notify(UserEvent{EventType::IMAGE_PRESET_APPLY, 0, 0});
 					std::cout << "Selected Image: " << trailMask.imageName << std::endl;
 				}
+
+                ImGui::SetItemTooltip("Right-click to edit");
 
                 if(ImGui::OpenPopupOnItemClick(nullptr, ImGuiPopupFlags_MouseButtonRight)) {
                     editIndex = i;
                     isRightClicked = true;
                 }
 
-                if(isSelected) {
-                    ImGui::SetItemDefaultFocus();
-                }
-
-                ImGui::SetItemTooltip("Right-click to edit");
+                ImGui::TableNextColumn();
+                //Fontawesome: fa-solid fa-clock 
+                const std::string infoString = trailMask.hasTimeSlot ? "\uf017" : "";
+                ImGui::Text("%s", infoString.c_str());
             }
 
             if(isRightClicked) {
@@ -219,8 +224,10 @@ void PresetWindow::imagePresetGUI(ApplicationState* appState) {
             PresetWindowHelper::imagePresetEditModal("Edit Image", (*trailMasks)[editIndex], this, editIndex);   
         }
 
-        ImGui::EndListBox();
+        ImGui::EndTable();
     }
+
+    ImGui::EndChild();
 
     ImGui::SeparatorText("Settings");
 
@@ -249,8 +256,27 @@ void PresetWindow::textPresetGUI(ApplicationState* appState) {
     ImGui::Text("Influence the Trail with a Text:");
     ImGui::SeparatorText("Selection");
 
-    
-    if (ImGui::BeginListBox("##Text Presets")) {
+    ImGui::SetNextWindowSizeConstraints(ImVec2(ImGui::GetContentRegionAvail().x * 0.5f, ImGui::GetTextLineHeightWithSpacing() * 1), ImVec2(ImGui::GetContentRegionAvail().x * 0.5f, ImGui::GetTextLineHeightWithSpacing() * 8));
+
+    ImGui::BeginChild("TextSelectionChild", ImVec2(0, 0), true, ImGuiWindowFlags_MenuBar);
+
+    if (ImGui::BeginMenuBar()) {
+        //Fontawesome: fa-solid fa-square-plus 
+        if(ImGui::MenuItem("\uf0fe Add")) {
+            ImGui::OpenPopup("New Text Preset");
+        }
+        PresetWindowHelper::textPresetAddModal("New Text Preset", this);
+
+        //Fontawesome: fa-solid fa-trash-can 
+        if(ImGui::MenuItem("\uf2ed Delete")) {
+            ImGui::OpenPopup("Delete Text Preset");
+        }
+        //PresetWindowHelper::textPresetDeleteModal("Delete Text Preset", appState, this);
+        
+        ImGui::EndMenuBar();
+    }
+
+    if(ImGui::BeginTable("##Text Selection", 2, ImGuiTableFlags_SizingFixedFit)) {
         size_t usedTrailMaskIndex = appState->usedTrailMaskIndex;
         std::vector<TrailMask>* trailMasks = appState->trailMasks;
 
@@ -260,20 +286,19 @@ void PresetWindow::textPresetGUI(ApplicationState* appState) {
             static bool isRightClicked = false;
 
             for (unsigned int i = 0; i < trailMasks->size(); ++i) {
+                
                 TrailMask& trailMask = (*trailMasks)[i];
-
-                if(!trailMask.isText) {
-                    continue;
+                
+                if(trailMask.isText) {
+                    ImGui::TableNextRow();
+                    ImGui::TableNextColumn();
+                } else {
+                    continue;   //filter out non-text presets
                 }
 
-                ImGui::PushID(static_cast<int>(i));
-
-                //Fontawesome: fa-solid fa-clock 
 				const bool isSelected = (usedTrailMaskIndex == i);
-				const std::string displayName = trailMask.imageName +
-					(trailMask.hasTimeSlot ? "  \uf017" : "");
 
-				if(ImGui::Selectable(displayName.c_str(), isSelected)) {
+				if(ImGui::Selectable(trailMask.imageName.c_str(), isSelected, ImGuiSelectableFlags_SpanAllColumns)) {
 					appState->usedTrailMaskIndex = i;
 					notify(UserEvent{EventType::IMAGE_PRESET_APPLY, 0, 0});
 					std::cout << "Selected Text: " << trailMask.imageName << std::endl;
@@ -284,12 +309,12 @@ void PresetWindow::textPresetGUI(ApplicationState* appState) {
                     isRightClicked = true;
                 }
 
-                if(isSelected) {
-                    ImGui::SetItemDefaultFocus();
-                }
-
                 ImGui::SetItemTooltip("Right-click to Edit");
-                ImGui::PopID();
+
+                ImGui::TableNextColumn();
+                //Fontawesome: fa-solid fa-clock 
+                const std::string infoString = trailMask.hasTimeSlot ? "\uf017" : "";
+                ImGui::Text("%s", infoString.c_str());
             }
 
             if(isRightClicked) {
@@ -299,15 +324,10 @@ void PresetWindow::textPresetGUI(ApplicationState* appState) {
             PresetWindowHelper::textPresetEditModal("Edit Text", (*trailMasks)[editIndex], this, &editIndex);
         }
 
-        ImGui::EndListBox();
+        ImGui::EndTable();
     }
 
-    ImGui::SameLine();
-    //Fontawesome: fa-solid fa-square-plus 
-    if(ImGui::Button("\uf0fe New")) {
-        ImGui::OpenPopup("New Text");
-    }
-    PresetWindowHelper::textPresetAddModal("New Text", this);
+    ImGui::EndChild();
 
     ImGui::SeparatorText("Settings");
 
