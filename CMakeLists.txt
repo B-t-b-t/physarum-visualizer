@@ -267,11 +267,13 @@ set(MY_HEADER_FILES
     source/ui/windows/slime_config_window.h
     source/ui/windows/view_window.h
     source/ui/windows/visual_settings_window.h
+    source/ui/windows/helper/preset_window_helper.h
     source/utility/event.h
     source/utility/fileHandling.h
     source/utility/parameter_parser.h
     source/utility/observable.h
     source/utility/observer.h
+    external/imgui_stdlib.h
 )
 
 set(MY_SOURCE_FILES
@@ -311,11 +313,13 @@ set(MY_SOURCE_FILES
     source/ui/windows/slime_config_window.cpp
     source/ui/windows/view_window.cpp
     source/ui/windows/visual_settings_window.cpp
+    source/ui/windows/helper/preset_window_helper.cpp
     source/utility/event.cpp
     source/utility/fileHandling.cpp
     source/utility/parameter_parser.cpp
     source/utility/observable.cpp
     source/utility/observer.cpp
+    external/imgui_stdlib.cpp
 )
 
 include_directories(

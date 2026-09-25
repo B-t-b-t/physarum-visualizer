@@ -9,8 +9,10 @@ std::ostream& operator<<(std::ostream& os, const EventType& c) {
         case EventType::AUDIO_HARDWARE_CHANGE: return os << "AUDIO_HARDWARE_CHANGE";
         case EventType::SAVE_PRESET:      return os << "SAVE_PRESET";
         case EventType::LOAD_PRESET:      return os << "LOAD_PRESET";
+        case EventType::DELETE_PRESET:      return os << "DELETE_PRESET";
         case EventType::SAVE_COLOR_PRESET: return os << "SAVE_COLOR_PRESET";
         case EventType::LOAD_COLOR_PRESET: return os << "LOAD_COLOR_PRESET";
+        case EventType::DELETE_COLOR_PRESET: return os << "DELETE_COLOR_PRESET";
         case EventType::LOAD_NEW_PICTURE: return os << "LOAD_NEW_PICTURE";
         case EventType::EDIT_TRAIL_MASK_TIME_SLOT: return os << "EDIT_TRAIL_MASK_TIME_SLOT";
         case EventType::CREATE_NEW_TEXT_TEXTURE: return os << "CREATE_NEW_TEXT_TEXTURE";

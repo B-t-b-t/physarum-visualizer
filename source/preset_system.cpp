@@ -121,6 +121,10 @@ void PresetSystem<T>::onNotify(const UserEvent event) {
             presets[std::get<std::string>(event.data_1)].toAppState(appState_);
             break;
         }
+        case EventType::DELETE_PRESET:
+        case EventType::DELETE_COLOR_PRESET:
+            presets.erase(std::get<std::string>(event.data_1));
+            break;
         default:
             break;
     }

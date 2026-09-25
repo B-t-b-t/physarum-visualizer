@@ -5,8 +5,7 @@
 #include "imgui_internal.h"
 
 
-void ImGui::ColorIndicator(std::initializer_list<const ImVec4> colors, float scale, float borderThickness)
-{
+void ImGui::ColorIndicator(std::initializer_list<const ImVec4> colors, float scale, float borderThickness) {
     ImGuiWindow* window = GetCurrentWindow();
 
     //early return when window invisible
@@ -30,11 +29,14 @@ void ImGui::ColorIndicator(std::initializer_list<const ImVec4> colors, float sca
         if (borderThickness > 0.0f) {
             drawList->AddCircle(ImVec2(pos.x + circleRadius, pos.y + (textHeight / 2)), borderCircleRadius, GetColorU32(ImGuiCol_Border), 0, borderThickness);
         }
-
         pos.x += boundingSize + textHeight / 8;   //gap between circles scales with text size
     }
-    
-    NewLine();  //set cursor to next line
+
+    //NewLine();  //set cursor to next line
+
+    //hover logic necessary, because it enables highlighting in Table rows and ListBoxes
+    const ImRect bb(pos, pos + ImVec2(boundingSize * 4, textHeight));
+    ItemSize(bb);   //sets bounding box for hover logic
 
     return;
 }

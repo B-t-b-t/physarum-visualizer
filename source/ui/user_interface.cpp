@@ -69,7 +69,7 @@ void UserInterface::display() {
 	mainMenuBarGUI();
 
 	//right click context menu
-	if(ImGui::IsMouseClicked(ImGuiMouseButton_Right)) {
+	if(ImGui::IsMouseClicked(ImGuiMouseButton_Right) && !guiIO_->WantCaptureMouse) {
 		ImGui::OpenPopup("RightClickContextMenu");
 	}
 

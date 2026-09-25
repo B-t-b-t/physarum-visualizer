@@ -28,9 +28,6 @@ private:
 
     bool linkTrailMaskScales_ = true;
 
-	bool isEditingTextPreset_{false};
-	std::string textToEdit_{""};
-
 	void behaviourPresetGUI(ApplicationState* appState);
 	void colorPresetGUI(ApplicationState* appState);
 	void imagePresetGUI(ApplicationState* appState);

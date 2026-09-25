@@ -372,6 +372,10 @@ void TrailMapController::editTextTrailMask(int index, TrailMaskData newData) {
         trailMasks_[(size_t)index].hasTimeSlot = true;
         trailMasks_[(size_t)index].beginTimeSlot = beginTimeSlotTicks;
         trailMasks_[(size_t)index].endTimeSlot = endTimeSlotTicks;
+    } else {
+        trailMasks_[(size_t)index].hasTimeSlot = false;
+        trailMasks_[(size_t)index].beginTimeSlot = {};
+        trailMasks_[(size_t)index].endTimeSlot = {};
     }
 
     if(index >= 0 && (size_t)index < trailMasks_.size()) {

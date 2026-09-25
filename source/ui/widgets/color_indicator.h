@@ -12,7 +12,7 @@ namespace ImGui {
  * 
  * Displays each color with a colored circle, number of circles depends on the number of colors provided.
  * Base size depends on font scale (text height).
- * Lightweight, no mouse interaction, hovering, ...
+ * Lightweight, no mouse interaction, ...
  * 
  * @param colors A list of colors to display
  * @param scale The scale of the color indicator (1.0f = font height)

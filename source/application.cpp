@@ -22,8 +22,10 @@ Application::Application(Parameters params)
 	ui_.getWindow("AudioWindow")->addObserver(EventType::AUDIO_HARDWARE_CHANGE, &audioSystem_);
 	ui_.getWindow("PresetWindow")->addObserver(EventType::SAVE_PRESET, &presetSystem_);
 	ui_.getWindow("PresetWindow")->addObserver(EventType::LOAD_PRESET, &presetSystem_);
+	ui_.getWindow("PresetWindow")->addObserver(EventType::DELETE_PRESET, &presetSystem_);
 	ui_.getWindow("PresetWindow")->addObserver(EventType::SAVE_COLOR_PRESET, &colorPresetSystem_);
 	ui_.getWindow("PresetWindow")->addObserver(EventType::LOAD_COLOR_PRESET, &colorPresetSystem_);
+	ui_.getWindow("PresetWindow")->addObserver(EventType::DELETE_COLOR_PRESET, &colorPresetSystem_);
 	ui_.getWindow("PresetWindow")->addObserver(EventType::LOAD_NEW_PICTURE, simulation_.getTrailMapController());
 	ui_.getWindow("PresetWindow")->addObserver(EventType::CREATE_NEW_TEXT_TEXTURE, simulation_.getTrailMapController());
 	ui_.getWindow("PresetWindow")->addObserver(EventType::EDIT_TEXT_TEXTURE, simulation_.getTrailMapController());
