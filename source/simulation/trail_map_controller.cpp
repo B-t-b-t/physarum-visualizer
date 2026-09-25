@@ -61,12 +61,19 @@ bool TrailMapController::loadFromToml() {
         }
     }
 
+    //load time slots for all trail masks, if they exist
     for(TrailMask& trailMask : trailMasks_) {
-        if(!timeTable_.contains(trailMask.imageName)) {
+        std::string tableName = "";
+
+        if(timeTable_.contains("Image." + trailMask.imageName) && !trailMask.isText) {
+            tableName = "Image." + trailMask.imageName;
+        } else if(timeTable_.contains("Text." + trailMask.imageName) && trailMask.isText) {
+            tableName = "Text." + trailMask.imageName;
+        } else {
             continue;
         }
 
-        const auto& entry = toml::find(timeTable_, trailMask.imageName);
+        const auto& entry = toml::find(timeTable_, tableName);
         if(!entry.contains("begin") || !entry.contains("end")) {
             continue;
         }
@@ -144,7 +151,11 @@ bool TrailMapController::saveToToml() {
             };
         }
 
-        newTimeTable[trailMask.imageName] = entry;
+        if(trailMask.isText) {
+            newTimeTable["Text." + trailMask.imageName] = entry;
+        } else {
+            newTimeTable["Image." + trailMask.imageName] = entry;
+        }
     }
 
     std::ofstream outputFile{"./res/pictures/timeTable.toml", std::ios::trunc};
