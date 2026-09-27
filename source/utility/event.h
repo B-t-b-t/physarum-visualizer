@@ -1,6 +1,7 @@
 #ifndef EVENT_H
 #define EVENT_H
 
+#include <chrono>
 #include <iostream>
 #include <string>
 #include <variant>
@@ -35,15 +36,10 @@ enum class EventType {
 struct TrailMaskData {
     std::string newName;
     bool isText;
+    
     bool hasTimeSlot;
-
-    int dayBegin;
-    int hourBegin;
-    int minuteBegin;
-
-    int dayEnd;
-    int hourEnd;
-    int minuteEnd;
+    std::chrono::system_clock::time_point timeSlotStart;
+    std::chrono::system_clock::time_point timeSlotEnd;
 };
 
 std::ostream& operator<<(std::ostream& os, const EventType& c);

@@ -23,18 +23,12 @@ bool TrailMapController::checkTimeTable(std::string imageName) {
             return true;
         }
 
-        SDL_Time currentTime{};
-        if(!SDL_GetCurrentTime(&currentTime)) {
-            std::cerr << "Failed to get the current time: "
-                      << SDL_GetError() << std::endl;
-            return false;
-        }
-
-        return currentTime >= trailMask.beginTimeSlot &&
-               currentTime <= trailMask.endTimeSlot;
+        auto currentTime = std::chrono::system_clock::now();
+        return currentTime >= trailMask.timeSlotStart &&
+               currentTime <= trailMask.timeSlotEnd;
     }
 
-    //a trail mask not present in the list cannot be selected.
+    //trail masks not present in the list cannot be selected.
     return false;
 }
 
@@ -78,14 +72,9 @@ bool TrailMapController::loadFromToml() {
             continue;
         }
 
-        const auto beginDateTime = toml::find<toml::local_datetime>(entry, "begin");
-        const auto endDateTime = toml::find<toml::local_datetime>(entry, "end");
-
         trailMask.hasTimeSlot = true;
-        trailMask.beginTimeSlot =
-            static_cast<SDL_Time>(beginDateTime.operator time_t()) * 1000000000LL;
-        trailMask.endTimeSlot =
-            static_cast<SDL_Time>(endDateTime.operator time_t()) * 1000000000LL;
+        trailMask.timeSlotStart = toml::find<std::chrono::system_clock::time_point>(entry, "begin");
+        trailMask.timeSlotEnd = toml::find<std::chrono::system_clock::time_point>(entry, "end");
     }
 
     return true;
@@ -108,47 +97,8 @@ bool TrailMapController::saveToToml() {
         }
 
         if(trailMask.hasTimeSlot) {
-            SDL_DateTime beginDateTime{};
-            SDL_DateTime endDateTime{};
-
-            if(!SDL_TimeToDateTime(trailMask.beginTimeSlot, &beginDateTime, true) ||
-               !SDL_TimeToDateTime(trailMask.endTimeSlot, &endDateTime, true)) {
-                std::cerr << "Failed to convert trail mask time slot for \""
-                          << trailMask.imageName << "\": " << SDL_GetError() << std::endl;
-                return false;
-            }
-
-            entry["end"] = toml::local_datetime{
-                toml::local_date{
-                    static_cast<int>(endDateTime.year),
-                    static_cast<toml::month_t>(endDateTime.month - 1),    //-1 because SDL3 months start at 1
-                    static_cast<int>(endDateTime.day)
-                },
-                toml::local_time{
-                    endDateTime.hour,
-                    endDateTime.minute,
-                    endDateTime.second,
-                    0,
-                    0,
-                    0
-                }
-            };
-
-            entry["begin"] = toml::local_datetime{
-                toml::local_date{
-                    static_cast<int>(beginDateTime.year),
-                    static_cast<toml::month_t>(beginDateTime.month - 1),    //-1 because SDL3 months start at 1
-                    static_cast<int>(beginDateTime.day)
-                },
-                toml::local_time{
-                    beginDateTime.hour,
-                    beginDateTime.minute,
-                    beginDateTime.second,
-                    0,
-                    0,
-                    0
-                }
-            };
+            entry["end"] = toml::offset_datetime(trailMask.timeSlotEnd);
+            entry["begin"] = toml::offset_datetime(trailMask.timeSlotStart);
         }
 
         if(trailMask.isText) {
@@ -347,35 +297,13 @@ void TrailMapController::editTextTrailMask(int index, TrailMaskData newData) {
     appState_ = appState_;
 
     if(newData.hasTimeSlot) {
-        SDL_Time currentTime;
-        SDL_DateTime currentDateTime;
-        SDL_GetCurrentTime(&currentTime);
-        SDL_TimeToDateTime(currentTime, &currentDateTime, true);
-
-        //!!! quick and dirty, breaks with month/year changes!!!
-        SDL_DateTime beginTimeSlot = currentDateTime;
-        SDL_DateTime endTimeSlot = currentDateTime;
-
-        beginTimeSlot.day = newData.dayBegin;
-        beginTimeSlot.hour = newData.hourBegin;
-        beginTimeSlot.minute = newData.minuteBegin;
-        endTimeSlot.day = newData.dayEnd;
-        endTimeSlot.hour = newData.hourEnd;
-        endTimeSlot.minute = newData.minuteEnd;
-
-        SDL_Time beginTimeSlotTicks;
-        SDL_Time endTimeSlotTicks;
-
-        SDL_DateTimeToTime(&beginTimeSlot, &beginTimeSlotTicks);
-        SDL_DateTimeToTime(&endTimeSlot, &endTimeSlotTicks);
-
         trailMasks_[(size_t)index].hasTimeSlot = true;
-        trailMasks_[(size_t)index].beginTimeSlot = beginTimeSlotTicks;
-        trailMasks_[(size_t)index].endTimeSlot = endTimeSlotTicks;
+        trailMasks_[(size_t)index].timeSlotStart = newData.timeSlotStart;
+        trailMasks_[(size_t)index].timeSlotEnd = newData.timeSlotEnd;
     } else {
         trailMasks_[(size_t)index].hasTimeSlot = false;
-        trailMasks_[(size_t)index].beginTimeSlot = {};
-        trailMasks_[(size_t)index].endTimeSlot = {};
+        trailMasks_[(size_t)index].timeSlotStart = {};
+        trailMasks_[(size_t)index].timeSlotEnd = {};
     }
 
     if(index >= 0 && (size_t)index < trailMasks_.size()) {
@@ -413,61 +341,18 @@ void TrailMapController::editTrailMaskTimeSlot(int index, const TrailMaskData& n
     }
 
     TrailMask& trailMask = trailMasks_[(size_t)index];
-    const bool hadTimeSlot = trailMask.hasTimeSlot;
 
-    trailMask.hasTimeSlot = newData.hasTimeSlot;
-
-    if(!trailMask.hasTimeSlot) {
-        trailMask.beginTimeSlot = {};
-        trailMask.endTimeSlot = {};
-        return;
-    }
-
-    SDL_Time currentTime{};
-    SDL_DateTime currentDateTime{};
-
-    if(!SDL_GetCurrentTime(&currentTime) ||
-       !SDL_TimeToDateTime(currentTime, &currentDateTime, true)) {
-        std::cerr << "Failed to get the current date and time: "
-                  << SDL_GetError() << std::endl;
+    if(newData.hasTimeSlot) {
+        trailMask.hasTimeSlot = true;
+        trailMask.timeSlotStart = newData.timeSlotStart;
+        trailMask.timeSlotEnd = newData.timeSlotEnd;
+    } else {
         trailMask.hasTimeSlot = false;
-        return;
+        trailMask.timeSlotStart = {};
+        trailMask.timeSlotEnd = {};
     }
 
-    SDL_DateTime beginDateTime = currentDateTime;
-    SDL_DateTime endDateTime = currentDateTime;
-
-    // Preserve the existing date when modifying an existing time slot.
-    if(hadTimeSlot) {
-        SDL_TimeToDateTime(trailMask.beginTimeSlot, &beginDateTime, true);
-        SDL_TimeToDateTime(trailMask.endTimeSlot, &endDateTime, true);
-    }
-
-    beginDateTime.day = newData.dayBegin;
-    beginDateTime.hour = newData.hourBegin;
-    beginDateTime.minute = newData.minuteBegin;
-    beginDateTime.second = 0;
-    beginDateTime.nanosecond = 0;
-
-    endDateTime.day = newData.dayEnd;
-    endDateTime.hour = newData.hourEnd;
-    endDateTime.minute = newData.minuteEnd;
-    endDateTime.second = 0;
-    endDateTime.nanosecond = 0;
-
-    SDL_Time beginTimeSlot{};
-    SDL_Time endTimeSlot{};
-
-    if(!SDL_DateTimeToTime(&beginDateTime, &beginTimeSlot) ||
-       !SDL_DateTimeToTime(&endDateTime, &endTimeSlot)) {
-        std::cerr << "Failed to create trail mask time slot: "
-                  << SDL_GetError() << std::endl;
-        trailMask.hasTimeSlot = false;
-        return;
-    }
-
-    trailMask.beginTimeSlot = beginTimeSlot;
-    trailMask.endTimeSlot = endTimeSlot;
+    return;
 }
 
 void TrailMapController::onNotify(const UserEvent event) {

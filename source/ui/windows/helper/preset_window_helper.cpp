@@ -1,5 +1,7 @@
 #include "preset_window_helper.h"
 
+#include <chrono>
+
 #include "imgui.h"
 
 #include "../preset_window.h"
@@ -143,6 +145,8 @@ namespace PresetWindowHelper {
     }
     //ImagePresetContext
     void imagePresetEditModal(const char* stringID, TrailMask& trailMask, PresetWindow* presetWindow, size_t atIndex) {
+        using namespace std::chrono;
+
         if(ImGui::BeginPopupModal(stringID)) {
             
             static bool editTimeSlot = false;
@@ -162,19 +166,26 @@ namespace PresetWindowHelper {
                 editHourEnd = 0;
                 editMinuteEnd = 0;
         
-                SDL_DateTime beginDateTime{};
-                SDL_DateTime endDateTime{};
-        
-                if(trailMask.hasTimeSlot 
-                    && SDL_TimeToDateTime(trailMask.beginTimeSlot, &beginDateTime, true) 
-                    && SDL_TimeToDateTime(trailMask.endTimeSlot, &endDateTime, true)
-                ) {
-                    editDayBegin = static_cast<int>(beginDateTime.day);
-                    editHourBegin = static_cast<int>(beginDateTime.hour);
-                    editMinuteBegin = static_cast<int>(beginDateTime.minute);
-                    editDayEnd = static_cast<int>(endDateTime.day);
-                    editHourEnd = static_cast<int>(endDateTime.hour);
-                    editMinuteEnd = static_cast<int>(endDateTime.minute);
+                if(trailMask.hasTimeSlot) {
+                    const auto beginTime = floor<seconds>(trailMask.timeSlotStart);
+                    const auto endTime = floor<seconds>(trailMask.timeSlotEnd);
+
+                    const auto beginDate = floor<days>(beginTime);
+                    const auto endDate = floor<days>(endTime);
+
+                    const year_month_day beginYearMonthDay{beginDate};
+                    const year_month_day endYearMonthDay{endDate};
+
+                    const hh_mm_ss beginTimeOfDay{beginTime - beginDate};
+                    const hh_mm_ss endTimeOfDay{endTime - endDate};
+
+                    editDayBegin = static_cast<int>(unsigned{beginYearMonthDay.day()});
+                    editHourBegin = static_cast<int>(beginTimeOfDay.hours().count());
+                    editMinuteBegin = static_cast<int>(beginTimeOfDay.minutes().count());
+
+                    editDayEnd = static_cast<int>(unsigned{endYearMonthDay.day()});
+                    editHourEnd = static_cast<int>(endTimeOfDay.hours().count());
+                    editMinuteEnd = static_cast<int>(endTimeOfDay.minutes().count());
                 }
             }
 
@@ -199,16 +210,21 @@ namespace PresetWindowHelper {
             ImGui::Separator();
 
             if(ImGui::Button("Ok")) {
+                
+                // Construct a sys_days object for a specific date
+                std::chrono::sys_days dateBegin{std::chrono::year{2026}/std::chrono::September/editDayBegin};
+                std::chrono::sys_days dateEnd{std::chrono::year{2026}/std::chrono::September/editDayEnd};
+                
+                // Add hours, minutes, seconds to get a time_point
+                std::chrono::sys_time<std::chrono::seconds> tpBegin = dateBegin + editHourBegin * 1h + editMinuteBegin * 1min;
+                std::chrono::sys_time<std::chrono::seconds> tpEnd = dateEnd + editHourEnd * 1h + editMinuteEnd * 1min;
+
                 TrailMaskData trailMaskData{
                     .newName = trailMask.imageName,
                     .isText = false,
                     .hasTimeSlot = editTimeSlot,
-                    .dayBegin = editDayBegin,
-                    .hourBegin = editHourBegin,
-                    .minuteBegin = editMinuteBegin,
-                    .dayEnd = editDayEnd,
-                    .hourEnd = editHourEnd,
-                    .minuteEnd = editMinuteEnd
+                    .timeSlotStart = tpBegin,
+                    .timeSlotEnd = tpEnd
                 };
 
                 presetWindow->notify(UserEvent{ EventType::EDIT_TRAIL_MASK_TIME_SLOT, static_cast<int>(atIndex), trailMaskData});
@@ -253,6 +269,8 @@ namespace PresetWindowHelper {
     }
 
     void textPresetEditModal(const char* stringID, TrailMask& trailMask, PresetWindow* presetWindow, size_t* atIndex) {
+        using namespace std::chrono;
+
         if(ImGui::BeginPopupModal(stringID)) {
 	        static std::string textToEdit{""};
             static bool editTimeSlot = false;
@@ -267,19 +285,26 @@ namespace PresetWindowHelper {
                 textToEdit = trailMask.imageName;
                 editTimeSlot = trailMask.hasTimeSlot;
 
-                SDL_DateTime beginDateTime{};
-                SDL_DateTime endDateTime{};
+                if(trailMask.hasTimeSlot) {
+                    const auto beginTime = floor<seconds>(trailMask.timeSlotStart);
+                    const auto endTime = floor<seconds>(trailMask.timeSlotEnd);
 
-                if(trailMask.hasTimeSlot 
-                    && SDL_TimeToDateTime(trailMask.beginTimeSlot, &beginDateTime, true) 
-                    && SDL_TimeToDateTime(trailMask.endTimeSlot, &endDateTime, true)
-                ) {
-                    editDayBegin = static_cast<int>(beginDateTime.day);
-                    editHourBegin = static_cast<int>(beginDateTime.hour);
-                    editMinuteBegin = static_cast<int>(beginDateTime.minute);
-                    editDayEnd = static_cast<int>(endDateTime.day);
-                    editHourEnd = static_cast<int>(endDateTime.hour);
-                    editMinuteEnd = static_cast<int>(endDateTime.minute);
+                    const auto beginDate = floor<days>(beginTime);
+                    const auto endDate = floor<days>(endTime);
+
+                    const year_month_day beginYearMonthDay{beginDate};
+                    const year_month_day endYearMonthDay{endDate};
+
+                    const hh_mm_ss beginTimeOfDay{beginTime - beginDate};
+                    const hh_mm_ss endTimeOfDay{endTime - endDate};
+
+                    editDayBegin = static_cast<int>(unsigned{beginYearMonthDay.day()});
+                    editHourBegin = static_cast<int>(beginTimeOfDay.hours().count());
+                    editMinuteBegin = static_cast<int>(beginTimeOfDay.minutes().count());
+
+                    editDayEnd = static_cast<int>(unsigned{endYearMonthDay.day()});
+                    editHourEnd = static_cast<int>(endTimeOfDay.hours().count());
+                    editMinuteEnd = static_cast<int>(endTimeOfDay.minutes().count());
                 }
             }
 
@@ -303,17 +328,32 @@ namespace PresetWindowHelper {
 
             ImGui::Separator();
 
+            std::chrono::system_clock::time_point time = std::chrono::system_clock::now();
+            //convert to local time
+            auto timePoint = std::chrono::floor<std::chrono::seconds>(std::chrono::zoned_time{std::chrono::current_zone(), time}.get_local_time());
+            //const auto now = std::chrono::system_clock::now();
+            const std::string formattedTime = std::format("{:%F %T}", timePoint);
+
+            ImGui::Text("Selected Time: %s", formattedTime.c_str());
+
+            ImGui::Separator();
+
             if(ImGui::Button("Ok") && !textToEdit.empty()) {
+                // Construct a sys_days object for a specific date
+                std::chrono::sys_days dateBegin{std::chrono::year{2026}/std::chrono::September/editDayBegin};
+                std::chrono::sys_days dateEnd{std::chrono::year{2026}/std::chrono::September/editDayEnd};
+                
+                // Add hours, minutes, seconds to get a time_point
+                std::chrono::sys_time<std::chrono::seconds> tpBegin = dateBegin + editHourBegin * 1h + editMinuteBegin * 1min;
+                std::chrono::sys_time<std::chrono::seconds> tpEnd = dateEnd + editHourEnd * 1h + editMinuteEnd * 1min;
+
+
                 TrailMaskData trailMaskData{
                     .newName = textToEdit,
                     .isText = true,
                     .hasTimeSlot = editTimeSlot,
-                    .dayBegin = editDayBegin,
-                    .hourBegin = editHourBegin,
-                    .minuteBegin = editMinuteBegin,
-                    .dayEnd = editDayEnd,
-                    .hourEnd = editHourEnd,
-                    .minuteEnd = editMinuteEnd
+                    .timeSlotStart = tpBegin,
+                    .timeSlotEnd = tpEnd
                 };
 
                 presetWindow->notify(UserEvent{EventType::TEXT_PRESET_EDIT, static_cast<int>(*atIndex), trailMaskData});

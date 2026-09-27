@@ -1,6 +1,7 @@
 #ifndef TRAIL_MAP_CONTROLLER_H
 #define TRAIL_MAP_CONTROLLER_H
 
+#include <chrono>
 #include <memory>
 #include <string>
 #include <vector>
@@ -22,8 +23,9 @@ struct TrailMask {
         bool isText{false};
         bool loadedToGPU{false};
         bool hasTimeSlot{false};
-        SDL_Time beginTimeSlot{};
-        SDL_Time endTimeSlot{};
+
+        std::chrono::system_clock::time_point timeSlotStart{};
+        std::chrono::system_clock::time_point timeSlotEnd{};
 };
 
 class TrailMapController : public Observer {
