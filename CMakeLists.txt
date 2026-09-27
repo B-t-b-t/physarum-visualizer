@@ -259,6 +259,7 @@ set(MY_HEADER_FILES
     source/ui/user_interface.h
     source/ui/widgets/color_indicator.h
     source/ui/widgets/link_widget.h
+    source/ui/widgets/time_picker.h
     source/ui/windows/audio_window.h
     source/ui/windows/base_window.h
     source/ui/windows/debug_window.h
@@ -306,6 +307,7 @@ set(MY_SOURCE_FILES
     source/ui/user_interface.cpp
     source/ui/widgets/color_indicator.cpp
     source/ui/widgets/link_widget.cpp
+    source/ui/widgets/time_picker.cpp
     source/ui/windows/audio_window.cpp
     source/ui/windows/debug_window.cpp
     source/ui/windows/new_canvas_modal.cpp
