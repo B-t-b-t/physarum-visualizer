@@ -179,6 +179,8 @@ namespace PresetWindowHelper {
                 ImGui::SameLine();
                 ImGui::timePicker("start_time", &timeSlotStart);
                 ImGui::SameLine();
+                ImGui::datePicker("start_date", &timeSlotStart);
+                ImGui::SameLine();
                 const std::string formattedStartTime = std::format("{:%a %H:%M:%OS, %Od.%Om.%y}", timeSlotStart);
                 ImGui::Text("   ( %s )", formattedStartTime.c_str());
 
@@ -186,6 +188,8 @@ namespace PresetWindowHelper {
                 ImGui::Text("End:  ");
                 ImGui::SameLine();
                 ImGui::timePicker("end_time", &timeSlotEnd);
+                ImGui::SameLine();
+                ImGui::datePicker("end_date", &timeSlotEnd);
                 ImGui::SameLine();
                 const std::string formattedEndTime = std::format("{:%a %H:%M:%OS, %Od.%Om.%y} ", timeSlotEnd);
                 ImGui::Text("   ( %s )", formattedEndTime.c_str());
