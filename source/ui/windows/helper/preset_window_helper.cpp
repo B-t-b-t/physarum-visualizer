@@ -32,7 +32,7 @@ namespace PresetWindowHelper {
                 }
 
                 if(!presetAlreadyExists) {
-                    presetWindow->notify(UserEvent{EventType::BEHAVIOR_PRESET_CREATE, newBehaviorName, 0});
+                    presetWindow->notify(UserEvent{EventType::BEHAVIOR_PRESET_CREATE, newBehaviorName});
                 }
 
                 newBehaviorName.clear();
@@ -65,7 +65,7 @@ namespace PresetWindowHelper {
 
             //Fontawesome: fa-solid fa-trash-can 
             if (ImGui::Button("\uf2ed Delete")) {
-                presetWindow->notify(UserEvent{EventType::BEHAVIOR_PRESET_DELETE, appState->usedBehaviorPresetName, 0});
+                presetWindow->notify(UserEvent{EventType::BEHAVIOR_PRESET_DELETE, appState->usedBehaviorPresetName});
                 ImGui::CloseCurrentPopup();
             }
             ImGui::SameLine();
@@ -97,7 +97,7 @@ namespace PresetWindowHelper {
                 }
 
                 if(!presetAlreadyExists) {
-                    presetWindow->notify(UserEvent{EventType::COLOR_PRESET_CREATE, newColorName, 0});
+                    presetWindow->notify(UserEvent{EventType::COLOR_PRESET_CREATE, newColorName});
                 }
 
                 newColorName.clear();
@@ -134,7 +134,7 @@ namespace PresetWindowHelper {
 
             //Fontawesome: fa-solid fa-trash-can 
             if (ImGui::Button("\uf2ed Delete")) {
-                presetWindow->notify(UserEvent{EventType::COLOR_PRESET_DELETE, appState->usedColorPresetName, 0});
+                presetWindow->notify(UserEvent{EventType::COLOR_PRESET_DELETE, appState->usedColorPresetName});
                 ImGui::CloseCurrentPopup();
             }
             ImGui::SameLine();
@@ -182,14 +182,16 @@ namespace PresetWindowHelper {
             if(ImGui::Button("Ok")) {
 
                 TrailMaskData trailMaskData{
-                    .newName = trailMask.imageName,
-                    .isText = false,
-                    .hasTimeSlot = editTimeSlot,
-                    .timeSlotStart = timeSlotStart,
-                    .timeSlotEnd = timeSlotEnd
+                    .name = trailMask.imageName,
+                    .type = TrailMaskType::IMAGE,
+                    .atIndex = atIndex
                 };
 
-                presetWindow->notify(UserEvent{ EventType::EDIT_TRAIL_MASK_TIME_SLOT, static_cast<int>(atIndex), trailMaskData});
+                if(editTimeSlot) {
+                    trailMaskData.timeSlot = TimeSlot{.start = timeSlotStart, .end = timeSlotEnd};
+                }
+
+                presetWindow->notify(UserEvent{ EventType::EDIT_TRAIL_MASK_TIME_SLOT, trailMaskData});
 
                 ImGui::CloseCurrentPopup();
             }
@@ -214,7 +216,7 @@ namespace PresetWindowHelper {
             ImGui::Separator();
 
             if(ImGui::Button("Ok") && !newTextBuffer.empty()) {
-                presetWindow->notify(UserEvent{EventType::TEXT_PRESET_CREATE, newTextBuffer, 0});
+                presetWindow->notify(UserEvent{EventType::TEXT_PRESET_CREATE, newTextBuffer});
                 newTextBuffer.clear();
                 ImGui::CloseCurrentPopup();
             }
@@ -268,14 +270,16 @@ namespace PresetWindowHelper {
             if(ImGui::Button("Ok") && !textToEdit.empty()) {
 
                 TrailMaskData trailMaskData{
-                    .newName = textToEdit,
-                    .isText = true,
-                    .hasTimeSlot = editTimeSlot,
-                    .timeSlotStart = timeSlotStart,
-                    .timeSlotEnd = timeSlotEnd
+                    .name = textToEdit,
+                    .type = TrailMaskType::TEXT,
+                    .atIndex = *atIndex
                 };
 
-                presetWindow->notify(UserEvent{EventType::TEXT_PRESET_EDIT, static_cast<int>(*atIndex), trailMaskData});
+                if(editTimeSlot) {
+                    trailMaskData.timeSlot = TimeSlot{.start = timeSlotStart, .end = timeSlotEnd};
+                }
+
+                presetWindow->notify(UserEvent{EventType::TEXT_PRESET_EDIT, trailMaskData});
 
                 textToEdit.clear();
                 ImGui::CloseCurrentPopup();
@@ -292,7 +296,7 @@ namespace PresetWindowHelper {
 
             //Fontawesome: fa-solid fa-trash-can 
             if(ImGui::Button("\uf2ed Delete")) {
-                presetWindow->notify(UserEvent{EventType::TEXT_PRESET_DELETE, static_cast<int>(*atIndex), 0});
+                presetWindow->notify(UserEvent{EventType::TEXT_PRESET_DELETE, static_cast<int>(*atIndex)});
 
                 textToEdit.clear();
                 *atIndex = 0; //prevent out of bounds index, if last item was deleted
@@ -312,7 +316,7 @@ namespace PresetWindowHelper {
 
             //Fontawesome: fa-solid fa-trash-can 
             if (ImGui::Button("\uf2ed Delete")) {
-                presetWindow->notify(UserEvent{EventType::TEXT_PRESET_DELETE, static_cast<int>(*atIndex), 0});
+                presetWindow->notify(UserEvent{EventType::TEXT_PRESET_DELETE, static_cast<int>(*atIndex)});
                 ImGui::CloseCurrentPopup();
             }
             ImGui::SameLine();

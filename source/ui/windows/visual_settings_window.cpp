@@ -61,7 +61,7 @@ void VisualSettingsWindow::render(ApplicationState* appState) {
 	}
 	ImGui::SeparatorText("Display");
 	if(ImGui::Checkbox("Fullscreen", &appState->fullscreen)) {
-		notify(UserEvent{EventType::FULLSCREEN_TOGGLE, 0, 0});
+		notify(UserEvent{EventType::FULLSCREEN_TOGGLE});
 	}
 
 	ImGui::PopItemWidth();

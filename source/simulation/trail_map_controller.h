@@ -46,9 +46,9 @@ public:
 
 	void autoSwitchPictures(Uint64 timeInSeconds);
     void loadRandomPicture();
-    void editTextTrailMask(int index, TrailMaskData newData);
+    void editTextTrailMask(size_t index, TrailMaskData newData);
     void deleteTrailMask(size_t index);
-    void editTrailMaskTimeSlot(int index, const TrailMaskData& newData);
+    void editTrailMaskTimeSlot(size_t index, const TrailMaskData& newData);
     void onNotify(const UserEvent event) override;
 
 private:

@@ -88,7 +88,7 @@ void PresetWindow::behaviourPresetGUI(ApplicationState* appState) {
 			const bool is_selected = (presetName == appState->usedBehaviorPresetName);
 			if (ImGui::Selectable(presetName.c_str(), is_selected, ImGuiSelectableFlags_SpanAllColumns)) {
 				appState->usedBehaviorPresetName = presetName;
-				notify(UserEvent{EventType::BEHAVIOR_PRESET_APPLY, presetName, 0});
+				notify(UserEvent{EventType::BEHAVIOR_PRESET_APPLY, presetName});
 				std::cout << "Selected Preset: " << presetName << std::endl;
 			}
 		}
@@ -150,7 +150,7 @@ void PresetWindow::colorPresetGUI(ApplicationState* appState) {
             if (ImGui::Selectable(presetName.c_str(), is_selected, ImGuiSelectableFlags_SpanAllColumns)) {
                 appState->usedColorPresetName = presetName;
                 //appState->loadFromColorPreset = true;
-                notify(UserEvent{EventType::COLOR_PRESET_APPLY, presetName, 0});
+                notify(UserEvent{EventType::COLOR_PRESET_APPLY, presetName});
                 std::cout << "Selected Color Preset: " << presetName << std::endl;
             }
 
@@ -229,7 +229,7 @@ void PresetWindow::imagePresetGUI(ApplicationState* appState) {
 
 				if(ImGui::Selectable(trailMask.imageName.c_str(), isSelected, ImGuiSelectableFlags_SpanAllColumns)) {
 					appState->usedTrailMaskIndex = i;
-					notify(UserEvent{EventType::IMAGE_PRESET_APPLY, 0, 0});
+					notify(UserEvent{EventType::IMAGE_PRESET_APPLY});
 					std::cout << "Selected Image: " << trailMask.imageName << std::endl;
 				}
 
@@ -261,7 +261,7 @@ void PresetWindow::imagePresetGUI(ApplicationState* appState) {
     ImGui::SeparatorText("Settings");
 
     if(ImGui::SliderFloat("Strength", &appState->universalShaderSettings.trailMaskInfluence, 0.0f, 5.0f)) {
-        notify(UserEvent{EventType::TRAIL_MASK_STRENGTH_CHANGED, 0, appState->universalShaderSettings.trailMaskInfluence});
+        notify(UserEvent{EventType::TRAIL_MASK_STRENGTH_CHANGED, appState->universalShaderSettings.trailMaskInfluence});
     }
 
     ImGui::LinkBegin("##Link Trail Mask Scales", &linkTrailMaskScales_, 2.0f);
@@ -337,7 +337,7 @@ void PresetWindow::textPresetGUI(ApplicationState* appState) {
 
 				if(ImGui::Selectable(trailMask.imageName.c_str(), isSelected, ImGuiSelectableFlags_SpanAllColumns)) {
 					appState->usedTrailMaskIndex = i;
-					notify(UserEvent{EventType::IMAGE_PRESET_APPLY, 0, 0});
+					notify(UserEvent{EventType::TEXT_PRESET_APPLY});
 					std::cout << "Selected Text: " << trailMask.imageName << std::endl;
 				}
 
@@ -369,7 +369,7 @@ void PresetWindow::textPresetGUI(ApplicationState* appState) {
     ImGui::SeparatorText("Settings");
 
     if(ImGui::SliderFloat("Strength", &appState->universalShaderSettings.trailMaskInfluence, 0.0f, 5.0f)) {
-        notify(UserEvent{EventType::TRAIL_MASK_STRENGTH_CHANGED, 0, appState->universalShaderSettings.trailMaskInfluence});
+        notify(UserEvent{EventType::TRAIL_MASK_STRENGTH_CHANGED, appState->universalShaderSettings.trailMaskInfluence});
     }
 
     ImGui::LinkBegin("##Link Trail Mask Scales", &linkTrailMaskScales_, 2.0f);

@@ -3,6 +3,7 @@
 
 #include <chrono>
 #include <iostream>
+#include <optional>
 #include <string>
 #include <variant>
 
@@ -25,6 +26,7 @@ enum class EventType {
     IMAGE_PRESET_CREATE,
     IMAGE_PRESET_DELETE,
     IMAGE_PRESET_EDIT,
+    TEXT_PRESET_APPLY,
     TEXT_PRESET_CREATE,
     TEXT_PRESET_DELETE,
     TEXT_PRESET_EDIT,
@@ -33,24 +35,41 @@ enum class EventType {
     TRAIL_MASK_STRENGTH_CHANGED
 };
 
-struct TrailMaskData {
-    std::string newName;
-    bool isText;
-    
-    bool hasTimeSlot;
-    std::chrono::system_clock::time_point timeSlotStart;
-    std::chrono::system_clock::time_point timeSlotEnd;
+struct TimeSlot {
+    std::chrono::system_clock::time_point start;
+    std::chrono::system_clock::time_point end;
 };
 
-std::ostream& operator<<(std::ostream& os, const EventType& c);
+enum class TrailMaskType {
+    IMAGE,
+    TEXT
+};
+
+struct TrailMaskData {
+    std::string name{};
+    TrailMaskType type{};
+    
+    std::optional<TimeSlot> timeSlot{std::nullopt};
+
+    std::optional<size_t> atIndex{std::nullopt};  //at which index the change applies
+};
+
+using EventPayload = std::variant<
+    std::monostate,
+    int,
+    float,
+    std::string,
+    TrailMaskData
+>; 
 
 struct UserEvent {
     EventType type;
 
     //two values, e.g. if an event requires an index (data) and what changes at this index (additionalData)
     //or resizing a texture (width and height)
-    std::variant<int, float, std::string, TrailMaskData> data_1;
-    std::variant<int, float, std::string, TrailMaskData> data_2;
+    EventPayload payload{std::monostate{}};
 };
+
+std::ostream& operator<<(std::ostream& os, const EventType& c);
 
 #endif // EVENT_H

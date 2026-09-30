@@ -114,16 +114,16 @@ void PresetSystem<T>::onNotify(const UserEvent event) {
     switch (event.type) {
         case EventType::BEHAVIOR_PRESET_CREATE:
         case EventType::COLOR_PRESET_CREATE:
-            createPreset(std::get<std::string>(event.data_1));
+            createPreset(std::get<std::string>(event.payload));
             break;
         case EventType::BEHAVIOR_PRESET_APPLY: 
         case EventType::COLOR_PRESET_APPLY: {
-            presets[std::get<std::string>(event.data_1)].toAppState(appState_);
+            presets[std::get<std::string>(event.payload)].toAppState(appState_);
             break;
         }
         case EventType::BEHAVIOR_PRESET_DELETE:
         case EventType::COLOR_PRESET_DELETE:
-            presets.erase(std::get<std::string>(event.data_1));
+            presets.erase(std::get<std::string>(event.payload));
             break;
         default:
             break;

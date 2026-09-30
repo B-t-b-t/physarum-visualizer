@@ -293,22 +293,22 @@ void TrailMapController::bindToTextureUnit(GLuint textureUnit) {
     glBindTexture(GL_TEXTURE_2D, trailMasks_[activeTrailMaskIndex_].texture->getID());
 }
 
-void TrailMapController::editTextTrailMask(int index, TrailMaskData newData) {
+void TrailMapController::editTextTrailMask(size_t index, TrailMaskData newData) {
     appState_ = appState_;
 
-    if(newData.hasTimeSlot) {
-        trailMasks_[(size_t)index].hasTimeSlot = true;
-        trailMasks_[(size_t)index].timeSlotStart = newData.timeSlotStart;
-        trailMasks_[(size_t)index].timeSlotEnd = newData.timeSlotEnd;
+    if(newData.timeSlot.has_value()) {
+        trailMasks_[index].hasTimeSlot = true;
+        trailMasks_[index].timeSlotStart = newData.timeSlot.value().start;
+        trailMasks_[index].timeSlotEnd = newData.timeSlot.value().end;
     } else {
-        trailMasks_[(size_t)index].hasTimeSlot = false;
-        trailMasks_[(size_t)index].timeSlotStart = {};
-        trailMasks_[(size_t)index].timeSlotEnd = {};
+        trailMasks_[index].hasTimeSlot = false;
+        trailMasks_[index].timeSlotStart = {};
+        trailMasks_[index].timeSlotEnd = {};
     }
 
-    if(index >= 0 && (size_t)index < trailMasks_.size()) {
-        ((TextTexture*)trailMasks_[(size_t)index].texture.get())->createTexture(newData.newName, fontAtlas_);
-        trailMasks_[(size_t)index].imageName = newData.newName;
+    if(index < trailMasks_.size()) {
+        ((TextTexture*)trailMasks_[index].texture.get())->createTexture(newData.name, fontAtlas_);
+        trailMasks_[index].imageName = newData.name;
     }
 }
 
@@ -335,17 +335,17 @@ void TrailMapController::deleteTrailMask(size_t index) {
     appState_->usedTrailMaskIndex = activeTrailMaskIndex_;
 }
 
-void TrailMapController::editTrailMaskTimeSlot(int index, const TrailMaskData& newData) {
-    if(index < 0 || static_cast<size_t>(index) >= trailMasks_.size()) {
+void TrailMapController::editTrailMaskTimeSlot(size_t index, const TrailMaskData& newData) {
+    if(index >= trailMasks_.size()) {
         return;
     }
 
     TrailMask& trailMask = trailMasks_[(size_t)index];
 
-    if(newData.hasTimeSlot) {
+    if(newData.timeSlot.has_value()) {
         trailMask.hasTimeSlot = true;
-        trailMask.timeSlotStart = newData.timeSlotStart;
-        trailMask.timeSlotEnd = newData.timeSlotEnd;
+        trailMask.timeSlotStart = newData.timeSlot.value().start;
+        trailMask.timeSlotEnd = newData.timeSlot.value().end;
     } else {
         trailMask.hasTimeSlot = false;
         trailMask.timeSlotStart = {};
@@ -359,6 +359,7 @@ void TrailMapController::onNotify(const UserEvent event) {
 
     switch (event.type) {
         case EventType::IMAGE_PRESET_APPLY:
+        case EventType::TEXT_PRESET_APPLY: 
         {
             activeTrailMaskIndex_ = appState_->usedTrailMaskIndex;
 
@@ -372,31 +373,33 @@ void TrailMapController::onNotify(const UserEvent event) {
         }
         case EventType::TEXT_PRESET_CREATE:
         {
-            loadTrailMaskFromText(std::get<std::string>(event.data_1));
+            loadTrailMaskFromText(std::get<std::string>(event.payload));
             break;
         }
         case EventType::TEXT_PRESET_EDIT:
         {
-            editTextTrailMask(std::get<int>(event.data_1), std::get<TrailMaskData>(event.data_2));
+            TrailMaskData newData = std::get<TrailMaskData>(event.payload);
+            if(newData.atIndex.has_value()) {
+                editTextTrailMask(newData.atIndex.value(), newData);
+            }
             break;
         }
         case EventType::TEXT_PRESET_DELETE:
         {
-            deleteTrailMask((size_t)std::get<int>(event.data_1));
+            deleteTrailMask((size_t)std::get<int>(event.payload));
             break;
         }
         case EventType::EDIT_TRAIL_MASK_TIME_SLOT:
         {
-            editTrailMaskTimeSlot(
-                std::get<int>(event.data_1),
-                std::get<TrailMaskData>(event.data_2)
-            );
+            TrailMaskData newData = std::get<TrailMaskData>(event.payload);
+            if(newData.atIndex.has_value())
+                editTrailMaskTimeSlot(newData.atIndex.value(), newData);
             break;
         }
         case EventType::TRAIL_MASK_STRENGTH_CHANGED:
         {
             if(appState_->universalShaderSettings.trailMaskInfluence > 0.0f) {
-                trailMaskStrengthTemp_ = std::get<float>(event.data_2);
+                trailMaskStrengthTemp_ = std::get<float>(event.payload);
             }
             break;
         }
