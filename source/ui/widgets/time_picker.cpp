@@ -46,9 +46,7 @@ namespace ImGui {
         //============ Buttons Hour, Minute, Second ============
 
         //save states between button and selection clicks
-        static bool hourClicked = false;
-        static bool minuteClicked = false;
-        static bool secondClicked = false;
+        static enum class Clicked { None, Hour, Minute, Second } buttonClicked = Clicked::None;
 
         ImGui::PushStyleColor(ImGuiCol_Button, ImGuiCol_WindowBg);
         //reduce space between buttons for a better look
@@ -60,7 +58,7 @@ namespace ImGui {
             selectedArrayIndex = selectedHour;
             selectedArrayLength = 24; //hours range from 0 to 23
             popupShift = ImVec2(0, 0); //reset popup shift when opening a new popup
-            hourClicked = true;
+            buttonClicked = Clicked::Hour;
             ImGui::OpenPopup("timeSelection"); 
         }
 
@@ -74,7 +72,7 @@ namespace ImGui {
             selectedArrayIndex = selectedMinute;
             selectedArrayLength = 60; //minutes range from 0 to 59
             popupShift = ImVec2(0, 0); //reset popup shift when opening a new popup
-            minuteClicked = true;
+            buttonClicked = Clicked::Minute;
             ImGui::OpenPopup("timeSelection");
         }
 
@@ -88,7 +86,7 @@ namespace ImGui {
             selectedArrayIndex = selectedSecond;
             selectedArrayLength = 60; //seconds range from 0 to 59
             popupShift = ImVec2(0, 0); //reset popup shift when opening a new popup
-            secondClicked = true;
+            buttonClicked = Clicked::Second;
             ImGui::OpenPopup("timeSelection");
         }
 
@@ -125,6 +123,7 @@ namespace ImGui {
         //shift popup
         ImGui::SetNextWindowPos(ImVec2(clickedButtonPos.x + popupShift.x, clickedButtonPos.y + popupShift.y), 0, ImVec2{0.5, 0.5});
         if (ImGui::BeginPopup("timeSelection")) {
+
             if (ImGui::BeginTable("selectionTable", 1, table_flags, tableHeight)) {
                 for (size_t i = 0; i < selectedArrayLength; ++i) {
                     ImGui::TableNextRow();
@@ -132,15 +131,11 @@ namespace ImGui {
                     bool isSelected = (selectedArrayIndex == i);
                     if(ImGui::Selectable(numArray[i], isSelected)) {
                         selectedArrayIndex = i;
-                        if(hourClicked) { 
-                            selectedHour = selectedArrayIndex;  
-                            hourClicked = false; 
-                        } else if(minuteClicked) {
-                            selectedMinute = selectedArrayIndex;
-                            minuteClicked = false;
-                        } else if(secondClicked) {
-                            selectedSecond = selectedArrayIndex;
-                            secondClicked = false;
+                        switch (buttonClicked) {
+                            case Clicked::Hour: selectedHour = selectedArrayIndex; break;
+                            case Clicked::Minute: selectedMinute = selectedArrayIndex; break;
+                            case Clicked::Second: selectedSecond = selectedArrayIndex; break;
+                            default: break;
                         }
 
                         const auto selectedDayTime = std::chrono::hh_mm_ss<std::chrono::seconds>{std::chrono::hours(selectedHour) + std::chrono::minutes(selectedMinute) + std::chrono::seconds(selectedSecond)};
@@ -225,9 +220,7 @@ namespace ImGui {
         //============ Buttons Day, Month, Year ============
 
         //save states between button and selection clicks
-        static bool dayClicked = false;
-        static bool monthClicked = false;
-        static bool yearClicked = false;
+        static enum class Clicked { None, Day, Month, Year } buttonClicked = Clicked::None;
 
         ImGui::PushStyleColor(ImGuiCol_Button, ImGuiCol_WindowBg);
         ImGui::PushStyleVarX(ImGuiStyleVar_ItemSpacing, (float)(int)(ImGui::GetStyle().ItemSpacing.x * 0.1));
@@ -244,7 +237,7 @@ namespace ImGui {
             }
             popupShift.x = 0;
             popupShift.y = 0;
-            dayClicked = true;
+            buttonClicked = Clicked::Day;
             selectedArray = dayArray.data();
             ImGui::OpenPopup("dateSelection");
         }
@@ -261,7 +254,7 @@ namespace ImGui {
             ImVec2 monthTextSize = ImGui::CalcTextSize(monthArray[selectedMonthIndex]);
             popupShift.x = (maxMonthTextWidth.x - monthTextSize.x) / 2.0f;
             popupShift.y = 0;
-            monthClicked = true;
+            buttonClicked = Clicked::Month;
             selectedArray = monthArray.data();
             ImGui::OpenPopup("dateSelection");
         }
@@ -277,7 +270,7 @@ namespace ImGui {
             selectedArrayLength = yearArray.size() - 1;
             popupShift.x = 0;
             popupShift.y = 0;
-            yearClicked = true;
+            buttonClicked = Clicked::Year;
             selectedArray = yearArray.data();
             ImGui::OpenPopup("dateSelection");
         }
@@ -324,15 +317,11 @@ namespace ImGui {
 
                     if(ImGui::Selectable(selectedArray[i], isSelected)) {
                         selectedArrayIndex = i;
-                        if(dayClicked) {    //assign 
-                            selectedDayIndex = selectedArrayIndex;
-                            dayClicked = false;
-                        } else if(monthClicked) {
-                            selectedMonthIndex = selectedArrayIndex;
-                            monthClicked = false;
-                        } else if(yearClicked) {
-                            selectedYearIndex = selectedArrayIndex;
-                            yearClicked = false;
+                        switch(buttonClicked) {
+                            case Clicked::Day: selectedDayIndex = selectedArrayIndex; break;
+                            case Clicked::Month: selectedMonthIndex = selectedArrayIndex; break;
+                            case Clicked::Year: selectedYearIndex = selectedArrayIndex; break;
+                            default: break;
                         }
 
                         const auto selectedDate = std::chrono::year{static_cast<int>(selectedYearIndex + 2026)} / std::chrono::month{static_cast<unsigned>(selectedMonthIndex + 1)} / std::chrono::day{static_cast<unsigned>(selectedDayIndex + 1)};
