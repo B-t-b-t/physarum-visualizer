@@ -84,7 +84,13 @@ namespace PresetWindowHelper {
 
             ImGui::Text(" Colors:");
             ImGui::SameLine();
-            ImGui::ColorIndicator({appState->slimeSettings.slimeColor0, appState->slimeSettings.slimeColor1, appState->slimeSettings.slimeColor2}, 0.5f);
+
+            //crude conversion between phys::Vec4 and ImVec4, sufficient for now...
+            ImVec4 color0 = ImVec4(appState->slimeSettings.slimeColor0.x, appState->slimeSettings.slimeColor0.y, appState->slimeSettings.slimeColor0.z, appState->slimeSettings.slimeColor0.w);
+            ImVec4 color1 = ImVec4(appState->slimeSettings.slimeColor1.x, appState->slimeSettings.slimeColor1.y, appState->slimeSettings.slimeColor1.z, appState->slimeSettings.slimeColor1.w);
+            ImVec4 color2 = ImVec4(appState->slimeSettings.slimeColor2.x, appState->slimeSettings.slimeColor2.y, appState->slimeSettings.slimeColor2.z, appState->slimeSettings.slimeColor2.w);
+
+            ImGui::ColorIndicator({color0, color1, color2}, 0.5f);
 
             static bool presetAlreadyExists = false;
 
@@ -128,7 +134,13 @@ namespace PresetWindowHelper {
             ImGui::Text("Colors:");
             ImGui::SameLine();
             const ColorPreset& preset = appState->colorPresets->at(appState->usedColorPresetName);
-            ImGui::ColorIndicator({preset.slimeColor0, preset.slimeColor1, preset.slimeColor2}, 0.5f);
+
+            //crude conversion between phys::Vec4 and ImVec4, sufficient for now...
+            ImVec4 color0 = ImVec4(preset.slimeColor0.x, preset.slimeColor0.y, preset.slimeColor0.z, preset.slimeColor0.w);
+            ImVec4 color1 = ImVec4(preset.slimeColor1.x, preset.slimeColor1.y, preset.slimeColor1.z, preset.slimeColor1.w);
+            ImVec4 color2 = ImVec4(preset.slimeColor2.x, preset.slimeColor2.y, preset.slimeColor2.z, preset.slimeColor2.w);
+
+            ImGui::ColorIndicator({color0, color1, color2}, 0.5f);
 
             ImGui::Separator();
 

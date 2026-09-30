@@ -2,7 +2,6 @@
 
 #include <iostream>             // for basic_ostream, char_traits, cout, endl
 
-#include "imgui.h"              // for ImVec4
 #include "SDL3/SDL_events.h"    // for SDL_Event, SDL_EventType
 #include "SDL3/SDL_keycode.h"   // for SDLK_ESCAPE, SDLK_F11
 #include "SDL3/SDL_mouse.h"     // for SDL_BUTTON_LMASK, SDL_BUTTON_RMASK

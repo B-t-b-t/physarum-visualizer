@@ -168,7 +168,7 @@ void ShaderProgram::setUniform2f(const std::string& name, float v0, float v1) {
 	glUniform2f(uniforms_[name].location, v0, v1);
 }
 
-void ShaderProgram::setUniform4f(const std::string& name, const ImVec4& value) {
+void ShaderProgram::setUniform4f(const std::string& name, const phys::Vec4<float>& value) {
     glUseProgram(programID_);
     glUniform4f(uniforms_[name].location, value.x, value.y, value.z, value.w);
 }

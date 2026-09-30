@@ -4,20 +4,19 @@
 #include <string>
 #include <vector>
 
-#include "imgui.h"
-
 #include "framebuffer.h"
 #include "shader_program.h"
 #include "texture.h"
 #include "../application_state.h"
 #include "../utility/fileHandling.h"
+#include "../utility/vector_math.h"  // for phys::Vec2, phys::Vec4
 #include "font_atlas.h"
 
 struct Vertex {
-    ImVec2 position;
+    phys::Vec2<float> position;
     float depth{0.0f};
-    ImVec4 color;
-    ImVec2 texCoord;
+    phys::Vec4<float> color;
+    phys::Vec2<float> texCoord;
 };
 
 // Represents text via a texture, which is created by it's own rendering pipeline.

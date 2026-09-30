@@ -1,7 +1,7 @@
 #ifndef UNIFORMS_H
 #define UNIFORMS_H
 
-#include "imgui.h"
+#include "utility/vector_math.h"  // for phys::Vec2, phys::Vec4
 
 struct alignas(16) UniversalShaderSettings {
     int textureWidth = 1600;
@@ -19,10 +19,10 @@ struct alignas(16) UniversalShaderSettings {
     float trailMaskScaleY = 1.0f;
     float _padding0 = 0.0f;
 
-    ImVec2 trailMaskPosition = ImVec2(0.0f, 0.0f);
-    ImVec2 _padding1 = ImVec2(0.0f, 0.0f);
+    phys::Vec2<float> trailMaskPosition = phys::Vec2<float>{0.0f, 0.0f};
+    phys::Vec2<float> _padding1 = phys::Vec2<float>{0.0f, 0.0f};
 
-    ImVec4 mouseInputs = ImVec4(0.0f, 0.0f, 0.0f, 0.0f); // x, y, leftClick, rightClick
+    phys::Vec4<float> mouseInputs = phys::Vec4<float>{0.0f, 0.0f, 0.0f, 0.0f}; // x, y, leftClick, rightClick
 };
 static_assert(sizeof(UniversalShaderSettings) % 16 == 0, "UniversalShaderSettings size must be multiple of 16 for std140");
     
@@ -44,13 +44,13 @@ struct alignas(16) SlimeSettings {
     int reactToAudio = false;
     int angleBassReaction = 0;
 
-    ImVec4 slimeColor0 = ImVec4(0.0f, 1.0f, 1.0f, 1.0f);
-    ImVec4 slimeColor1 = ImVec4(0.0f, 1.0f, 1.0f, 1.0f);
-    ImVec4 slimeColor2 = ImVec4(0.0f, 1.0f, 1.0f, 1.0f);
-    ImVec4 particleColor0 = ImVec4(1.0f, 0.0f, 0.0f, 1.0f);
-    ImVec4 particleColor1 = ImVec4(0.0f, 1.0f, 0.0f, 1.0f);
-    ImVec4 particleColor2 = ImVec4(0.0f, 0.0f, 1.0f, 1.0f);
-    ImVec4 collisionColor = ImVec4(1.0f, 1.0f, 1.0f, 1.0f);
+    phys::Vec4<float> slimeColor0 = phys::Vec4<float>{0.0f, 1.0f, 1.0f, 1.0f};
+    phys::Vec4<float> slimeColor1 = phys::Vec4<float>{0.0f, 1.0f, 1.0f, 1.0f};
+    phys::Vec4<float> slimeColor2 = phys::Vec4<float>{0.0f, 1.0f, 1.0f, 1.0f};
+    phys::Vec4<float> particleColor0 = phys::Vec4<float>{1.0f, 0.0f, 0.0f, 1.0f};
+    phys::Vec4<float> particleColor1 = phys::Vec4<float>{0.0f, 1.0f, 0.0f, 1.0f};
+    phys::Vec4<float> particleColor2 = phys::Vec4<float>{0.0f, 0.0f, 1.0f, 1.0f};
+    phys::Vec4<float> collisionColor = phys::Vec4<float>{1.0f, 1.0f, 1.0f, 1.0f};
 };
 static_assert(sizeof(SlimeSettings) % 16 == 0, "SlimeSettings size must be multiple of 16 for std140");
 

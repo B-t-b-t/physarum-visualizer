@@ -1,9 +1,9 @@
 #include "text_texture.h"
 
 #include "SDL3/SDL.h"
-#include "imgui.h"
 
 #include "../utility/fileHandling.h"
+#include "../utility/vector_math.h"  // for phys::Vec2, phys::Vec4
 
 ShaderProgram TextTexture::textRenderProgram_{};
 bool TextTexture::isShaderProgramInitialized_ = false;
@@ -88,17 +88,17 @@ void TextTexture::createTexture(std::string& text, FontAtlas& fontAtlas) {
     //scale to render the text in
     float textScale = 5.0f;
     //position of the text in normalized coordinates (x = [-1, 1] y = [-1, 1])
-    ImVec2 position = ImVec2(0.0f, 0.0f);    //center
+    phys::Vec2<float> position = phys::Vec2<float>(0.0f, 0.0f);    //center
     //size of a pixel in normalized coordinates (x = [-1, 1] y = [-1, 1])
-    ImVec2 pixelSize = ImVec2(2.0f / appState_->universalShaderSettings.windowWidth, 
+    phys::Vec2<float> pixelSize = phys::Vec2<float>(2.0f / appState_->universalShaderSettings.windowWidth, 
                               2.0f / appState_->universalShaderSettings.windowHeight);
     //order of vertices to render a quad as two triangles
     int order[6] = {0, 1, 2, 0, 2, 3};
     //white text color
-    ImVec4 color = ImVec4(1.0f, 1.0f, 1.0f, 1.0f);
+    phys::Vec4<float> color = phys::Vec4<float>(1.0f, 1.0f, 1.0f, 1.0f);
 
     //shift text position origin so that text is in the middle of the texture
-    ImVec2 textDimensions = ImVec2(0.0f, 0.0f);
+    phys::Vec2<float> textDimensions = phys::Vec2<float>(0.0f, 0.0f);
 
     std::vector<FontCharInfo>& fontCharInfos = fontAtlas.getFontCharInfos();
     int firstChar = fontAtlas.getFirstChar();
@@ -125,7 +125,7 @@ void TextTexture::createTexture(std::string& text, FontAtlas& fontAtlas) {
     position.x -= maxDimension_X / 2.0f;
     position.y -= textDimensions.y / 2.0f;
 
-    ImVec2 localPosition = position;
+    phys::Vec2<float> localPosition = position;
 
     //create quad vertices and texture coordinates for each character in the text
     for(const char c : text) {
@@ -133,15 +133,15 @@ void TextTexture::createTexture(std::string& text, FontAtlas& fontAtlas) {
             FontCharInfo charInfo = fontCharInfos[(size_t)(c - firstChar)];
 
             //width and height of the glyph bounding box in normalized coordinates (x = [-1, 1] y = [-1, 1])
-            ImVec2 glyphSize = ImVec2(charInfo.sizeX * pixelSize.x * textScale, 
+            phys::Vec2<float> glyphSize = phys::Vec2<float>(charInfo.sizeX * pixelSize.x * textScale, 
                                     charInfo.sizeY * pixelSize.y * textScale);
             //position of the bottom left corner of the glyph bounding box in normalized coordinates (x = [-1, 1] y = [-1, 1])
-            ImVec2 glyphBoundingBoxBottomLeft = ImVec2(localPosition.x + (charInfo.xoff * pixelSize.x * textScale), 
+            phys::Vec2<float> glyphBoundingBoxBottomLeft = phys::Vec2<float>(localPosition.x + (charInfo.xoff * pixelSize.x * textScale), 
                                                     localPosition.y - (charInfo.yoff + charInfo.y1 - charInfo.y0) * pixelSize.y * textScale);
 
 
             //the order of vertices of a quad goes top-right, top-left, bottom-left, bottom-right
-            ImVec2 glyphVertices[4] = 
+            phys::Vec2<float> glyphVertices[4] = 
             {
                 { glyphBoundingBoxBottomLeft.x + glyphSize.x, glyphBoundingBoxBottomLeft.y + glyphSize.y },
                 { glyphBoundingBoxBottomLeft.x, glyphBoundingBoxBottomLeft.y + glyphSize.y },
@@ -149,7 +149,7 @@ void TextTexture::createTexture(std::string& text, FontAtlas& fontAtlas) {
                 { glyphBoundingBoxBottomLeft.x + glyphSize.x, glyphBoundingBoxBottomLeft.y }
             };
 
-            ImVec2 glyphTextureCoords[4] = 
+            phys::Vec2<float> glyphTextureCoords[4] = 
             {
                 { charInfo.s1, charInfo.t0 },
                 { charInfo.s0, charInfo.t0 },

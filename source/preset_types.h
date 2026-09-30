@@ -7,6 +7,7 @@
 #include "toml.hpp"
 
 #include "application_state.h"
+#include "utility/vector_math.h"  // for phys::Vec4
 
 struct BehaviorPreset {
     std::string name;
@@ -101,9 +102,9 @@ struct ColorPreset {
     std::string name;
     
 	bool lockSlimeColor;
-	ImVec4 slimeColor0;
-	ImVec4 slimeColor1;
-	ImVec4 slimeColor2;
+	phys::Vec4<float> slimeColor0;
+	phys::Vec4<float> slimeColor1;
+	phys::Vec4<float> slimeColor2;
 
     ColorPreset() = default;
 
@@ -123,9 +124,9 @@ struct ColorPreset {
         std::vector<float> tempColor1 = toml::find<std::vector<float>>(presetEntry, "SlimeColor2");
         std::vector<float> tempColor2 = toml::find<std::vector<float>>(presetEntry, "SlimeColor3");
 
-        slimeColor0 = ImVec4{tempColor0[0], tempColor0[1], tempColor0[2], tempColor0[3]};
-        slimeColor1 = ImVec4{tempColor1[0], tempColor1[1], tempColor1[2], tempColor1[3]};
-        slimeColor2 = ImVec4{tempColor2[0], tempColor2[1], tempColor2[2], tempColor2[3]};
+        slimeColor0 = phys::Vec4<float>{tempColor0[0], tempColor0[1], tempColor0[2], tempColor0[3]};
+        slimeColor1 = phys::Vec4<float>{tempColor1[0], tempColor1[1], tempColor1[2], tempColor1[3]};
+        slimeColor2 = phys::Vec4<float>{tempColor2[0], tempColor2[1], tempColor2[2], tempColor2[3]};
     }
 
     void toAppState(ApplicationState* appState) {

@@ -10,8 +10,9 @@
 
 #include "shader.h"
 #include "uniform_buffer_object.h"
-#include "../uniforms.h"
 #include "../ui/user_interface.h"
+#include "../uniforms.h"
+#include "../utility/vector_math.h"  // for phys::Vec4
 
 struct UniformMapping {
     std::string uniformName;
@@ -44,7 +45,7 @@ public:
     void setUniform1i(const std::string& name, int value);
     void setUniform1f(const std::string& name, float value);
     void setUniform2f(const std::string& name, float v0, float v1);
-    void setUniform4f(const std::string& name, const ImVec4& value);
+    void setUniform4f(const std::string& name, const phys::Vec4<float>& value);
 	void setUniformTexture(const std::string& name, GLuint textureUnit, GLuint textureID);
     
     private:

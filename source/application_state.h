@@ -1,7 +1,6 @@
 #ifndef APPLICATION_STATE_H
 #define APPLICATION_STATE_H
 
-#include "imgui.h"           // for ImVec4
 #include <map>               // for map
 #include <stddef.h>          // for size_t
 #include <string>            // for basic_string, string
@@ -10,6 +9,7 @@
 #include "SDL3/SDL_audio.h"  // for SDL_AudioDeviceID
 //#include "preset_system.h"
 #include "uniforms.h"        // for FragmentShaderSettings, ParameterSettings
+#include "utility/vector_math.h"  // for Vec2, Vec3, Vec4
 
 struct AudioDeviceInfo;	//forward declaration of AudioDeviceInfo struct
 struct Parameters;	//forward declaration of Parameters struct
@@ -95,7 +95,7 @@ public:
 
 	std::string textPreset = "default";
 
-	ImVec4 clearColor = ImVec4(0.0f, 0.0f, 0.0f, 0.0f);
+	phys::Vec4<float> clearColor = phys::Vec4<float>{0.0f, 0.0f, 0.0f, 0.0f};
 
 	std::vector<double>* audioBuffer = nullptr;
     std::vector<double>* spectrum = nullptr;

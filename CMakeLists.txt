@@ -226,8 +226,6 @@ target_compile_options("ImGui" PRIVATE
 # compiler flags for strict warnings
 add_compile_options(-Werror -Wall -Wextra -Wpedantic -Wfloat-equal -Wsign-conversion -Wshadow)
 
-set(GLM_INCLUDE_PATH PATH ${CMAKE_CURRENT_SOURCE_DIR}/glm)
-
 set(MY_HEADER_FILES
     source/application.h
     source/application_state.h
@@ -274,6 +272,7 @@ set(MY_HEADER_FILES
     source/utility/parameter_parser.h
     source/utility/observable.h
     source/utility/observer.h
+    source/utility/vector_math.h
     external/imgui_stdlib.h
 )
 
@@ -321,13 +320,13 @@ set(MY_SOURCE_FILES
     source/utility/parameter_parser.cpp
     source/utility/observable.cpp
     source/utility/observer.cpp
+    source/utility/vector_math.cpp
     external/imgui_stdlib.cpp
 )
 
 include_directories(
     ${SDL3_INCLUDE_DIRS}
     ${GLEW_INCLUDE_DIR}
-    ${GLM_INCLUDE_PATH}
     ${FFTW3_INCLUDE_DIR}
     ${toml11_SOURCE_DIR}/include
     ${fftw3_SOURCE_DIR}/api
