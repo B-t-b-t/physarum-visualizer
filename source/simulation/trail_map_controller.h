@@ -3,6 +3,7 @@
 
 #include <chrono>
 #include <memory>
+#include <optional>
 #include <string>
 #include <vector>
 
@@ -18,14 +19,12 @@
 #include "../utility/observer.h"
 
 struct TrailMask {
-        std::string imageName;
+        std::string name;
         std::unique_ptr<Texture> texture;
-        bool isText{false};
         bool loadedToGPU{false};
-        bool hasTimeSlot{false};
 
-        std::chrono::system_clock::time_point timeSlotStart{};
-        std::chrono::system_clock::time_point timeSlotEnd{};
+        TrailMaskType type;
+        std::optional<TimeSlot> timeSlot = std::nullopt;
 };
 
 class TrailMapController : public Observer {
@@ -46,14 +45,13 @@ public:
 
 	void autoSwitchPictures(Uint64 timeInSeconds);
     void loadRandomPicture();
-    void editTextTrailMask(size_t index, TrailMaskData newData);
+    void editTrailMask(size_t index, TrailMaskData newData);
     void deleteTrailMask(size_t index);
-    void editTrailMaskTimeSlot(size_t index, const TrailMaskData& newData);
     void onNotify(const UserEvent event) override;
 
 private:
 
-    bool checkTimeTable(std::string imageName);
+    bool checkTimeTable(std::string name);
     bool loadFromToml();
     bool saveToToml();
     void loadImageFromSurface(SDL_Surface* surface);

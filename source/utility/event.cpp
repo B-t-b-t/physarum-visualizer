@@ -15,7 +15,7 @@ std::ostream& operator<<(std::ostream& os, const EventType& c) {
         case EventType::COLOR_PRESET_DELETE: return os << "COLOR_PRESET_DELETE";
         
         case EventType::IMAGE_PRESET_APPLY: return os << "IMAGE_PRESET_APPLY";
-        case EventType::EDIT_TRAIL_MASK_TIME_SLOT: return os << "EDIT_TRAIL_MASK_TIME_SLOT";
+        case EventType::IMAGE_PRESET_EDIT: return os << "IMAGE_PRESET_EDIT";
 
         case EventType::TEXT_PRESET_APPLY: return os << "TEXT_PRESET_APPLY";
         case EventType::TEXT_PRESET_CREATE: return os << "TEXT_PRESET_CREATE";

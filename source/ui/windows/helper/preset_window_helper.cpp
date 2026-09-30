@@ -157,18 +157,18 @@ namespace PresetWindowHelper {
             static system_clock::time_point timeSlotEnd = floor<minutes>(system_clock::now());
 
             if(ImGui::IsWindowAppearing()) {
-                editTimeSlot = trailMask.hasTimeSlot;
+                editTimeSlot = trailMask.timeSlot.has_value();
         
                 //if no time slot exists, the start and end time shows the times of the last edited item by design
                 //so that editing is more convenient for the user
-                if(trailMask.hasTimeSlot) {
-                    timeSlotStart = trailMask.timeSlotStart;
-                    timeSlotEnd = trailMask.timeSlotEnd;
+                if(trailMask.timeSlot) {
+                    timeSlotStart = trailMask.timeSlot.value().start;
+                    timeSlotEnd = trailMask.timeSlot.value().end;
                 }
             }
 
 
-            ImGui::Text("Edit Image: %s", trailMask.imageName.c_str());
+            ImGui::Text("Edit Image: %s", trailMask.name.c_str());
             ImGui::Separator();
 
             ImGui::Checkbox("Time Slot", &editTimeSlot);
@@ -182,7 +182,7 @@ namespace PresetWindowHelper {
             if(ImGui::Button("Ok")) {
 
                 TrailMaskData trailMaskData{
-                    .name = trailMask.imageName,
+                    .name = trailMask.name,
                     .type = TrailMaskType::IMAGE,
                     .atIndex = atIndex
                 };
@@ -191,7 +191,7 @@ namespace PresetWindowHelper {
                     trailMaskData.timeSlot = TimeSlot{.start = timeSlotStart, .end = timeSlotEnd};
                 }
 
-                presetWindow->notify(UserEvent{ EventType::EDIT_TRAIL_MASK_TIME_SLOT, trailMaskData});
+                presetWindow->notify(UserEvent{ EventType::IMAGE_PRESET_EDIT, trailMaskData});
 
                 ImGui::CloseCurrentPopup();
             }
@@ -244,14 +244,14 @@ namespace PresetWindowHelper {
             static system_clock::time_point timeSlotEnd = floor<minutes>(system_clock::now());
 
             if(ImGui::IsWindowAppearing()) {
-                textToEdit = trailMask.imageName;
-                editTimeSlot = trailMask.hasTimeSlot;
+                textToEdit = trailMask.name;
+                editTimeSlot = trailMask.timeSlot.has_value();
 
                 //if no time slot exists, the start and end time shows the times of the last edited item by design
                 //so that editing is more convenient for the user
-                if(trailMask.hasTimeSlot) {
-                    timeSlotStart = trailMask.timeSlotStart;
-                    timeSlotEnd = trailMask.timeSlotEnd;
+                if(trailMask.timeSlot) {
+                    timeSlotStart = trailMask.timeSlot.value().start;
+                    timeSlotEnd = trailMask.timeSlot.value().end;
                 }
             }
 
@@ -310,7 +310,7 @@ namespace PresetWindowHelper {
     void textPresetDeleteModal(const char* stringID, TrailMask& trailMask, PresetWindow* presetWindow, size_t* atIndex) {
         if(ImGui::BeginPopupModal(stringID, NULL, ImGuiWindowFlags_AlwaysAutoResize)) {
             
-            ImGui::Text("Name:   %s", trailMask.imageName.c_str());
+            ImGui::Text("Name:   %s", trailMask.name.c_str());
 
             ImGui::Separator();
 

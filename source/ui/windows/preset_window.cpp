@@ -218,7 +218,7 @@ void PresetWindow::imagePresetGUI(ApplicationState* appState) {
 
                 TrailMask& trailMask = (*trailMasks)[i];
 
-                if(!trailMask.isText) {
+                if(trailMask.type != TrailMaskType::TEXT) {
                     ImGui::TableNextRow();
                     ImGui::TableNextColumn();
                 } else {
@@ -227,10 +227,10 @@ void PresetWindow::imagePresetGUI(ApplicationState* appState) {
 
 				const bool isSelected = (usedTrailMaskIndex == i);
 
-				if(ImGui::Selectable(trailMask.imageName.c_str(), isSelected, ImGuiSelectableFlags_SpanAllColumns)) {
+				if(ImGui::Selectable(trailMask.name.c_str(), isSelected, ImGuiSelectableFlags_SpanAllColumns)) {
 					appState->usedTrailMaskIndex = i;
 					notify(UserEvent{EventType::IMAGE_PRESET_APPLY});
-					std::cout << "Selected Image: " << trailMask.imageName << std::endl;
+					std::cout << "Selected Image: " << trailMask.name << std::endl;
 				}
 
                 ImGui::SetItemTooltip("Right-click to edit");
@@ -242,7 +242,7 @@ void PresetWindow::imagePresetGUI(ApplicationState* appState) {
 
                 ImGui::TableNextColumn();
                 //Fontawesome: fa-solid fa-clock 
-                const std::string infoString = trailMask.hasTimeSlot ? "\uf017" : "";
+                const std::string infoString = trailMask.timeSlot ? "\uf017" : "";
                 ImGui::Text("%s", infoString.c_str());
             }
 
@@ -326,7 +326,7 @@ void PresetWindow::textPresetGUI(ApplicationState* appState) {
                 
                 TrailMask& trailMask = (*trailMasks)[i];
                 
-                if(trailMask.isText) {
+                if(trailMask.type == TrailMaskType::TEXT) {
                     ImGui::TableNextRow();
                     ImGui::TableNextColumn();
                 } else {
@@ -335,10 +335,10 @@ void PresetWindow::textPresetGUI(ApplicationState* appState) {
 
 				const bool isSelected = (usedTrailMaskIndex == i);
 
-				if(ImGui::Selectable(trailMask.imageName.c_str(), isSelected, ImGuiSelectableFlags_SpanAllColumns)) {
+				if(ImGui::Selectable(trailMask.name.c_str(), isSelected, ImGuiSelectableFlags_SpanAllColumns)) {
 					appState->usedTrailMaskIndex = i;
 					notify(UserEvent{EventType::TEXT_PRESET_APPLY});
-					std::cout << "Selected Text: " << trailMask.imageName << std::endl;
+					std::cout << "Selected Text: " << trailMask.name << std::endl;
 				}
 
                 if(ImGui::OpenPopupOnItemClick(nullptr, ImGuiPopupFlags_MouseButtonRight)) {
@@ -350,7 +350,7 @@ void PresetWindow::textPresetGUI(ApplicationState* appState) {
 
                 ImGui::TableNextColumn();
                 //Fontawesome: fa-solid fa-clock 
-                const std::string infoString = trailMask.hasTimeSlot ? "\uf017" : "";
+                const std::string infoString = trailMask.timeSlot ? "\uf017" : "";
                 ImGui::Text("%s", infoString.c_str());
             }
 

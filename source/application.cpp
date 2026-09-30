@@ -27,10 +27,10 @@ Application::Application(Parameters params)
 	ui_.getWindow("PresetWindow")->addObserver(EventType::COLOR_PRESET_APPLY, &colorPresetSystem_);
 	ui_.getWindow("PresetWindow")->addObserver(EventType::COLOR_PRESET_DELETE, &colorPresetSystem_);
 	ui_.getWindow("PresetWindow")->addObserver(EventType::IMAGE_PRESET_APPLY, simulation_.getTrailMapController());
+	ui_.getWindow("PresetWindow")->addObserver(EventType::IMAGE_PRESET_EDIT, simulation_.getTrailMapController());
 	ui_.getWindow("PresetWindow")->addObserver(EventType::TEXT_PRESET_CREATE, simulation_.getTrailMapController());
 	ui_.getWindow("PresetWindow")->addObserver(EventType::TEXT_PRESET_EDIT, simulation_.getTrailMapController());
 	ui_.getWindow("PresetWindow")->addObserver(EventType::TEXT_PRESET_DELETE, simulation_.getTrailMapController());
-	ui_.getWindow("PresetWindow")->addObserver(EventType::EDIT_TRAIL_MASK_TIME_SLOT, simulation_.getTrailMapController());
 	ui_.getWindow("PresetWindow")->addObserver(EventType::TRAIL_MASK_STRENGTH_CHANGED, simulation_.getTrailMapController());
 	ui_.getWindow("NewCanvasModal")->addObserver(EventType::NEW_CANVAS, renderer_.get());
 	ui_.getWindow("NewCanvasModal")->addObserver(EventType::NEW_CANVAS, &simulation_);
