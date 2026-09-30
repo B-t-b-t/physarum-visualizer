@@ -68,15 +68,18 @@ void Simulation::simulateStep() {
 	trailMapController_.bindToTextureUnit(16);	//move back to texture unit 16 for use in fragment shader 
 }
 
-void Simulation::updateParticleParameters() {
-	particleData_.createAndSend(appState_->numParticles, appState_->universalShaderSettings.textureWidth, appState_->universalShaderSettings.textureHeight);
+void Simulation::updateParticleParameters(int newNumParticles, int newTextureWidth, int newTextureHeight) {
+	particleData_.createAndSend(newNumParticles, newTextureWidth, newTextureHeight);
 }
 
 void Simulation::onNotify(const UserEvent event) {
 	switch(event.type) {
 		case EventType::NEW_CANVAS:
-			updateParticleParameters();
+		{
+			NewCanvasData newCanvasData = std::get<NewCanvasData>(event.payload);
+			updateParticleParameters(newCanvasData.newNumParticles, newCanvasData.newTextureWidth, newCanvasData.newTextureHeight);
 			break;
+		}
 		default:
 			break;
 	}

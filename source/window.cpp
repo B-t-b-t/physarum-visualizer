@@ -157,8 +157,6 @@ Window::Window(const std::string& title, ApplicationState* appState, bool custom
 	//write back to program state
 	appState_->universalShaderSettings.textureWidth = textureWidth;
 	appState_->universalShaderSettings.textureHeight = textureHeight;
-	appState_->newTextureWidth = textureWidth;
-	appState_->newTextureHeight = textureHeight;
 }
 
 

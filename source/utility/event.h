@@ -8,8 +8,6 @@
 #include <variant>
 
 enum class EventType {
-    WINDOW_RESIZE,
-    TEXTURE_RESIZE,
     FULLSCREEN_TOGGLE,
     NEW_CANVAS,
     AUDIO_HARDWARE_CHANGE,
@@ -33,6 +31,12 @@ enum class EventType {
 
     EDIT_TRAIL_MASK_TIME_SLOT,
     TRAIL_MASK_STRENGTH_CHANGED
+};
+
+struct NewCanvasData {
+    int newTextureWidth{};
+    int newTextureHeight{};
+    int newNumParticles{};
 };
 
 struct TimeSlot {
@@ -59,7 +63,8 @@ using EventPayload = std::variant<
     int,
     float,
     std::string,
-    TrailMaskData
+    TrailMaskData,
+    NewCanvasData
 >; 
 
 struct UserEvent {

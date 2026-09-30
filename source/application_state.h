@@ -80,10 +80,7 @@ public:
 	std::vector<TrailMask>* trailMasks = nullptr;
 	size_t usedTrailMaskIndex = 0;
 
-	int newTextureWidth = 1600;
-	int newTextureHeight = 896;
 	int numParticles = 300000;
-	int newNumParticles = 300000;
 	float slimeRatio = 0.15f;
 	float fractionalScalingFactor = 1.0f;
 	int workGroupDivider = 8;

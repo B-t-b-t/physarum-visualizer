@@ -77,7 +77,6 @@ void DebugWindow::render(ApplicationState* appState) {
 	ImGui::Text("Number of Particles: %d", appState->numParticles);
 	ImGui::Text("Window:		 %dx%d", appState->universalShaderSettings.windowWidth, appState->universalShaderSettings.windowHeight);
 	ImGui::Text("Texture:		  %dx%d", appState->universalShaderSettings.textureWidth, appState->universalShaderSettings.textureHeight);
-	ImGui::Text("New Texture: %dx%d", appState->newTextureWidth, appState->newTextureHeight);
 	ImGui::Text("Fullscreen: %d", appState->fullscreen);
 
 	if(ImGui::CollapsingHeader("Display Infos")) {

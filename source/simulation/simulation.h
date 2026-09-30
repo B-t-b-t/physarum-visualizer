@@ -21,7 +21,7 @@ public:
     ~Simulation() = default;
 
     void simulateStep();
-    void updateParticleParameters();
+    void updateParticleParameters(int newNumParticles, int newTextureWidth, int newTextureHeight);
     TrailMapController* getTrailMapController() { return &trailMapController_; }
 
     void onNotify(const UserEvent event) override;

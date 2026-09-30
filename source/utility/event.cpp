@@ -2,8 +2,6 @@
 
 std::ostream& operator<<(std::ostream& os, const EventType& c) {
     switch (c) {
-        case EventType::WINDOW_RESIZE:    return os << "WINDOW_RESIZE";
-        case EventType::TEXTURE_RESIZE:   return os << "TEXTURE_RESIZE";
         case EventType::FULLSCREEN_TOGGLE: return os << "FULLSCREEN_TOGGLE";
         case EventType::NEW_CANVAS:       return os << "NEW_CANVAS";
         case EventType::AUDIO_HARDWARE_CHANGE: return os << "AUDIO_HARDWARE_CHANGE";

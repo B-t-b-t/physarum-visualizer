@@ -137,10 +137,12 @@ void Renderer::resizeTextures(const int newWidth, const int newHeight) {
 void Renderer::onNotify(const UserEvent event) {
     switch(event.type) {
         case EventType::NEW_CANVAS:
-            if(appState_->newTextureWidth != app_uss_.textureWidth || appState_->newTextureHeight != app_uss_.textureHeight) {
-                resizeTextures(appState_->newTextureWidth, appState_->newTextureHeight);
-            }
+        {
+            NewCanvasData newCanvasData = std::get<NewCanvasData>(event.payload);
+            resizeTextures(newCanvasData.newTextureWidth, newCanvasData.newTextureHeight);
+
             break;
+        }
         default:
             break;
     }

@@ -14,7 +14,6 @@ ApplicationState* ApplicationState::getInstance(Parameters& params) {
 
 ApplicationState::ApplicationState(Parameters& params) 
  : numParticles{params.numParticles},
-   newNumParticles{params.numParticles},
    slimeRatio{params.slimeRatio},
    workGroupDivider{params.workGroupDivider}
 {  

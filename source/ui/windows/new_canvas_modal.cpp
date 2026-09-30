@@ -29,51 +29,60 @@ void NewCanvasModal::render(ApplicationState* appState) {
 		ImGui::Text("Create a new Canvas?\nThis operation cannot be undone!");
 		ImGui::Separator();
 
+		static int newTextureWidth{};
+		static int newTextureHeight{};
+		static int newNumParticles{};
+
+		if(ImGui::IsWindowAppearing()) {
+			newTextureWidth = appState->universalShaderSettings.textureWidth;
+			newTextureHeight = appState->universalShaderSettings.textureHeight;
+			newNumParticles = appState->numParticles;
+		}
 
 		ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0, 0));
-		ImGui::InputInt("New Texture Width", &(appState->newTextureWidth), 8, 8, ImGuiInputTextFlags_CharsNoBlank);
+		ImGui::InputInt("New Texture Width", &newTextureWidth, 8, 8, ImGuiInputTextFlags_CharsNoBlank);
 		ImGui::SameLine();
 		if (ImGui::SmallButton("/2##newWidth")) {
-			appState->newTextureWidth = static_cast<int>(appState->newTextureWidth / 2.0f);
+			newTextureWidth = static_cast<int>(newTextureWidth / 2.0f);
 		}
 		ImGui::SameLine();
 		if (ImGui::SmallButton("/1.5##newWidth")) {
-			appState->newTextureWidth = static_cast<int>(appState->newTextureWidth / 1.5f);
+			newTextureWidth = static_cast<int>(newTextureWidth / 1.5f);
 		}
 		ImGui::SameLine();
 		if (ImGui::SmallButton("x1.5##newWidth")) {
-			appState->newTextureWidth = static_cast<int>(appState->newTextureWidth * 1.5f);
+			newTextureWidth = static_cast<int>(newTextureWidth * 1.5f);
 		}
 		ImGui::SameLine();
 		if (ImGui::SmallButton("x2##newWidth")) {
-			appState->newTextureWidth *= 2;
+			newTextureWidth *= 2;
 		}
 
-		appState->newTextureWidth = appState->newTextureWidth - (appState->newTextureWidth % 8);
+		newTextureWidth = newTextureWidth - (newTextureWidth % 8);
 
-		ImGui::InputInt("New Texture Height", &(appState->newTextureHeight), 8, 8, ImGuiInputTextFlags_CharsNoBlank);
+		ImGui::InputInt("New Texture Height", &newTextureHeight, 8, 8, ImGuiInputTextFlags_CharsNoBlank);
 				ImGui::SameLine();
 		if (ImGui::SmallButton("/2##newHeight")) {
-			appState->newTextureHeight = static_cast<int>(appState->newTextureHeight / 2.0f);
+			newTextureHeight = static_cast<int>(newTextureHeight / 2.0f);
 		}
 		ImGui::SameLine();
 		if (ImGui::SmallButton("/1.5##newHeight")) {
-			appState->newTextureHeight = static_cast<int>(appState->newTextureHeight / 1.5f);
+			newTextureHeight = static_cast<int>(newTextureHeight / 1.5f);
 		}
 		ImGui::SameLine();
 		if (ImGui::SmallButton("x1.5##newHeight")) {
-			appState->newTextureHeight = static_cast<int>(appState->newTextureHeight * 1.5f);
+			newTextureHeight = static_cast<int>(newTextureHeight * 1.5f);
 		}
 		ImGui::SameLine();
 		if (ImGui::SmallButton("x2##newHeight")) {
-			appState->newTextureHeight *= 2;
+			newTextureHeight *= 2;
 		}
 
-		appState->newTextureHeight = appState->newTextureHeight - (appState->newTextureHeight % 8);
-		appState->newNumParticles = appState->slimeRatio * appState->newTextureWidth * appState->newTextureHeight;
-		ImGui::InputInt("Number of Particles", &(appState->newNumParticles), 8, 8, ImGuiInputTextFlags_CharsNoBlank);
-		appState->newNumParticles = appState->newNumParticles - (appState->newNumParticles % 8);
-		appState->slimeRatio = appState->newNumParticles / (float) (appState->newTextureWidth * appState->newTextureHeight);
+		newTextureHeight = newTextureHeight - (newTextureHeight % 8);
+		newNumParticles = appState->slimeRatio * newTextureWidth * newTextureHeight;
+		ImGui::InputInt("Number of Particles", &newNumParticles, 8, 8, ImGuiInputTextFlags_CharsNoBlank);
+		newNumParticles = newNumParticles - (newNumParticles % 8);
+		appState->slimeRatio = newNumParticles / (float) (newTextureWidth * newTextureHeight);
 		ImGui::InputFloat("Slime Ratio", &(appState->slimeRatio));
 		ImGui::PopStyleVar();
 		ImGui::Separator();
@@ -99,14 +108,22 @@ void NewCanvasModal::render(ApplicationState* appState) {
 		
 		ImGui::Checkbox("Collision Detection", (bool*)&(appState->universalShaderSettings.collisionDetection));
 
-		if (ImGui::Button("OK", ImVec2(120, 0))) {  visible = false;
-                                                    notify(UserEvent{EventType::NEW_CANVAS});
-                                                    //new canvas has been created, update the appState accordingly
-                                                    appState->universalShaderSettings.textureWidth = appState->newTextureWidth;
-                                                    appState->universalShaderSettings.textureHeight = appState->newTextureHeight;
-                                                    appState->numParticles = appState->newNumParticles;
-                                                    std::cout << "Creating new Canvas with " << appState->numParticles << " particles and size " << appState->universalShaderSettings.textureWidth << "x" << appState->universalShaderSettings.textureHeight << std::endl;                                   
-                                                    ImGui::CloseCurrentPopup(); }
+		if (ImGui::Button("OK", ImVec2(120, 0))) {
+			visible = false;
+			
+			if(newTextureWidth != appState->universalShaderSettings.textureWidth 
+				|| newTextureHeight != appState->universalShaderSettings.textureHeight 
+				|| newNumParticles != appState->numParticles) 
+			{
+				notify(UserEvent{EventType::NEW_CANVAS, NewCanvasData{newTextureWidth, newTextureHeight, newNumParticles}});
+			}
+			//textureWidth and Height have to be updated after notify, else the program state would be inconsistent
+			appState->universalShaderSettings.textureWidth = newTextureWidth;
+			appState->universalShaderSettings.textureHeight = newTextureHeight;
+			appState->numParticles = newNumParticles;
+			ImGui::CloseCurrentPopup();
+		}
+
 		ImGui::SetItemDefaultFocus();
 		ImGui::SameLine();
 		if (ImGui::Button("Cancel", ImVec2(120, 0))) { visible = false; ImGui::CloseCurrentPopup(); }
