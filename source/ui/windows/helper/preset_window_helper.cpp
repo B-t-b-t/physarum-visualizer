@@ -174,25 +174,7 @@ namespace PresetWindowHelper {
             ImGui::Checkbox("Time Slot", &editTimeSlot);
 
             if(editTimeSlot) {
-                ImGui::AlignTextToFramePadding();
-                ImGui::Text("Start:");
-                ImGui::SameLine();
-                ImGui::timePicker("start_time", &timeSlotStart);
-                ImGui::SameLine();
-                ImGui::datePicker("start_date", &timeSlotStart);
-                ImGui::SameLine();
-                const std::string formattedStartTime = std::format("{:%a %H:%M:%OS, %Od.%Om.%y}", timeSlotStart);
-                ImGui::Text("   ( %s )", formattedStartTime.c_str());
-
-                ImGui::AlignTextToFramePadding();
-                ImGui::Text("End:  ");
-                ImGui::SameLine();
-                ImGui::timePicker("end_time", &timeSlotEnd);
-                ImGui::SameLine();
-                ImGui::datePicker("end_date", &timeSlotEnd);
-                ImGui::SameLine();
-                const std::string formattedEndTime = std::format("{:%a %H:%M:%OS, %Od.%Om.%y} ", timeSlotEnd);
-                ImGui::Text("   ( %s )", formattedEndTime.c_str());
+                editTimeSlotTable(&timeSlotStart, &timeSlotEnd);
             }
 
             ImGui::Separator();
@@ -278,25 +260,7 @@ namespace PresetWindowHelper {
             ImGui::Checkbox("Time Slot", &editTimeSlot);
 
             if(editTimeSlot) {
-                ImGui::AlignTextToFramePadding();
-                ImGui::Text("Start:");
-                ImGui::SameLine();
-                ImGui::timePicker("start_time", &timeSlotStart);
-                ImGui::SameLine();
-                ImGui::datePicker("start_date", &timeSlotStart);
-                ImGui::SameLine();
-                const std::string formattedStartTime = std::format("{:%a %H:%M:%OS, %Od.%Om.%y}", timeSlotStart);
-                ImGui::Text("   ( %s )", formattedStartTime.c_str());
-
-                ImGui::AlignTextToFramePadding();
-                ImGui::Text("End:  ");
-                ImGui::SameLine();
-                ImGui::timePicker("end_time", &timeSlotEnd);
-                ImGui::SameLine();
-                ImGui::datePicker("end_date", &timeSlotEnd);
-                ImGui::SameLine();
-                const std::string formattedEndTime = std::format("{:%a %H:%M:%OS, %Od.%Om.%y} ", timeSlotEnd);
-                ImGui::Text("   ( %s )", formattedEndTime.c_str());
+                editTimeSlotTable(&timeSlotStart, &timeSlotEnd);
             }
 
             ImGui::Separator();
@@ -357,5 +321,48 @@ namespace PresetWindowHelper {
             }
             ImGui::EndPopup();
         }
+    }
+
+    void editTimeSlotTable(std::chrono::system_clock::time_point* timeSlotStart, std::chrono::system_clock::time_point* timeSlotEnd) {
+        ImGui::BeginTable("time_slot_table", 3, ImGuiTableFlags_SizingFixedFit | ImGuiTableFlags_NoHostExtendX);
+        
+        ImGui::TableNextRow();
+        ImGui::TableNextColumn();
+        ImGui::AlignTextToFramePadding();
+        ImGui::Text("Start: ");
+
+        ImGui::TableNextColumn();
+        ImGui::timePicker("start_time", timeSlotStart);
+        ImGui::SameLine();
+        ImGui::datePicker("start_date", timeSlotStart);
+
+        ImGui::TableNextColumn();
+        const std::string formattedStartTime = std::format("{:%A}", *timeSlotStart);
+        ImGui::Text("   %s", formattedStartTime.c_str());
+
+        ImGui::TableNextRow(ImGuiTableRowFlags_None, ImGui::GetFrameHeightWithSpacing());
+        ImGui::TableNextColumn();
+        ImGui::AlignTextToFramePadding();
+        ImGui::Text("Duration: ");
+        ImGui::TableNextColumn();
+        ImGui::TableNextColumn();
+        std::chrono::duration duration = *timeSlotEnd - *timeSlotStart;
+        const std::string durationStr = std::format("{:%H:%M:%OS}", duration);
+        ImGui::Text("   %s", durationStr.c_str());
+
+        ImGui::TableNextRow();
+        ImGui::TableNextColumn();
+        ImGui::AlignTextToFramePadding();
+        ImGui::Text("End: ");
+
+        ImGui::TableNextColumn();
+        ImGui::timePicker("end_time", timeSlotEnd);
+        ImGui::SameLine();
+        ImGui::datePicker("end_date", timeSlotEnd);
+
+        ImGui::TableNextColumn();
+        const std::string formattedEndTime = std::format("{:%A} ", *timeSlotEnd);
+        ImGui::Text("   %s", formattedEndTime.c_str());
+        ImGui::EndTable();
     }
 }

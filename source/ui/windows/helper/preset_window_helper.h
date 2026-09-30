@@ -1,6 +1,7 @@
 #ifndef PRESET_WINDOW_HELPER_H
 #define PRESET_WINDOW_HELPER_H
 
+#include <chrono>
 #include <cstddef>
 
 class ApplicationState; // Forward declaration of ApplicationState
@@ -19,6 +20,8 @@ namespace PresetWindowHelper {
     void textPresetAddModal(const char* stringID, PresetWindow* presetWindow);
     void textPresetEditModal(const char* stringID, TrailMask& trailMask, PresetWindow* presetWindow, size_t* atIndex);
     void textPresetDeleteModal(const char* stringID, TrailMask& trailMask, PresetWindow* presetWindow, size_t* atIndex);
+
+    void editTimeSlotTable(std::chrono::system_clock::time_point* timeSlotStart, std::chrono::system_clock::time_point* timeSlotEnd);
 }
 
 #endif // PRESET_WINDOW_HELPER_H
