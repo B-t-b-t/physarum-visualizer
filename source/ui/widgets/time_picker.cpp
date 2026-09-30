@@ -1,10 +1,9 @@
 #include "time_picker.h"
 
-#include <array>
-#include <cmath>
-#include <iostream>
+#include <stdio.h>  // for size_t, sprintf
+#include <array>    // for array
 
-#include "imgui.h"
+#include "imgui.h"  // for ImVec2, ImGuiStyleVar_, SameLine, Button, GetItem...
 
 namespace ImGui {
 

@@ -1,12 +1,13 @@
 #ifndef EVENT_H
 #define EVENT_H
 
-#include <chrono>
-#include <cstdint>
-#include <iostream>
-#include <optional>
-#include <string>
-#include <variant>
+#include <stddef.h>  // for size_t
+#include <chrono>    // for system_clock
+#include <cstdint>   // for uint32_t
+#include <iostream>  // for ostream
+#include <optional>  // for optional, nullopt, nullopt_t
+#include <string>    // for basic_string, string
+#include <variant>   // for monostate, variant
 
 enum class EventType {
     FULLSCREEN_TOGGLE,

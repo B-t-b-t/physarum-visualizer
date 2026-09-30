@@ -3,7 +3,7 @@
 
 #include <initializer_list>
 
-#include "imgui.h"
+struct ImVec4;
 
 namespace ImGui {
 

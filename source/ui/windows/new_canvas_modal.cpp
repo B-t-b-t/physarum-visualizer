@@ -1,9 +1,7 @@
 #include "new_canvas_modal.h"
 
-#include <iostream>                   // for basic_ostream, char_traits, bas...
 #include <stddef.h>                   // for NULL
 #include <string>                     // for basic_string
-#include <variant>                    // for variant
 
 #include "../../application_state.h"  // for ApplicationState
 #include "../../uniforms.h"           // for SlimeSettings, UniversalShaderS...

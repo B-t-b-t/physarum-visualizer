@@ -2,6 +2,7 @@
 
 #include "helper/preset_window_helper.h"
 #include "../../preset_system.h"
+#include "../../preset_types.h"  // for BehaviorPreset, ColorPreset
 #include "../../simulation/trail_map_controller.h"
 #include "../../utility/event.h"
 #include "../widgets/link_widget.h"

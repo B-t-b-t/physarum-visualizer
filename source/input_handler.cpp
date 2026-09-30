@@ -8,6 +8,7 @@
 
 #include "application_state.h"  // for ApplicationState
 #include "uniforms.h"           // for UniversalShaderSettings
+#include "utility/vector_math.h"  // for Vec4
 
 InputHandler::InputHandler(ApplicationState* appState)
  : appState_{appState}

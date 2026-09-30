@@ -1,10 +1,11 @@
 #include "font_atlas.h"
 
-#include <optional>
-#include "SDL3/SDL_surface.h"
+#include <optional>                   // for optional
+#include <utility>                    // for move
+#include "SDL3/SDL_surface.h"         // for SDL_DestroySurface, SDL_Surface
 
-#include "../utility/fileHandling.h"
-#include "texture.h"
+#include "../utility/fileHandling.h"  // for loadImageFromFont, saveImageToFile
+#include "texture.h"                  // for TextureProperties, Texture, Tex...
 
 FontAtlas::FontAtlas(std::string fontFileName) {
 

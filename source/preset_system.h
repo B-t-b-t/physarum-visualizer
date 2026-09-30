@@ -3,14 +3,12 @@
 
 #include <filesystem>            // for path
 #include <map>                   // for map
-#include <string>                // for operator+, operator==, basic_string
+#include <string>                // for string, basic_string
+#include "SDL3/SDL_stdinc.h"     // for Uint64
 
-#include "toml.hpp"              // for format_error, find_or, make_error_info
-
-#include "application_state.h"   // for ApplicationState
-#include "preset_types.h"        // for BehaviorPreset
-#include "uniforms.h"            // for SlimeSettings, TrailDiffusionSettings
 #include "./utility/observer.h"  // for Observer
+
+class ApplicationState;
 
 
 template<typename T>

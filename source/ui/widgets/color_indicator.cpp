@@ -2,7 +2,8 @@
 
 #include "color_indicator.h"
 
-#include "imgui_internal.h"
+#include <imgui.h>           // for ImVec2, GetColorU32, ImDrawList, GetText...
+#include "imgui_internal.h"  // for ImGuiWindow, ImRect, GetCurrentWindow
 
 
 void ImGui::ColorIndicator(std::initializer_list<const ImVec4> colors, float scale, float borderThickness) {

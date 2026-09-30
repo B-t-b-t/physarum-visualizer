@@ -1,16 +1,19 @@
 #include "preset_system.h"
 
-#include <fstream>          // for basic_ostream, basic_ofstream, operator<<
-#include <iostream>         // for cerr
-#include <iterator>         // for next
-#include <memory>           // for make_unique
-#include <stdlib.h>         // for rand
-#include <utility>          // for pair, get
-#include <variant>          // for get
+#include <fstream>              // for basic_ostream, basic_ofstream, operat...
+#include <iostream>             // for cerr
+#include <iterator>             // for next
+#include <memory>               // for make_unique
+#include <stdlib.h>             // for rand
+#include "toml.hpp"             // for basic_value, format_error, make_error...
+#include <type_traits>          // for is_same_v
+#include <utility>              // for get
+#include <variant>              // for get
 
-#include "toml.hpp"         // for make_error_info, region::as_string, eithe...
-
-#include "utility/event.h"  // for UserEvent, EventType
+#include "application_state.h"  // for ApplicationState
+#include "preset_types.h"       // for BehaviorPreset, ColorPreset
+#include "uniforms.h"           // for SlimeSettings
+#include "utility/event.h"      // for EventType, UserEvent
 
 //only a few Preset Types necessary
 template class PresetSystem<BehaviorPreset>;
