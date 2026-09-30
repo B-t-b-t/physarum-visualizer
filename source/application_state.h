@@ -66,7 +66,6 @@ public:
 
 	// Audio Hardware Selection via List Box
 	std::map<SDL_AudioDeviceID, AudioDeviceInfo>* availableAudioHardware = nullptr;
-	size_t usedAudioHardwareIndex = 0;
 
 	// Behaviour Preset Selection via List Box
 	std::map<std::string, BehaviorPreset>* behaviorPresets = nullptr;
@@ -102,7 +101,7 @@ public:
     std::vector<double>* spectrum = nullptr;
     std::vector<double>* spectrumDiff = nullptr;
     int bufferSize = 0;
-    bool* hasNewSpectrumData = nullptr;
+    bool hasNewSpectrumData = false;
 
 	float beatDivide = 20.0f;
 	bool subBassDetected = false;

@@ -1,6 +1,7 @@
 #include "audio_window.h"
 
 #include <cmath>
+#include <cstdint>
 #include <map>
 #include <vector>
 
@@ -39,8 +40,7 @@ void AudioWindow::render(ApplicationState* appState) {
 		for (const auto& deviceEntry : *availableDevices) {
 			const bool is_selected = deviceEntry.second.logicalID != 0;
 			if (ImGui::Selectable(deviceEntry.second.name, is_selected)) {
-				appState->usedAudioHardwareIndex = deviceEntry.first;
-				notify(UserEvent{EventType::AUDIO_HARDWARE_CHANGE});
+				notify(UserEvent{EventType::AUDIO_HARDWARE_CHANGE, (uint32_t) deviceEntry.first});
 			}
 			// Set the initial focus when opening the combo (scrolling + keyboard navigation focus)
 			if (is_selected) {
@@ -133,7 +133,7 @@ void AudioWindow::render(ApplicationState* appState) {
 
 	// Heatmap
 	if (ImGui::CollapsingHeader("Spectrum Heatmap")) {
-		if(*(appState->hasNewSpectrumData))  {
+		if(appState->hasNewSpectrumData)  {
 			for (size_t i = 0; i < 512 * 32; i += 32) {
 				double spectrumVal = (*(appState->spectrum))[i / 32];
 				spectrumVal = std::isnan(spectrumVal) ? 0.0 : spectrumVal;
@@ -252,5 +252,5 @@ void AudioWindow::render(ApplicationState* appState) {
 
 	ImGui::End();
 
-	*(appState->hasNewSpectrumData) = false;
+	appState->hasNewSpectrumData = false;
 }

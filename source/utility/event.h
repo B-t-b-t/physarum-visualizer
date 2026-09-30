@@ -2,6 +2,7 @@
 #define EVENT_H
 
 #include <chrono>
+#include <cstdint>
 #include <iostream>
 #include <optional>
 #include <string>
@@ -62,6 +63,7 @@ using EventPayload = std::variant<
     std::monostate,
     int,
     float,
+    uint32_t,   //for AUDIO_HARDWARE_CHANGE using SDL_AudioDeviceID (uint32_t)
     std::string,
     TrailMaskData,
     NewCanvasData

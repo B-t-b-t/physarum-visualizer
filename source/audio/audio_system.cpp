@@ -22,7 +22,7 @@ AudioSystem::AudioSystem(ApplicationState* appState)
 	appState_->spectrum = &spectrum_;
 	appState_->spectrumDiff = &spectrumDiff_;
 	appState_->bufferSize = BUFFER_SIZE;
-	appState_->hasNewSpectrumData = &hasNewSpectrumData_;
+	appState_->hasNewSpectrumData = hasNewSpectrumData_;
 }
 
 AudioSystem::~AudioSystem() {
@@ -58,7 +58,7 @@ AudioSystem::~AudioSystem() {
 
 void AudioSystem::onNotify(const UserEvent event) {
 	if(event.type == EventType::AUDIO_HARDWARE_CHANGE) {
-		selectRecordingDevice(appState_->usedAudioHardwareIndex);
+		selectRecordingDevice(std::get<SDL_AudioDeviceID>(event.payload));
 	}
 }
 
@@ -112,6 +112,7 @@ void AudioSystem::selectRecordingDevice(SDL_AudioDeviceID selectedDeviceID) {
     if (selectedDeviceID == 0 || !deviceManager_.openDevice(selectedDeviceID)) {
         hasNewAudioData_ = false;
         hasNewSpectrumData_ = false;
+		appState_->hasNewSpectrumData = false;
         appState_->slimeSettings.reactToAudio = false;
         return;
     }
@@ -126,6 +127,7 @@ void AudioSystem::selectRecordingDevice(SDL_AudioDeviceID selectedDeviceID) {
         !SDL_BindAudioStream(deviceManager_.getOpenDevice().value().logicalID, audioStreamData_.streamId_)) {
         hasNewAudioData_ = false;
         hasNewSpectrumData_ = false;
+		appState_->hasNewSpectrumData = false;
         appState_->slimeSettings.reactToAudio = false;
         SDL_LogError(
             SDL_LOG_CATEGORY_APPLICATION,
@@ -170,6 +172,7 @@ void AudioSystem::computeSpectrum() {
 
 		hasNewAudioData_ = false;
 		hasNewSpectrumData_ = true;
+		appState_->hasNewSpectrumData = true;
 	}
 }
 
