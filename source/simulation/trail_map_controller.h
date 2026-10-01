@@ -17,14 +17,20 @@
 #include "../graphics/text_texture.h"
 #include "../utility/event.h"
 #include "../utility/observer.h"
+#include "../utility/vector_math.h"
 
 struct TrailMask {
         std::string name;
+        TrailMaskType type;
+        
         std::unique_ptr<Texture> texture;
         bool loadedToGPU{false};
 
-        TrailMaskType type;
         std::optional<TimeSlot> timeSlot = std::nullopt;
+
+        float strength{1.0f};
+        phys::Vec2<float> position{0.0f, 0.0f};
+        phys::Vec2<float> scale{1.0f, 1.0f};
 };
 
 class TrailMapController : public Observer {

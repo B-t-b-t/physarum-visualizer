@@ -9,6 +9,8 @@
 #include <string>    // for basic_string, string
 #include <variant>   // for monostate, variant
 
+#include "vector_math.h"  // for phys::Vec2
+
 enum class EventType {
     FULLSCREEN_TOGGLE,
     NEW_CANVAS,
@@ -51,10 +53,14 @@ enum class TrailMaskType {
 };
 
 struct TrailMaskData {
-    std::string name{};
-    TrailMaskType type{};
+    std::string name;
+    TrailMaskType type;
     
     std::optional<TimeSlot> timeSlot{std::nullopt};
+
+    float strength{1.0f};
+    phys::Vec2<float> position{0.0f, 0.0f};
+    phys::Vec2<float> scale{1.0f, 1.0f};
 
     std::optional<size_t> atIndex{std::nullopt};  //at which index the change applies
 };

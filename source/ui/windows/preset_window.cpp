@@ -309,7 +309,7 @@ void PresetWindow::textPresetGUI(ApplicationState* appState) {
         //only show when there is data to show or delete
         if(trailMasks != nullptr && !trailMasks->empty()) {
             //Fontawesome: fa-solid fa-pen-to-square 
-            if(ImGui::MenuItem("\uf044 Edit")) {
+            if(ImGui::MenuItem("\uf044 Edit")) {    //edit a already selected text preset
                 ImGui::OpenPopup("Edit Text Preset");
             }
             PresetWindowHelper::textPresetEditModal("Edit Text Preset", (*trailMasks)[usedTrailMaskIndex], this, &usedTrailMaskIndex);
@@ -362,7 +362,7 @@ void PresetWindow::textPresetGUI(ApplicationState* appState) {
             }
 
             if(isRightClicked) {
-                ImGui::OpenPopup("Edit Text");
+                ImGui::OpenPopup("Edit Text");  //edit a non-selected text preset
                 isRightClicked = false;
             }
             PresetWindowHelper::textPresetEditModal("Edit Text", (*trailMasks)[editIndex], this, &editIndex);
@@ -375,19 +375,6 @@ void PresetWindow::textPresetGUI(ApplicationState* appState) {
 
     ImGui::SeparatorText("Settings");
 
-    if(ImGui::SliderFloat("Strength", &appState->universalShaderSettings.trailMaskInfluence, 0.0f, 5.0f)) {
-        notify(UserEvent{EventType::TRAIL_MASK_STRENGTH_CHANGED, appState->universalShaderSettings.trailMaskInfluence});
-    }
-
-    ImGui::LinkBegin("##Link Trail Mask Scales", &linkTrailMaskScales_, 2.0f);
-
-    ImGui::LinkSliderFloat("Width", &appState->universalShaderSettings.trailMaskScaleX, 0.1f, 10.0f);
-    ImGui::LinkSliderFloat("Height", &appState->universalShaderSettings.trailMaskScaleY, 0.1f, 10.0f);
-
-    ImGui::LinkEnd();
-
-    ImGui::SliderFloat("Position Horizontal", &appState->universalShaderSettings.trailMaskPosition.x, -1.0f, 1.0f);
-    ImGui::SliderFloat("Position Vertical", &appState->universalShaderSettings.trailMaskPosition.y, -1.0f, 1.0f);
     ImGui::SliderInt("Switch Intervall", &appState->trailMaskIntervall, 2, 60, "%d s");
     ImGui::SliderInt("Disable at Sensor Distance", &appState->disableAtSensorDistance, 1, 100, "≥%d");
 }

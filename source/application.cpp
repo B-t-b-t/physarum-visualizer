@@ -28,6 +28,7 @@ Application::Application(Parameters params)
 	ui_.getWindow("PresetWindow")->addObserver(EventType::COLOR_PRESET_DELETE, &colorPresetSystem_);
 	ui_.getWindow("PresetWindow")->addObserver(EventType::IMAGE_PRESET_APPLY, simulation_.getTrailMapController());
 	ui_.getWindow("PresetWindow")->addObserver(EventType::IMAGE_PRESET_EDIT, simulation_.getTrailMapController());
+	ui_.getWindow("PresetWindow")->addObserver(EventType::TEXT_PRESET_APPLY, simulation_.getTrailMapController());	
 	ui_.getWindow("PresetWindow")->addObserver(EventType::TEXT_PRESET_CREATE, simulation_.getTrailMapController());
 	ui_.getWindow("PresetWindow")->addObserver(EventType::TEXT_PRESET_EDIT, simulation_.getTrailMapController());
 	ui_.getWindow("PresetWindow")->addObserver(EventType::TEXT_PRESET_DELETE, simulation_.getTrailMapController());

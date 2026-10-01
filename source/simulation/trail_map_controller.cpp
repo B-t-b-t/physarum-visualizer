@@ -41,9 +41,9 @@ bool TrailMapController::loadFromToml() {
         return false;
     }
 
-    //get all text trail masks without timeslots
+    //get all text trail masks
     for(const auto& [entryName, entry] : timeTable_.as_table()) {
-        if(!entry.contains("text")) {
+        if(!entry.contains("text")) {   //discard entries without a "text" field
             continue;
         }
 
@@ -75,6 +75,12 @@ bool TrailMapController::loadFromToml() {
         trailMask.timeSlot = TimeSlot{ 
             toml::find<std::chrono::system_clock::time_point>(entry, "begin"), toml::find<std::chrono::system_clock::time_point>(entry, "end")
         };
+
+        trailMask.strength = toml::find_or<float>(entry, "strength", 1.0f);
+        trailMask.position.x = toml::find_or<float>(entry, "position", 0, 0.0f);
+        trailMask.position.y = toml::find_or<float>(entry, "position", 1, 0.0f);
+        trailMask.scale.x = toml::find_or<float>(entry, "scale", 0, 1.0f);
+        trailMask.scale.y = toml::find_or<float>(entry, "scale", 1, 1.0f);
     }
 
     return true;
@@ -90,15 +96,30 @@ bool TrailMapController::saveToToml() {
             continue;
         }
 
+        //key value pairs are saved in reverse order from code
         toml::value entry{toml::table{}};
 
-        if(trailMask.type == TrailMaskType::TEXT) {
-            entry["text"] = trailMask.name;
+        float epsilon = 1e-6f;
+
+        if(std::abs(trailMask.scale.x - 1.0f) > epsilon || std::abs(trailMask.scale.y - 1.0f) > epsilon) {
+            entry["scale"] = toml::array{trailMask.scale.x, trailMask.scale.y};
+        }
+
+        if(std::abs(trailMask.position.x) > epsilon || std::abs(trailMask.position.y) > epsilon) {
+            entry["position"] = toml::array{trailMask.position.x, trailMask.position.y};
+        }
+
+        if(std::abs(trailMask.strength - 1.0f) > epsilon) {
+            entry["strength"] = trailMask.strength;
         }
 
         if(trailMask.timeSlot) {
             entry["end"] = toml::offset_datetime(trailMask.timeSlot.value().end);
             entry["begin"] = toml::offset_datetime(trailMask.timeSlot.value().start);
+        }
+
+        if(trailMask.type == TrailMaskType::TEXT) {
+            entry["text"] = trailMask.name;
         }
 
         if(trailMask.type == TrailMaskType::TEXT) {
@@ -200,9 +221,9 @@ TrailMapController::~TrailMapController() {
 void TrailMapController::loadTrailMaskFromText(std::string text) {
     trailMasks_.push_back({
         text, 
+        TrailMaskType::TEXT,
         std::make_unique<TextTexture>(appState_->universalShaderSettings.textureWidth, appState_->universalShaderSettings.textureHeight, appState_), 
         true, 
-        TrailMaskType::TEXT, 
         std::nullopt});
 
     ((TextTexture*)trailMasks_.back().texture.get())->createTexture(text, fontAtlas_);
@@ -247,9 +268,9 @@ void TrailMapController::loadPictureNames() {
     for (std::string pictureName : pictureNames) {
         trailMasks_.push_back({
             pictureName, 
+            TrailMaskType::IMAGE,
             std::make_unique<Texture>(std::move(tempTexture)), 
             false, 
-            TrailMaskType::IMAGE, 
             std::nullopt
         });
     }
@@ -314,6 +335,10 @@ void TrailMapController::editTrailMask(size_t index, TrailMaskData newData) {
 
     trailMask.timeSlot = newData.timeSlot;
 
+    trailMask.strength = newData.strength;
+    trailMask.position = newData.position;
+    trailMask.scale = newData.scale;
+
     if(trailMask.type == TrailMaskType::TEXT && trailMask.name != newData.name) {
         ((TextTexture*)trailMask.texture.get())->createTexture(newData.name, fontAtlas_);
     }
@@ -358,6 +383,11 @@ void TrailMapController::onNotify(const UserEvent event) {
             } else {
                 loadTrailMaskFromImage(trailMasks_[activeTrailMaskIndex_].name);
             }
+            appState_->universalShaderSettings.trailMaskInfluence = trailMasks_[activeTrailMaskIndex_].strength;
+            appState_->universalShaderSettings.trailMaskPosition = trailMasks_[activeTrailMaskIndex_].position;
+            appState_->universalShaderSettings.trailMaskScaleX = trailMasks_[activeTrailMaskIndex_].scale.x;
+            appState_->universalShaderSettings.trailMaskScaleY = trailMasks_[activeTrailMaskIndex_].scale.y;
+
             break;
         }
         case EventType::TEXT_PRESET_CREATE:
