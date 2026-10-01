@@ -61,6 +61,8 @@ struct TrailMaskData {
     float strength{1.0f};
     phys::Vec2<float> position{0.0f, 0.0f};
     phys::Vec2<float> scale{1.0f, 1.0f};
+
+    std::string makeKey();
 };
 
 using EventPayload = std::variant<

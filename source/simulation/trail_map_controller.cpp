@@ -13,147 +13,6 @@
 #include "../utility/event.h"
 #include "../utility/fileHandling.h"
 
-bool TrailMapController::checkTimeTable(std::string name) {
-    for(const auto& [key, trailMask] : trailMasks_) {
-        if(trailMask.name != name) {
-            continue;
-        }
-
-        //trail masks without a time slot are always valid
-        if(!trailMask.timeSlot) {
-            return true;
-        }
-
-        auto currentTime = std::chrono::system_clock::now();
-        return currentTime >= trailMask.timeSlot.value().start &&
-               currentTime <= trailMask.timeSlot.value().end;
-    }
-
-    //trail masks not present in the list cannot be selected.
-    return false;
-}
-
-bool TrailMapController::loadFromToml() {
-    //parse
-    try {
-        timeTable_ = toml::parse("./res/pictures/timeTable.toml");
-    } catch(const toml::exception& err) {
-        std::cerr << "Failed to parse timeTable.toml: " << err.what() << std::endl;
-        return false;
-    }
-
-    //get all text trail masks
-    for(const auto& [entryName, entry] : timeTable_.as_table()) {
-        if(!entry.contains("text")) {   //discard entries without a "text" field
-            continue;
-        }
-
-        try {
-            loadTrailMaskFromText(toml::find<std::string>(entry, "text"));
-        } catch(const toml::exception& err) {
-            std::cerr << "Failed to load text trail mask \"" << entryName
-                      << "\": " << err.what() << std::endl;
-        }
-    }
-
-    //load time slots for all trail masks, if they exist
-    for(auto& [key, trailMask] : trailMasks_) {
-        std::string tableName = "";
-
-        if(timeTable_.contains("Image." + trailMask.name) && trailMask.type == TrailMaskType::IMAGE) {
-            tableName = "Image." + trailMask.name;
-        } else if(timeTable_.contains("Text." + trailMask.name) && trailMask.type == TrailMaskType::TEXT) {
-            tableName = "Text." + trailMask.name;
-        } else {
-            continue;
-        }
-
-        const auto& entry = toml::find(timeTable_, tableName);
-        if(!entry.contains("begin") || !entry.contains("end")) {
-            continue;
-        }
-
-        trailMask.timeSlot = TimeSlot{ 
-            toml::find<std::chrono::system_clock::time_point>(entry, "begin"), toml::find<std::chrono::system_clock::time_point>(entry, "end")
-        };
-        try {
-        trailMask.strength = toml::find_or<float>(entry, "strength", 1.0f);
-        trailMask.position.x = toml::find_or<float>(entry, "position", 0, 0.0f);
-        trailMask.position.y = toml::find_or<float>(entry, "position", 1, 0.0f);
-        trailMask.scale.x = toml::find_or<float>(entry, "scale", 0, 1.0f);
-        trailMask.scale.y = toml::find_or<float>(entry, "scale", 1, 1.0f);
-        } catch(const toml::exception& err) {
-            std::cerr << "Failed to load optional fields for trail mask \"" << trailMask.name
-                      << "\": " << err.what() << std::endl;
-            continue;
-        }
-    }
-
-    return true;
-}
-
-bool TrailMapController::saveToToml() {
-    toml::value newTimeTable{toml::table{}};
-
-    for(const auto& [key, trailMask] : trailMasks_) {
-        //images without a time slot do not need an entry. Text masks must
-        //always be persisted, even when they do not have a time slot.
-        if(trailMask.type == TrailMaskType::IMAGE && !trailMask.timeSlot) {
-            continue;
-        }
-
-        //key value pairs are saved in reverse order from code
-        toml::value entry{toml::table{}};
-
-        float epsilon = 1e-6f;
-
-        if(std::abs(trailMask.scale.x - 1.0f) > epsilon || std::abs(trailMask.scale.y - 1.0f) > epsilon) {
-            entry["scale"] = toml::array{trailMask.scale.x, trailMask.scale.y};
-        }
-
-        if(std::abs(trailMask.position.x) > epsilon || std::abs(trailMask.position.y) > epsilon) {
-            entry["position"] = toml::array{trailMask.position.x, trailMask.position.y};
-        }
-
-        if(std::abs(trailMask.strength - 1.0f) > epsilon) {
-            entry["strength"] = trailMask.strength;
-        }
-
-        if(trailMask.timeSlot) {
-            entry["end"] = toml::offset_datetime(trailMask.timeSlot.value().end);
-            entry["begin"] = toml::offset_datetime(trailMask.timeSlot.value().start);
-        }
-
-        if(trailMask.type == TrailMaskType::TEXT) {
-            entry["text"] = trailMask.name;
-        }
-
-        if(trailMask.type == TrailMaskType::TEXT) {
-            newTimeTable[key] = entry;
-        } else {
-            newTimeTable[key] = entry;
-        }
-    }
-
-    std::ofstream outputFile{"./res/pictures/timeTable.toml", std::ios::trunc};
-    if(!outputFile.is_open()) {
-        std::cerr << "Failed to open timeTable.toml for writing" << std::endl;
-        return false;
-    }
-
-    outputFile << toml::format(newTimeTable);
-    outputFile.flush();
-
-    if(!outputFile.good()) {
-        std::cerr << "Failed to write timeTable.toml" << std::endl;
-        return false;
-    }
-
-    timeTable_ = newTimeTable;
-    return true;
-}
-
-
 TrailMapController::TrailMapController(std::string pictureFilePath, std::string pictureFileExtension, GLuint textureUnit, ApplicationState* appState)
  : pictureFilePath_(pictureFilePath), 
    pictureFileExtension_(pictureFileExtension),
@@ -161,11 +20,9 @@ TrailMapController::TrailMapController(std::string pictureFilePath, std::string 
    appState_(appState),
    fontAtlas_{FontAtlas("Roboto-Medium")}
 {
-    loadPictureNames();
-    for(auto& [key, trailMask] : trailMasks_) {
-        loadTrailMaskFromImage(trailMask.name);
-    }
-    loadFromToml();
+    loadEntriesFromToml();     //load from saveFile first
+    loadEntriesFromDirectory();   //load remaining images from the directory (duplicates with TOML entries get ignored)
+    createTrailMaskTextures();
 
     activeTrailMaskName_ = trailMasks_.empty() ? "" : trailMasks_.begin()->first;
 
@@ -187,7 +44,6 @@ TrailMapController::TrailMapController(TrailMapController&& other) {
     trailMaskStrengthTemp_ = other.trailMaskStrengthTemp_;
     timeTicks_ = other.timeTicks_;
     dateTime_ = other.dateTime_;
-    timeTable_ = std::move(other.timeTable_);
     timeOut_ = other.timeOut_;
 
     //inform appState after move just in case
@@ -215,7 +71,6 @@ TrailMapController& TrailMapController::operator=(TrailMapController&& other) {
         trailMaskStrengthTemp_ = other.trailMaskStrengthTemp_;
         timeTicks_ = other.timeTicks_;
         dateTime_ = other.dateTime_;
-        timeTable_ = std::move(other.timeTable_);
         timeOut_ = other.timeOut_;
 
         //inform appState after move just in case
@@ -235,28 +90,223 @@ TrailMapController::~TrailMapController() {
     saveToToml();
 }
 
-void TrailMapController::loadTrailMaskFromText(std::string text) {
-    std::string key = "Text." + text;
+std::string makeKey(TrailMaskType type, const std::string& name) {
+    std::string key = "";
 
-    auto [it, inserted] = trailMasks_.emplace(key, TrailMask{
-        text, 
-        TrailMaskType::TEXT,
-        std::make_unique<TextTexture>(appState_->universalShaderSettings.textureWidth, appState_->universalShaderSettings.textureHeight, appState_),
-        std::nullopt});
+    switch (type) {
+        case TrailMaskType::IMAGE:
+            key = "Image." + name;
+            break;
+        case TrailMaskType::TEXT:
+            key = "Text." + name;
+            break;
+    }
+    
+    return key;
+}
 
-    if(!inserted) {
-        std::cerr << "Trail mask with key " << key << " already exists." << std::endl;
-        return;
+std::string TrailMask::makeKey() {
+    return ::makeKey(type, name);
+}
+
+std::string TrailMaskData::makeKey() {
+    return ::makeKey(type, name);
+}
+
+bool TrailMapController::checkTimeTable(std::string name) {
+    for(const auto& [key, trailMask] : trailMasks_) {
+        if(trailMask.name != name) {
+            continue;
+        }
+
+        //trail masks without a time slot are always valid
+        if(!trailMask.timeSlot) {
+            return true;
+        }
+
+        auto currentTime = std::chrono::system_clock::now();
+        return currentTime >= trailMask.timeSlot.value().start &&
+               currentTime <= trailMask.timeSlot.value().end;
     }
 
-    static_cast<TextTexture*>(it->second.texture.get())->createTexture(text, fontAtlas_);
+    //trail masks not present in the list cannot be selected.
+    return false;
+}
+
+bool TrailMapController::loadEntriesFromToml() {
+    toml::value timeTable;
+    //parse
+    try {
+        timeTable = toml::parse("./res/pictures/timeTable.toml");
+    } catch(const toml::exception& err) {
+        std::cerr << "Failed to parse timeTable.toml: " << err.what() << std::endl;
+        return false;
+    }
+
+    const toml::array textEntries = toml::find_or<toml::array>(timeTable, "TEXT", toml::array{});
+
+    //get all text entries
+    for(const auto& entry : textEntries) {
+        if(!entry.contains("text")) {   //discard entries without a "text" field
+            continue;
+        }
+        std::string name = toml::find<std::string>(entry, "name");
+        std::string text = toml::find<std::string>(entry, "text");
+        std::optional<TimeSlot> timeSlot = std::nullopt;
+
+        if(entry.contains("start") && entry.contains("end")) {
+            std::chrono::system_clock::time_point start = toml::find<std::chrono::system_clock::time_point>(entry, "start");
+            std::chrono::system_clock::time_point end = toml::find<std::chrono::system_clock::time_point>(entry, "end");
+            timeSlot = TimeSlot{start, end};
+        }
+
+        float strength = toml::find_or<float>(entry, "strength", 1.0f);
+        float positionX = toml::find_or<float>(entry, "position", 0, 0.0f);
+        float positionY = toml::find_or<float>(entry, "position", 1, 0.0f);
+        float scaleX = toml::find_or<float>(entry, "scale", 0, 1.0f);
+        float scaleY = toml::find_or<float>(entry, "scale", 1, 1.0f);
+
+        std::string key = makeKey(TrailMaskType::TEXT, name);
+
+        //create entry
+        trailMasks_.try_emplace(key, TrailMask{
+            text, 
+            TrailMaskType::TEXT,
+            std::make_unique<TextTexture>(appState_->universalShaderSettings.textureWidth, appState_->universalShaderSettings.textureHeight, appState_),
+            timeSlot,
+            strength,
+            phys::Vec2{positionX, positionY},
+            phys::Vec2{scaleX, scaleY}
+        });
+    }
+
+    const toml::array imageEntries = toml::find_or<toml::array>(timeTable, "IMAGE", toml::array{});
+
+    //get all image entries
+    for(const auto& entry : imageEntries) {
+        std::string name = toml::find<std::string>(entry, "name");
+        std::optional<TimeSlot> timeSlot = std::nullopt;
+
+        if(entry.contains("start") && entry.contains("end")) {
+            std::chrono::system_clock::time_point start = toml::find<std::chrono::system_clock::time_point>(entry, "start");
+            std::chrono::system_clock::time_point end = toml::find<std::chrono::system_clock::time_point>(entry, "end");
+            timeSlot = TimeSlot{start, end};
+        }
+
+        float strength = toml::find_or<float>(entry, "strength", 1.0f);
+        float positionX = toml::find_or<float>(entry, "position", 0, 0.0f);
+        float positionY = toml::find_or<float>(entry, "position", 1, 0.0f);
+        float scaleX = toml::find_or<float>(entry, "scale", 0, 1.0f);
+        float scaleY = toml::find_or<float>(entry, "scale", 1, 1.0f);
+
+        std::string key = makeKey(TrailMaskType::IMAGE, name);
+
+        //create entry
+        trailMasks_.try_emplace(key, TrailMask{
+            name, 
+            TrailMaskType::IMAGE,
+            nullptr,
+            timeSlot,
+            strength,
+            phys::Vec2{positionX, positionY},
+            phys::Vec2{scaleX, scaleY}
+        });
+    }
+
+    return true;
+}
+
+void TrailMapController::createTrailMaskTextures() {
+    //load textures
+    for(auto& [key, trailMask] : trailMasks_) {
+        if(trailMask.type == TrailMaskType::IMAGE) {
+            loadTrailMaskFromImage(trailMask.name);
+        } else if(trailMask.type == TrailMaskType::TEXT) {
+            static_cast<TextTexture*>(trailMask.texture.get())->createTexture(trailMask.name, fontAtlas_);
+        }
+    }
+}
+
+bool TrailMapController::saveToToml() {
+    toml::value newTimeTable{toml::table{}};
+    toml::array textEntries;
+    toml::array imageEntries;
+
+    constexpr float epsilon = 1e-6f;
+
+    for(const auto& [key, trailMask] : trailMasks_) {
+        //images without any additional data are discovered from the image directory and don't need
+        //to be saved. Text masks must always be saved.
+        if(trailMask.type == TrailMaskType::IMAGE && !trailMask.timeSlot) {
+            continue;
+        }
+
+        //values in toml file are saved in reverse order from this code
+        toml::value entry{toml::table{}};
+        
+        if(std::abs(trailMask.scale.x - 1.0f) > epsilon 
+        || std::abs(trailMask.scale.y - 1.0f) > epsilon) {
+            entry["scale"] = toml::array{
+                trailMask.scale.x,
+                trailMask.scale.y
+            };
+        }
+        
+        if(std::abs(trailMask.position.x) > epsilon 
+        || std::abs(trailMask.position.y) > epsilon) {
+            entry["position"] = toml::array{
+                trailMask.position.x,
+                trailMask.position.y
+            };
+        }
+        
+        if(std::abs(trailMask.strength - 1.0f) > epsilon) { entry["strength"] = trailMask.strength; }
+
+        if(trailMask.timeSlot) {
+            entry["end"] = toml::offset_datetime(trailMask.timeSlot->end);
+            entry["start"] = toml::offset_datetime(trailMask.timeSlot->start);
+        }
+
+        if(trailMask.type == TrailMaskType::TEXT) { entry["text"] = trailMask.name; }
+
+        entry["name"] = trailMask.name;
+
+        if(trailMask.type == TrailMaskType::TEXT) {
+            textEntries.push_back(std::move(entry));
+        } else {
+            imageEntries.push_back(std::move(entry));
+        }
+    }
+
+    if(!textEntries.empty()) {
+        newTimeTable["TEXT"] = std::move(textEntries);
+    }
+
+    if(!imageEntries.empty()) {
+        newTimeTable["IMAGE"] = std::move(imageEntries);
+    }
+
+    std::ofstream outputFile{"./res/pictures/timeTable.toml", std::ios::trunc};
+    if(!outputFile.is_open()) {
+        std::cerr << "Failed to open timeTable.toml for writing" << std::endl;
+        return false;
+    }
+
+    outputFile << toml::format(newTimeTable);
+    outputFile.flush();
+
+    if(!outputFile.good()) {
+        std::cerr << "Failed to write timeTable.toml" << std::endl;
+        return false;
+    }
+
+    return true;
 }
 
 void TrailMapController::loadTrailMaskFromImage(std::string imageName) {
 
     SDL_Surface* loadedImage = loadImageFromFile(pictureFilePath_, imageName, pictureFileExtension_);
-    std::string key = "Image." + imageName;
-    loadImageFromSurface(key, loadedImage);
+    loadImageFromSurface(makeKey(TrailMaskType::IMAGE, imageName), loadedImage);
 }
 
 void TrailMapController::loadImageFromSurface(const std::string& key, SDL_Surface* surface) {
@@ -280,22 +330,20 @@ void TrailMapController::loadImageFromSurface(const std::string& key, SDL_Surfac
     SDL_DestroySurface(surface);
 }
 
-void TrailMapController::loadPictureNames() {
+void TrailMapController::loadEntriesFromDirectory() {
     
     std::vector<std::string> pictureNames;
 
     getFileNamesInDirectory(pictureFilePath_, pictureFileExtension_, pictureNames);
 
-    Texture tempTexture = Texture();
-
     for (std::string pictureName : pictureNames) {
-        std::string key = "Image." + pictureName;
+        std::string key = makeKey(TrailMaskType::IMAGE, pictureName);
 
-        trailMasks_.emplace(key, TrailMask{
+        //not inserted if the key already exists
+        trailMasks_.try_emplace(key, 
+            TrailMask{
             pictureName, 
             TrailMaskType::IMAGE,
-            nullptr,
-            std::nullopt
         });
     }
 }
@@ -415,23 +463,20 @@ void TrailMapController::onNotify(const UserEvent event) {
         }
         case EventType::TEXT_PRESET_CREATE:
         {
-            loadTrailMaskFromText(std::get<std::string>(event.payload));
+            //loadTrailMaskFromText(std::get<std::string>(event.payload));
             break;
         }
         case EventType::IMAGE_PRESET_EDIT:
         case EventType::TEXT_PRESET_EDIT:
         {
             TrailMaskData newData = std::get<TrailMaskData>(event.payload);
-            std::string key = (newData.type == TrailMaskType::TEXT ? "Text." : "Image.") + newData.name;
-
-            editTrailMask(key, newData);
+            editTrailMask(newData.makeKey(), newData);
             break;
         }
         case EventType::TEXT_PRESET_DELETE:
         {
             TrailMaskData data = std::get<TrailMaskData>(event.payload);
-            std::string key = (data.type == TrailMaskType::TEXT ? "Text." : "Image.") + data.name;
-            deleteTrailMask(key);
+            deleteTrailMask(data.makeKey());
             break;
         }
         case EventType::TRAIL_MASK_STRENGTH_CHANGED:

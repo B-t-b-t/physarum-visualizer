@@ -30,6 +30,8 @@ struct TrailMask {
         float strength{1.0f};
         phys::Vec2<float> position{0.0f, 0.0f};
         phys::Vec2<float> scale{1.0f, 1.0f};
+
+        std::string makeKey();
 };
 
 class TrailMapController : public Observer {
@@ -44,21 +46,21 @@ public:
     ~TrailMapController();
     
     void loadTrailMaskFromImage(std::string imageName);
-    void loadTrailMaskFromText(std::string text);
-    void loadPictureNames();
     void bindToTextureUnit(GLuint textureUnit);
-
+    
 	void autoSwitchPictures(Uint64 timeInSeconds);
     void loadRandomPicture();
     void editTrailMask(const std::string& key, TrailMaskData newData);
     void deleteTrailMask(const std::string& key);
     void onNotify(const UserEvent event) override;
-
-private:
-
+    
+    private:
+    
     bool checkTimeTable(std::string name);
-    bool loadFromToml();
+    bool loadEntriesFromToml();
+    void loadEntriesFromDirectory();
     bool saveToToml();
+    void createTrailMaskTextures();
     void loadImageFromSurface(const std::string& key, SDL_Surface* surface);
 
     SDL_Surface* loadedImage_;
@@ -77,8 +79,6 @@ private:
     float trailMaskStrengthTemp_ = 1.0f;
     SDL_Time timeTicks_;
     SDL_DateTime dateTime_;
-
-    toml::value timeTable_{};
 
     bool timeOut_ = false;
 };
