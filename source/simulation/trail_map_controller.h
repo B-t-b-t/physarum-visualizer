@@ -2,10 +2,10 @@
 #define TRAIL_MAP_CONTROLLER_H
 
 #include <chrono>
+#include <map>
 #include <memory>
 #include <optional>
 #include <string>
-#include <vector>
 
 #include <GL/glew.h>
 #include <SDL3/SDL.h>
@@ -22,7 +22,7 @@
 struct TrailMask {
         std::string name;
         TrailMaskType type;
-        
+
         std::unique_ptr<Texture> texture;
         bool loadedToGPU{false};
 
@@ -51,8 +51,8 @@ public:
 
 	void autoSwitchPictures(Uint64 timeInSeconds);
     void loadRandomPicture();
-    void editTrailMask(size_t index, TrailMaskData newData);
-    void deleteTrailMask(size_t index);
+    void editTrailMask(const std::string& key, TrailMaskData newData);
+    void deleteTrailMask(const std::string& key);
     void onNotify(const UserEvent event) override;
 
 private:
@@ -60,12 +60,12 @@ private:
     bool checkTimeTable(std::string name);
     bool loadFromToml();
     bool saveToToml();
-    void loadImageFromSurface(SDL_Surface* surface);
+    void loadImageFromSurface(const std::string& key, SDL_Surface* surface);
 
     SDL_Surface* loadedImage_;
     TextTexture textImage_;
 
-    std::vector<TrailMask> trailMasks_;
+    std::map<std::string, TrailMask> trailMasks_;
 
     std::string pictureFilePath_ = "./res/pictures/";
     std::string pictureFileExtension_ = ".png";
@@ -74,7 +74,7 @@ private:
 
     FontAtlas fontAtlas_;
 
-    size_t activeTrailMaskIndex_;
+    std::string activeTrailMaskName_;
     float trailMaskStrengthTemp_ = 1.0f;
     SDL_Time timeTicks_;
     SDL_DateTime dateTime_;

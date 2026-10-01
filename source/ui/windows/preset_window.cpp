@@ -187,8 +187,8 @@ void PresetWindow::imagePresetGUI(ApplicationState* appState) {
 
     ImGui::BeginChild("ImageSelectionChild", ImVec2(0, 0), true, ImGuiWindowFlags_MenuBar);
 
-    std::vector<TrailMask>* trailMasks = appState->trailMasks;
-    const size_t usedTrailMaskIndex = appState->usedTrailMaskIndex;
+    std::map<std::string, TrailMask>* trailMasks = appState->trailMasks;
+    const std::string& usedTrailMaskName = appState->usedTrailMaskName;
 
     if (ImGui::BeginMenuBar()) {
         //Fontawesome: fa-solid fa-square-plus 
@@ -218,12 +218,10 @@ void PresetWindow::imagePresetGUI(ApplicationState* appState) {
     if(ImGui::BeginTable("##Image Selection", 2, ImGuiTableFlags_SizingFixedFit)) {
 
         if(trailMasks != nullptr) {
-            static size_t editIndex = 0;
+            static std::string editKey = "";
             static bool isRightClicked = false;
 
-            for(unsigned int i = 0; i < trailMasks->size(); ++i) {
-
-                TrailMask& trailMask = (*trailMasks)[i];
+            for(auto& [key, trailMask] : *trailMasks) {
 
                 if(trailMask.type != TrailMaskType::TEXT) {
                     ImGui::TableNextRow();
@@ -232,10 +230,10 @@ void PresetWindow::imagePresetGUI(ApplicationState* appState) {
                     continue;       //filter out text presets
                 }
 
-				const bool isSelected = (usedTrailMaskIndex == i);
+				const bool isSelected = (usedTrailMaskName == key);
 
 				if(ImGui::Selectable(trailMask.name.c_str(), isSelected, ImGuiSelectableFlags_SpanAllColumns)) {
-					appState->usedTrailMaskIndex = i;
+					appState->usedTrailMaskName = key;
 					notify(UserEvent{EventType::IMAGE_PRESET_APPLY});
 					std::cout << "Selected Image: " << trailMask.name << std::endl;
 				}
@@ -243,7 +241,7 @@ void PresetWindow::imagePresetGUI(ApplicationState* appState) {
                 ImGui::SetItemTooltip("Right-click to edit");
 
                 if(ImGui::OpenPopupOnItemClick(nullptr, ImGuiPopupFlags_MouseButtonRight)) {
-                    editIndex = i;
+                    editKey = key;
                     isRightClicked = true;
                 }
 
@@ -257,7 +255,7 @@ void PresetWindow::imagePresetGUI(ApplicationState* appState) {
                 ImGui::OpenPopup("Edit Image");
                 isRightClicked = false;
             }
-            PresetWindowHelper::imagePresetEditModal("Edit Image", (*trailMasks)[editIndex], this, editIndex);   
+            PresetWindowHelper::imagePresetEditModal("Edit Image", (*trailMasks).find(editKey)->second, this);   
         }
 
         ImGui::EndTable();
@@ -296,8 +294,8 @@ void PresetWindow::textPresetGUI(ApplicationState* appState) {
 
     ImGui::BeginChild("TextSelectionChild", ImVec2(0, 0), true, ImGuiWindowFlags_MenuBar);
 
-    size_t usedTrailMaskIndex = appState->usedTrailMaskIndex;
-    std::vector<TrailMask>* trailMasks = appState->trailMasks;
+    std::string usedTrailMaskName = appState->usedTrailMaskName;
+    std::map<std::string, TrailMask>* trailMasks = appState->trailMasks;
 
     if (ImGui::BeginMenuBar()) {
         //Fontawesome: fa-solid fa-square-plus 
@@ -312,13 +310,13 @@ void PresetWindow::textPresetGUI(ApplicationState* appState) {
             if(ImGui::MenuItem("\uf044 Edit")) {    //edit a already selected text preset
                 ImGui::OpenPopup("Edit Text Preset");
             }
-            PresetWindowHelper::textPresetEditModal("Edit Text Preset", (*trailMasks)[usedTrailMaskIndex], this, &usedTrailMaskIndex);
+            PresetWindowHelper::textPresetEditModal("Edit Text Preset", (*trailMasks).find(usedTrailMaskName)->second, this);
 
             //Fontawesome: fa-solid fa-trash-can 
             if(ImGui::MenuItem("\uf2ed Delete")) {
                 ImGui::OpenPopup("Delete Text Preset");
             }
-            PresetWindowHelper::textPresetDeleteModal("Delete Text Preset", (*trailMasks)[usedTrailMaskIndex], this, &usedTrailMaskIndex);
+            PresetWindowHelper::textPresetDeleteModal("Delete Text Preset", (*trailMasks).find(usedTrailMaskName)->second, this);
         }
         ImGui::EndMenuBar();
     }
@@ -326,12 +324,10 @@ void PresetWindow::textPresetGUI(ApplicationState* appState) {
     if(ImGui::BeginTable("##Text Selection", 2, ImGuiTableFlags_SizingFixedFit)) {
         if(trailMasks != nullptr) {
 
-            static size_t editIndex = 0;
+            static std::string editKey = "";
             static bool isRightClicked = false;
 
-            for (unsigned int i = 0; i < trailMasks->size(); ++i) {
-                
-                TrailMask& trailMask = (*trailMasks)[i];
+            for (auto& [key, trailMask] : *trailMasks) {
                 
                 if(trailMask.type == TrailMaskType::TEXT) {
                     ImGui::TableNextRow();
@@ -340,16 +336,15 @@ void PresetWindow::textPresetGUI(ApplicationState* appState) {
                     continue;   //filter out non-text presets
                 }
 
-				const bool isSelected = (usedTrailMaskIndex == i);
-
+				const bool isSelected = (usedTrailMaskName == key);
 				if(ImGui::Selectable(trailMask.name.c_str(), isSelected, ImGuiSelectableFlags_SpanAllColumns)) {
-					appState->usedTrailMaskIndex = i;
+					appState->usedTrailMaskName = key;
 					notify(UserEvent{EventType::TEXT_PRESET_APPLY});
 					std::cout << "Selected Text: " << trailMask.name << std::endl;
 				}
 
                 if(ImGui::OpenPopupOnItemClick(nullptr, ImGuiPopupFlags_MouseButtonRight)) {
-                    editIndex = i;
+                    editKey = key;
                     isRightClicked = true;
                 }
 
@@ -365,7 +360,7 @@ void PresetWindow::textPresetGUI(ApplicationState* appState) {
                 ImGui::OpenPopup("Edit Text");  //edit a non-selected text preset
                 isRightClicked = false;
             }
-            PresetWindowHelper::textPresetEditModal("Edit Text", (*trailMasks)[editIndex], this, &editIndex);
+            PresetWindowHelper::textPresetEditModal("Edit Text", (*trailMasks).find(editKey)->second, this);
         }
 
         ImGui::EndTable();

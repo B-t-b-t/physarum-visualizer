@@ -159,7 +159,7 @@ namespace PresetWindowHelper {
         }
     }
     //ImagePresetContext
-    void imagePresetEditModal(const char* stringID, TrailMask& trailMask, PresetWindow* presetWindow, size_t atIndex) {
+    void imagePresetEditModal(const char* stringID, TrailMask& trailMask, PresetWindow* presetWindow) {
         using namespace std::chrono;
 
         if(ImGui::BeginPopupModal(stringID)) {
@@ -197,8 +197,7 @@ namespace PresetWindowHelper {
 
                 TrailMaskData trailMaskData{
                     .name = trailMask.name,
-                    .type = TrailMaskType::IMAGE,
-                    .atIndex = atIndex
+                    .type = TrailMaskType::IMAGE
                 };
 
                 if(editTimeSlot) {
@@ -246,7 +245,7 @@ namespace PresetWindowHelper {
         }
     }
 
-    void textPresetEditModal(const char* stringID, TrailMask& trailMask, PresetWindow* presetWindow, size_t* atIndex) {
+    void textPresetEditModal(const char* stringID, TrailMask& trailMask, PresetWindow* presetWindow) {
         using namespace std::chrono;
 
         if(ImGui::BeginPopupModal(stringID)) {
@@ -304,8 +303,7 @@ namespace PresetWindowHelper {
                     .type = TrailMaskType::TEXT,
                     .strength = strength,
                     .position = position,
-                    .scale = scale,
-                    .atIndex = *atIndex
+                    .scale = scale
                 };
 
                 if(editTimeSlot) {
@@ -329,10 +327,9 @@ namespace PresetWindowHelper {
 
             //Fontawesome: fa-solid fa-trash-can 
             if(ImGui::Button("\uf2ed Delete")) {
-                presetWindow->notify(UserEvent{EventType::TEXT_PRESET_DELETE, static_cast<int>(*atIndex)});
+                presetWindow->notify(UserEvent{EventType::TEXT_PRESET_DELETE, TrailMaskData{trailMask.name, trailMask.type}});
 
                 textToEdit.clear();
-                *atIndex = 0; //prevent out of bounds index, if last item was deleted
                 ImGui::CloseCurrentPopup();
             }
 
@@ -340,7 +337,7 @@ namespace PresetWindowHelper {
         }
     }
 
-    void textPresetDeleteModal(const char* stringID, TrailMask& trailMask, PresetWindow* presetWindow, size_t* atIndex) {
+    void textPresetDeleteModal(const char* stringID, TrailMask& trailMask, PresetWindow* presetWindow) {
         if(ImGui::BeginPopupModal(stringID, NULL, ImGuiWindowFlags_AlwaysAutoResize)) {
             
             ImGui::Text("Name:   %s", trailMask.name.c_str());
@@ -349,7 +346,7 @@ namespace PresetWindowHelper {
 
             //Fontawesome: fa-solid fa-trash-can 
             if (ImGui::Button("\uf2ed Delete")) {
-                presetWindow->notify(UserEvent{EventType::TEXT_PRESET_DELETE, static_cast<int>(*atIndex)});
+                presetWindow->notify(UserEvent{EventType::TEXT_PRESET_DELETE, TrailMaskData{trailMask.name, trailMask.type}});
                 ImGui::CloseCurrentPopup();
             }
             ImGui::SameLine();

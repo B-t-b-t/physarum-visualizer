@@ -3,6 +3,7 @@
 #include <ctime>
 #include <fstream>
 #include <iostream>
+#include <iterator>             // for next
 
 #include <SDL3_image/SDL_image.h>
 #include <toml.hpp>
@@ -13,7 +14,7 @@
 #include "../utility/fileHandling.h"
 
 bool TrailMapController::checkTimeTable(std::string name) {
-    for(const TrailMask& trailMask : trailMasks_) {
+    for(const auto& [key, trailMask] : trailMasks_) {
         if(trailMask.name != name) {
             continue;
         }
@@ -56,7 +57,7 @@ bool TrailMapController::loadFromToml() {
     }
 
     //load time slots for all trail masks, if they exist
-    for(TrailMask& trailMask : trailMasks_) {
+    for(auto& [key, trailMask] : trailMasks_) {
         std::string tableName = "";
 
         if(timeTable_.contains("Image." + trailMask.name) && trailMask.type == TrailMaskType::IMAGE) {
@@ -75,12 +76,17 @@ bool TrailMapController::loadFromToml() {
         trailMask.timeSlot = TimeSlot{ 
             toml::find<std::chrono::system_clock::time_point>(entry, "begin"), toml::find<std::chrono::system_clock::time_point>(entry, "end")
         };
-
+        try {
         trailMask.strength = toml::find_or<float>(entry, "strength", 1.0f);
         trailMask.position.x = toml::find_or<float>(entry, "position", 0, 0.0f);
         trailMask.position.y = toml::find_or<float>(entry, "position", 1, 0.0f);
         trailMask.scale.x = toml::find_or<float>(entry, "scale", 0, 1.0f);
         trailMask.scale.y = toml::find_or<float>(entry, "scale", 1, 1.0f);
+        } catch(const toml::exception& err) {
+            std::cerr << "Failed to load optional fields for trail mask \"" << trailMask.name
+                      << "\": " << err.what() << std::endl;
+            continue;
+        }
     }
 
     return true;
@@ -89,7 +95,7 @@ bool TrailMapController::loadFromToml() {
 bool TrailMapController::saveToToml() {
     toml::value newTimeTable{toml::table{}};
 
-    for(const TrailMask& trailMask : trailMasks_) {
+    for(const auto& [key, trailMask] : trailMasks_) {
         //images without a time slot do not need an entry. Text masks must
         //always be persisted, even when they do not have a time slot.
         if(trailMask.type == TrailMaskType::IMAGE && !trailMask.timeSlot) {
@@ -123,9 +129,9 @@ bool TrailMapController::saveToToml() {
         }
 
         if(trailMask.type == TrailMaskType::TEXT) {
-            newTimeTable["Text." + trailMask.name] = entry;
+            newTimeTable[key] = entry;
         } else {
-            newTimeTable["Image." + trailMask.name] = entry;
+            newTimeTable[key] = entry;
         }
     }
 
@@ -150,22 +156,21 @@ bool TrailMapController::saveToToml() {
 
 TrailMapController::TrailMapController(std::string pictureFilePath, std::string pictureFileExtension, GLuint textureUnit, ApplicationState* appState)
  : pictureFilePath_(pictureFilePath), 
-   pictureFileExtension_(pictureFileExtension), 
+   pictureFileExtension_(pictureFileExtension),
    textureUnit_(textureUnit),
    appState_(appState),
    fontAtlas_{FontAtlas("Roboto-Medium")}
 {
     loadPictureNames();
-    for(size_t i = 0; i < trailMasks_.size(); ++i) {
-        activeTrailMaskIndex_ = i;
-        loadTrailMaskFromImage(trailMasks_[i].name);
+    for(auto& [key, trailMask] : trailMasks_) {
+        loadTrailMaskFromImage(trailMask.name);
     }
     loadFromToml();
 
-    activeTrailMaskIndex_ = 0;	//reset to first image after loading all images into GPU memory
+    activeTrailMaskName_ = trailMasks_.empty() ? "" : trailMasks_.begin()->first;
 
     appState_->trailMasks = &trailMasks_;
-    appState_->usedTrailMaskIndex = activeTrailMaskIndex_;
+    appState_->usedTrailMaskName = activeTrailMaskName_;
     trailMaskStrengthTemp_ = appState_->universalShaderSettings.trailMaskInfluence;
 }
 
@@ -178,12 +183,18 @@ TrailMapController::TrailMapController(TrailMapController&& other) {
     loadedImage_ = other.loadedImage_;
     textImage_ = std::move(other.textImage_);
     trailMasks_ = std::move(other.trailMasks_);
-    activeTrailMaskIndex_ = other.activeTrailMaskIndex_;
+    activeTrailMaskName_ = other.activeTrailMaskName_;
     trailMaskStrengthTemp_ = other.trailMaskStrengthTemp_;
     timeTicks_ = other.timeTicks_;
     dateTime_ = other.dateTime_;
     timeTable_ = std::move(other.timeTable_);
     timeOut_ = other.timeOut_;
+
+    //inform appState after move just in case
+    if(appState_) {
+        appState_->trailMasks = &trailMasks_;
+        appState_->usedTrailMaskName = activeTrailMaskName_;
+    }
 
     other.loadedImage_ = nullptr;
     other.textureUnit_ = 0;
@@ -200,12 +211,18 @@ TrailMapController& TrailMapController::operator=(TrailMapController&& other) {
         loadedImage_ = other.loadedImage_;
         textImage_ = std::move(other.textImage_);
         trailMasks_ = std::move(other.trailMasks_);
-        activeTrailMaskIndex_ = other.activeTrailMaskIndex_;
+        activeTrailMaskName_ = other.activeTrailMaskName_;
         trailMaskStrengthTemp_ = other.trailMaskStrengthTemp_;
         timeTicks_ = other.timeTicks_;
         dateTime_ = other.dateTime_;
         timeTable_ = std::move(other.timeTable_);
         timeOut_ = other.timeOut_;
+
+        //inform appState after move just in case
+        if(appState_) {
+            appState_->trailMasks = &trailMasks_;
+            appState_->usedTrailMaskName = activeTrailMaskName_;
+        }
 
         other.loadedImage_ = nullptr;
         other.textureUnit_ = 0;
@@ -219,23 +236,31 @@ TrailMapController::~TrailMapController() {
 }
 
 void TrailMapController::loadTrailMaskFromText(std::string text) {
-    trailMasks_.push_back({
+    std::string key = "Text." + text;
+
+    auto [it, inserted] = trailMasks_.emplace(key, TrailMask{
         text, 
         TrailMaskType::TEXT,
         std::make_unique<TextTexture>(appState_->universalShaderSettings.textureWidth, appState_->universalShaderSettings.textureHeight, appState_), 
         true, 
         std::nullopt});
 
-    ((TextTexture*)trailMasks_.back().texture.get())->createTexture(text, fontAtlas_);
+    if(!inserted) {
+        std::cerr << "Trail mask with key " << key << " already exists." << std::endl;
+        return;
+    }
+
+    static_cast<TextTexture*>(it->second.texture.get())->createTexture(text, fontAtlas_);
 }
 
 void TrailMapController::loadTrailMaskFromImage(std::string imageName) {
 
     SDL_Surface* loadedImage = loadImageFromFile(pictureFilePath_, imageName, pictureFileExtension_);
-    loadImageFromSurface(loadedImage);
+    std::string key = "Image." + imageName;
+    loadImageFromSurface(key, loadedImage);
 }
 
-void TrailMapController::loadImageFromSurface(SDL_Surface* surface) {
+void TrailMapController::loadImageFromSurface(const std::string& key, SDL_Surface* surface) {
     if(surface == nullptr) {
         return; //error message already printed in loadImageFromFile
     }
@@ -251,8 +276,8 @@ void TrailMapController::loadImageFromSurface(SDL_Surface* surface) {
 
     Texture tempTexture(properties, surface->pixels, TextureDataFormat::RGBA, TextureDataType::UBYTE, surface->pitch);
     
-    trailMasks_[activeTrailMaskIndex_].texture = std::make_unique<Texture>(std::move(tempTexture));
-    trailMasks_[activeTrailMaskIndex_].loadedToGPU = true;
+    trailMasks_[key].texture = std::make_unique<Texture>(std::move(tempTexture));
+    trailMasks_[key].loadedToGPU = true;
 
     SDL_DestroySurface(surface);
 }
@@ -266,7 +291,9 @@ void TrailMapController::loadPictureNames() {
     Texture tempTexture = Texture();
 
     for (std::string pictureName : pictureNames) {
-        trailMasks_.push_back({
+        std::string key = "Image." + pictureName;
+
+        trailMasks_.emplace(key, TrailMask{
             pictureName, 
             TrailMaskType::IMAGE,
             std::make_unique<Texture>(std::move(tempTexture)), 
@@ -282,13 +309,17 @@ void TrailMapController::loadRandomPicture() {
         SDL_GetCurrentTime(&timeTicks_);
         SDL_TimeToDateTime(timeTicks_, &dateTime_, true);
         
-        unsigned int randomIndex = 0;
+        long int randomIndex = 0;
         std::string imageName = "";
+        std::string selectedKey = "";
         
         // try until a random picture passes the timetable check
-        do {   
-            randomIndex = (unsigned int) (rand() % (int)trailMasks_.size());
-            imageName = trailMasks_[randomIndex].name;
+        do {
+            randomIndex = static_cast<long int>((size_t)rand() % trailMasks_.size());
+
+            const auto selectedTrailMask = std::next(trailMasks_.begin(), randomIndex);
+            selectedKey = selectedTrailMask->first;
+            imageName = selectedTrailMask->second.name;
         } while(!checkTimeTable(imageName));
         
         //QUICK HACK: trailMasks get visually ugly, when the sensor distance is too large
@@ -300,8 +331,8 @@ void TrailMapController::loadRandomPicture() {
             appState_->universalShaderSettings.trailMaskInfluence = trailMaskStrengthTemp_; //restore previous value
         }
 
-        activeTrailMaskIndex_ = randomIndex;
-        appState_->usedTrailMaskIndex = randomIndex;
+        activeTrailMaskName_ = selectedKey;
+        appState_->usedTrailMaskName = selectedKey;
         
     } else {
         std::cerr << "WARN: No pictures available to auto switch" << std::endl;
@@ -322,16 +353,23 @@ void TrailMapController::autoSwitchPictures(Uint64 timeInSeconds) {
 
 void TrailMapController::bindToTextureUnit(GLuint textureUnit) { 
     textureUnit_ = textureUnit;
-    glActiveTexture(GL_TEXTURE0 + textureUnit_);
-    glBindTexture(GL_TEXTURE_2D, trailMasks_[activeTrailMaskIndex_].texture->getID());
-}
 
-void TrailMapController::editTrailMask(size_t index, TrailMaskData newData) {
-    if(index >= trailMasks_.size()) {
+    const auto trailMask = trailMasks_.find(activeTrailMaskName_);
+    if(trailMask == trailMasks_.end() || !trailMask->second.texture) {
+        std::cerr << "Failed to bind trail mask: No valid active trail mask or valid texture!\n";
         return;
     }
 
-    TrailMask& trailMask = trailMasks_[index];
+    glActiveTexture(GL_TEXTURE0 + textureUnit_);
+    glBindTexture(GL_TEXTURE_2D, trailMask->second.texture->getID());
+}
+
+void TrailMapController::editTrailMask(const std::string& key, TrailMaskData newData) {
+    if(!trailMasks_.contains(key)) {
+        return;
+    }
+
+    TrailMask& trailMask = trailMasks_[key];
 
     trailMask.timeSlot = newData.timeSlot;
 
@@ -346,27 +384,15 @@ void TrailMapController::editTrailMask(size_t index, TrailMaskData newData) {
     trailMask.name = newData.name;
 }
 
-void TrailMapController::deleteTrailMask(size_t index) {
+void TrailMapController::deleteTrailMask(const std::string& key) {
 
-    //copy all Trail Masks to member vector except the one to be deleted
-    std::vector<TrailMask> tempMasks = std::move(trailMasks_);
-    trailMasks_.clear();
-    trailMasks_.reserve(tempMasks.size() - 1);
+    trailMasks_.erase(key);
 
-    for(size_t i = 0; i < tempMasks.size(); ++i) {
-        if(i != index) {
-            trailMasks_.push_back(std::move(tempMasks[i]));
-        }
+    //ensure activeTrailMaskName_ remains valid after deletion
+    if(key == activeTrailMaskName_) {
+        activeTrailMaskName_ = trailMasks_.empty() ? "" : trailMasks_.begin()->first;
+        appState_->usedTrailMaskName = activeTrailMaskName_;
     }
-
-    //ensure activeTrailMaskIndex_ is within bounds after deletion
-    if(index < activeTrailMaskIndex_) {
-        --activeTrailMaskIndex_;
-    } else if(index == activeTrailMaskIndex_) {
-        activeTrailMaskIndex_ = 0;
-    }
-
-    appState_->usedTrailMaskIndex = activeTrailMaskIndex_;
 }
 
 void TrailMapController::onNotify(const UserEvent event) {
@@ -375,18 +401,18 @@ void TrailMapController::onNotify(const UserEvent event) {
         case EventType::IMAGE_PRESET_APPLY:
         case EventType::TEXT_PRESET_APPLY: 
         {
-            activeTrailMaskIndex_ = appState_->usedTrailMaskIndex;
+            activeTrailMaskName_ = appState_->usedTrailMaskName;
 
-            if(trailMasks_[activeTrailMaskIndex_].loadedToGPU) {
+            if(trailMasks_[activeTrailMaskName_].loadedToGPU) {
                 glActiveTexture(GL_TEXTURE0 + textureUnit_);
-                glBindTexture(GL_TEXTURE_2D, trailMasks_[activeTrailMaskIndex_].texture->getID());
+                glBindTexture(GL_TEXTURE_2D, trailMasks_[activeTrailMaskName_].texture->getID());
             } else {
-                loadTrailMaskFromImage(trailMasks_[activeTrailMaskIndex_].name);
+                loadTrailMaskFromImage(trailMasks_[activeTrailMaskName_].name);
             }
-            appState_->universalShaderSettings.trailMaskInfluence = trailMasks_[activeTrailMaskIndex_].strength;
-            appState_->universalShaderSettings.trailMaskPosition = trailMasks_[activeTrailMaskIndex_].position;
-            appState_->universalShaderSettings.trailMaskScaleX = trailMasks_[activeTrailMaskIndex_].scale.x;
-            appState_->universalShaderSettings.trailMaskScaleY = trailMasks_[activeTrailMaskIndex_].scale.y;
+            appState_->universalShaderSettings.trailMaskInfluence = trailMasks_[activeTrailMaskName_].strength;
+            appState_->universalShaderSettings.trailMaskPosition = trailMasks_[activeTrailMaskName_].position;
+            appState_->universalShaderSettings.trailMaskScaleX = trailMasks_[activeTrailMaskName_].scale.x;
+            appState_->universalShaderSettings.trailMaskScaleY = trailMasks_[activeTrailMaskName_].scale.y;
 
             break;
         }
@@ -399,14 +425,16 @@ void TrailMapController::onNotify(const UserEvent event) {
         case EventType::TEXT_PRESET_EDIT:
         {
             TrailMaskData newData = std::get<TrailMaskData>(event.payload);
-            if(newData.atIndex.has_value()) {
-                editTrailMask(newData.atIndex.value(), newData);
-            }
+            std::string key = (newData.type == TrailMaskType::TEXT ? "Text." : "Image.") + newData.name;
+
+            editTrailMask(key, newData);
             break;
         }
         case EventType::TEXT_PRESET_DELETE:
         {
-            deleteTrailMask((size_t)std::get<int>(event.payload));
+            TrailMaskData data = std::get<TrailMaskData>(event.payload);
+            std::string key = (data.type == TrailMaskType::TEXT ? "Text." : "Image.") + data.name;
+            deleteTrailMask(key);
             break;
         }
         case EventType::TRAIL_MASK_STRENGTH_CHANGED:

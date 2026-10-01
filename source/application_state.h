@@ -76,8 +76,8 @@ public:
 	std::string usedColorPresetName = "";
 
 	// Trail Mask Selection via List Box
-	std::vector<TrailMask>* trailMasks = nullptr;
-	size_t usedTrailMaskIndex = 0;
+	std::map<std::string, TrailMask>* trailMasks = nullptr;
+	std::string usedTrailMaskName = "";
 
 	int numParticles = 300000;
 	float slimeRatio = 0.15f;
