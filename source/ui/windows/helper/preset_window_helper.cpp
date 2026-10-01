@@ -165,6 +165,10 @@ namespace PresetWindowHelper {
         if(ImGui::BeginPopupModal(stringID)) {
             
             static bool editTimeSlot = false;
+            static float strength = 1.0f;
+            static phys::Vec2 position{0.0f, 0.0f};
+            static phys::Vec2 scale{1.0f, 1.0f};
+            static bool linkScale = true;
 
             //initialize in minutes for user convenience
             static system_clock::time_point timeSlotStart = floor<minutes>(system_clock::now());
@@ -172,6 +176,9 @@ namespace PresetWindowHelper {
 
             if(ImGui::IsWindowAppearing()) {
                 editTimeSlot = trailMask.timeSlot.has_value();
+                strength = trailMask.strength;
+                position = trailMask.position;
+                scale = trailMask.scale;
         
                 //if no time slot exists, the start and end time shows the times of the last edited item by design
                 //so that editing is more convenient for the user
@@ -191,13 +198,25 @@ namespace PresetWindowHelper {
                 editTimeSlotTable(&timeSlotStart, &timeSlotEnd);
             }
 
+            ImGui::SliderFloat("Strength", &strength, 0.0f, 5.0f);
+            ImGui::SliderFloat("Position Horizontal", &position.x, -1.0f, 1.0f);
+            ImGui::SliderFloat("Position Vertical", &position.y, -1.0f, 1.0f);
+
+            ImGui::LinkBegin("##Link Trail Mask Scales", &linkScale, 2.0f);
+            ImGui::LinkSliderFloat("Width", &scale.x, 0.1f, 10.0f);
+            ImGui::LinkSliderFloat("Height", &scale.y, 0.1f, 10.0f);
+            ImGui::LinkEnd();
+
             ImGui::Separator();
 
             if(ImGui::Button("Ok")) {
 
                 TrailMaskData trailMaskData{
                     .name = trailMask.name,
-                    .type = TrailMaskType::IMAGE
+                    .type = TrailMaskType::IMAGE,
+                    .strength = strength,
+                    .position = position,
+                    .scale = scale
                 };
 
                 if(editTimeSlot) {
