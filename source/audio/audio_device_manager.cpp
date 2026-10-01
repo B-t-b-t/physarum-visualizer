@@ -1,5 +1,7 @@
 #include "audio_device_manager.h"
 
+#include <iostream>  // for std::cout
+
 #include "SDL3/SDL_error.h"   // for SDL_GetError
 #include "SDL3/SDL_events.h"  // for SDL_EventType, SDL_Event, SDL_EventAction
 #include "SDL3/SDL_log.h"     // for SDL_Log, SDL_LogCategory, SDL_LogError
