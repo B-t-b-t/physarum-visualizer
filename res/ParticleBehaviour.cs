@@ -44,7 +44,8 @@ layout(std140, binding = 0) uniform UniversalShaderSettings {
     float _padding0;
 
     vec2 trailMaskPosition;
-    vec2 _padding1;
+    int trailMaskIsInverted;
+    float _padding1;
 
     vec4 mouseInputs; // x, y, leftClick, rightClick
 };
@@ -302,6 +303,9 @@ SensedTrail sensingTrail(Particle particle, float beatSensorDistance, float da, 
 
     vec2 trailMaskPos = getTrailMaskCoordinates(sensePos);
     sensedPixelValue = trailMaskInfluence * textureLod(texTrailMask, trailMaskPos, 0.0f);
+    if(trailMaskIsInverted == 1) {
+        sensedPixelValue.rgb = vec3(1.0f) - sensedPixelValue.rgb;
+    }
     sensedTrail.left += dot(speciesColor.rgb, sensedPixelValue.rgb);
 
     //sense front Pixel
@@ -319,6 +323,9 @@ SensedTrail sensingTrail(Particle particle, float beatSensorDistance, float da, 
 
     trailMaskPos = getTrailMaskCoordinates(sensePos);
     sensedPixelValue = trailMaskInfluence * textureLod(texTrailMask, trailMaskPos, 0.0f);
+    if(trailMaskIsInverted == 1) {
+        sensedPixelValue.rgb = vec3(1.0f) - sensedPixelValue.rgb;
+    }
     sensedTrail.front += dot(speciesColor.rgb, sensedPixelValue.rgb);
 
     //sense right Pixel
@@ -336,6 +343,9 @@ SensedTrail sensingTrail(Particle particle, float beatSensorDistance, float da, 
 
     trailMaskPos = getTrailMaskCoordinates(sensePos);
     sensedPixelValue = trailMaskInfluence * textureLod(texTrailMask, trailMaskPos, 0.0f);
+    if(trailMaskIsInverted == 1) {
+        sensedPixelValue.rgb = vec3(1.0f) - sensedPixelValue.rgb;
+    }
     sensedTrail.right += dot(speciesColor.rgb, sensedPixelValue.rgb);
 
     return sensedTrail;

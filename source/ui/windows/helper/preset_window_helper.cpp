@@ -169,6 +169,7 @@ namespace PresetWindowHelper {
             static phys::Vec2 position{0.0f, 0.0f};
             static phys::Vec2 scale{1.0f, 1.0f};
             static bool linkScale = true;
+            static bool isInverted = false;
 
             //initialize in minutes for user convenience
             static system_clock::time_point timeSlotStart = floor<minutes>(system_clock::now());
@@ -179,6 +180,7 @@ namespace PresetWindowHelper {
                 strength = trailMask.strength;
                 position = trailMask.position;
                 scale = trailMask.scale;
+                isInverted = trailMask.isInverted;
         
                 //if no time slot exists, the start and end time shows the times of the last edited item by design
                 //so that editing is more convenient for the user
@@ -207,6 +209,8 @@ namespace PresetWindowHelper {
             ImGui::LinkSliderFloat("Height", &scale.y, 0.1f, 10.0f);
             ImGui::LinkEnd();
 
+            ImGui::Checkbox("Invert", &isInverted);
+
             ImGui::Separator();
 
             if(ImGui::Button("Ok")) {
@@ -216,7 +220,8 @@ namespace PresetWindowHelper {
                     .type = TrailMaskType::IMAGE,
                     .strength = strength,
                     .position = position,
-                    .scale = scale
+                    .scale = scale,
+                    .isInverted = isInverted
                 };
 
                 if(editTimeSlot) {
@@ -274,6 +279,7 @@ namespace PresetWindowHelper {
             static phys::Vec2 position{0.0f, 0.0f};
             static phys::Vec2 scale{1.0f, 1.0f};
             static bool linkScale = true;
+            static bool isInverted = false;
 
             //initialize in minutes for user convenience
             static system_clock::time_point timeSlotStart = floor<minutes>(system_clock::now());
@@ -285,6 +291,7 @@ namespace PresetWindowHelper {
                 strength = trailMask.strength;
                 position = trailMask.position;
                 scale = trailMask.scale;
+                isInverted = trailMask.isInverted;
 
                 //if no time slot exists, the start and end time shows the times of the last edited item by design
                 //so that editing is more convenient for the user
@@ -312,6 +319,7 @@ namespace PresetWindowHelper {
             ImGui::LinkSliderFloat("Width", &scale.x, 0.1f, 10.0f);
             ImGui::LinkSliderFloat("Height", &scale.y, 0.1f, 10.0f);
             ImGui::LinkEnd();
+            ImGui::Checkbox("Invert", &isInverted);
 
             ImGui::Separator();
 
@@ -322,7 +330,8 @@ namespace PresetWindowHelper {
                     .type = TrailMaskType::TEXT,
                     .strength = strength,
                     .position = position,
-                    .scale = scale
+                    .scale = scale,
+                    .isInverted = isInverted
                 };
 
                 if(editTimeSlot) {

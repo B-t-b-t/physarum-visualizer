@@ -20,7 +20,8 @@ struct alignas(16) UniversalShaderSettings {
     float _padding0 = 0.0f;
 
     phys::Vec2<float> trailMaskPosition = phys::Vec2<float>{0.0f, 0.0f};
-    phys::Vec2<float> _padding1 = phys::Vec2<float>{0.0f, 0.0f};
+    int trailMaskIsInverted = false;
+    float _padding1;
 
     phys::Vec4<float> mouseInputs = phys::Vec4<float>{0.0f, 0.0f, 0.0f, 0.0f}; // x, y, leftClick, rightClick
 };

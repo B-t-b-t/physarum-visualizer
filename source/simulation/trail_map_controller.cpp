@@ -449,6 +449,7 @@ void TrailMapController::editTrailMask(const std::string& key, TrailMaskData new
     trailMask.strength = newData.strength;
     trailMask.position = newData.position;
     trailMask.scale = newData.scale;
+    trailMask.isInverted = newData.isInverted;
 
     if(trailMask.type == TrailMaskType::TEXT && trailMask.name != newData.name) {
         ((TextTexture*)trailMask.texture.get())->createTexture(newData.name, fontAtlas_);
@@ -486,6 +487,7 @@ void TrailMapController::onNotify(const UserEvent event) {
             appState_->universalShaderSettings.trailMaskPosition = trailMasks_[activeTrailMaskName_].position;
             appState_->universalShaderSettings.trailMaskScaleX = trailMasks_[activeTrailMaskName_].scale.x * trailMasks_[activeTrailMaskName_].aspectRatioCorrection.x;
             appState_->universalShaderSettings.trailMaskScaleY = trailMasks_[activeTrailMaskName_].scale.y * trailMasks_[activeTrailMaskName_].aspectRatioCorrection.y;
+            appState_->universalShaderSettings.trailMaskIsInverted = trailMasks_[activeTrailMaskName_].isInverted;
 
             break;
         }
