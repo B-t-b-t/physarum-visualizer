@@ -229,6 +229,7 @@ namespace PresetWindowHelper {
                 }
 
                 presetWindow->notify(UserEvent{ EventType::IMAGE_PRESET_EDIT, trailMaskData});
+                presetWindow->notify(UserEvent{EventType::IMAGE_PRESET_APPLY});
 
                 ImGui::CloseCurrentPopup();
             }
@@ -339,6 +340,7 @@ namespace PresetWindowHelper {
                 }
 
                 presetWindow->notify(UserEvent{EventType::TEXT_PRESET_EDIT, trailMaskData});
+                presetWindow->notify(UserEvent{EventType::TEXT_PRESET_APPLY});
 
                 textToEdit.clear();
                 ImGui::CloseCurrentPopup();

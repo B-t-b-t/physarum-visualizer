@@ -10,7 +10,18 @@ namespace phys {
 
         Vec2() = default;
         Vec2(T xVal, T yVal) : x(xVal), y(yVal) {}
+
+        Vec2<T> operator+ (const Vec2<T>& other) const {
+            return Vec2<T>(x + other.x, y + other.y);
+        }
+
+        Vec2<T> operator+= (const Vec2<T>& other) {
+            x += other.x;
+            y += other.y;
+            return *this;
+        }
     };
+
 
     template<typename T>
     struct Vec3 {

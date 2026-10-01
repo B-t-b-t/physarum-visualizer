@@ -56,6 +56,10 @@ public:
     void deleteTrailMask(const std::string& key);
     void onNotify(const UserEvent event) override;
     
+    static float globalStrength_;
+    static phys::Vec2<float> globalPosition_;
+    static phys::Vec2<float> globalScale_;
+
     private:
     
     bool checkTimeTable(std::string name);

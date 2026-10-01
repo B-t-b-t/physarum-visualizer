@@ -263,6 +263,26 @@ void PresetWindow::imagePresetGUI(ApplicationState* appState) {
 
     ImGui::EndChild();
 
+    ImGui::SeparatorText("Global Override");
+
+    bool globalChanged = false;
+
+    globalChanged |= ImGui::SliderFloat("Strength", &TrailMapController::globalStrength_, 0.0f, 10.0f);
+    globalChanged |= ImGui::SliderFloat("Position Horizontal", &TrailMapController::globalPosition_.x, -1.0f, 1.0f);
+
+    globalChanged |= ImGui::SliderFloat("Position Vertical", &TrailMapController::globalPosition_.y, -1.0f, 1.0f);
+
+    static bool linkScale = true;
+
+    ImGui::LinkBegin("##Link Scales", &linkScale, 2.0f);
+    globalChanged |= ImGui::LinkSliderFloat("Width", &TrailMapController::globalScale_.x, 0.1f, 10.0f);
+    globalChanged |= ImGui::LinkSliderFloat("Height", &TrailMapController::globalScale_.y, 0.1f, 10.0f);
+    ImGui::LinkEnd();
+
+    if(globalChanged) {
+        notify(UserEvent{EventType::IMAGE_PRESET_APPLY});
+    }
+
     ImGui::SeparatorText("Settings");
 
     ImGui::SliderInt("Switch Intervall", &appState->trailMaskIntervall, 2, 60, "%d s");
@@ -354,6 +374,26 @@ void PresetWindow::textPresetGUI(ApplicationState* appState) {
     }
 
     ImGui::EndChild();
+    
+    ImGui::SeparatorText("Global Override");
+    
+    bool globalChanged = false;
+    
+    globalChanged |= ImGui::SliderFloat("Strength", &TrailMapController::globalStrength_, 0.0f, 10.0f);
+    globalChanged |= ImGui::SliderFloat("Position Horizontal", &TrailMapController::globalPosition_.x, -1.0f, 1.0f);
+    
+    globalChanged |= ImGui::SliderFloat("Position Vertical", &TrailMapController::globalPosition_.y, -1.0f, 1.0f);
+    
+    static bool linkScale = true;
+    
+    ImGui::LinkBegin("##Link Scales", &linkScale, 2.0f);
+    globalChanged |= ImGui::LinkSliderFloat("Width", &TrailMapController::globalScale_.x, 0.1f, 10.0f);
+    globalChanged |= ImGui::LinkSliderFloat("Height", &TrailMapController::globalScale_.y, 0.1f, 10.0f);
+    ImGui::LinkEnd();
+    
+    if(globalChanged) {
+        notify(UserEvent{EventType::TEXT_PRESET_APPLY});
+    }
 
     ImGui::SeparatorText("Settings");
 

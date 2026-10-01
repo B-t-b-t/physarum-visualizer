@@ -13,6 +13,10 @@
 #include "../utility/event.h"
 #include "../utility/fileHandling.h"
 
+float TrailMapController::globalStrength_ = 1.0f;
+phys::Vec2<float> TrailMapController::globalPosition_{0.0f, 0.0f};
+phys::Vec2<float> TrailMapController::globalScale_{1.0f, 1.0f};
+
 TrailMapController::TrailMapController(std::string pictureFilePath, std::string pictureFileExtension, GLuint textureUnit, ApplicationState* appState)
  : pictureFilePath_(pictureFilePath), 
    pictureFileExtension_(pictureFileExtension),
@@ -483,10 +487,10 @@ void TrailMapController::onNotify(const UserEvent event) {
             } else {
                 loadTrailMaskFromImage(trailMasks_[activeTrailMaskName_].name);
             }
-            appState_->universalShaderSettings.trailMaskInfluence = trailMasks_[activeTrailMaskName_].strength;
-            appState_->universalShaderSettings.trailMaskPosition = trailMasks_[activeTrailMaskName_].position;
-            appState_->universalShaderSettings.trailMaskScaleX = trailMasks_[activeTrailMaskName_].scale.x * trailMasks_[activeTrailMaskName_].aspectRatioCorrection.x;
-            appState_->universalShaderSettings.trailMaskScaleY = trailMasks_[activeTrailMaskName_].scale.y * trailMasks_[activeTrailMaskName_].aspectRatioCorrection.y;
+            appState_->universalShaderSettings.trailMaskInfluence = trailMasks_[activeTrailMaskName_].strength + globalStrength_;
+            appState_->universalShaderSettings.trailMaskPosition = trailMasks_[activeTrailMaskName_].position + globalPosition_;
+            appState_->universalShaderSettings.trailMaskScaleX = trailMasks_[activeTrailMaskName_].scale.x * trailMasks_[activeTrailMaskName_].aspectRatioCorrection.x * globalScale_.x;
+            appState_->universalShaderSettings.trailMaskScaleY = trailMasks_[activeTrailMaskName_].scale.y * trailMasks_[activeTrailMaskName_].aspectRatioCorrection.y * globalScale_.y;
             appState_->universalShaderSettings.trailMaskIsInverted = trailMasks_[activeTrailMaskName_].isInverted;
 
             break;
