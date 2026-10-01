@@ -241,8 +241,7 @@ void TrailMapController::loadTrailMaskFromText(std::string text) {
     auto [it, inserted] = trailMasks_.emplace(key, TrailMask{
         text, 
         TrailMaskType::TEXT,
-        std::make_unique<TextTexture>(appState_->universalShaderSettings.textureWidth, appState_->universalShaderSettings.textureHeight, appState_), 
-        true, 
+        std::make_unique<TextTexture>(appState_->universalShaderSettings.textureWidth, appState_->universalShaderSettings.textureHeight, appState_),
         std::nullopt});
 
     if(!inserted) {
@@ -277,7 +276,6 @@ void TrailMapController::loadImageFromSurface(const std::string& key, SDL_Surfac
     Texture tempTexture(properties, surface->pixels, TextureDataFormat::RGBA, TextureDataType::UBYTE, surface->pitch);
     
     trailMasks_[key].texture = std::make_unique<Texture>(std::move(tempTexture));
-    trailMasks_[key].loadedToGPU = true;
 
     SDL_DestroySurface(surface);
 }
@@ -296,8 +294,7 @@ void TrailMapController::loadPictureNames() {
         trailMasks_.emplace(key, TrailMask{
             pictureName, 
             TrailMaskType::IMAGE,
-            std::make_unique<Texture>(std::move(tempTexture)), 
-            false, 
+            nullptr,
             std::nullopt
         });
     }
@@ -403,7 +400,7 @@ void TrailMapController::onNotify(const UserEvent event) {
         {
             activeTrailMaskName_ = appState_->usedTrailMaskName;
 
-            if(trailMasks_[activeTrailMaskName_].loadedToGPU) {
+            if(trailMasks_[activeTrailMaskName_].texture != nullptr) {
                 glActiveTexture(GL_TEXTURE0 + textureUnit_);
                 glBindTexture(GL_TEXTURE_2D, trailMasks_[activeTrailMaskName_].texture->getID());
             } else {

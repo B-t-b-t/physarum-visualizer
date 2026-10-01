@@ -23,8 +23,7 @@ struct TrailMask {
         std::string name;
         TrailMaskType type;
 
-        std::unique_ptr<Texture> texture;
-        bool loadedToGPU{false};
+        std::unique_ptr<Texture> texture{nullptr};
 
         std::optional<TimeSlot> timeSlot = std::nullopt;
 
