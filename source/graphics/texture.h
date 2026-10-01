@@ -79,7 +79,7 @@ public:
 	Texture(const Texture&) = delete; // Prevent copying because of OpenGL resource management
 	Texture& operator=(Texture&& other) noexcept;
 	Texture(Texture&& other) noexcept;
-	~Texture();
+	virtual ~Texture();
 
 	GLuint getID() { return textureID_; }
 	GLuint getTextureUnit() { return properties_.textureUnit.value_or(0); }
