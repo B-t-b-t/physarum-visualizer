@@ -220,8 +220,23 @@ void TrailMapController::createTrailMaskTextures() {
     //load textures
     for(auto& [key, trailMask] : trailMasks_) {
         switch(trailMask.type) {
-            case TrailMaskType::IMAGE:
+            case TrailMaskType::IMAGE: {
                 loadTrailMaskFromImage(trailMask.name);
+                int texWidth = trailMask.texture->getWidth();
+                int texHeight = trailMask.texture->getHeight();
+                float sizeRatio = texWidth / (float) texHeight;
+                float canvasRatio = appState_->universalShaderSettings.textureWidth / (float) appState_->universalShaderSettings.textureHeight;
+
+                if(sizeRatio > 1.0f) {     //wider than tall
+                    if(sizeRatio > canvasRatio) {
+                        trailMask.aspectRatioCorrection.y *= canvasRatio / sizeRatio;
+                    } else {
+                        trailMask.aspectRatioCorrection.x *= sizeRatio / canvasRatio;
+                    }
+                } else if(sizeRatio < 1.0f) {   // taller than wide
+                    trailMask.aspectRatioCorrection.x *= sizeRatio / canvasRatio;
+                }
+            }                
                 break;
             case TrailMaskType::TEXT:
                 static_cast<TextTexture*>(trailMask.texture.get())->createTexture(trailMask.name, fontAtlas_);
@@ -469,8 +484,8 @@ void TrailMapController::onNotify(const UserEvent event) {
             }
             appState_->universalShaderSettings.trailMaskInfluence = trailMasks_[activeTrailMaskName_].strength;
             appState_->universalShaderSettings.trailMaskPosition = trailMasks_[activeTrailMaskName_].position;
-            appState_->universalShaderSettings.trailMaskScaleX = trailMasks_[activeTrailMaskName_].scale.x;
-            appState_->universalShaderSettings.trailMaskScaleY = trailMasks_[activeTrailMaskName_].scale.y;
+            appState_->universalShaderSettings.trailMaskScaleX = trailMasks_[activeTrailMaskName_].scale.x * trailMasks_[activeTrailMaskName_].aspectRatioCorrection.x;
+            appState_->universalShaderSettings.trailMaskScaleY = trailMasks_[activeTrailMaskName_].scale.y * trailMasks_[activeTrailMaskName_].aspectRatioCorrection.y;
 
             break;
         }

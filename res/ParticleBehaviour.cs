@@ -112,9 +112,7 @@ vec2 getTrailMaskCoordinates(ivec2 sensePos) {
         vec2(textureWidth, textureHeight);
     const vec2 trailMaskScale = vec2(trailMaskScaleX, trailMaskScaleY);
 
-    return trailMaskScale * (normalizedSensePos - 0.5f) +
-        0.5f +
-        trailMaskPosition;
+    return (normalizedSensePos - 0.5f) / trailMaskScale + 0.5f + trailMaskPosition;
 }
 
 void main() {

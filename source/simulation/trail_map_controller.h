@@ -29,7 +29,8 @@ struct TrailMask {
 
         float strength{1.0f};
         phys::Vec2<float> position{0.0f, 0.0f};
-        phys::Vec2<float> scale{1.0f, 1.0f};
+        phys::Vec2<float> scale{1.0f, 1.0f};    //external user defined scale
+        phys::Vec2<float> aspectRatioCorrection{1.0f, 1.0f};    // internally used to correct the aspect ratio of the trail mask texture, because the textures are warped by OpenGL to fill the whole canvas
 
         std::string makeKey();
 };
