@@ -219,10 +219,13 @@ bool TrailMapController::loadEntriesFromToml() {
 void TrailMapController::createTrailMaskTextures() {
     //load textures
     for(auto& [key, trailMask] : trailMasks_) {
-        if(trailMask.type == TrailMaskType::IMAGE) {
-            loadTrailMaskFromImage(trailMask.name);
-        } else if(trailMask.type == TrailMaskType::TEXT) {
-            static_cast<TextTexture*>(trailMask.texture.get())->createTexture(trailMask.name, fontAtlas_);
+        switch(trailMask.type) {
+            case TrailMaskType::IMAGE:
+                loadTrailMaskFromImage(trailMask.name);
+                break;
+            case TrailMaskType::TEXT:
+                static_cast<TextTexture*>(trailMask.texture.get())->createTexture(trailMask.name, fontAtlas_);
+                break;
         }
     }
 }
@@ -306,28 +309,38 @@ bool TrailMapController::saveToToml() {
 void TrailMapController::loadTrailMaskFromImage(std::string imageName) {
 
     SDL_Surface* loadedImage = loadImageFromFile(pictureFilePath_, imageName, pictureFileExtension_);
-    loadImageFromSurface(makeKey(TrailMaskType::IMAGE, imageName), loadedImage);
-}
-
-void TrailMapController::loadImageFromSurface(const std::string& key, SDL_Surface* surface) {
-    if(surface == nullptr) {
-        return; //error message already printed in loadImageFromFile
-    }
 
     TextureProperties properties;
-    properties.width = surface->w;
-    properties.height = surface->h;
+    properties.width = loadedImage->w;
+    properties.height = loadedImage->h;
     properties.wrapX = TextureWrap::CLAMP_TO_BORDER;
     properties.wrapY = TextureWrap::CLAMP_TO_BORDER;
     properties.minFilter = TextureMinFilter::LINEAR;
     properties.magFilter = TextureMagFilter::LINEAR;
     properties.generateMipmaps = false;
 
-    Texture tempTexture(properties, surface->pixels, TextureDataFormat::RGBA, TextureDataType::UBYTE, surface->pitch);
+    Texture tempTexture(properties, loadedImage->pixels, TextureDataFormat::RGBA, TextureDataType::UBYTE, loadedImage->pitch);
     
-    trailMasks_[key].texture = std::make_unique<Texture>(std::move(tempTexture));
+    trailMasks_[makeKey(TrailMaskType::IMAGE, imageName)].texture = std::make_unique<Texture>(std::move(tempTexture));
 
-    SDL_DestroySurface(surface);
+    SDL_DestroySurface(loadedImage);
+}
+
+void TrailMapController::createTrailMaskFromText(const std::string& text) {
+    std::string key = makeKey(TrailMaskType::TEXT, text);
+
+    //not inserted if the key already exists
+    const auto& [iter, inserted] = trailMasks_.try_emplace(key, 
+        TrailMask{
+        text, 
+        TrailMaskType::TEXT,
+        std::make_unique<TextTexture>(appState_->universalShaderSettings.textureWidth, appState_->universalShaderSettings.textureHeight, appState_)
+    });
+
+    if(inserted) {
+        auto& trailMask = trailMasks_.at(key);
+        static_cast<TextTexture*>(trailMask.texture.get())->createTexture(trailMask.name, fontAtlas_);
+    }
 }
 
 void TrailMapController::loadEntriesFromDirectory() {
@@ -463,7 +476,7 @@ void TrailMapController::onNotify(const UserEvent event) {
         }
         case EventType::TEXT_PRESET_CREATE:
         {
-            //loadTrailMaskFromText(std::get<std::string>(event.payload));
+            createTrailMaskFromText(std::get<std::string>(event.payload));
             break;
         }
         case EventType::IMAGE_PRESET_EDIT:

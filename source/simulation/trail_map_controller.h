@@ -45,9 +45,9 @@ public:
     TrailMapController& operator=(TrailMapController&&);
     ~TrailMapController();
     
-    void loadTrailMaskFromImage(std::string imageName);
     void bindToTextureUnit(GLuint textureUnit);
     
+    void createTrailMaskFromText(const std::string& text);
 	void autoSwitchPictures(Uint64 timeInSeconds);
     void loadRandomPicture();
     void editTrailMask(const std::string& key, TrailMaskData newData);
@@ -61,7 +61,7 @@ public:
     void loadEntriesFromDirectory();
     bool saveToToml();
     void createTrailMaskTextures();
-    void loadImageFromSurface(const std::string& key, SDL_Surface* surface);
+    void loadTrailMaskFromImage(std::string imageName);
 
     SDL_Surface* loadedImage_;
     TextTexture textImage_;
