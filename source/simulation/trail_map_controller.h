@@ -82,7 +82,7 @@ public:
     FontAtlas fontAtlas_;
 
     std::string activeTrailMaskName_;
-    float trailMaskStrengthTemp_ = 1.0f;
+    
     SDL_Time timeTicks_;
     SDL_DateTime dateTime_;
 

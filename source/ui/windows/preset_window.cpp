@@ -286,7 +286,6 @@ void PresetWindow::imagePresetGUI(ApplicationState* appState) {
     ImGui::SeparatorText("Settings");
 
     ImGui::SliderInt("Switch Intervall", &appState->trailMaskIntervall, 2, 60, "%d s");
-    ImGui::SliderInt("Disable at Sensor Distance", &appState->disableAtSensorDistance, 1, 100, "≥%d");
 }
 
 void PresetWindow::textPresetGUI(ApplicationState* appState) {
@@ -398,5 +397,4 @@ void PresetWindow::textPresetGUI(ApplicationState* appState) {
     ImGui::SeparatorText("Settings");
 
     ImGui::SliderInt("Switch Intervall", &appState->trailMaskIntervall, 2, 60, "%d s");
-    ImGui::SliderInt("Disable at Sensor Distance", &appState->disableAtSensorDistance, 1, 100, "≥%d");
 }

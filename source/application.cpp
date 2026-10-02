@@ -32,7 +32,6 @@ Application::Application(Parameters params)
 	ui_.getWindow("PresetWindow")->addObserver(EventType::TEXT_PRESET_CREATE, simulation_.getTrailMapController());
 	ui_.getWindow("PresetWindow")->addObserver(EventType::TEXT_PRESET_EDIT, simulation_.getTrailMapController());
 	ui_.getWindow("PresetWindow")->addObserver(EventType::TEXT_PRESET_DELETE, simulation_.getTrailMapController());
-	ui_.getWindow("PresetWindow")->addObserver(EventType::TRAIL_MASK_STRENGTH_CHANGED, simulation_.getTrailMapController());
 	ui_.getWindow("NewCanvasModal")->addObserver(EventType::NEW_CANVAS, renderer_.get());
 	ui_.getWindow("NewCanvasModal")->addObserver(EventType::NEW_CANVAS, &simulation_);
 	ui_.getWindow("NewCanvasModal")->addObserver(EventType::NEW_CANVAS, &ubo_manager_);

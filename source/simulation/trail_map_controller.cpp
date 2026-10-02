@@ -32,7 +32,6 @@ TrailMapController::TrailMapController(std::string pictureFilePath, std::string 
 
     appState_->trailMasks = &trailMasks_;
     appState_->usedTrailMaskName = activeTrailMaskName_;
-    trailMaskStrengthTemp_ = appState_->universalShaderSettings.trailMaskInfluence;
 }
 
 TrailMapController::TrailMapController(TrailMapController&& other) {
@@ -45,7 +44,6 @@ TrailMapController::TrailMapController(TrailMapController&& other) {
     textImage_ = std::move(other.textImage_);
     trailMasks_ = std::move(other.trailMasks_);
     activeTrailMaskName_ = other.activeTrailMaskName_;
-    trailMaskStrengthTemp_ = other.trailMaskStrengthTemp_;
     timeTicks_ = other.timeTicks_;
     dateTime_ = other.dateTime_;
     timeOut_ = other.timeOut_;
@@ -72,7 +70,6 @@ TrailMapController& TrailMapController::operator=(TrailMapController&& other) {
         textImage_ = std::move(other.textImage_);
         trailMasks_ = std::move(other.trailMasks_);
         activeTrailMaskName_ = other.activeTrailMaskName_;
-        trailMaskStrengthTemp_ = other.trailMaskStrengthTemp_;
         timeTicks_ = other.timeTicks_;
         dateTime_ = other.dateTime_;
         timeOut_ = other.timeOut_;
@@ -398,15 +395,6 @@ void TrailMapController::loadRandomPicture() {
             selectedKey = selectedTrailMask->first;
             imageName = selectedTrailMask->second.name;
         } while(!checkTimeTable(imageName));
-        
-        //QUICK HACK: trailMasks get visually ugly, when the sensor distance is too large
-        //reduce strength to 0 temporarily to allow slime behavior and colors to appear as intended
-        if(appState_->slimeSettings.sensorDistance > appState_->disableAtSensorDistance) {
-            //trailMaskStrengthTemp_ = appState_->universalShaderSettings.trailMaskInfluence;
-            appState_->universalShaderSettings.trailMaskInfluence = 0.0f;
-        } else {
-            appState_->universalShaderSettings.trailMaskInfluence = trailMaskStrengthTemp_; //restore previous value
-        }
 
         activeTrailMaskName_ = selectedKey;
         appState_->usedTrailMaskName = selectedKey;
@@ -511,13 +499,6 @@ void TrailMapController::onNotify(const UserEvent event) {
         {
             TrailMaskData data = std::get<TrailMaskData>(event.payload);
             deleteTrailMask(data.makeKey());
-            break;
-        }
-        case EventType::TRAIL_MASK_STRENGTH_CHANGED:
-        {
-            if(appState_->universalShaderSettings.trailMaskInfluence > 0.0f) {
-                trailMaskStrengthTemp_ = std::get<float>(event.payload);
-            }
             break;
         }
         default:

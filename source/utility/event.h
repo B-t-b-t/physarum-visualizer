@@ -31,9 +31,7 @@ enum class EventType {
     TEXT_PRESET_APPLY,
     TEXT_PRESET_CREATE,
     TEXT_PRESET_DELETE,
-    TEXT_PRESET_EDIT,
-
-    TRAIL_MASK_STRENGTH_CHANGED
+    TEXT_PRESET_EDIT
 };
 
 struct NewCanvasData {
