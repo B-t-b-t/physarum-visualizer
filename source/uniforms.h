@@ -52,6 +52,11 @@ struct alignas(16) SlimeSettings {
     phys::Vec4<float> particleColor1 = phys::Vec4<float>{0.0f, 1.0f, 0.0f, 1.0f};
     phys::Vec4<float> particleColor2 = phys::Vec4<float>{0.0f, 0.0f, 1.0f, 1.0f};
     phys::Vec4<float> collisionColor = phys::Vec4<float>{1.0f, 1.0f, 1.0f, 1.0f};
+
+    float velocityBiasX = 0.0f;
+    float velocityBiasY = 0.0f;
+    float _padding2 = 0.0f;
+    float _padding3 = 0.0f;
 };
 static_assert(sizeof(SlimeSettings) % 16 == 0, "SlimeSettings size must be multiple of 16 for std140");
 

@@ -13,6 +13,9 @@ void SlimeConfigWindow::render(ApplicationState* appState) {
 
 	ImGui::SliderFloat("Velocity", &appState->slimeSettings.v, 0.0f, 3.0f);
 
+	ImGui::SliderFloat("Velocity Bias X", &appState->slimeSettings.velocityBiasX, -3.0f, 3.0f);
+	ImGui::SliderFloat("Velocity Bias Y", &appState->slimeSettings.velocityBiasY, -3.0f, 3.0f);
+
 	ImGui::LinkBegin("##Link Angles", &appState->lockAngles, 2.0f);
 	ImGui::LinkSliderInt("Rotation Angle", &appState->slimeSettings.rotationAngle, 0, 180, "%d°");
 	ImGui::LinkSliderInt("Sensing Angle ", &appState->slimeSettings.angle, 0, 180, "%d°");

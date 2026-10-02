@@ -74,6 +74,11 @@ layout(std140, binding = 1) uniform SlimeSettings {
     vec4 particleColor1;
     vec4 particleColor2;
     vec4 collisionColor;
+
+    float velocityBiasX;
+    float velocityBiasY;
+    float _padding2;
+    float _padding3;
 };
 
 layout(std140, binding = 4) uniform ParameterSettings {
@@ -240,7 +245,7 @@ vec4 when_gt(vec4 x, vec4 y) {
 
 Particle moveParticle(Particle particle, float beatVel, float ds, vec3 speciesColor, vec3 particleColor) {
 
-    vec2 newParticleCoords = vec2(particle.position.x + beatVel * cos(particle.angle), particle.position.y + beatVel * sin(particle.angle));
+    vec2 newParticleCoords = vec2(particle.position.x + beatVel * cos(particle.angle) + beatVel * velocityBiasX, particle.position.y + beatVel * sin(particle.angle) + beatVel * velocityBiasY);
     //move particle to the other side of the screen if it goes out of bounds
     newParticleCoords = wrapCoordinates_f(newParticleCoords, textureWidth, textureHeight);
 
