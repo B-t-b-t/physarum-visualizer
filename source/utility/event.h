@@ -9,7 +9,9 @@
 #include <string>    // for basic_string, string
 #include <variant>   // for monostate, variant
 
+#include "time_handling.h"  // for TimeSlot
 #include "vector_math.h"  // for phys::Vec2
+#include "../simulation/trail_mask.h"  // for TrailMaskData
 
 enum class EventType {
     FULLSCREEN_TOGGLE,
@@ -40,37 +42,13 @@ struct NewCanvasData {
     int newNumParticles{};
 };
 
-struct TimeSlot {
-    std::chrono::system_clock::time_point start;
-    std::chrono::system_clock::time_point end;
-};
-
-enum class TrailMaskType {
-    IMAGE,
-    TEXT
-};
-
-struct TrailMaskData {
-    std::string name;
-    TrailMaskType type;
-    
-    std::optional<TimeSlot> timeSlot{std::nullopt};
-
-    float strength{1.0f};
-    phys::Vec2<float> position{0.0f, 0.0f};
-    phys::Vec2<float> scale{1.0f, 1.0f};
-    bool isInverted{false};
-
-    std::string makeKey();
-};
-
 using EventPayload = std::variant<
     std::monostate,
     int,
     float,
     uint32_t,   //for AUDIO_HARDWARE_CHANGE using SDL_AudioDeviceID (uint32_t)
     std::string,
-    TrailMaskData,
+    TrailMask,  //only allow TrailMask and not TrailMaskProperties, because the receiver additionally needs to know name and type to know which TrailMask is being referred to
     NewCanvasData
 >; 
 

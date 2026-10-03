@@ -1,15 +1,10 @@
 #ifndef TRAIL_MAP_CONTROLLER_H
 #define TRAIL_MAP_CONTROLLER_H
 
-#include <chrono>
 #include <map>
-#include <memory>
-#include <optional>
 #include <string>
 
 #include <GL/glew.h>
-#include <SDL3/SDL.h>
-#include <toml.hpp>
 
 #include "../application_state.h"
 #include "../graphics/font_atlas.h"
@@ -18,23 +13,7 @@
 #include "../utility/event.h"
 #include "../utility/observer.h"
 #include "../utility/vector_math.h"
-
-struct TrailMask {
-        std::string name;
-        TrailMaskType type;
-
-        std::unique_ptr<Texture> texture{nullptr};
-
-        std::optional<TimeSlot> timeSlot = std::nullopt;
-
-        float strength{1.0f};
-        phys::Vec2<float> position{0.0f, 0.0f};
-        phys::Vec2<float> scale{1.0f, 1.0f};    //external user defined scale
-        phys::Vec2<float> aspectRatioCorrection{1.0f, 1.0f};    // internally used to correct the aspect ratio of the trail mask texture, because the textures are warped by OpenGL to fill the whole canvas
-        bool isInverted{false};
-
-        std::string makeKey();
-};
+#include "trail_mask.h"
 
 class TrailMapController : public Observer {
 public:
@@ -49,10 +28,9 @@ public:
     
     void bindToTextureUnit(GLuint textureUnit);
     
-    void createTrailMaskFromText(const std::string& text);
-	void autoSwitchPictures(Uint64 timeInSeconds);
-    void loadRandomPicture();
-    void editTrailMask(const std::string& key, TrailMaskData newData);
+	void autoSwitchTrailMasks(uint64_t timeInSeconds);
+    void loadRandomTrailMask();
+    void editTrailMask(const std::string& key, TrailMask newData);
     void deleteTrailMask(const std::string& key);
     void onNotify(const UserEvent event) override;
     
@@ -62,17 +40,13 @@ public:
 
     private:
     
-    bool checkTimeTable(std::string name);
     bool loadEntriesFromToml();
     void loadEntriesFromDirectory();
     bool saveToToml();
-    void createTrailMaskTextures();
-    void loadTrailMaskFromImage(std::string imageName);
-
-    SDL_Surface* loadedImage_;
-    TextTexture textImage_;
+    void createAllTrailMaskTextures();
 
     std::map<std::string, TrailMask> trailMasks_;
+    std::string activeTrailMaskKey_;
 
     std::string pictureFilePath_ = "./res/pictures/";
     std::string pictureFileExtension_ = ".png";
@@ -81,12 +55,6 @@ public:
 
     FontAtlas fontAtlas_;
 
-    std::string activeTrailMaskName_;
-    
-    SDL_Time timeTicks_;
-    SDL_DateTime dateTime_;
-
-    bool timeOut_ = false;
 };
 
 #endif // TRAIL_MAP_CONTROLLER_H

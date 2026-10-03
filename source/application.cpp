@@ -107,6 +107,6 @@ void Application::run() {
 		//Auto Switching Presets
 		presetSystem_.autoSwitchPresets(timeInSeconds);
 		colorPresetSystem_.autoSwitchPresets(timeInSeconds);
-		simulation_.getTrailMapController()->autoSwitchPictures(timeInSeconds);
+		simulation_.getTrailMapController()->autoSwitchTrailMasks(timeInSeconds);
 	}
 }

@@ -13,6 +13,7 @@
 #include "../../../application_state.h"
 #include "../../../preset_types.h"
 #include "../../../simulation/trail_map_controller.h"
+#include "../../../simulation/trail_mask.h"
 #include "../../../../external/imgui_stdlib.h"
 
 namespace PresetWindowHelper {
@@ -215,9 +216,7 @@ namespace PresetWindowHelper {
 
             if(ImGui::Button("Ok")) {
 
-                TrailMaskData trailMaskData{
-                    .name = trailMask.name,
-                    .type = TrailMaskType::IMAGE,
+                TrailMaskProperties properties{
                     .strength = strength,
                     .position = position,
                     .scale = scale,
@@ -225,10 +224,10 @@ namespace PresetWindowHelper {
                 };
 
                 if(editTimeSlot) {
-                    trailMaskData.timeSlot = TimeSlot{.start = timeSlotStart, .end = timeSlotEnd};
+                    properties.timeSlot = TimeSlot{timeSlotStart, timeSlotEnd};
                 }
 
-                presetWindow->notify(UserEvent{ EventType::IMAGE_PRESET_EDIT, trailMaskData});
+                presetWindow->notify(UserEvent{ EventType::IMAGE_PRESET_EDIT, TrailMask{trailMask.name, TrailMaskType::IMAGE, properties}});
                 presetWindow->notify(UserEvent{EventType::IMAGE_PRESET_APPLY});
 
                 ImGui::CloseCurrentPopup();
@@ -247,22 +246,23 @@ namespace PresetWindowHelper {
     void textPresetAddModal(const char* stringID, PresetWindow* presetWindow) {
         if(ImGui::BeginPopupModal(stringID, NULL, ImGuiWindowFlags_AlwaysAutoResize)) {
             ImGui::Text("Enter new text:");
-            static std::string newTextBuffer = "";
+            static std::string name{""};
+            static std::string newText{""};
 
-            ImGui::InputTextMultiline("##newtext", &newTextBuffer, ImVec2(-FLT_MIN, ImGui::GetTextLineHeight() * 8), ImGuiInputTextFlags_CallbackCharFilter, TextFilters::FilterASCII);
+            ImGui::InputTextMultiline("##newtext", &newText, ImVec2(-FLT_MIN, ImGui::GetTextLineHeight() * 8), ImGuiInputTextFlags_CallbackCharFilter, TextFilters::FilterASCII);
 
             ImGui::Separator();
 
-            if(ImGui::Button("Ok") && !newTextBuffer.empty()) {
-                presetWindow->notify(UserEvent{EventType::TEXT_PRESET_CREATE, newTextBuffer});
-                newTextBuffer.clear();
+            if(ImGui::Button("Ok") && !newText.empty()) {
+                presetWindow->notify(UserEvent{EventType::TEXT_PRESET_CREATE, newText});
+                newText.clear();
                 ImGui::CloseCurrentPopup();
             }
 
             ImGui::SameLine();
 
             if(ImGui::Button("Cancel")) {
-                newTextBuffer.clear();
+                newText.clear();
                 ImGui::CloseCurrentPopup();
             }
 
@@ -274,6 +274,7 @@ namespace PresetWindowHelper {
         using namespace std::chrono;
 
         if(ImGui::BeginPopupModal(stringID)) {
+            static std::string name{""};
 	        static std::string textToEdit{""};
             static bool editTimeSlot = false;
             static float strength = 1.0f;
@@ -287,7 +288,8 @@ namespace PresetWindowHelper {
             static system_clock::time_point timeSlotEnd = floor<minutes>(system_clock::now());
 
             if(ImGui::IsWindowAppearing()) {
-                textToEdit = trailMask.name;
+                name = trailMask.name;
+                textToEdit = trailMask.text;
                 editTimeSlot = trailMask.timeSlot.has_value();
                 strength = trailMask.strength;
                 position = trailMask.position;
@@ -326,9 +328,8 @@ namespace PresetWindowHelper {
 
             if(ImGui::Button("Ok") && !textToEdit.empty()) {
 
-                TrailMaskData trailMaskData{
-                    .name = textToEdit,
-                    .type = TrailMaskType::TEXT,
+                TrailMaskProperties properties{
+                    .text = textToEdit,
                     .strength = strength,
                     .position = position,
                     .scale = scale,
@@ -336,10 +337,10 @@ namespace PresetWindowHelper {
                 };
 
                 if(editTimeSlot) {
-                    trailMaskData.timeSlot = TimeSlot{.start = timeSlotStart, .end = timeSlotEnd};
+                    properties.timeSlot = TimeSlot{timeSlotStart, timeSlotEnd};
                 }
 
-                presetWindow->notify(UserEvent{EventType::TEXT_PRESET_EDIT, trailMaskData});
+                presetWindow->notify(UserEvent{EventType::TEXT_PRESET_EDIT, TrailMask{name, TrailMaskType::TEXT, properties}});
                 presetWindow->notify(UserEvent{EventType::TEXT_PRESET_APPLY});
 
                 textToEdit.clear();
@@ -357,7 +358,7 @@ namespace PresetWindowHelper {
 
             //Fontawesome: fa-solid fa-trash-can 
             if(ImGui::Button("\uf2ed Delete")) {
-                presetWindow->notify(UserEvent{EventType::TEXT_PRESET_DELETE, TrailMaskData{trailMask.name, trailMask.type}});
+                presetWindow->notify(UserEvent{EventType::TEXT_PRESET_DELETE, TrailMask{trailMask.name, trailMask.type}});
 
                 textToEdit.clear();
                 ImGui::CloseCurrentPopup();
@@ -376,7 +377,7 @@ namespace PresetWindowHelper {
 
             //Fontawesome: fa-solid fa-trash-can 
             if (ImGui::Button("\uf2ed Delete")) {
-                presetWindow->notify(UserEvent{EventType::TEXT_PRESET_DELETE, TrailMaskData{trailMask.name, trailMask.type}});
+                presetWindow->notify(UserEvent{EventType::TEXT_PRESET_DELETE, TrailMask{trailMask.name, trailMask.type}});
                 ImGui::CloseCurrentPopup();
             }
             ImGui::SameLine();

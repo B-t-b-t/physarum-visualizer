@@ -253,6 +253,7 @@ set(MY_HEADER_FILES
     source/graphics/uniform_buffer_object.h
     source/simulation/simulation.h
     source/simulation/trail_map_controller.h
+    source/simulation/trail_mask.h
     source/ui/ui_helpers.h
     source/ui/user_interface.h
     source/ui/widgets/color_indicator.h
@@ -272,6 +273,7 @@ set(MY_HEADER_FILES
     source/utility/parameter_parser.h
     source/utility/observable.h
     source/utility/observer.h
+    source/utility/time_handling.h
     source/utility/vector_math.h
     external/imgui_stdlib.h
 )
@@ -302,6 +304,7 @@ set(MY_SOURCE_FILES
     source/graphics/uniform_buffer_object.cpp
     source/simulation/simulation.cpp
     source/simulation/trail_map_controller.cpp
+    source/simulation/trail_mask.cpp
     source/ui/ui_helpers.cpp
     source/ui/user_interface.cpp
     source/ui/widgets/color_indicator.cpp
@@ -320,6 +323,7 @@ set(MY_SOURCE_FILES
     source/utility/parameter_parser.cpp
     source/utility/observable.cpp
     source/utility/observer.cpp
+    source/utility/time_handling.cpp
     source/utility/vector_math.cpp
     external/imgui_stdlib.cpp
 )
