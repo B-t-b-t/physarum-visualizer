@@ -1,6 +1,7 @@
 #ifndef TEXT_TEXTURE_H
 #define TEXT_TEXTURE_H
 
+#include <filesystem>                 // for std::filesystem::path
 #include <string>
 #include <vector>
 
@@ -9,6 +10,7 @@
 #include "texture.h"
 #include "../application_state.h"
 #include "../utility/fileHandling.h"
+#include "../utility/filepaths.h"
 #include "../utility/vector_math.h"  // for phys::Vec2, phys::Vec4
 #include "font_atlas.h"
 
@@ -27,7 +29,7 @@ class TextTexture : public Texture {
 public:
 
     TextTexture() = default;
-    TextTexture(int width, int height, ApplicationState* appState);
+    TextTexture(int width, int height, FilePaths* paths, ApplicationState* appState);
     TextTexture(const TextTexture&) = delete;   //avoid copying
     TextTexture& operator=(const TextTexture&) = delete;
     TextTexture(TextTexture&&);
@@ -35,7 +37,7 @@ public:
     ~TextTexture();
 
     void createTexture(std::string& text, FontAtlas& fontAtlas);
-    void textureToFile();
+    void textureToFile(std::filesystem::path filePath);
 
 private:
 

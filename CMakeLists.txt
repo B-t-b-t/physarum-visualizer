@@ -270,6 +270,7 @@ set(MY_HEADER_FILES
     source/ui/windows/helper/preset_window_helper.h
     source/utility/event.h
     source/utility/fileHandling.h
+    source/utility/filepaths.h
     source/utility/parameter_parser.h
     source/utility/observable.h
     source/utility/observer.h

@@ -1,6 +1,7 @@
 #ifndef TRAIL_MAP_CONTROLLER_H
 #define TRAIL_MAP_CONTROLLER_H
 
+#include <filesystem>
 #include <map>
 #include <string>
 
@@ -11,6 +12,7 @@
 #include "../graphics/texture.h"
 #include "../graphics/text_texture.h"
 #include "../utility/event.h"
+#include "../utility/filepaths.h"
 #include "../utility/observer.h"
 #include "../utility/vector_math.h"
 #include "trail_mask.h"
@@ -19,7 +21,7 @@ class TrailMapController : public Observer {
 public:
 
     TrailMapController() = default;
-    TrailMapController(std::string pictureFilePath, std::string pictureFileExtension, GLuint textureUnit, ApplicationState* appState);
+    TrailMapController(FilePaths* paths, GLuint textureUnit, ApplicationState* appState);
     TrailMapController(const TrailMapController&) = delete;
     TrailMapController& operator=(const TrailMapController&) = delete;
     TrailMapController(TrailMapController&&);
@@ -48,8 +50,8 @@ public:
     std::map<std::string, TrailMask> trailMasks_;
     std::string activeTrailMaskKey_;
 
-    std::string pictureFilePath_ = "./res/pictures/";
-    std::string pictureFileExtension_ = ".png";
+    FilePaths* paths_;   // whole struct necessary, because multiple methods need access
+
     GLuint textureUnit_;	//Default Texture Unit for Trail Mask Texture
     ApplicationState* appState_ = nullptr;
 

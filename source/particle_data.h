@@ -1,6 +1,7 @@
 #ifndef PARTICLE_DATA_H
 #define PARTICLE_DATA_H
 
+#include <filesystem>                 // for std::filesystem::path
 #include <string>
 #include <vector>
 
@@ -12,7 +13,7 @@ public:
 
 	void createAndSend(int numParticles, int texWidth, int texHeight);
 	void printSSBO();
-	void writeToFile(const std::string& filename);
+	bool writeToFile(const std::filesystem::path& filePath);
 
 private:
 	void createParticleCircle();

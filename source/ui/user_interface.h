@@ -12,6 +12,7 @@
 #include "../application_state.h"
 #include "../uniforms.h"
 #include "../audio/audio_system.h"
+#include "../utility/filepaths.h"
 #include "windows/base_window.h"
 
 class UserInterface {
@@ -19,7 +20,7 @@ class UserInterface {
 public:
 
 	//UserInterface();
-	UserInterface(SDL_Window* window, SDL_GLContext glContext, ApplicationState* appState);
+	UserInterface(SDL_Window* window, SDL_GLContext glContext, FilePaths& paths, ApplicationState* appState);
 	~UserInterface();
 
 	void display();

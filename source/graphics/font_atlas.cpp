@@ -7,10 +7,10 @@
 #include "../utility/fileHandling.h"  // for loadImageFromFont, saveImageToFile
 #include "texture.h"                  // for TextureProperties, Texture, Tex...
 
-FontAtlas::FontAtlas(std::string fontFileName) {
+FontAtlas::FontAtlas(std::filesystem::path fontFilePath, std::filesystem::path outputImagePath) {
 
-    SDL_Surface* loadedImage = loadImageFromFont("./res/fonts/", fontFileName, ".ttf", fontCharInfos_, &firstChar_, &numberOfChars_, &fontSize_);
-    saveImageToFile(loadedImage, "./", "fontAtlas", ".png", false);
+    SDL_Surface* loadedImage = loadImageFromFont(fontFilePath, fontCharInfos_, &firstChar_, &numberOfChars_, &fontSize_);
+    saveImageToFile(loadedImage, outputImagePath, false);
 
     if(loadedImage == nullptr) {
         return; //error message already printed in loadImageFromFile

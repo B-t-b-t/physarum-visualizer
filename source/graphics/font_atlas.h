@@ -1,6 +1,7 @@
 #ifndef FONT_ATLAS_H
 #define FONT_ATLAS_H
 
+#include <filesystem>                 // for std::filesystem::path
 #include <string>                     // for string
 #include <vector>                     // for vector
 
@@ -10,7 +11,7 @@
 
 class FontAtlas {
 public:
-    FontAtlas(std::string fontFileName);
+    FontAtlas(std::filesystem::path fontFilePath, std::filesystem::path outputImagePath);
     FontAtlas() = default;
     FontAtlas(const FontAtlas&) = delete;
     FontAtlas& operator=(const FontAtlas&) = delete;

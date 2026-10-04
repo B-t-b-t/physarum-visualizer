@@ -1,5 +1,6 @@
 #include "shader.h"
 
+#include <filesystem>                 // for std::filesystem::path
 #include <fstream>           // for basic_ostream, basic_ifstream, operator<<
 #include <iostream>          // for cerr
 #include <stddef.h>          // for size_t, NULL
@@ -7,18 +8,18 @@
 #include "GL/glew.h"         // for GLuint, GLchar, GLenum, GLint, glDeleteS...
 #include "SDL3/SDL_video.h"  // for SDL_GLAttr, SDL_GL_GetAttribute
 
-static GLuint createShader(const std::string& text, GLenum shaderType, const std::string& fileName);
-static std::string readTextFromFile(const std::string& fileName);
+static GLuint createShader(const std::string& text, GLenum shaderType, const std::filesystem::path& fileName);
+static std::string readTextFromFile(const std::filesystem::path& filePath);
 static bool checkShaderError(GLuint shader, GLuint flag, const std::string& errorMessage);
 
-Shader::Shader(const std::string& fileName, ShaderType shaderType) 
-: fileName_(fileName), shaderType_(shaderType)
+Shader::Shader(const std::filesystem::path& filePath, ShaderType shaderType) 
+: filePath_(filePath), shaderType_(shaderType)
 {
 	int glMajorVersion = 0, glMinorVersion = 0;
 	SDL_GL_GetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, &glMajorVersion);
 	SDL_GL_GetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, &glMinorVersion);
 
-	std::string shaderString = readTextFromFile(fileName_);
+	std::string shaderString = readTextFromFile(filePath_);
 	std::string versionString = "#version 460";		//default version used in my GLSL code
 
 	//change GL version in shader code if different from 4.6
@@ -40,13 +41,13 @@ Shader::Shader(const std::string& fileName, ShaderType shaderType)
 	switch (shaderType_)
 	{
 	case ShaderType::VERTEX_SHADER:
-		shaderID_ = createShader(shaderString, GL_VERTEX_SHADER, fileName_);
+		shaderID_ = createShader(shaderString, GL_VERTEX_SHADER, filePath_);
 		break;
 	case ShaderType::FRAGMENT_SHADER:
-		shaderID_ = createShader(shaderString, GL_FRAGMENT_SHADER, fileName_);
+		shaderID_ = createShader(shaderString, GL_FRAGMENT_SHADER, filePath_);
 		break;
 	case ShaderType::COMPUTE_SHADER:
-		shaderID_ = createShader(shaderString, GL_COMPUTE_SHADER, fileName_);
+		shaderID_ = createShader(shaderString, GL_COMPUTE_SHADER, filePath_);
 		break;
 	default:
 		break;
@@ -55,18 +56,18 @@ Shader::Shader(const std::string& fileName, ShaderType shaderType)
 }
 
 Shader::Shader(Shader&& rhs) {
-	this->fileName_ = rhs.fileName_;
+	this->filePath_ = rhs.filePath_;
 	this->shaderID_ = rhs.shaderID_;
 	this->shaderType_ = rhs.shaderType_;
-	rhs.fileName_ = "";
+	rhs.filePath_ = std::filesystem::path("");
 	rhs.shaderID_ = 0;
 }
 
 Shader& Shader::operator=(Shader&& rhs) {
-	this->fileName_ = rhs.fileName_;
+	this->filePath_ = rhs.filePath_;
 	this->shaderID_ = rhs.shaderID_;
 	this->shaderType_ = rhs.shaderType_;
-	rhs.fileName_ = "";
+	rhs.filePath_ = std::filesystem::path("");
 	rhs.shaderID_ = 0;
 	return *this;
 }
@@ -83,7 +84,7 @@ Shader::~Shader() {
  * @param fileName The name of the shader file (just for error messages)
  * @return The OpenGL shader ID (0 if creation failed)
  */
-static GLuint createShader(const std::string& text, GLenum shaderType, const std::string& fileName) {
+static GLuint createShader(const std::string& text, GLenum shaderType, const std::filesystem::path& fileName) {
 	GLuint shader = glCreateShader(shaderType);
 
 	if (shader == 0) {
@@ -100,7 +101,7 @@ static GLuint createShader(const std::string& text, GLenum shaderType, const std
 	glCompileShader(shader);
 
 	//check for compilation errors
-	if (!checkShaderError(shader, GL_COMPILE_STATUS, "Error in " + fileName + ": Shader compilation failed: ")) {
+	if (!checkShaderError(shader, GL_COMPILE_STATUS, "Error in " + fileName.string() + ": Shader compilation failed: ")) {
 		glDeleteShader(shader);
 		return 0;
 	}
@@ -114,9 +115,9 @@ static GLuint createShader(const std::string& text, GLenum shaderType, const std
  * @param fileName The name of the file to read
  * @return std::string The contents of the file
  */
-static std::string readTextFromFile(const std::string& fileName) {
+static std::string readTextFromFile(const std::filesystem::path& filePath) {
 	std::ifstream file;
-	file.open((fileName).c_str());
+	file.open((filePath));
 
 	std::string output;
 	std::string line;
@@ -129,7 +130,7 @@ static std::string readTextFromFile(const std::string& fileName) {
 		//file closed automatically by destructor of ifstream
 	}
 	else {
-		std::cerr << "Unable to read from file: " << fileName << std::endl;
+		std::cerr << "Unable to read from file: " << filePath << std::endl;
 	}
 
 	return output;

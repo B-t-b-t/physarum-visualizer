@@ -1,5 +1,6 @@
 #include "trail_map_controller.h"
 
+#include <filesystem>
 #include <fstream>
 #include <iostream>
 #include <iterator>             // for next
@@ -10,17 +11,17 @@
 #include "../ui/windows/preset_window.h"
 #include "../utility/event.h"
 #include "../utility/fileHandling.h"
+#include "../utility/filepaths.h"
 
 float TrailMapController::globalStrength_ = 1.0f;
 phys::Vec2<float> TrailMapController::globalPosition_{0.0f, 0.0f};
 phys::Vec2<float> TrailMapController::globalScale_{1.0f, 1.0f};
 
-TrailMapController::TrailMapController(std::string pictureFilePath, std::string pictureFileExtension, GLuint textureUnit, ApplicationState* appState)
- : pictureFilePath_(pictureFilePath), 
-   pictureFileExtension_(pictureFileExtension),
+TrailMapController::TrailMapController(FilePaths* paths, GLuint textureUnit, ApplicationState* appState)
+ : paths_(paths),
    textureUnit_(textureUnit),
    appState_(appState),
-   fontAtlas_{FontAtlas("Roboto-Medium")}
+   fontAtlas_{FontAtlas(paths->fontFileDir / paths->fontFile, paths->fontAtlasTestOutputImage)}
 {
     loadEntriesFromToml();     //load from saveFile first
     loadEntriesFromDirectory();   //load remaining images from the directory (duplicates with TOML entries get ignored)
@@ -33,8 +34,7 @@ TrailMapController::TrailMapController(std::string pictureFilePath, std::string 
 }
 
 TrailMapController::TrailMapController(TrailMapController&& other) {
-    pictureFilePath_ = std::move(other.pictureFilePath_);
-    pictureFileExtension_ = std::move(other.pictureFileExtension_);
+    paths_ = other.paths_;
     textureUnit_ = other.textureUnit_;
     appState_ = other.appState_;
     fontAtlas_ = std::move(other.fontAtlas_);
@@ -53,8 +53,7 @@ TrailMapController::TrailMapController(TrailMapController&& other) {
 
 TrailMapController& TrailMapController::operator=(TrailMapController&& other) {
     if(this != &other) {
-        pictureFilePath_ = std::move(other.pictureFilePath_);
-        pictureFileExtension_ = std::move(other.pictureFileExtension_);
+        paths_ = std::move(other.paths_);
         textureUnit_ = other.textureUnit_;
         appState_ = other.appState_;
         fontAtlas_ = std::move(other.fontAtlas_);
@@ -81,9 +80,9 @@ bool TrailMapController::loadEntriesFromToml() {
     toml::value timeTable;
     //parse
     try {
-        timeTable = toml::parse("./res/pictures/timeTable.toml");
+        timeTable = toml::parse(paths_->timeTableFilePath);
     } catch(const toml::exception& err) {
-        std::cerr << "Failed to parse timeTable.toml: " << err.what() << std::endl;
+        std::cerr << "Failed to parse " << paths_->timeTableFilePath << " : " << err.what() << std::endl;
         return false;
     }
 
@@ -165,11 +164,15 @@ void TrailMapController::createAllTrailMaskTextures() {
     for(auto& [key, trailMask] : trailMasks_) {
         switch(trailMask.type) {
             case TrailMaskType::IMAGE: {
-                trailMask.createTextureFromImage(pictureFilePath_, trailMask.name, pictureFileExtension_, appState_);
+                std::filesystem::path filePath{""};
+                filePath += paths_->pictureDir;
+                filePath /= trailMask.name;
+                filePath += paths_->pictureFileExtension;
+                trailMask.createTextureFromImage(filePath, appState_);
             }                
                 break;
             case TrailMaskType::TEXT:
-                trailMask.createTextureFromText(trailMask.text, fontAtlas_, appState_);
+                trailMask.createTextureFromText(trailMask.text, fontAtlas_, paths_, appState_);
                 break;
         }
     }
@@ -234,9 +237,9 @@ bool TrailMapController::saveToToml() {
         newTimeTable["IMAGE"] = std::move(imageEntries);
     }
 
-    std::ofstream outputFile{"./res/pictures/timeTable.toml", std::ios::trunc};
+    std::ofstream outputFile{paths_->timeTableFilePath, std::ios::trunc};
     if(!outputFile.is_open()) {
-        std::cerr << "Failed to open timeTable.toml for writing" << std::endl;
+        std::cerr << "Failed to open " << paths_->timeTableFilePath << " for writing" << std::endl;
         return false;
     }
 
@@ -244,7 +247,7 @@ bool TrailMapController::saveToToml() {
     outputFile.flush();
 
     if(!outputFile.good()) {
-        std::cerr << "Failed to write timeTable.toml" << std::endl;
+        std::cerr << "Failed to write to " << paths_->timeTableFilePath << std::endl;
         return false;
     }
 
@@ -255,7 +258,7 @@ void TrailMapController::loadEntriesFromDirectory() {
     
     std::vector<std::string> pictureNames;
 
-    getFileNamesInDirectory(pictureFilePath_, pictureFileExtension_, pictureNames);
+    getFileNamesInDirectory(paths_->pictureDir, paths_->pictureFileExtension, pictureNames);
 
     for (std::string pictureName : pictureNames) {
         std::string key = TrailMask::makeKey(TrailMaskType::IMAGE, pictureName);
@@ -340,7 +343,7 @@ void TrailMapController::editTrailMask(const std::string& key, TrailMask newData
 
     if(trailMask.type == TrailMaskType::TEXT && trailMask.text != newData.text) {
         trailMask.text = newData.text;
-        trailMask.createTextureFromText(newData.text, fontAtlas_, appState_);
+        trailMask.createTextureFromText(newData.text, fontAtlas_, paths_, appState_);
     }
 
     trailMask.name = newData.name;
@@ -371,7 +374,11 @@ void TrailMapController::onNotify(const UserEvent event) {
                 glBindTexture(GL_TEXTURE_2D, trailMask.texture->getID());
             } else {
                 if(trailMask.type == TrailMaskType::IMAGE) {
-                    trailMask.createTextureFromImage(pictureFilePath_, trailMask.name, pictureFileExtension_, appState_);
+                    std::filesystem::path filePath{""};
+                    filePath += paths_->pictureDir;
+                    filePath /= trailMask.name;
+                    filePath += paths_->pictureFileExtension;
+                    trailMask.createTextureFromImage(filePath, appState_);
                 }
             }
             appState_->universalShaderSettings.trailMaskInfluence = trailMask.strength + globalStrength_;
@@ -397,7 +404,7 @@ void TrailMapController::onNotify(const UserEvent event) {
                 properties
             });
             if(inserted) {
-                iter->second.createTextureFromText(text, fontAtlas_, appState_);
+                iter->second.createTextureFromText(text, fontAtlas_, paths_, appState_);
             }
             break;
         }

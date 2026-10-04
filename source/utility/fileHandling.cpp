@@ -1,6 +1,6 @@
 #include "fileHandling.h"
 
-#include <dirent.h>                       // for DIR, closedir, dirent, opendir
+#include <filesystem>                      // for directory_iterator, path, error_code
 #include <fstream>                        // for basic_ifstream, basic_ios, ios
 #include <stddef.h>                       // for size_t, NULL
 #include <stdint.h>                       // for uint8_t
@@ -28,38 +28,29 @@
 /*
 Loads every name of the files with the specified extension
 */
-void getFileNamesInDirectory(std::string directoryPath, std::string fileExtension, std::vector<std::string>& fileNames) {
-    DIR *dir;
-    struct dirent *ent;
-    
-    if ((dir = opendir(directoryPath.c_str())) != NULL) {
-        while ((ent = readdir(dir)) != NULL) {
-            std::string fileName = ent->d_name;
-            // Check if file has the specified extension
-            size_t nameLength = fileName.length();
-            size_t extensionLength = fileExtension.length();
+bool getFileNamesInDirectory(std::filesystem::path directoryPath, std::filesystem::path fileExtension, std::vector<std::string>& fileNames) {
+    std::error_code errorCode;
+    std::filesystem::directory_iterator dirIter(directoryPath, errorCode);
 
-            if (nameLength > extensionLength && 
-                fileName.substr(nameLength - extensionLength) == fileExtension) {
-                // Remove file extension to get file name
-                fileNames.push_back(fileName.substr(0, nameLength - extensionLength));
-            }
+    if(errorCode) { return false; }
+
+    for(const auto& entry : dirIter) {
+        if(entry.is_regular_file(errorCode) && entry.path().extension() == fileExtension) {
+            fileNames.push_back(entry.path().stem().string());
         }
-        
-        closedir(dir);
     }
+    return true;
 }
 
-SDL_Surface* loadImageFromFile(std::string filePath, std::string fileName, std::string fileExtension) {
+SDL_Surface* loadImageFromFile(std::filesystem::path filePath) {
     //only PNG images, because they support alpha channel
-    if(fileExtension != ".png") {
+    if(filePath.extension() != ".png") {
         return nullptr;
     }
-    std::string fullPath = filePath + fileName + fileExtension;
 
-    SDL_Surface* surface = IMG_Load(fullPath.c_str());
+    SDL_Surface* surface = IMG_Load(filePath.c_str());
     if(surface == nullptr) {
-        SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Failed to load image %s: %s", fileName.c_str(), SDL_GetError());
+        SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Failed to load image %s: %s", filePath.filename().c_str(), SDL_GetError());
         return nullptr;
     }
 
@@ -67,12 +58,12 @@ SDL_Surface* loadImageFromFile(std::string filePath, std::string fileName, std::
     SDL_DestroySurface(surface);
 
     if(formattedSurface == nullptr) {
-        SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Failed to convert surface format for image %s: %s", fileName.c_str(), SDL_GetError());
+        SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Failed to convert surface format for image %s: %s", filePath.filename().c_str(), SDL_GetError());
         return nullptr;
     }
 
     if(!SDL_FlipSurface(formattedSurface, SDL_FLIP_VERTICAL)) { //flip vertically for OpenGL coordinate system
-        SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Failed to flip to OpenGL orientation for image %s: %s", fileName.c_str(), SDL_GetError());
+        SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Failed to flip to OpenGL orientation for image %s: %s", filePath.filename().c_str(), SDL_GetError());
         SDL_DestroySurface(formattedSurface);
         return nullptr;
     }
@@ -80,14 +71,13 @@ SDL_Surface* loadImageFromFile(std::string filePath, std::string fileName, std::
     return formattedSurface;
 }
 
-SDL_Surface* loadImageFromFont(std::string filePath, std::string fileName, std::string fileExtension, std::vector<FontCharInfo>& fontCharInfos, int* firstChar_Out, int* numberOfChars_Out, float* fontSize_Out) {
-    if(fileExtension != ".ttf") {
-        SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Unsupported font format: %s", fileExtension.c_str());
+SDL_Surface* loadImageFromFont(std::filesystem::path filePath, std::vector<FontCharInfo>& fontCharInfos, int* firstChar_Out, int* numberOfChars_Out, float* fontSize_Out) {
+    if(filePath.extension() != ".ttf") {
+        SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Unsupported font format: %s", filePath.extension().c_str());
         return nullptr;
     }
 
-    std::string fullPath = filePath + fileName + fileExtension;
-    std::ifstream inputFileStream(fullPath, std::ios::binary);
+    std::ifstream inputFileStream(filePath, std::ios::binary);
 
     //find file size
     inputFileStream.seekg(0, std::ios::end);
@@ -191,35 +181,34 @@ SDL_Surface* loadImageFromFont(std::string filePath, std::string fileName, std::
     return fontAtlasSurface;
 }
 
-bool saveImageToFile(SDL_Surface* surface, std::string filePath, std::string fileName, std::string fileExtension, bool isFlipped) {
-    std::string fullPath = filePath + fileName + fileExtension;
+bool saveImageToFile(SDL_Surface* surface, std::filesystem::path filePath, bool isFlipped) {
     bool saveSuccess = false;
     bool wrongExtension = false;
 
     if(isFlipped) {
         if(!SDL_FlipSurface(surface, SDL_FLIP_VERTICAL)) { //flip vertically back from OpenGL coordinate system
-            SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Failed to flip from OpenGL orientation during saving of image %s: %s", fileName.c_str(), SDL_GetError());
+            SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Failed to flip from OpenGL orientation during saving of image %s: %s", filePath.filename().c_str(), SDL_GetError());
         }
     }
 
-    if (fileExtension == ".png") {
-        saveSuccess = IMG_SavePNG(surface, fullPath.c_str());
-    } else if (fileExtension == ".jpg" || fileExtension == ".jpeg") {
-        saveSuccess = IMG_SaveJPG(surface, fullPath.c_str(), 100); // Quality set to 100
+    if (filePath.extension() == ".png") {
+        saveSuccess = IMG_SavePNG(surface, filePath.c_str());
+    } else if (filePath.extension() == ".jpg" || filePath.extension() == ".jpeg") {
+        saveSuccess = IMG_SaveJPG(surface, filePath.c_str(), 100); // Quality set to 100
     } else {
         wrongExtension = true;
     }
     if(!saveSuccess) {
-        SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Failed to save image %s: %s", fileName.c_str(), SDL_GetError());
+        SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Failed to save image %s: %s", filePath.filename().c_str(), SDL_GetError());
         if(wrongExtension) {
-            SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Unsupported image format: %s", fileExtension.c_str());
+            SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Unsupported image format: %s", filePath.extension().c_str());
         }
     }
 
     // Flip back to OpenGL orientation after saving, so the surface remains in the correct orientation for further use
     if(isFlipped) {
         if(!SDL_FlipSurface(surface, SDL_FLIP_VERTICAL)) { //flip vertically to OpenGL coordinate system
-            SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Failed to flip to OpenGL orientation during saving of image %s: %s", fileName.c_str(), SDL_GetError());
+            SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Failed to flip to OpenGL orientation during saving of image %s: %s", filePath.filename().c_str(), SDL_GetError());
         }
     }
 

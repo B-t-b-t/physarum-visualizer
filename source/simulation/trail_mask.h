@@ -2,6 +2,7 @@
 #define TRAIL_MASK_H
 
 #include <chrono>
+#include <filesystem>
 #include <memory>
 #include <optional>
 #include <string>
@@ -10,6 +11,7 @@
 #include "../application_state.h"
 #include "../graphics/font_atlas.h"
 #include "../graphics/texture.h"
+#include "../utility/filepaths.h"  // for FilePaths
 #include "../utility/time_handling.h"  // for TimeSlot
 #include "../utility/vector_math.h"    // for phys::Vec2
 
@@ -58,8 +60,8 @@ public:
         TrailMask(TrailMask&&);
         TrailMask& operator=(TrailMask&&);
 
-        void createTextureFromImage(std::string& pictureFilePath, std::string& imageName, std::string& pictureFileExtension, ApplicationState* appState);
-        void createTextureFromText(std::string& text, FontAtlas& fontAtlas, ApplicationState* appState);
+        void createTextureFromImage(std::filesystem::path pictureFilePath, ApplicationState* appState);
+        void createTextureFromText(std::string& text, FontAtlas& fontAtlas, FilePaths* paths, ApplicationState* appState);
 
         /**
          * @brief Generates a key for use in maps based on its type and name.

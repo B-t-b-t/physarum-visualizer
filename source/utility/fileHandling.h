@@ -1,6 +1,7 @@
 #ifndef FILE_HANDLING_H
 #define FILE_HANDLING_H
 
+#include <filesystem>
 #include <string>
 #include <vector>
 
@@ -15,11 +16,11 @@ typedef struct {
    float s0, s1, t0, t1;
 } FontCharInfo;
 
-void getFileNamesInDirectory(std::string directoryPath, std::string fileExtension, std::vector<std::string>& fileNames);
+bool getFileNamesInDirectory(std::filesystem::path directoryPath, std::filesystem::path fileExtension, std::vector<std::string>& fileNames);
 
-SDL_Surface* loadImageFromFile(std::string filePath, std::string fileName, std::string fileExtension);
-SDL_Surface* loadImageFromFont(std::string filePath, std::string fileName, std::string fileExtension, std::vector<FontCharInfo>& fontInfos, int* firstChar_Out, int* numberOfChars_Out, float* fontSize_Out);
+SDL_Surface* loadImageFromFile(std::filesystem::path filePath);
+SDL_Surface* loadImageFromFont(std::filesystem::path filePath, std::vector<FontCharInfo>& fontInfos, int* firstChar_Out, int* numberOfChars_Out, float* fontSize_Out);
 
-bool saveImageToFile(SDL_Surface* surface, std::string filePath, std::string fileName, std::string fileExtension, bool isFlipped);
+bool saveImageToFile(SDL_Surface* surface, std::filesystem::path filePath, bool isFlipped);
 
 #endif // FILE_HANDLING_H

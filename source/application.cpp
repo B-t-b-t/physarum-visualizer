@@ -7,13 +7,13 @@ Application::Application(Parameters params)
  :  appState_{ApplicationState::getInstance(params)},
 	window_{Window("Physarum", appState_, params.customResolution)},
 	inputHandler_{InputHandler(appState_)},
-	ui_{UserInterface(window_.getWindow(), window_.getGLContext(), appState_)},
+	ui_{UserInterface(window_.getWindow(), window_.getGLContext(), filePaths_, appState_)},
 	ubo_manager_{UniformBufferManager(appState_)},
-	simulation_{Simulation(&ubo_manager_, appState_, params.customParticleCount)},
-	renderer_{std::make_unique<Renderer>(&ubo_manager_, appState_)},
+	simulation_{Simulation(&ubo_manager_, &filePaths_, appState_, params.customParticleCount)},
+	renderer_{std::make_unique<Renderer>(&ubo_manager_, &filePaths_, appState_)},
 	audioSystem_{AudioSystem(appState_)},
-	presetSystem_{PresetSystem<BehaviorPreset>("./presets/behaviourPresets.toml", appState_)},
-	colorPresetSystem_{PresetSystem<ColorPreset>("./presets/colorPresets.toml", appState_)},
+	presetSystem_{PresetSystem<BehaviorPreset>(filePaths_.behaviorPresetFilePath, appState_)},
+	colorPresetSystem_{PresetSystem<ColorPreset>(filePaths_.colorPresetFilePath, appState_)},
 	musicAnalysis_{MusicAnalysis(appState_)}
 {
 	//------------------------------------------------------

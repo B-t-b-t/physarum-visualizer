@@ -2,10 +2,10 @@
 
 #include "../utility/event.h"
 
-Renderer::Renderer(UniformBufferManager* uboManager, ApplicationState* appState)
+Renderer::Renderer(UniformBufferManager* uboManager, FilePaths* paths, ApplicationState* appState)
  :  drawCanvas_(Canvas()),
-    vertexShader_{Shader("./res/vertex.vs", ShaderType::VERTEX_SHADER)},
-    fragmentShader_{Shader("./res/fragment.fs", ShaderType::FRAGMENT_SHADER)},
+    vertexShader_{Shader(paths->shaderDir / paths->vertexShaderFile, ShaderType::VERTEX_SHADER)},
+    fragmentShader_{Shader(paths->shaderDir / paths->fragmentShaderFile, ShaderType::FRAGMENT_SHADER)},
 	rasterizationPipeline_{ShaderProgram("RasterizationPipeline", {&vertexShader_, &fragmentShader_})},
     appState_{appState},
     app_uss_{appState_->universalShaderSettings},

@@ -16,7 +16,7 @@ class PresetSystem : public Observer{
 public:
 
 	PresetSystem() = default;
-	PresetSystem(std::string presetFilePath, ApplicationState* appState);
+	PresetSystem(std::filesystem::path presetFilePath, ApplicationState* appState);
 	~PresetSystem();
 
 	void autoSwitchPresets(Uint64 timeInSeconds);

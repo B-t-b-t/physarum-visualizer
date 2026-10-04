@@ -7,13 +7,14 @@
 #include "../graphics/shader_program.h"
 #include "../graphics/uniform_buffer_manager.h"
 #include "../application_state.h"
+#include "../utility/filepaths.h"  // for FilePaths
 #include "../utility/observer.h"
 
 class Simulation : public Observer {
 
 public:
 
-    Simulation(UniformBufferManager* uboManager, ApplicationState* appState, bool customParticleCount);
+    Simulation(UniformBufferManager* uboManager, FilePaths* filePaths, ApplicationState* appState, bool customParticleCount);
     Simulation(const Simulation&) = delete;
     Simulation& operator=(const Simulation&) = delete;
     Simulation(Simulation&&);

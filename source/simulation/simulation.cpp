@@ -2,13 +2,13 @@
 
 #include "../utility/event.h"
 
-Simulation::Simulation(UniformBufferManager* uboManager, ApplicationState* appState, bool customParticleCount)
+Simulation::Simulation(UniformBufferManager* uboManager, FilePaths* paths, ApplicationState* appState, bool customParticleCount)
  : 	appState_{appState},
- 	trailDiffusionShader_{Shader("./res/TrailDiffusion.cs", ShaderType::COMPUTE_SHADER)},
+ 	trailDiffusionShader_{Shader(paths->shaderDir / paths->trailDiffusionFile, ShaderType::COMPUTE_SHADER)},
 	trailDiffusionProgram_{ShaderProgram("TrailDiffusionProgram", {&trailDiffusionShader_})},
-	particleBehaviourShader_{Shader("./res/ParticleBehaviour.cs", ShaderType::COMPUTE_SHADER)},
+	particleBehaviourShader_{Shader(paths->shaderDir / paths->particleBehaviourFile, ShaderType::COMPUTE_SHADER)},
 	particleBehaviourProgram_{ShaderProgram("ParticleBehaviourProgram", {&particleBehaviourShader_})},
-	trailMapController_{TrailMapController("./res/pictures/", ".png", 16, appState_)}	//Texture Unit 16 for Trail Mask Texture
+	trailMapController_{TrailMapController(paths, 16, appState_)}	//Texture Unit 16 for Trail Mask Texture
 {
 	//------------------------------------------------------
 	// Calculate new simulation parameters based on window properties or user input

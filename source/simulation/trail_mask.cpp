@@ -1,11 +1,13 @@
 #include "trail_mask.h"
 
+#include <filesystem>
 #include <memory>
 
 #include "../application_state.h"
 #include "../graphics/font_atlas.h"
 #include "../graphics/texture.h"
 #include "../graphics/text_texture.h"
+#include "../utility/filepaths.h"  // for FilePaths
 
 TrailMask::TrailMask(std::string nameIn, TrailMaskType typeIn, TrailMaskProperties propertiesIn)
     : name{nameIn}, type{typeIn}
@@ -76,9 +78,9 @@ TrailMask& TrailMask::operator=(TrailMask&& other) {
     return *this;
 }
 
-void TrailMask::createTextureFromImage(std::string& pictureFilePath, std::string& imageName, std::string& pictureFileExtension, ApplicationState* appState) {
+void TrailMask::createTextureFromImage(std::filesystem::path pictureFilePath, ApplicationState* appState) {
     if(type == TrailMaskType::IMAGE) {
-        SDL_Surface* loadedImage = loadImageFromFile(pictureFilePath, imageName, pictureFileExtension);
+        SDL_Surface* loadedImage = loadImageFromFile(pictureFilePath);
 
         TextureProperties properties;
         properties.width = loadedImage->w;
@@ -112,10 +114,10 @@ void TrailMask::createTextureFromImage(std::string& pictureFilePath, std::string
     }
 }
 
-void TrailMask::createTextureFromText(std::string& textIn, FontAtlas& fontAtlas, ApplicationState* appState) {
+void TrailMask::createTextureFromText(std::string& textIn, FontAtlas& fontAtlas, FilePaths* paths, ApplicationState* appState) {
     if(type == TrailMaskType::TEXT) {
         text = textIn;
-        auto textTexture = std::make_unique<TextTexture>(appState->universalShaderSettings.textureWidth, appState->universalShaderSettings.textureHeight, appState);
+        auto textTexture = std::make_unique<TextTexture>(appState->universalShaderSettings.textureWidth, appState->universalShaderSettings.textureHeight, paths, appState);
 
         textTexture->createTexture(text, fontAtlas);
         texture = std::move(textTexture);

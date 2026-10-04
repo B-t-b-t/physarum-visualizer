@@ -1,22 +1,25 @@
 #include "text_texture.h"
 
+#include <filesystem>                 // for std::filesystem::path
+
 #include "SDL3/SDL.h"
 
+#include "../utility/filepaths.h"
 #include "../utility/fileHandling.h"
 #include "../utility/vector_math.h"  // for phys::Vec2, phys::Vec4
 
 ShaderProgram TextTexture::textRenderProgram_{};
 bool TextTexture::isShaderProgramInitialized_ = false;
 
-TextTexture::TextTexture(int width, int height, ApplicationState* appState)
+TextTexture::TextTexture(int width, int height, FilePaths* paths, ApplicationState* appState)
  : Texture(TextureProperties{.width = width, .height = height, .wrapX = TextureWrap::CLAMP_TO_EDGE, .wrapY = TextureWrap::CLAMP_TO_EDGE}),
    outputFrameBuffer_(),
    appState_(appState)
 {
     //share shader program among all instances because it is expensive
     if(!isShaderProgramInitialized_) {
-        Shader vertexShader = Shader("./res/text_vertex.vs", ShaderType::VERTEX_SHADER);
-        Shader fragmentShader = Shader("./res/text_fragment.fs", ShaderType::FRAGMENT_SHADER);
+        Shader vertexShader = Shader(paths->shaderDir / paths->textVertexShaderFile, ShaderType::VERTEX_SHADER);
+        Shader fragmentShader = Shader(paths->shaderDir / paths->textFragmentShaderFile, ShaderType::FRAGMENT_SHADER);
         textRenderProgram_ = ShaderProgram("TextRenderPipeline", {&vertexShader, &fragmentShader});
         isShaderProgramInitialized_ = true;
     }
@@ -216,7 +219,7 @@ void TextTexture::createTexture(std::string& text, FontAtlas& fontAtlas) {
 
 }
 
-void TextTexture::textureToFile() {
+void TextTexture::textureToFile(std::filesystem::path filePath) {
     const int width = getWidth();
     const int height = getHeight();
 
@@ -259,6 +262,6 @@ void TextTexture::textureToFile() {
         return;
     }
 
-    saveImageToFile(surface, "./", "textTexture", ".png", true);
+    saveImageToFile(surface, filePath, true);
     SDL_DestroySurface(surface);
 }

@@ -15,7 +15,7 @@ class Renderer : public Observer {
 public:
 
     Renderer() = delete;
-    explicit Renderer(UniformBufferManager* uboManager, ApplicationState* appState);
+    explicit Renderer(UniformBufferManager* uboManager, FilePaths* paths, ApplicationState* appState);
 
     Renderer(const Renderer&) = delete;   //no copies, to prevent multiple destructor calls on same GL resources
     Renderer& operator=(const Renderer&) = delete;

@@ -4,13 +4,14 @@
 #include "input_handler.h"
 #include "preset_system.h"
 #include "window.h"
-#include "./audio/audio_system.h"
-#include "./audio/music_analysis.h"
-#include "./graphics/renderer.h"
-#include "./graphics/uniform_buffer_manager.h"
-#include "./simulation/simulation.h"
-#include "./ui/windows/audio_window.h"
-#include "./ui/user_interface.h"
+#include "audio/audio_system.h"
+#include "audio/music_analysis.h"
+#include "graphics/renderer.h"
+#include "graphics/uniform_buffer_manager.h"
+#include "simulation/simulation.h"
+#include "ui/windows/audio_window.h"
+#include "ui/user_interface.h"
+#include "utility/filepaths.h"  // for FilePaths
 
 struct Parameters;	//forward declaration of Parameters struct
 
@@ -22,6 +23,7 @@ public:
 
 private:
     ApplicationState* appState_;
+	FilePaths filePaths_{};
 
     Window window_;
 

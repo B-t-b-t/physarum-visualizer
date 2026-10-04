@@ -9,9 +9,11 @@
 #include "windows/view_window.h"
 #include "windows/visual_settings_window.h"
 
+#include "../utility/filepaths.h"
+
 inline void ImGui_StyleNuklearDarkGray();
 
-UserInterface::UserInterface(SDL_Window* window, SDL_GLContext glContext, ApplicationState* appState)
+UserInterface::UserInterface(SDL_Window* window, SDL_GLContext glContext, FilePaths& paths, ApplicationState* appState)
  : state_(appState),
    window_(window),
    glContext_(glContext)
@@ -31,12 +33,12 @@ UserInterface::UserInterface(SDL_Window* window, SDL_GLContext glContext, Applic
 	ImGui_ImplSDL3_InitForOpenGL(window, glContext);
 	ImGui_ImplOpenGL3_Init();
 
-	guiIO_->Fonts->AddFontFromFileTTF("res/fonts/Roboto-Medium.ttf", 16.0f);
+	guiIO_->Fonts->AddFontFromFileTTF(std::filesystem::path{paths.fontFileDir / paths.fontFile}.c_str(), 16.0f);
 	ImFontConfig config;
 	config.MergeMode = true;
 	float iconSize = 12.0f; //make icons smaller than the main font, otherwise they would appear too large
 	config.GlyphMinAdvanceX = iconSize; //make icons monospaced
-	guiIO_->Fonts->AddFontFromFileTTF("res/fonts/Font_Awesome_Solid.otf", iconSize, &config);
+	guiIO_->Fonts->AddFontFromFileTTF(std::filesystem::path{paths.fontFileDir / paths.fontAwesomeFile}.c_str(), iconSize, &config);
 
 	initWindows();
 }

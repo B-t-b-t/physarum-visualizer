@@ -67,32 +67,44 @@ void ParticleData::printSSBO() {
 	}
 }
 
-void ParticleData::writeToFile(const std::string& filename) {
-	std::ofstream outFile(filename + ".txt");
-	if (outFile.is_open()) {
-		for (int i = 0; i < numParticles_; i++) {
-			outFile << "p" << i << ": " 
-					<< shaderData_[(unsigned int) i].position_x << " , " 
-					<< shaderData_[(unsigned int) i].position_y << " , " 
-					<< shaderData_[(unsigned int) i].angle << " , "
-					<< shaderData_[(unsigned int) i].speciesID << std::endl;
+bool ParticleData::writeToFile(const std::filesystem::path& filePath) {
+	bool isSuccess = false;
+
+	if(filePath.extension() == ".txt") {
+		std::ofstream outFile(filePath.string());
+
+		if (outFile.is_open()) {
+			for (int i = 0; i < numParticles_; i++) {
+				outFile << "p" << i << ": " 
+						<< shaderData_[(unsigned int) i].position_x << " , " 
+						<< shaderData_[(unsigned int) i].position_y << " , " 
+						<< shaderData_[(unsigned int) i].angle << " , "
+						<< shaderData_[(unsigned int) i].speciesID << std::endl;
+			}
+			outFile.close();
+			std::cout << "Data written to " << filePath << std::endl;
+			isSuccess = true;
+		} else {
+			std::cerr << "Unable to open file: " << filePath << std::endl;
 		}
-		outFile.close();
-		std::cout << "Data written to particle_data.txt" << std::endl;
+	} else if(filePath.extension() == ".bin") {
+		// Write raw binary data
+		std::ofstream binFile(filePath.string(), std::ios::binary);
+
+		if (binFile.is_open()) {
+			binFile.write(reinterpret_cast<const char*>(shaderData_.data()), 
+						  static_cast<std::streamsize>(shaderData_.size() * sizeof(shader_data_t)));
+			binFile.close();
+			std::cout << "Binary data written to " << filePath << std::endl;
+			isSuccess = true;
+		} else {
+			std::cerr << "Unable to open binary file: " << filePath << std::endl;
+		}
 	} else {
-		std::cout << "Unable to open file" << std::endl;
+		std::cerr << "Unsupported file extension for file: " << filePath << std::endl;
 	}
 
-	// Write raw binary data
-	std::ofstream binFile(filename + ".bin", std::ios::binary);
-	if (binFile.is_open()) {
-		binFile.write(reinterpret_cast<const char*>(shaderData_.data()), 
-					 static_cast<std::streamsize>(shaderData_.size() * sizeof(shader_data_t)));
-		binFile.close();
-		std::cout << "Binary data written to " << filename << ".bin" << std::endl;
-	} else {
-		std::cout << "Unable to open binary file" << std::endl;
-	}
+	return isSuccess;
 }
 
 void ParticleData::createParticleCircle() {

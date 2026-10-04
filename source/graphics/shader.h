@@ -1,6 +1,7 @@
 #ifndef SHADER_H
 #define SHADER_H
 
+#include <filesystem>                 // for std::filesystem::path
 #include <GL/glew.h>
 #include <string>
 
@@ -28,10 +29,10 @@ public:
      * and not registered with OpenGL.
      * Check with isShaderValid() before using the shader to prevent errors.
      * 
-     * @param fileName The name of the shader file
+     * @param filePath The path of the shader file
      * @param shaderType The type of the shader
      */
-	Shader(const std::string& fileName, ShaderType shaderType);
+	Shader(const std::filesystem::path& filePath, ShaderType shaderType);
 
     Shader(const Shader& other) = delete;   //no copies, to prevent multiple destructor calls on same GL shaderID
     Shader& operator=(const Shader& other) = delete;
@@ -44,7 +45,7 @@ public:
      */
     ~Shader();
 
-    const std::string& getFileName() const { return fileName_; }
+    std::string getFileName() const { return filePath_.filename().string(); }
     GLuint getShaderID() const { return shaderID_; }
     ShaderType getShaderType() const { return shaderType_; }
 
@@ -57,7 +58,7 @@ public:
 
 private:
 
-    std::string fileName_{""};
+    std::filesystem::path filePath_{""};
     GLuint shaderID_{0};    //! 0 means invalid shader that can't be used with OpenGL
     ShaderType shaderType_{ShaderType::NONE};
 

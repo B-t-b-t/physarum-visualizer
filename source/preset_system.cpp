@@ -20,7 +20,7 @@ template class PresetSystem<BehaviorPreset>;
 template class PresetSystem<ColorPreset>;
 
 template<typename T>
-PresetSystem<T>::PresetSystem(std::string presetFilePath, ApplicationState* appState)
+PresetSystem<T>::PresetSystem(std::filesystem::path presetFilePath, ApplicationState* appState)
  : presetFilePath_{presetFilePath}, appState_{appState}
 {
     //register all preset names with UI and presets into memory
