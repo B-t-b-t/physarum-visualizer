@@ -5,6 +5,7 @@
 #include "windows/debug_window.h"
 #include "windows/new_canvas_modal.h"
 #include "windows/preset_window.h"
+#include "windows/scenes_window.h"
 #include "windows/slime_config_window.h"
 #include "windows/view_window.h"
 #include "windows/visual_settings_window.h"
@@ -58,6 +59,7 @@ void UserInterface::initWindows() {
 	windows_.emplace("DebugWindow", std::make_unique<DebugWindow>());
 	windows_.emplace("NewCanvasModal", std::make_unique<NewCanvasModal>());
 	windows_.emplace("ViewWindow", std::make_unique<ViewWindow>());
+	windows_.emplace("ScenesWindow", std::make_unique<ScenesWindow>());
 
 	(dynamic_cast<DebugWindow*>(windows_.at("DebugWindow").get()))->setGuiIO(guiIO_);
 }
@@ -83,6 +85,10 @@ void UserInterface::display() {
 		if (ImGui::MenuItem("Visual Settings")) { 
 			bool* showVisualSettingsWindow = &(windows_.at("VisualSettingsWindow")->visible);
 			*showVisualSettingsWindow = *showVisualSettingsWindow ? false : true;
+		}
+		if (ImGui::MenuItem("Scenes")) {
+			bool* showScenesWindow = &(windows_.at("ScenesWindow")->visible);
+			*showScenesWindow = *showScenesWindow ? false : true;
 		}
 		if (ImGui::MenuItem("Preset")) {
 			bool* showPresetWindow = &(windows_.at("PresetWindow")->visible);

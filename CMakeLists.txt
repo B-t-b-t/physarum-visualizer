@@ -251,12 +251,15 @@ set(MY_HEADER_FILES
     source/graphics/texture.h
     source/graphics/uniform_buffer_manager.h
     source/graphics/uniform_buffer_object.h
+    source/simulation/scene.h
+    source/simulation/scene_controller.h
     source/simulation/simulation.h
     source/simulation/trail_map_controller.h
     source/simulation/trail_mask.h
     source/ui/ui_helpers.h
     source/ui/user_interface.h
     source/ui/widgets/color_indicator.h
+    source/ui/widgets/dual_listbox.h
     source/ui/widgets/link_widget.h
     source/ui/widgets/time_picker.h
     source/ui/windows/audio_window.h
@@ -264,6 +267,7 @@ set(MY_HEADER_FILES
     source/ui/windows/debug_window.h
     source/ui/windows/new_canvas_modal.h
     source/ui/windows/preset_window.h
+    source/ui/windows/scenes_window.h
     source/ui/windows/slime_config_window.h
     source/ui/windows/view_window.h
     source/ui/windows/visual_settings_window.h
@@ -303,18 +307,22 @@ set(MY_SOURCE_FILES
     source/graphics/texture.cpp
     source/graphics/uniform_buffer_manager.cpp
     source/graphics/uniform_buffer_object.cpp
+    source/simulation/scene.cpp
+    source/simulation/scene_controller.cpp
     source/simulation/simulation.cpp
     source/simulation/trail_map_controller.cpp
     source/simulation/trail_mask.cpp
     source/ui/ui_helpers.cpp
     source/ui/user_interface.cpp
     source/ui/widgets/color_indicator.cpp
+    source/ui/widgets/dual_listbox.cpp
     source/ui/widgets/link_widget.cpp
     source/ui/widgets/time_picker.cpp
     source/ui/windows/audio_window.cpp
     source/ui/windows/debug_window.cpp
     source/ui/windows/new_canvas_modal.cpp
     source/ui/windows/preset_window.cpp
+    source/ui/windows/scenes_window.cpp
     source/ui/windows/slime_config_window.cpp
     source/ui/windows/view_window.cpp
     source/ui/windows/visual_settings_window.cpp

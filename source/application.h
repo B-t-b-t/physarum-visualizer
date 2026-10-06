@@ -8,6 +8,7 @@
 #include "audio/music_analysis.h"
 #include "graphics/renderer.h"
 #include "graphics/uniform_buffer_manager.h"
+#include "simulation/scene_controller.h"
 #include "simulation/simulation.h"
 #include "ui/windows/audio_window.h"
 #include "ui/user_interface.h"
@@ -42,6 +43,8 @@ private:
 
     PresetSystem<BehaviorPreset> presetSystem_;
 	PresetSystem<ColorPreset> colorPresetSystem_;
+
+    SceneController sceneController_;
 
     MusicAnalysis musicAnalysis_;
 

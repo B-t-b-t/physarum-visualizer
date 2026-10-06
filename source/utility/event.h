@@ -8,6 +8,7 @@
 #include <optional>  // for optional, nullopt, nullopt_t
 #include <string>    // for basic_string, string
 #include <variant>   // for monostate, variant
+#include <vector>    // for vector
 
 #include "time_handling.h"  // for TimeSlot
 #include "vector_math.h"  // for phys::Vec2
@@ -17,6 +18,11 @@ enum class EventType {
     FULLSCREEN_TOGGLE,
     NEW_CANVAS,
     AUDIO_HARDWARE_CHANGE,
+
+    SCENE_APPLY,
+    SCENE_CREATE,
+    SCENE_DELETE,
+    SCENE_EDIT,
 
     BEHAVIOR_PRESET_APPLY,
     BEHAVIOR_PRESET_CREATE,
@@ -42,6 +48,14 @@ struct NewCanvasData {
     int newNumParticles{};
 };
 
+struct SceneEditData {
+    std::string sceneName;
+    std::vector<std::string> behaviorPresetNames;
+    std::vector<std::string> colorPresetNames;
+    std::vector<std::string> imagePresetKeys;
+    std::vector<std::string> textPresetKeys;
+};
+
 using EventPayload = std::variant<
     std::monostate,
     int,
@@ -49,14 +63,12 @@ using EventPayload = std::variant<
     uint32_t,   //for AUDIO_HARDWARE_CHANGE using SDL_AudioDeviceID (uint32_t)
     std::string,
     TrailMask,  //only allow TrailMask and not TrailMaskProperties, because the receiver additionally needs to know name and type to know which TrailMask is being referred to
-    NewCanvasData
+    NewCanvasData,
+    SceneEditData
 >; 
 
 struct UserEvent {
     EventType type;
-
-    //two values, e.g. if an event requires an index (data) and what changes at this index (additionalData)
-    //or resizing a texture (width and height)
     EventPayload payload{std::monostate{}};
 };
 

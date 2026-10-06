@@ -6,6 +6,11 @@ std::ostream& operator<<(std::ostream& os, const EventType& c) {
         case EventType::NEW_CANVAS:       return os << "NEW_CANVAS";
         case EventType::AUDIO_HARDWARE_CHANGE: return os << "AUDIO_HARDWARE_CHANGE";
 
+        case EventType::SCENE_APPLY: return os << "SCENE_APPLY";
+        case EventType::SCENE_CREATE: return os << "SCENE_CREATE";
+        case EventType::SCENE_DELETE: return os << "SCENE_DELETE";
+        case EventType::SCENE_EDIT: return os << "SCENE_EDIT";
+
         case EventType::BEHAVIOR_PRESET_CREATE:      return os << "BEHAVIOR_PRESET_CREATE";
         case EventType::BEHAVIOR_PRESET_APPLY:      return os << "BEHAVIOR_PRESET_APPLY";
         case EventType::BEHAVIOR_PRESET_DELETE:      return os << "BEHAVIOR_PRESET_DELETE";

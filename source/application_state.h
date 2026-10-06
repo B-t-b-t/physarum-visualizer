@@ -13,6 +13,7 @@
 
 struct AudioDeviceInfo;	//forward declaration of AudioDeviceInfo struct
 struct Parameters;	//forward declaration of Parameters struct
+struct Scene;	//forward declaration of Scene struct
 struct TrailMask;	//forward declaration of TrailMask struct
 struct BehaviorPreset;	//forward declaration of Preset struct
 struct ColorPreset;	//forward declaration of ColorPreset struct
@@ -66,6 +67,10 @@ public:
 
 	// Audio Hardware Selection via List Box
 	std::map<SDL_AudioDeviceID, AudioDeviceInfo>* availableAudioHardware = nullptr;
+
+	// Scene Selection via List Box
+	std::map<std::string, Scene>* scenes = nullptr;
+	std::string usedSceneName = "";
 
 	// Behaviour Preset Selection via List Box
 	std::map<std::string, BehaviorPreset>* behaviorPresets = nullptr;

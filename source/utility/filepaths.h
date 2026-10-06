@@ -15,6 +15,8 @@ struct FilePaths {
     const std::filesystem::path textVertexShaderFile = "text_vertex.vs";
     const std::filesystem::path textFragmentShaderFile = "text_fragment.fs";
 
+    const std::filesystem::path sceneFilePath = "./presets/scenes.toml";
+
     const std::filesystem::path behaviorPresetFilePath = "./presets/behaviourPresets.toml";
     const std::filesystem::path colorPresetFilePath = "./presets/colorPresets.toml";
 

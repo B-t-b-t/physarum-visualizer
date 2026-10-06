@@ -14,6 +14,7 @@ Application::Application(Parameters params)
 	audioSystem_{AudioSystem(appState_)},
 	presetSystem_{PresetSystem<BehaviorPreset>(filePaths_.behaviorPresetFilePath, appState_)},
 	colorPresetSystem_{PresetSystem<ColorPreset>(filePaths_.colorPresetFilePath, appState_)},
+	sceneController_{SceneController(filePaths_.sceneFilePath, appState_)},
 	musicAnalysis_{MusicAnalysis(appState_)}
 {
 	//------------------------------------------------------
@@ -35,6 +36,14 @@ Application::Application(Parameters params)
 	ui_.getWindow("NewCanvasModal")->addObserver(EventType::NEW_CANVAS, renderer_.get());
 	ui_.getWindow("NewCanvasModal")->addObserver(EventType::NEW_CANVAS, &simulation_);
 	ui_.getWindow("NewCanvasModal")->addObserver(EventType::NEW_CANVAS, &ubo_manager_);
+	ui_.getWindow("ScenesWindow")->addObserver(EventType::SCENE_APPLY, &sceneController_);
+	ui_.getWindow("ScenesWindow")->addObserver(EventType::SCENE_CREATE, &sceneController_);
+	ui_.getWindow("ScenesWindow")->addObserver(EventType::SCENE_DELETE, &sceneController_);
+	ui_.getWindow("ScenesWindow")->addObserver(EventType::SCENE_EDIT, &sceneController_);
+	sceneController_.addObserver(EventType::BEHAVIOR_PRESET_APPLY, &presetSystem_);
+	sceneController_.addObserver(EventType::COLOR_PRESET_APPLY, &colorPresetSystem_);
+	sceneController_.addObserver(EventType::IMAGE_PRESET_APPLY, simulation_.getTrailMapController());
+	sceneController_.addObserver(EventType::TEXT_PRESET_APPLY, simulation_.getTrailMapController());
 
 	prevCounter_ = SDL_GetPerformanceCounter();
 	counterFrequency_ = SDL_GetPerformanceFrequency(); //SDL Timer Frequency for Audio Beat Analysis and Auto Preset Switching
