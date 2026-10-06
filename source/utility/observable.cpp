@@ -9,7 +9,7 @@ Observable::~Observable() {
     for(auto& pair : observers_) {
         ObserverList& obsList = pair.second;
         for(Observer* observer : obsList) {
-            observer->resetObservable();
+            observer->removeObservable(this);
         }
     }
 }
@@ -25,7 +25,7 @@ void Observable::addObserver(EventType event, Observer* observer) {
     if(observer) {
         ObserverList& obsList = observers_[event];
         obsList.push_back(observer);
-        observer->setObservable(this);
+        observer->addObservable(this);
     }
 }
 

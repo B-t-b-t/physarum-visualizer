@@ -1,6 +1,8 @@
 #ifndef OBSERVER_H
 #define OBSERVER_H
 
+#include <list>
+
 class Observable;   //forward declaration to avoid circular dependency
 struct UserEvent;      //forward declaration to avoid circular dependency
 
@@ -15,10 +17,11 @@ public:
     virtual void onNotify(const UserEvent event) = 0;
     
 protected:
-    void setObservable(Observable* observable);
-    void resetObservable() { observable_ = nullptr; }   //exists to simplify nullptr check in setObservable
+    void addObservable(Observable* observable);
+    void resetObservable() { observable_.clear(); }
+    void removeObservable(Observable* observable) { observable_.remove(observable); }
 
-    Observable* observable_{nullptr};
+    std::list<Observable*> observable_;     //this list just exists to inform all Observables, if this Observer is destroyed
 };
 
 #endif // OBSERVER_H
