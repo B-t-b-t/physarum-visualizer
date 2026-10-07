@@ -277,6 +277,10 @@ void TrailMapController::loadEntriesFromDirectory() {
 }
 
 void TrailMapController::bindToTextureUnit(GLuint textureUnit) { 
+    if(trailMasks_.at(activeTrailMaskKey_).type == TrailMaskType::EMPTY) {
+        return;
+    }
+
     textureUnit_ = textureUnit;
 
     const auto trailMask = trailMasks_.find(activeTrailMaskKey_);
