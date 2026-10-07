@@ -107,32 +107,38 @@ void sceneAddModal(
 
         static std::string newSceneName;
         static bool sceneAlreadyExists = false;
+        static bool isNameEmpty = false;
+
+        if(ImGui::IsWindowAppearing()) {
+            newSceneName.clear();
+            sceneAlreadyExists = false;
+            isNameEmpty = false;
+        }
 
         ImGui::InputTextWithHint("##New Scene Name", "Name", &newSceneName, ImGuiInputTextFlags_CharsNoBlank);
 
         ImGui::Separator();
 
-        if (ImGui::Button("Save") && !newSceneName.empty()) {
+        if(sceneAlreadyExists) {
+            ImGui::TextColored(ImVec4(0.9f, 0.0f, 0.0f, 1.0f), "A scene with this name already exists!");
+        }
+        if(isNameEmpty) {
+            ImGui::TextColored(ImVec4(0.9f, 0.0f, 0.0f, 1.0f), "Scene name cannot be empty!");
+        }
+
+        if (ImGui::Button("Save")) {
+            isNameEmpty = newSceneName.empty();
             sceneAlreadyExists = appState->scenes->contains(newSceneName);
 
-            if (!sceneAlreadyExists) {
+            if (!sceneAlreadyExists && !isNameEmpty) {
                 window->notify(UserEvent{EventType::SCENE_CREATE, newSceneName});
-
-                newSceneName.clear();
                 ImGui::CloseCurrentPopup();
             }
         }
 
         ImGui::SameLine();
-
         if (ImGui::Button("Cancel")) {
-            newSceneName.clear();
-            sceneAlreadyExists = false;
             ImGui::CloseCurrentPopup();
-        }
-
-        if (sceneAlreadyExists && ImGui::IsItemHovered()) {
-            ImGui::TextUnformatted("A scene with this name already exists.");
         }
 
         ImGui::EndPopup();
