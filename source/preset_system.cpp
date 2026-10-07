@@ -75,14 +75,14 @@ void PresetSystem<T>::loadPresetsFromFile() {
     //parse
     try {
         presetData = toml::parse(presetFilePath_);
+        //fill map
+        for(auto& [presetName, presetEntry] : presetData.as_table()) {    
+            presets.try_emplace(presetName.c_str(), presetName.c_str(), presetEntry);
+        }
     } catch(const toml::exception& err) {
         std::cerr << "Failed to parse " << presetFilePath_.filename() << ": " << err.what() << std::endl;
     }
 
-    //fill map
-    for(auto& [presetName, presetEntry] : presetData.as_table()) {    
-        presets[presetName.c_str()] = T{presetName.c_str(), presetEntry};
-    }
 }
 
 template<typename T>
@@ -95,7 +95,10 @@ void PresetSystem<T>::onNotify(const UserEvent event) {
             break;
         case EventType::BEHAVIOR_PRESET_APPLY: 
         case EventType::COLOR_PRESET_APPLY: {
-            presets[std::get<std::string>(event.payload)].toAppState(appState_);
+            std::string key = std::get<std::string>(event.payload);
+            if(presets.contains(key)) {
+                presets.find(key)->second.toAppState(appState_);
+            }
             break;
         }
         case EventType::BEHAVIOR_PRESET_DELETE:
