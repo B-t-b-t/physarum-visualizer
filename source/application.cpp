@@ -18,33 +18,11 @@ Application::Application(Parameters params)
 	musicAnalysis_{MusicAnalysis(appState_)}
 {
 	//------------------------------------------------------
-	//Register Observers for immediate reaction to Events
-	ui_.getWindow("VisualSettingsWindow")->addObserver(EventType::FULLSCREEN_TOGGLE, &window_);
-	ui_.getWindow("AudioWindow")->addObserver(EventType::AUDIO_HARDWARE_CHANGE, &audioSystem_);
-	ui_.getWindow("PresetWindow")->addObserver(EventType::BEHAVIOR_PRESET_CREATE, &presetSystem_);
-	ui_.getWindow("PresetWindow")->addObserver(EventType::BEHAVIOR_PRESET_APPLY, &presetSystem_);
-	ui_.getWindow("PresetWindow")->addObserver(EventType::BEHAVIOR_PRESET_DELETE, &presetSystem_);
-	ui_.getWindow("PresetWindow")->addObserver(EventType::COLOR_PRESET_CREATE, &colorPresetSystem_);
-	ui_.getWindow("PresetWindow")->addObserver(EventType::COLOR_PRESET_APPLY, &colorPresetSystem_);
-	ui_.getWindow("PresetWindow")->addObserver(EventType::COLOR_PRESET_DELETE, &colorPresetSystem_);
-	ui_.getWindow("PresetWindow")->addObserver(EventType::IMAGE_PRESET_APPLY, simulation_.getTrailMapController());
-	ui_.getWindow("PresetWindow")->addObserver(EventType::IMAGE_PRESET_EDIT, simulation_.getTrailMapController());
-	ui_.getWindow("PresetWindow")->addObserver(EventType::TEXT_PRESET_APPLY, simulation_.getTrailMapController());	
-	ui_.getWindow("PresetWindow")->addObserver(EventType::TEXT_PRESET_CREATE, simulation_.getTrailMapController());
-	ui_.getWindow("PresetWindow")->addObserver(EventType::TEXT_PRESET_EDIT, simulation_.getTrailMapController());
-	ui_.getWindow("PresetWindow")->addObserver(EventType::TEXT_PRESET_DELETE, simulation_.getTrailMapController());
-	ui_.getWindow("NewCanvasModal")->addObserver(EventType::NEW_CANVAS, renderer_.get());
-	ui_.getWindow("NewCanvasModal")->addObserver(EventType::NEW_CANVAS, &simulation_);
-	ui_.getWindow("NewCanvasModal")->addObserver(EventType::NEW_CANVAS, &ubo_manager_);
-	ui_.getWindow("ScenesWindow")->addObserver(EventType::SCENE_APPLY, &sceneController_);
-	ui_.getWindow("ScenesWindow")->addObserver(EventType::SCENE_CREATE, &sceneController_);
-	ui_.getWindow("ScenesWindow")->addObserver(EventType::SCENE_DELETE, &sceneController_);
-	ui_.getWindow("ScenesWindow")->addObserver(EventType::SCENE_EDIT, &sceneController_);
-	sceneController_.addObserver(EventType::BEHAVIOR_PRESET_APPLY, &presetSystem_);
-	sceneController_.addObserver(EventType::COLOR_PRESET_APPLY, &colorPresetSystem_);
-	sceneController_.addObserver(EventType::IMAGE_PRESET_APPLY, simulation_.getTrailMapController());
-	sceneController_.addObserver(EventType::TEXT_PRESET_APPLY, simulation_.getTrailMapController());
+	// Register Observers for immediate reaction to Events
 
+	setUpObservers();	// Implementation in application_setup.cpp !
+
+	
 	prevCounter_ = SDL_GetPerformanceCounter();
 	counterFrequency_ = SDL_GetPerformanceFrequency(); //SDL Timer Frequency for Audio Beat Analysis and Auto Preset Switching
 }

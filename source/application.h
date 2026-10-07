@@ -23,6 +23,12 @@ public:
     void run();
 
 private:
+    /**
+     * @brief Helper Method just to setup the relations between the objects of the Observer Pattern.
+     * @note To keep application.cpp clean and concise, the implementation is in application_setup.cpp !
+     */
+    void setUpObservers();
+
     ApplicationState* appState_;
 	FilePaths filePaths_{};
 

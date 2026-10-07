@@ -287,6 +287,7 @@ set(MY_SOURCE_FILES
     source/main.cpp
     source/application.cpp
     source/application_state.cpp
+    source/application_setup.cpp
     source/canvas.cpp
     source/input_handler.cpp
     source/particle_data.cpp
