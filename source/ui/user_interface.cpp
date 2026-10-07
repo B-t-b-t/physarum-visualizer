@@ -34,12 +34,12 @@ UserInterface::UserInterface(SDL_Window* window, SDL_GLContext glContext, FilePa
 	ImGui_ImplSDL3_InitForOpenGL(window, glContext);
 	ImGui_ImplOpenGL3_Init();
 
-	guiIO_->Fonts->AddFontFromFileTTF(std::filesystem::path{paths.fontFileDir / paths.fontFile}.c_str(), 16.0f);
+	guiIO_->Fonts->AddFontFromFileTTF(std::filesystem::path{paths.fontFileDir / paths.fontFile}.string().c_str(), 16.0f);
 	ImFontConfig config;
 	config.MergeMode = true;
 	float iconSize = 12.0f; //make icons smaller than the main font, otherwise they would appear too large
 	config.GlyphMinAdvanceX = iconSize; //make icons monospaced
-	guiIO_->Fonts->AddFontFromFileTTF(std::filesystem::path{paths.fontFileDir / paths.fontAwesomeFile}.c_str(), iconSize, &config);
+	guiIO_->Fonts->AddFontFromFileTTF(std::filesystem::path{paths.fontFileDir / paths.fontAwesomeFile}.string().c_str(), iconSize, &config);
 
 	initWindows();
 }

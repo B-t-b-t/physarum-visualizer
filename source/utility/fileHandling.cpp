@@ -48,9 +48,9 @@ SDL_Surface* loadImageFromFile(std::filesystem::path filePath) {
         return nullptr;
     }
 
-    SDL_Surface* surface = IMG_Load(filePath.c_str());
+    SDL_Surface* surface = IMG_Load(filePath.string().c_str());
     if(surface == nullptr) {
-        SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Failed to load image %s: %s", filePath.filename().c_str(), SDL_GetError());
+        SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Failed to load image %s: %s", filePath.filename().string().c_str(), SDL_GetError());
         return nullptr;
     }
 
@@ -58,12 +58,12 @@ SDL_Surface* loadImageFromFile(std::filesystem::path filePath) {
     SDL_DestroySurface(surface);
 
     if(formattedSurface == nullptr) {
-        SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Failed to convert surface format for image %s: %s", filePath.filename().c_str(), SDL_GetError());
+        SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Failed to convert surface format for image %s: %s", filePath.filename().string().c_str(), SDL_GetError());
         return nullptr;
     }
 
     if(!SDL_FlipSurface(formattedSurface, SDL_FLIP_VERTICAL)) { //flip vertically for OpenGL coordinate system
-        SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Failed to flip to OpenGL orientation for image %s: %s", filePath.filename().c_str(), SDL_GetError());
+        SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Failed to flip to OpenGL orientation for image %s: %s", filePath.filename().string().c_str(), SDL_GetError());
         SDL_DestroySurface(formattedSurface);
         return nullptr;
     }
@@ -73,7 +73,7 @@ SDL_Surface* loadImageFromFile(std::filesystem::path filePath) {
 
 SDL_Surface* loadImageFromFont(std::filesystem::path filePath, std::vector<FontCharInfo>& fontCharInfos, int* firstChar_Out, int* numberOfChars_Out, float* fontSize_Out) {
     if(filePath.extension() != ".ttf") {
-        SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Unsupported font format: %s", filePath.extension().c_str());
+        SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Unsupported font format: %s", filePath.extension().string().c_str());
         return nullptr;
     }
 
@@ -187,28 +187,28 @@ bool saveImageToFile(SDL_Surface* surface, std::filesystem::path filePath, bool 
 
     if(isFlipped) {
         if(!SDL_FlipSurface(surface, SDL_FLIP_VERTICAL)) { //flip vertically back from OpenGL coordinate system
-            SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Failed to flip from OpenGL orientation during saving of image %s: %s", filePath.filename().c_str(), SDL_GetError());
+            SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Failed to flip from OpenGL orientation during saving of image %s: %s", filePath.filename().string().c_str(), SDL_GetError());
         }
     }
 
     if (filePath.extension() == ".png") {
-        saveSuccess = IMG_SavePNG(surface, filePath.c_str());
+        saveSuccess = IMG_SavePNG(surface, filePath.string().c_str());
     } else if (filePath.extension() == ".jpg" || filePath.extension() == ".jpeg") {
-        saveSuccess = IMG_SaveJPG(surface, filePath.c_str(), 100); // Quality set to 100
+        saveSuccess = IMG_SaveJPG(surface, filePath.string().c_str(), 100); // Quality set to 100
     } else {
         wrongExtension = true;
     }
     if(!saveSuccess) {
-        SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Failed to save image %s: %s", filePath.filename().c_str(), SDL_GetError());
+        SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Failed to save image %s: %s", filePath.filename().string().c_str(), SDL_GetError());
         if(wrongExtension) {
-            SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Unsupported image format: %s", filePath.extension().c_str());
+            SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Unsupported image format: %s", filePath.extension().string().c_str());
         }
     }
 
     // Flip back to OpenGL orientation after saving, so the surface remains in the correct orientation for further use
     if(isFlipped) {
         if(!SDL_FlipSurface(surface, SDL_FLIP_VERTICAL)) { //flip vertically to OpenGL coordinate system
-            SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Failed to flip to OpenGL orientation during saving of image %s: %s", filePath.filename().c_str(), SDL_GetError());
+            SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Failed to flip to OpenGL orientation during saving of image %s: %s", filePath.filename().string().c_str(), SDL_GetError());
         }
     }
 
