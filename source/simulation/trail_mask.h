@@ -33,7 +33,8 @@ struct TrailMaskProperties {
 
 enum class TrailMaskType {
     IMAGE,
-    TEXT
+    TEXT,
+    EMPTY       //makes it possible for the user to have "no" trail mask selected (TODO: find better solution)
 };
 
 class TrailMask {
@@ -61,7 +62,7 @@ public:
         TrailMask& operator=(TrailMask&&);
 
         void createTextureFromImage(std::filesystem::path pictureFilePath, ApplicationState* appState);
-        void createTextureFromText(std::string& text, FontAtlas& fontAtlas, FilePaths* paths, ApplicationState* appState);
+        void createTextureFromText(FontAtlas& fontAtlas, FilePaths* paths, ApplicationState* appState);
 
         /**
          * @brief Generates a key for use in maps based on its type and name.

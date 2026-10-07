@@ -48,6 +48,7 @@ void PresetWindow::behaviourPresetGUI(ApplicationState* appState) {
 	//--------------------------------
 	//Preset System
 	//--------------------------------
+    ImGui::Text("Changes the behavior of the simulation:");
     ImGui::SeparatorText("Selection");
 
     ImGui::SetNextWindowSizeConstraints(ImVec2(ImGui::GetContentRegionAvail().x * 0.5f, ImGui::GetTextLineHeightWithSpacing() * 1), ImVec2(ImGui::GetContentRegionAvail().x * 0.5f, ImGui::GetTextLineHeightWithSpacing() * 8));
@@ -66,10 +67,11 @@ void PresetWindow::behaviourPresetGUI(ApplicationState* appState) {
         //only show when there is data to show or delete
         if(behaviorPresets != nullptr && !behaviorPresets->empty()) {
             //Fontawesome: fa-solid fa-pen-to-square 
-            if(ImGui::MenuItem("\uf044 Edit")) {
+            /*if(ImGui::MenuItem("\uf044 Edit")) {
                 ImGui::OpenPopup("Edit Behavior Preset");
             }
-            //PresetWindowHelper::behaviorPresetEditModal("Edit Behavior Preset", appState, this);
+            //PresetWindowHelper::behaviorPresetEditModal("Edit Behavior Preset", appState, this);*/
+
             //Fontawesome: fa-solid fa-trash-can 
             if(ImGui::MenuItem("\uf2ed Delete")) {
                 ImGui::OpenPopup("Delete Behavior Preset");
@@ -101,7 +103,7 @@ void PresetWindow::colorPresetGUI(ApplicationState* appState) {
 	//--------------------------------
 	//Color Preset System
 	//--------------------------------
-
+    ImGui::Text("Changes the color of the trail:");
     ImGui::SeparatorText("Selection");
 
     ImGui::SetNextWindowSizeConstraints(ImVec2(ImGui::GetContentRegionAvail().x * 0.5f, ImGui::GetTextLineHeightWithSpacing() * 1), ImVec2(ImGui::GetContentRegionAvail().x * 0.5f, ImGui::GetTextLineHeightWithSpacing() * 8));
@@ -120,10 +122,11 @@ void PresetWindow::colorPresetGUI(ApplicationState* appState) {
         //only show when there is data to show or delete
         if(colorPresets != nullptr && !colorPresets->empty()) {
             //Fontawesome: fa-solid fa-pen-to-square 
-            if(ImGui::MenuItem("\uf044 Edit")) {
+            /*if(ImGui::MenuItem("\uf044 Edit")) {
                 ImGui::OpenPopup("Edit Color Preset");
             }
-            //PresetWindowHelper::colorPresetEditModal("Edit Color Preset", appState, this);
+            PresetWindowHelper::colorPresetEditModal("Edit Color Preset", appState, this);*/
+
             //Fontawesome: fa-solid fa-trash-can 
             if(ImGui::MenuItem("\uf2ed Delete")) {
                 ImGui::OpenPopup("Delete Color Preset");
@@ -169,7 +172,7 @@ void PresetWindow::imagePresetGUI(ApplicationState* appState) {
     //Picture Selection
     //--------------------------------
 
-    ImGui::Text("Influence the Trail with an Image:");
+    ImGui::Text("Influences the trail with an Image:");
     ImGui::SeparatorText("Selection");
 
     ImGui::SetNextWindowSizeConstraints(ImVec2(ImGui::GetContentRegionAvail().x * 0.5f, ImGui::GetTextLineHeightWithSpacing() * 1), ImVec2(ImGui::GetContentRegionAvail().x * 0.5f, ImGui::GetTextLineHeightWithSpacing() * 8));
@@ -187,7 +190,7 @@ void PresetWindow::imagePresetGUI(ApplicationState* appState) {
         //PresetWindowHelper::imagePresetAddModal("New Image Preset", appState, this);
 
         //only show when there is data to show or delete
-        if(trailMasks != nullptr && !trailMasks->empty()) {
+        if(trailMasks != nullptr && !trailMasks->empty() && trailMasks->at(usedTrailMaskName).type != TrailMaskType::EMPTY) {
             //Fontawesome: fa-solid fa-pen-to-square 
             if(ImGui::MenuItem("\uf044 Edit")) {
                 ImGui::OpenPopup("Edit Image Preset");
@@ -212,12 +215,11 @@ void PresetWindow::imagePresetGUI(ApplicationState* appState) {
 
             for(auto& [key, trailMask] : *trailMasks) {
 
-                if(trailMask.type != TrailMaskType::TEXT) {
-                    ImGui::TableNextRow();
-                    ImGui::TableNextColumn();
-                } else {
-                    continue;       //filter out text presets
+                if(trailMask.type != TrailMaskType::IMAGE && trailMask.type != TrailMaskType::EMPTY) {
+                    continue;       //filter out text presets, but show empty for selection
                 }
+                ImGui::TableNextRow();
+                ImGui::TableNextColumn();
 
 				const bool isSelected = (usedTrailMaskName == key);
 
@@ -227,11 +229,13 @@ void PresetWindow::imagePresetGUI(ApplicationState* appState) {
 					std::cout << "Selected Image: " << trailMask.name << std::endl;
 				}
 
-                ImGui::SetItemTooltip("Right-click to edit");
-
-                if(ImGui::OpenPopupOnItemClick(nullptr, ImGuiPopupFlags_MouseButtonRight)) {
-                    editKey = key;
-                    isRightClicked = true;
+                
+                if(trailMask.type != TrailMaskType::EMPTY) {
+                    if(ImGui::OpenPopupOnItemClick(nullptr, ImGuiPopupFlags_MouseButtonRight)) {
+                        editKey = key;
+                        isRightClicked = true;
+                    }
+                    ImGui::SetItemTooltip("Right-click to edit");
                 }
 
                 ImGui::TableNextColumn();
@@ -278,14 +282,14 @@ void PresetWindow::textPresetGUI(ApplicationState* appState) {
     //Text Selection
     //--------------------------------
 
-    ImGui::Text("Influence the Trail with a Text:");
+    ImGui::Text("Influences the trail with a text:");
     ImGui::SeparatorText("Selection");
 
     ImGui::SetNextWindowSizeConstraints(ImVec2(ImGui::GetContentRegionAvail().x * 0.5f, ImGui::GetTextLineHeightWithSpacing() * 1), ImVec2(ImGui::GetContentRegionAvail().x * 0.5f, ImGui::GetTextLineHeightWithSpacing() * 8));
 
     ImGui::BeginChild("TextSelectionChild", ImVec2(0, 0), true, ImGuiWindowFlags_MenuBar);
 
-    std::string usedTrailMaskName = appState->usedTrailMaskName;
+    std::string& usedTrailMaskName = appState->usedTrailMaskName;
     std::map<std::string, TrailMask>* trailMasks = appState->trailMasks;
 
     if (ImGui::BeginMenuBar()) {
@@ -296,7 +300,7 @@ void PresetWindow::textPresetGUI(ApplicationState* appState) {
         PresetWindowHelper::textPresetAddModal("New Text Preset", this);
 
         //only show when there is data to show or delete
-        if(trailMasks != nullptr && !trailMasks->empty()) {
+        if(trailMasks != nullptr && !trailMasks->empty() && trailMasks->at(usedTrailMaskName).type != TrailMaskType::EMPTY) {
             //Fontawesome: fa-solid fa-pen-to-square 
             if(ImGui::MenuItem("\uf044 Edit")) {    //edit a already selected text preset
                 ImGui::OpenPopup("Edit Text Preset");
@@ -320,12 +324,12 @@ void PresetWindow::textPresetGUI(ApplicationState* appState) {
 
             for (auto& [key, trailMask] : *trailMasks) {
                 
-                if(trailMask.type == TrailMaskType::TEXT) {
-                    ImGui::TableNextRow();
-                    ImGui::TableNextColumn();
-                } else {
-                    continue;   //filter out non-text presets
+                if(trailMask.type != TrailMaskType::TEXT && trailMask.type != TrailMaskType::EMPTY) {
+                    continue;   //filter out non-text presets, but show empty for selection
                 }
+
+                ImGui::TableNextRow();
+                ImGui::TableNextColumn();
 
 				const bool isSelected = (usedTrailMaskName == key);
 				if(ImGui::Selectable(trailMask.name.c_str(), isSelected, ImGuiSelectableFlags_SpanAllColumns)) {
@@ -334,12 +338,14 @@ void PresetWindow::textPresetGUI(ApplicationState* appState) {
 					std::cout << "Selected Text: " << trailMask.name << std::endl;
 				}
 
-                if(ImGui::OpenPopupOnItemClick(nullptr, ImGuiPopupFlags_MouseButtonRight)) {
-                    editKey = key;
-                    isRightClicked = true;
-                }
+                if(trailMask.type != TrailMaskType::EMPTY) {
+                    if(ImGui::OpenPopupOnItemClick(nullptr, ImGuiPopupFlags_MouseButtonRight)) {
+                        editKey = key;
+                        isRightClicked = true;
+                    }
 
-                ImGui::SetItemTooltip("Right-click to Edit");
+                    ImGui::SetItemTooltip("Right-click to Edit");
+                }
 
                 ImGui::TableNextColumn();
                 //Fontawesome: fa-solid fa-clock 

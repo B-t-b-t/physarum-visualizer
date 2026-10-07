@@ -27,7 +27,9 @@ TrailMapController::TrailMapController(FilePaths* paths, GLuint textureUnit, App
     loadEntriesFromDirectory();   //load remaining images from the directory (duplicates with TOML entries get ignored)
     createAllTrailMaskTextures();
 
-    activeTrailMaskKey_ = trailMasks_.empty() ? "" : trailMasks_.begin()->first;
+    trailMasks_.try_emplace("Empty._None_", TrailMask{"_None_", TrailMaskType::EMPTY});
+
+    activeTrailMaskKey_ = trailMasks_.find("Empty._None_")->first;
 
     appState_->trailMasks = &trailMasks_;
     appState_->usedTrailMaskName = activeTrailMaskKey_;
@@ -172,7 +174,9 @@ void TrailMapController::createAllTrailMaskTextures() {
             }                
                 break;
             case TrailMaskType::TEXT:
-                trailMask.createTextureFromText(trailMask.text, fontAtlas_, paths_, appState_);
+                trailMask.createTextureFromText(fontAtlas_, paths_, appState_);
+                break;
+            default:
                 break;
         }
     }
@@ -188,7 +192,7 @@ bool TrailMapController::saveToToml() {
     for(const auto& [key, trailMask] : trailMasks_) {
         //images without any additional data are discovered from the image directory and don't need
         //to be saved. Text masks must always be saved.
-        if(trailMask.type == TrailMaskType::IMAGE && !trailMask.timeSlot) {
+        if((trailMask.type == TrailMaskType::IMAGE && !trailMask.timeSlot) || trailMask.type == TrailMaskType::EMPTY) {
             continue;
         }
 
@@ -301,7 +305,7 @@ void TrailMapController::editTrailMask(const std::string& key, TrailMask newData
 
     if(trailMask.type == TrailMaskType::TEXT && trailMask.text != newData.text) {
         trailMask.text = newData.text;
-        trailMask.createTextureFromText(newData.text, fontAtlas_, paths_, appState_);
+        trailMask.createTextureFromText(fontAtlas_, paths_, appState_);
     }
 
     trailMask.name = newData.name;
@@ -330,14 +334,6 @@ void TrailMapController::onNotify(const UserEvent event) {
             if(trailMask.texture != nullptr) {
                 glActiveTexture(GL_TEXTURE0 + textureUnit_);
                 glBindTexture(GL_TEXTURE_2D, trailMask.texture->getID());
-            } else {
-                if(trailMask.type == TrailMaskType::IMAGE) {
-                    std::filesystem::path filePath{""};
-                    filePath += paths_->pictureDir;
-                    filePath /= trailMask.name;
-                    filePath += paths_->pictureFileExtension;
-                    trailMask.createTextureFromImage(filePath, appState_);
-                }
             }
             appState_->universalShaderSettings.trailMaskInfluence = trailMask.strength + globalStrength_;
             appState_->universalShaderSettings.trailMaskPosition = trailMask.position + globalPosition_;
@@ -348,21 +344,13 @@ void TrailMapController::onNotify(const UserEvent event) {
             break;
         }
         case EventType::TEXT_PRESET_CREATE:
-        {   std::string text = std::get<std::string>(event.payload);
-            std::string name = text;
-            std::string key = TrailMask::makeKey(TrailMaskType::TEXT, name);
-
-            TrailMaskProperties properties{ .text = text };
+        {   TrailMask data = std::get<TrailMask>(event.payload);
+            std::string key = TrailMask::makeKey(TrailMaskType::TEXT, data.name);
 
             //not inserted if the key already exists
-            const auto& [iter, inserted] = trailMasks_.try_emplace(key, 
-                TrailMask{
-                name, 
-                TrailMaskType::TEXT,
-                properties
-            });
+            const auto& [iter, inserted] = trailMasks_.try_emplace(key, data);
             if(inserted) {
-                iter->second.createTextureFromText(text, fontAtlas_, paths_, appState_);
+                iter->second.createTextureFromText(fontAtlas_, paths_, appState_);
             }
             break;
         }

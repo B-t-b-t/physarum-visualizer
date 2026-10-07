@@ -136,6 +136,7 @@ void Scene::applyRandomPresets(ApplicationState* appState) {
                 if(associatedImages_.at(selectedKey)->timeSlot) {
                     isValid = associatedImages_.at(selectedKey)->timeSlot->isNow();
                 }
+                isValid &= (associatedImages_.at(selectedKey)->type != TrailMaskType::EMPTY);
 
             } else {
                 selectedKey = std::next(associatedTexts_.begin(), randomIndex - static_cast<long int>(associatedImages_.size()))->first;
@@ -143,6 +144,7 @@ void Scene::applyRandomPresets(ApplicationState* appState) {
                 if(associatedTexts_.at(selectedKey)->timeSlot) {
                     isValid = associatedTexts_.at(selectedKey)->timeSlot->isNow();
                 }
+                isValid &= (associatedTexts_.at(selectedKey)->type != TrailMaskType::EMPTY);
             }
         } while(!isValid && attempts < length); // because of random() length is not a guaranteed limit for the count of necessary attempts, but still a good approximation
 

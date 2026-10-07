@@ -114,9 +114,8 @@ void TrailMask::createTextureFromImage(std::filesystem::path pictureFilePath, Ap
     }
 }
 
-void TrailMask::createTextureFromText(std::string& textIn, FontAtlas& fontAtlas, FilePaths* paths, ApplicationState* appState) {
+void TrailMask::createTextureFromText(FontAtlas& fontAtlas, FilePaths* paths, ApplicationState* appState) {
     if(type == TrailMaskType::TEXT) {
-        text = textIn;
         auto textTexture = std::make_unique<TextTexture>(appState->universalShaderSettings.textureWidth, appState->universalShaderSettings.textureHeight, paths, appState);
 
         textTexture->createTexture(text, fontAtlas);
@@ -134,6 +133,10 @@ std::string TrailMask::makeKey(const TrailMaskType type, const std::string& name
         case TrailMaskType::TEXT:
             key = "Text." + name;
             break;
+        case TrailMaskType::EMPTY:
+            key = "Empty." + name;
+            break;
+        //no default to force a compile error (if Werror=switch enabled)
     }
     
     return key;
