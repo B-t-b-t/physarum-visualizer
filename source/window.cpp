@@ -5,6 +5,7 @@
 #include "GL/glew.h"            // for GLenum, GL_DONT_CARE, glEnable, GLuint
 #include "SDL3/SDL_error.h"     // for SDL_GetError
 #include "SDL3/SDL_events.h"    // for SDL_EventType, SDL_EventAction, SDL_P...
+#include "SDL3/SDL_hints.h"     // for SDL_HINT_VIDEO_DRIVER, SDL_SetHint
 #include "SDL3/SDL_init.h"      // for SDL_INIT_AUDIO, SDL_INIT_CAMERA, SDL_...
 #include "SDL3/SDL_rect.h"      // for SDL_Rect
 
@@ -17,6 +18,14 @@ Window::Window(const std::string& title, ApplicationState* appState, bool custom
 {
 	windowWidth_ = appState_->universalShaderSettings.windowWidth;
 	windowHeight_ = appState_->universalShaderSettings.windowHeight;
+
+	#if defined(__linux__)
+	if (!SDL_SetHint(SDL_HINT_VIDEO_DRIVER, "x11")) {
+		std::cerr << "Error: Failed to set SDL video driver hint: "
+			  << SDL_GetError() << std::endl;
+		exit(1);
+	}
+	#endif
 
 	bool init_SDL_Success = SDL_Init(SDL_INIT_VIDEO | SDL_INIT_CAMERA | SDL_INIT_AUDIO);
 	if (!init_SDL_Success) {
