@@ -42,22 +42,51 @@ SceneController::~SceneController() {
 
 void SceneController::onNotify(const UserEvent event) {
     switch (event.type) {
-        case EventType::SCENE_APPLY:
+        case EventType::SCENE_APPLY: {
             applyScene(std::get<std::string>(event.payload));
-            break;
+        }
+        break;
 
-        case EventType::SCENE_CREATE:
+        case EventType::SCENE_CREATE: {
             createScene(std::get<std::string>(event.payload));
-            break;
-
-        case EventType::SCENE_DELETE:
+        }
+        break;
+        case EventType::SCENE_DELETE: {
             deleteScene(std::get<std::string>(event.payload));
-            break;
-
-        case EventType::SCENE_EDIT:
+        }
+        break;
+        case EventType::SCENE_EDIT: {
             editScene(std::get<SceneEditData>(event.payload));
-            break;
-
+        }
+        break;
+        case EventType::BEHAVIOR_PRESET_DELETE: {
+            std::string presetToDelete = std::get<std::string>(event.payload);
+            for (auto& [sceneName, scene] : scenes_) {
+                scene.removeAssociatedBehavior(presetToDelete);
+            }
+        }
+        break;
+        case EventType::COLOR_PRESET_DELETE: {
+            std::string presetToDelete = std::get<std::string>(event.payload);
+            for (auto& [sceneName, scene] : scenes_) {
+                scene.removeAssociatedColor(presetToDelete);
+            }
+        }
+        break;
+        case EventType::IMAGE_PRESET_DELETE: {
+            std::string presetToDelete = std::get<TrailMask>(event.payload).name;
+            for (auto& [sceneName, scene] : scenes_) {
+                scene.removeAssociatedImage(presetToDelete);
+            }
+        }
+        break;
+        case EventType::TEXT_PRESET_DELETE: {
+            std::string presetToDelete = std::get<TrailMask>(event.payload).name;
+            for (auto& [sceneName, scene] : scenes_) {
+                scene.removeAssociatedText(presetToDelete);
+            }
+        }
+        break;
         default:
             break;
     }
