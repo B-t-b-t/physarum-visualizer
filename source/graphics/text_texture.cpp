@@ -85,6 +85,10 @@ TextTexture::~TextTexture() {
 }
 
 void TextTexture::createTexture(std::string& text, FontAtlas& fontAtlas) {
+    if(text.empty()) {
+        return;
+    }
+
     quadVertices_.clear();
     quadVertices_.reserve(text.size() * 6); //6 vertices per character (2 triangles)
 
