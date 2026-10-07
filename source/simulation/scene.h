@@ -28,21 +28,10 @@ public:
     void setAssociatedTexts(std::map<std::string, TrailMask>& trailMasks,
                             const std::vector<std::string>& textKeys);
 
-    std::map<std::string, BehaviorPreset*>* getAssociatedBehaviors() {
-        return &associatedBehaviors_;
-    }
-
-    std::map<std::string, ColorPreset*>* getAssociatedColors() {
-        return &associatedColors_;
-    }
-
-    std::map<std::string, TrailMask*>* getAssociatedImages() {
-        return &associatedImages_;
-    }
-
-    std::map<std::string, TrailMask*>* getAssociatedTexts() {
-        return &associatedTexts_;
-    }
+    std::map<std::string, BehaviorPreset*>* getAssociatedBehaviors() { return &associatedBehaviors_; }
+    std::map<std::string, ColorPreset*>* getAssociatedColors() { return &associatedColors_; }
+    std::map<std::string, TrailMask*>* getAssociatedImages() { return &associatedImages_; }
+    std::map<std::string, TrailMask*>* getAssociatedTexts() { return &associatedTexts_; }
 
     void applyRandomPresets(ApplicationState* appState);
 

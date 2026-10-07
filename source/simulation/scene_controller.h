@@ -21,6 +21,9 @@ public:
 
     void applyScene(const std::string& sceneName);
 
+    void loadRandomScene();
+    void autoSwitchScenes(uint64_t timeInSeconds);
+
     void createScene(std::string sceneName) {
         scenes_.try_emplace(sceneName, sceneName);
     }

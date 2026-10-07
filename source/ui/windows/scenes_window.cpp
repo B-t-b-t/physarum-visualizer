@@ -68,23 +68,16 @@ void ScenesWindow::render(ApplicationState* appState) {
         ImGui::EndMenuBar();
     }
 
-    if (ImGui::BeginTable(
-            "##Scene Selection",
-            1,
-            ImGuiTableFlags_SizingFixedFit)) {
+    if (ImGui::BeginTable("##Scene Selection", 1, ImGuiTableFlags_SizingFixedFit)) {
 
         if (scenes != nullptr && !scenes->empty()) {
             for (const auto& [sceneName, scene] : *scenes) {
                 ImGui::TableNextRow();
                 ImGui::TableNextColumn();
 
-                const bool isSelected =
-                    sceneName == appState->usedSceneName;
+                const bool isSelected = (sceneName == appState->usedSceneName);
 
-                if (ImGui::Selectable(
-                        sceneName.c_str(),
-                        isSelected,
-                        ImGuiSelectableFlags_SpanAllColumns)) {
+                if (ImGui::Selectable(sceneName.c_str(), isSelected, ImGuiSelectableFlags_SpanAllColumns)) {
                     appState->usedSceneName = sceneName;
                     notify(UserEvent{EventType::SCENE_APPLY, sceneName});
                 }
@@ -98,12 +91,9 @@ void ScenesWindow::render(ApplicationState* appState) {
 
     ImGui::SeparatorText("Settings");
 
-    ImGui::SliderInt(
-        "Switch Intervall",
-        &appState->presetIntervall,
-        2,
-        60,
-        "%d s");
+    ImGui::Checkbox("Auto Scene Switching", &appState->autoSceneSwitching);
+	ImGui::SliderInt("Switch at Beat Volume", &appState->beatVolumeSwitch, 0, 50);
+    ImGui::SliderInt("Switching Intervall", &appState->sceneSwitchingIntervall, 2, 60, "%d s");
 
     ImGui::End();
 }
@@ -113,19 +103,12 @@ void sceneAddModal(
     ApplicationState* appState,
     ScenesWindow* window) {
 
-    if (ImGui::BeginPopupModal(
-            stringID,
-            nullptr,
-            ImGuiWindowFlags_AlwaysAutoResize)) {
+    if (ImGui::BeginPopupModal(stringID, nullptr, ImGuiWindowFlags_AlwaysAutoResize)) {
 
         static std::string newSceneName;
         static bool sceneAlreadyExists = false;
 
-        ImGui::InputTextWithHint(
-            "##New Scene Name",
-            "Name",
-            &newSceneName,
-            ImGuiInputTextFlags_CharsNoBlank);
+        ImGui::InputTextWithHint("##New Scene Name", "Name", &newSceneName, ImGuiInputTextFlags_CharsNoBlank);
 
         ImGui::Separator();
 
@@ -133,10 +116,7 @@ void sceneAddModal(
             sceneAlreadyExists = appState->scenes->contains(newSceneName);
 
             if (!sceneAlreadyExists) {
-                window->notify(UserEvent{
-                    EventType::SCENE_CREATE,
-                    newSceneName
-                });
+                window->notify(UserEvent{EventType::SCENE_CREATE, newSceneName});
 
                 newSceneName.clear();
                 ImGui::CloseCurrentPopup();
@@ -164,30 +144,20 @@ void sceneDeleteModal(
     ApplicationState* appState,
     ScenesWindow* window) {
 
-    if (ImGui::BeginPopupModal(
-            stringID,
-            nullptr,
-            ImGuiWindowFlags_AlwaysAutoResize)) {
+    if (ImGui::BeginPopupModal(stringID, nullptr, ImGuiWindowFlags_AlwaysAutoResize)) {
 
         ImGui::Text("Name: %s", appState->usedSceneName.c_str());
 
         ImGui::Separator();
 
         if (ImGui::Button("\uf2ed Delete")) {
-            window->notify(UserEvent{
-                EventType::SCENE_DELETE,
-                appState->usedSceneName
-            });
-
+            window->notify(UserEvent{EventType::SCENE_DELETE, appState->usedSceneName});
             ImGui::CloseCurrentPopup();
         }
 
         ImGui::SameLine();
-
-        if (ImGui::Button("Cancel")) {
-            ImGui::CloseCurrentPopup();
-        }
-
+        if (ImGui::Button("Cancel")) { ImGui::CloseCurrentPopup(); }
+        
         ImGui::EndPopup();
     }
 }
@@ -197,10 +167,7 @@ void sceneEditModal(
     ApplicationState* appState,
     ScenesWindow* window) {
 
-    if (!ImGui::BeginPopupModal(
-            stringID,
-            nullptr,
-            ImGuiWindowFlags_AlwaysAutoResize)) {
+    if (!ImGui::BeginPopupModal(stringID, nullptr, ImGuiWindowFlags_AlwaysAutoResize)) {
         return;
     }
 
@@ -209,20 +176,15 @@ void sceneEditModal(
     static DualListBox imageList;
     static DualListBox textList;
 
-    const bool hasPresetData =
-        appState->scenes != nullptr &&
-        appState->behaviorPresets != nullptr &&
-        appState->colorPresets != nullptr &&
-        appState->trailMasks != nullptr;
+    const bool hasPresetData = appState->scenes != nullptr &&
+                               appState->behaviorPresets != nullptr &&
+                               appState->colorPresets != nullptr &&
+                               appState->trailMasks != nullptr;
 
-    const auto scene =
-        hasPresetData
-            ? appState->scenes->find(appState->usedSceneName)
-            : std::map<std::string, Scene>::iterator{};
+    const auto scene = hasPresetData ? appState->scenes->find(appState->usedSceneName) 
+                                     : std::map<std::string, Scene>::iterator{};
 
-    const bool canEdit =
-        hasPresetData &&
-        scene != appState->scenes->end();
+    const bool canEdit = hasPresetData && scene != appState->scenes->end();
 
     if (canEdit && ImGui::IsWindowAppearing()) {
         behaviorList.reset(
@@ -293,40 +255,31 @@ void sceneEditModal(
             ImGui::EndTabBar();
         }
     } else {
-        ImGui::TextUnformatted(
-            "The selected scene or preset collections are unavailable.");
+        ImGui::TextUnformatted("The selected scene or preset collections are unavailable.");
     }
 
     ImGui::Separator();
 
-    if (!canEdit) {
-        ImGui::BeginDisabled();
-    }
+    if (!canEdit) { ImGui::BeginDisabled(); }
 
     if (ImGui::Button("Save") && canEdit) {
-        window->notify(UserEvent{
-            EventType::SCENE_EDIT,
-            SceneEditData{
-                scene->first,
-                behaviorList.getActivePresetKeys(),
-                colorList.getActivePresetKeys(),
-                imageList.getActivePresetKeys(),
-                textList.getActivePresetKeys()
-            }
+        window->notify(UserEvent{EventType::SCENE_EDIT,
+                                SceneEditData{
+                                    scene->first,
+                                    behaviorList.getActivePresetKeys(),
+                                    colorList.getActivePresetKeys(),
+                                    imageList.getActivePresetKeys(),
+                                    textList.getActivePresetKeys()
+                                }
         });
 
         ImGui::CloseCurrentPopup();
     }
 
-    if (!canEdit) {
-        ImGui::EndDisabled();
-    }
+    if (!canEdit) { ImGui::EndDisabled(); }
 
     ImGui::SameLine();
-
-    if (ImGui::Button("Cancel")) {
-        ImGui::CloseCurrentPopup();
-    }
+    if (ImGui::Button("Cancel")) { ImGui::CloseCurrentPopup(); }
 
     ImGui::EndPopup();
 }

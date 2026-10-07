@@ -39,9 +39,6 @@ void PresetWindow::render(ApplicationState* appState) {
 		}
 		ImGui::EndTabBar();
 	}
-	ImGui::SeparatorText("Shared Options");
-	ImGui::Checkbox("Auto Preset Switching", &appState->autoPresetSwitching);
-	ImGui::SliderInt("Switch at Beat Volume", &appState->beatVolumeSwitch, 0, 50);
 
 	ImGui::PopItemWidth();
 	ImGui::End();
@@ -98,10 +95,6 @@ void PresetWindow::behaviourPresetGUI(ApplicationState* appState) {
 	}
 
     ImGui::EndChild();
-
-    ImGui::SeparatorText("Settings");
-
-	ImGui::SliderInt("Switch Intervall", &appState->presetIntervall, 2, 60, "%d s");
 }
 
 void PresetWindow::colorPresetGUI(ApplicationState* appState) {
@@ -169,10 +162,6 @@ void PresetWindow::colorPresetGUI(ApplicationState* appState) {
     }
 
     ImGui::EndChild();
-
-    ImGui::SeparatorText("Settings");
-
-	ImGui::SliderInt("Switch Intervall", &appState->colorPresetIntervall, 2, 60, "%d s");
 }
 
 void PresetWindow::imagePresetGUI(ApplicationState* appState) {
@@ -282,10 +271,6 @@ void PresetWindow::imagePresetGUI(ApplicationState* appState) {
     if(globalChanged) {
         notify(UserEvent{EventType::IMAGE_PRESET_APPLY});
     }
-
-    ImGui::SeparatorText("Settings");
-
-    ImGui::SliderInt("Switch Intervall", &appState->trailMaskIntervall, 2, 60, "%d s");
 }
 
 void PresetWindow::textPresetGUI(ApplicationState* appState) {
@@ -393,8 +378,4 @@ void PresetWindow::textPresetGUI(ApplicationState* appState) {
     if(globalChanged) {
         notify(UserEvent{EventType::TEXT_PRESET_APPLY});
     }
-
-    ImGui::SeparatorText("Settings");
-
-    ImGui::SliderInt("Switch Intervall", &appState->trailMaskIntervall, 2, 60, "%d s");
 }

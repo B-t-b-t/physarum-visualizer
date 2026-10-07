@@ -86,32 +86,6 @@ void PresetSystem<T>::loadPresetsFromFile() {
 }
 
 template<typename T>
-void PresetSystem<T>::loadRandomPreset() {
-
-   if(!presets.empty()) {
-        unsigned int randomIndex = (unsigned int) (rand() % (int)presets.size());
-        presets[std::next(presets.begin(), randomIndex)->first].toAppState(appState_);
-        appState_->usedBehaviorPresetName = std::next(presets.begin(), randomIndex)->first;
-    } else {
-        std::cerr << "WARN: No presets available to auto switch" << std::endl;
-    }
-}
-
-template<typename T>
-void PresetSystem<T>::autoSwitchPresets(Uint64 timeInSeconds) {
-
-    //Timed Auto Preset Switching
-    if(appState_->autoPresetSwitching) {
-        if((timeInSeconds % (Uint64)appState_->presetIntervall == 0) && !timeOut_ && appState_->slimeSettings.velocityBassReaction > appState_->beatVolumeSwitch) {
-            loadRandomPreset();
-            timeOut_ = true;
-        } else if((timeInSeconds % (Uint64)appState_->presetIntervall > 0) && timeOut_){
-            timeOut_ = false;
-        }
-    }
-}
-
-template<typename T>
 void PresetSystem<T>::onNotify(const UserEvent event) {
 
     switch (event.type) {

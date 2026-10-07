@@ -30,8 +30,6 @@ public:
     
     void bindToTextureUnit(GLuint textureUnit);
     
-	void autoSwitchTrailMasks(uint64_t timeInSeconds);
-    void loadRandomTrailMask();
     void editTrailMask(const std::string& key, TrailMask newData);
     void deleteTrailMask(const std::string& key);
     void onNotify(const UserEvent event) override;

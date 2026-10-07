@@ -272,48 +272,6 @@ void TrailMapController::loadEntriesFromDirectory() {
     }
 }
 
-void TrailMapController::loadRandomTrailMask() {
-    if(!trailMasks_.empty()) {
-        
-        long int randomIndex = 0;
-        std::string imageName = "";
-        std::string selectedKey = "";
-        bool isValid = false;
-        
-        // try until a random trail mask passes the timetable check
-        do {
-            randomIndex = static_cast<long int>((size_t)rand() % trailMasks_.size());
-
-            const auto selected = std::next(trailMasks_.begin(), randomIndex);
-            selectedKey = selected->first;
-            TrailMask& trailMask = selected->second;
-
-            auto now = std::chrono::system_clock::now();
-            isValid = !trailMask.timeSlot || trailMask.timeSlot.value().isDuring(now);   //masks without a time slot are always valid
-        } while(!isValid);
-
-        activeTrailMaskKey_ = selectedKey;
-        appState_->usedTrailMaskName = selectedKey;
-        
-    } else {
-        std::cerr << "WARN: No pictures available to auto switch" << std::endl;
-    }
-}
-
-void TrailMapController::autoSwitchTrailMasks(uint64_t timeInSeconds) {
-    static bool timeOut = false;
-
-    //Timed Auto Preset Switching
-    if(appState_->autoPresetSwitching) {
-        if((timeInSeconds % (uint64_t)appState_->trailMaskIntervall == 0) && !timeOut && appState_->slimeSettings.velocityBassReaction > appState_->beatVolumeSwitch) {
-            loadRandomTrailMask();
-            timeOut = true;
-        } else if((timeInSeconds % (uint64_t)appState_->trailMaskIntervall > 0) && timeOut){
-            timeOut = false;
-        }
-    }
-}
-
 void TrailMapController::bindToTextureUnit(GLuint textureUnit) { 
     textureUnit_ = textureUnit;
 

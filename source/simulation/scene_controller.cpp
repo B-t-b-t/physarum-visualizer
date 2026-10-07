@@ -75,6 +75,28 @@ void SceneController::applyScene(const std::string& sceneName) {
     }
 }
 
+void SceneController::loadRandomScene() {
+    if (!scenes_.empty()) {
+        auto it = scenes_.begin();
+        std::advance(it, rand() % (int)scenes_.size());
+        applyScene(it->first);
+    }
+}
+
+void SceneController::autoSwitchScenes(uint64_t timeInSeconds) {
+    static bool timeOut = false;
+
+    //Timed Auto Preset Switching
+    if(appState_->autoSceneSwitching) {
+        if((timeInSeconds % (uint64_t)appState_->sceneSwitchingIntervall == 0) && !timeOut && appState_->slimeSettings.velocityBassReaction > appState_->beatVolumeSwitch) {
+            loadRandomScene();
+            timeOut = true;
+        } else if((timeInSeconds % (uint64_t)appState_->sceneSwitchingIntervall > 0) && timeOut){
+            timeOut = false;
+        }
+    }
+}
+
 void SceneController::editScene(const SceneEditData& editData) {
     const auto scene = scenes_.find(editData.sceneName);
 

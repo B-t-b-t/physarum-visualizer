@@ -26,9 +26,9 @@ struct TimeSlot {
     }
 
     /**
-     * @brief Checks if the current system time falls within the [inclusive] range of the time slot.
+     * @brief Checks if the timeslot is currently active based on the system time.
      * 
-     * @return True if the current system time is within the start and end time, False otherwise.
+     * @return True if the system time is within the start and end time, False otherwise.
      */
     bool isNow() const {
         return isDuring(std::chrono::system_clock::now());

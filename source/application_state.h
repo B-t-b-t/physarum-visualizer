@@ -63,7 +63,7 @@ public:
 	bool lockAngles = true;
 	bool lockAngleBiases = true;
 	bool fullscreen = false;
-	bool autoPresetSwitching = false;
+	bool autoSceneSwitching = false;
 
 	// Audio Hardware Selection via List Box
 	std::map<SDL_AudioDeviceID, AudioDeviceInfo>* availableAudioHardware = nullptr;
@@ -88,9 +88,7 @@ public:
 	float slimeRatio = 0.15f;
 	float fractionalScalingFactor = 1.0f;
 	int workGroupDivider = 8;
-	int presetIntervall = 30;	//in seconds
-	int colorPresetIntervall = 30;	//in seconds
-	int trailMaskIntervall = 30;	//in seconds
+	int sceneSwitchingIntervall = 30;	//in seconds
 
 	TextureMask selectedTextureMask = TextureMask::TRAIL;
 

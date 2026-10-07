@@ -4,7 +4,6 @@
 #include <filesystem>            // for path
 #include <map>                   // for map
 #include <string>                // for string, basic_string
-#include "SDL3/SDL_stdinc.h"     // for Uint64
 
 #include "./utility/observer.h"  // for Observer
 
@@ -19,7 +18,6 @@ public:
 	PresetSystem(std::filesystem::path presetFilePath, ApplicationState* appState);
 	~PresetSystem();
 
-	void autoSwitchPresets(Uint64 timeInSeconds);
 	void onNotify(const UserEvent event) override;
 	
 private:
@@ -27,7 +25,6 @@ private:
     void createPreset(std::string presetName);
     void savePresetsToFile();
     void loadPresetsFromFile();
-	void loadRandomPreset();
 
     std::map<std::string, T> presets;
 	std::string usedBehaviorPresetName_;

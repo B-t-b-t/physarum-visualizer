@@ -113,9 +113,7 @@ void Application::run() {
 		// Swap draw buffers with SDL3
 		window_.swapBuffers();
 
-		//Auto Switching Presets
-		presetSystem_.autoSwitchPresets(timeInSeconds);
-		colorPresetSystem_.autoSwitchPresets(timeInSeconds);
-		simulation_.getTrailMapController()->autoSwitchTrailMasks(timeInSeconds);
+		//Auto Switching Scenes
+		sceneController_.autoSwitchScenes(timeInSeconds);
 	}
 }
