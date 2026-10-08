@@ -13,6 +13,11 @@ void DebugWindow::render(ApplicationState* appState) {
 
 	ImGui::PushItemWidth(widgetWidth);
 
+	ImGui::Checkbox("Position Debug Overlay", (bool*)&appState->fragmentShaderSettings.positionDebugOverlay);
+	if(appState->fragmentShaderSettings.positionDebugOverlay) {
+		ImGui::SliderInt("Line Thickness", &appState->fragmentShaderSettings.lineThickness, 1, 10);
+	}
+
 	ImGui::Checkbox("Render Particles", (bool*)&appState->universalShaderSettings.renderParticles);
 	ImGui::Checkbox("Lock Particle Color to Color 0", &appState->lockParticleColor);
 	ImGui::ColorEdit3("Particle Color 0", (float*)&appState->slimeSettings.particleColor0);

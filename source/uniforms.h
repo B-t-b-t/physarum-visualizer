@@ -92,8 +92,8 @@ struct alignas(16) FragmentShaderSettings {
     float bloomBassReaction = 0.0f;
 
     float brightnessMultiplier = 0.0f;
-    int _padding1; // Padding for alignment
-    int _padding2; // Padding for alignment
+    int   positionDebugOverlay = false;
+    int lineThickness = 1;
     int _padding3; // Padding for alignment
 };
 static_assert(sizeof(FragmentShaderSettings) % 16 == 0, "FragmentShaderSettings size must be multiple of 16 for std140");

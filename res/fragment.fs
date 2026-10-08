@@ -71,6 +71,8 @@ layout(std140, binding = 3) uniform FragmentShaderSettings {
 	uniform float bloomBassReaction;
 
 	uniform float brightnessMultiplier;
+	uniform int positionDebugOverlay;
+	uniform int lineThickness;
 };
 
 
@@ -206,7 +208,54 @@ void main() {
 		} else {
 			FragColor *= 1.0f - mix(vec4(0.0, 0.0, 0.0, 0.0), vec4(1.0, 1.0, 1.0, 1.0), pow(clamp(((2 * vignetteInnerRadius * length(vectorToScreenCenter) - vignetteInnerRadius) / 0.5f) + 1.0f, 0.0f, 1.0f), vignetteSharpness));
 		}
-	} 
+	}
+	if(positionDebugOverlay == 1) {
+		//draw crosshair
+		if(abs(gl_FragCoord.x / windowWidth - 0.5) <= 0.0002 * lineThickness || abs(gl_FragCoord.y / windowHeight - 0.5) <= 0.0004 * lineThickness) {
+			FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+		}
+
+		int indicatorSize = 100;	//in pixel
+
+		//draw top-left corner indicator
+		if(gl_FragCoord.x < indicatorSize && gl_FragCoord.y < indicatorSize) {
+			FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+		}
+		//draw top-right corner indicator
+		if(gl_FragCoord.x > windowWidth - indicatorSize && gl_FragCoord.y < indicatorSize) {
+			FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+		}
+		//draw bottom-right corner indicator
+		if(gl_FragCoord.x > windowWidth - indicatorSize && gl_FragCoord.y > windowHeight - indicatorSize) {
+			FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+		}
+		//draw bottom-left corner indicator
+		if(gl_FragCoord.x < indicatorSize && gl_FragCoord.y > windowHeight - indicatorSize) {
+			FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+		}
+
+		ivec2 screenCenter = ivec2(windowWidth / 2, windowHeight / 2);
+		//circle indicators at the center of the screen
+		float radius = windowHeight / 8;
+		if(abs(distance(gl_FragCoord.xy, vec2(screenCenter)) - radius) < 1 * lineThickness) {
+			FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+		}
+		radius = windowHeight / 4;
+		if(abs(distance(gl_FragCoord.xy, vec2(screenCenter)) - radius) < 1 * lineThickness) {
+			FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+		}
+		radius = windowHeight / 2;
+		if(abs(distance(gl_FragCoord.xy, vec2(screenCenter)) - radius) < 1 * lineThickness) {
+			FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+		}
+
+		if(abs(gl_FragCoord.x / windowWidth - gl_FragCoord.y / windowHeight) < 0.0005 * lineThickness) { 
+			FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+		}
+		if(abs(gl_FragCoord.x / windowWidth + gl_FragCoord.y / windowHeight - 1.0) < 0.0005 * lineThickness) { 
+			FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+		}
+	}
 
 	//debug view of textures
 	if((gl_FragCoord.x / windowWidth <= 0.5) && (gl_FragCoord.y / windowHeight >= 0.5)) {
