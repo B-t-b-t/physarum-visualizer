@@ -16,7 +16,7 @@ void ParticleData::createAndSend(int numParticles, int texWidth, int texHeight) 
 	texWidth_ = texWidth;
 	texHeight_ = texHeight;
 
-	createParticleCircle();
+	createUniformDistribution();
 
 	if(!bufferAlreadyCreated_) {
 		glGenBuffers(1, &ssbo_);
@@ -111,14 +111,29 @@ void ParticleData::createParticleCircle() {
 	shaderData_.clear();
 	
 	constexpr float PI = 3.14159265f;
-	constexpr int R_Outer = 3200;
-	constexpr int R_Inner = 800;
+
+	int smallerTexDim = (texWidth_ < texHeight_) ? texWidth_ : texHeight_;
+
+	const int R_Outer = smallerTexDim * 0.8;
+	const int R_Inner = smallerTexDim * 0.2;
 
 	for (int i = 0; i < numParticles_; i++) {
 		int r = sqrt((R_Outer - R_Inner) * (rand() % 10000) / 10000.0f + R_Inner);	//sqrt() to maintain a even point distribution (circle area is proportional to the square of the radius)
 		float a = 2 * PI * (rand() % 10000) / 10000.0f;
 		float x = texWidth_ / 2.0f + r * cos(a);
 		float y = texHeight_ / 2.0f + r * sin(a);
+		float speciesID = (rand() % 3) + 1;		//+1 to avoid speciesID 0 for Branch Avoidance in GLSL
+		shaderData_.push_back({ x, y, a, speciesID });
+	}
+}
+
+void ParticleData::createUniformDistribution() {
+	shaderData_.clear();
+
+	for (int i = 0; i < numParticles_; i++) {
+		float x = static_cast<float>(rand() % texWidth_);
+		float y = static_cast<float>(rand() % texHeight_);
+		float a = 2 * 3.14159265f * (rand() % 10000) / 10000.0f;
 		float speciesID = (rand() % 3) + 1;		//+1 to avoid speciesID 0 for Branch Avoidance in GLSL
 		shaderData_.push_back({ x, y, a, speciesID });
 	}

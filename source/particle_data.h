@@ -17,6 +17,7 @@ public:
 
 private:
 	void createParticleCircle();
+	void createUniformDistribution();
 
 	int numParticles_ = 0;
 	int texWidth_ = 0;
