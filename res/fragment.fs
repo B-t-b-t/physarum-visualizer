@@ -214,8 +214,8 @@ void main() {
 		if(abs(gl_FragCoord.x / windowWidth - 0.5) <= 0.0002 * lineThickness || abs(gl_FragCoord.y / windowHeight - 0.5) <= 0.0004 * lineThickness) {
 			FragColor = vec4(1.0, 0.0, 0.0, 1.0);
 		}
-
-		int indicatorSize = 100;	//in pixel
+	
+		float indicatorSize = 0.1 * windowHeight;	//in pixel
 
 		//draw top-left corner indicator
 		if(gl_FragCoord.x < indicatorSize && gl_FragCoord.y < indicatorSize) {
@@ -234,21 +234,29 @@ void main() {
 			FragColor = vec4(1.0, 0.0, 0.0, 1.0);
 		}
 
-		ivec2 screenCenter = ivec2(windowWidth / 2, windowHeight / 2);
 		//circle indicators at the center of the screen
-		float radius = windowHeight / 8;
+		ivec2 screenCenter = ivec2(windowWidth / 2, windowHeight / 2);
+		float radius;
+
+		if(windowHeight > windowWidth) {	//scale circle indicators based on smallest window dimension
+			radius = windowWidth / 2;
+		} else {
+			radius = windowHeight / 2;
+		}
+
 		if(abs(distance(gl_FragCoord.xy, vec2(screenCenter)) - radius) < 1 * lineThickness) {
 			FragColor = vec4(1.0, 0.0, 0.0, 1.0);
 		}
-		radius = windowHeight / 4;
+		radius /= 2;
 		if(abs(distance(gl_FragCoord.xy, vec2(screenCenter)) - radius) < 1 * lineThickness) {
 			FragColor = vec4(1.0, 0.0, 0.0, 1.0);
 		}
-		radius = windowHeight / 2;
+		radius /= 2;
 		if(abs(distance(gl_FragCoord.xy, vec2(screenCenter)) - radius) < 1 * lineThickness) {
 			FragColor = vec4(1.0, 0.0, 0.0, 1.0);
 		}
 
+		//diagonal indicators to screen corners
 		if(abs(gl_FragCoord.x / windowWidth - gl_FragCoord.y / windowHeight) < 0.0005 * lineThickness) { 
 			FragColor = vec4(1.0, 0.0, 0.0, 1.0);
 		}
