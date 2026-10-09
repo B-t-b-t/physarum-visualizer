@@ -370,8 +370,8 @@ void TrailMapController::moveTrailMask() {
     if(trailMask.animation.has_value() && !trailMask.hasReachedDest(appState_)) {
         appState_->universalShaderSettings.trailMaskPosition.x += (double)trailMask.animation.value().positionVelocity().x;
         appState_->universalShaderSettings.trailMaskPosition.y += (double)trailMask.animation.value().positionVelocity().y;
-        appState_->universalShaderSettings.trailMaskScaleX += trailMask.animation.value().scaleVelocity() * appState_->universalShaderSettings.trailMaskScaleX;
-        appState_->universalShaderSettings.trailMaskScaleY += trailMask.animation.value().scaleVelocity() * appState_->universalShaderSettings.trailMaskScaleY;
+        appState_->universalShaderSettings.trailMaskScale.x += trailMask.animation.value().scaleVelocity() * appState_->universalShaderSettings.trailMaskScale.x;
+        appState_->universalShaderSettings.trailMaskScale.y += trailMask.animation.value().scaleVelocity() * appState_->universalShaderSettings.trailMaskScale.y;
     }
 }
 
@@ -423,15 +423,16 @@ void TrailMapController::onNotify(const UserEvent event) {
                 glBindTexture(GL_TEXTURE_2D, trailMask.texture->getID());
             }
             appState_->universalShaderSettings.trailMaskInfluence = trailMask.strength + globalStrength_;
-            appState_->universalShaderSettings.trailMaskPosition = trailMask.position + globalPosition_;
-            appState_->universalShaderSettings.trailMaskScaleX = trailMask.scale.x * trailMask.getAspectRatioCorrection().x * globalScale_.x;
-            appState_->universalShaderSettings.trailMaskScaleY = trailMask.scale.y * trailMask.getAspectRatioCorrection().y * globalScale_.y;
+            appState_->universalShaderSettings.trailMaskPosition = toStd140(trailMask.position + globalPosition_);
+            appState_->universalShaderSettings.trailMaskScale.x = trailMask.scale.x * trailMask.getAspectRatioCorrection().x * globalScale_.x;
+            appState_->universalShaderSettings.trailMaskScale.y = trailMask.scale.y * trailMask.getAspectRatioCorrection().y * globalScale_.y;
             appState_->universalShaderSettings.trailMaskIsInverted = trailMask.isInverted;
 
             if(trailMask.animation) {
-                appState_->universalShaderSettings.trailMaskPosition += trailMask.animation.value().positionStart();
-                appState_->universalShaderSettings.trailMaskScaleX *= trailMask.animation.value().scaleStart();
-                appState_->universalShaderSettings.trailMaskScaleY *= trailMask.animation.value().scaleStart();
+                appState_->universalShaderSettings.trailMaskPosition.x += trailMask.animation.value().positionStart().x;
+                appState_->universalShaderSettings.trailMaskPosition.y += trailMask.animation.value().positionStart().y;
+                appState_->universalShaderSettings.trailMaskScale.x *= trailMask.animation.value().scaleStart();
+                appState_->universalShaderSettings.trailMaskScale.y *= trailMask.animation.value().scaleStart();
             }
 
             break;

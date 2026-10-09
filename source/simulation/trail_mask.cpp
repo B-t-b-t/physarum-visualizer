@@ -141,7 +141,7 @@ void TrailMask::createTextureFromText(FontAtlas& fontAtlas, FilePaths* paths, Ap
 bool TrailMask::hasReachedDest(ApplicationState* appState) const {
     
     if(animation) {
-        return animation.value().hasReachedDest(appState->universalShaderSettings.trailMaskPosition, phys::Vec2<float>{appState->universalShaderSettings.trailMaskScaleX, appState->universalShaderSettings.trailMaskScaleY});
+        return animation.value().hasReachedDest(fromStd140(appState->universalShaderSettings.trailMaskPosition), phys::Vec2<float>{fromStd140(appState->universalShaderSettings.trailMaskScale)});
     } else {
         return true;    //if there's no movement, it has "reached" its destination by default
     }

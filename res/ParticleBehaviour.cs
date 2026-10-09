@@ -39,8 +39,7 @@ layout(std140, binding = 0) uniform UniversalShaderSettings {
     int timeTicks;
 
     float trailMaskInfluence;
-    float trailMaskScaleX;
-    float trailMaskScaleY;
+    vec2 trailMaskScale;
     float _padding0;
 
     vec2 trailMaskPosition;
@@ -114,9 +113,7 @@ Particle rotateToNewDirection(Particle particle, SensedTrail sensedTrail, float 
 vec2 getTrailMaskCoordinates(ivec2 sensePos);
 
 vec2 getTrailMaskCoordinates(ivec2 sensePos) {
-    const vec2 normalizedSensePos = vec2(sensePos) /
-        vec2(textureWidth, textureHeight);
-    const vec2 trailMaskScale = vec2(trailMaskScaleX, trailMaskScaleY);
+    const vec2 normalizedSensePos = vec2(sensePos) / vec2(textureWidth, textureHeight);
 
     return (normalizedSensePos - 0.5f) / trailMaskScale + 0.5f + trailMaskPosition;
 }

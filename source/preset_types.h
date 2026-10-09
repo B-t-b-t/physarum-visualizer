@@ -111,9 +111,9 @@ struct ColorPreset {
     ColorPreset(std::string presetName, ApplicationState* appState) {
         name = presetName;
         lockSlimeColor = appState->lockSlimeColor;
-        slimeColor0 = appState->slimeSettings.slimeColor0;
-        slimeColor1 = appState->slimeSettings.slimeColor1;
-        slimeColor2 = appState->slimeSettings.slimeColor2;
+        slimeColor0 = fromStd140(appState->slimeSettings.slimeColor0);
+        slimeColor1 = fromStd140(appState->slimeSettings.slimeColor1);
+        slimeColor2 = fromStd140(appState->slimeSettings.slimeColor2);
     }
 
     ColorPreset(std::string presetName, const toml::value presetEntry) {
@@ -131,9 +131,9 @@ struct ColorPreset {
 
     void toAppState(ApplicationState* appState) {
         appState->lockSlimeColor = lockSlimeColor;
-        appState->slimeSettings.slimeColor0 = slimeColor0;
-        appState->slimeSettings.slimeColor1 = slimeColor1;
-        appState->slimeSettings.slimeColor2 = slimeColor2;
+        appState->slimeSettings.slimeColor0 = toStd140(slimeColor0);
+        appState->slimeSettings.slimeColor1 = toStd140(slimeColor1);
+        appState->slimeSettings.slimeColor2 = toStd140(slimeColor2);
     }
 
     toml::table toTomlTable() {

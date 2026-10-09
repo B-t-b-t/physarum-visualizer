@@ -20,8 +20,7 @@ layout(std140, binding = 0) uniform UniversalShaderSettings {
 	  int timeTicks;
 
 	  float trailMaskInfluence;
-	  float trailMaskScaleX;
-    float trailMaskScaleY;
+	  vec2 trailMaskScale;
     float _padding0;
 
     vec2 trailMaskPosition;

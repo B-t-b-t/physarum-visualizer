@@ -3,6 +3,32 @@
 
 #include "utility/vector_math.h"  // for phys::Vec2, phys::Vec4
 
+// custom vector types for GPU alignment (std140)
+struct alignas(8) Std140Vec2 { float x; float y; };
+static_assert(sizeof(Std140Vec2) == 8); //just to make sure...
+static_assert(alignof(Std140Vec2) == 8);
+
+struct alignas(16) Std140Vec4 { float x; float y; float z; float w; };
+static_assert(sizeof(Std140Vec4) == 16);
+static_assert(alignof(Std140Vec4) == 16);
+
+// conversion from and to phys::Vec types
+[[nodiscard]] constexpr Std140Vec2 toStd140(const phys::Vec2<float>& value) {
+    return {value.x, value.y};
+}
+
+[[nodiscard]] constexpr Std140Vec4 toStd140(const phys::Vec4<float>& value) {
+    return {value.x, value.y, value.z, value.w};
+}
+
+[[nodiscard]] constexpr phys::Vec2<float> fromStd140(const Std140Vec2& value) {
+    return {value.x, value.y};
+}
+
+[[nodiscard]] constexpr phys::Vec4<float> fromStd140(const Std140Vec4& value) {
+    return {value.x, value.y, value.z, value.w};
+}
+
 struct alignas(16) UniversalShaderSettings {
     int textureWidth = 1600;
     int textureHeight = 896;
@@ -15,15 +41,14 @@ struct alignas(16) UniversalShaderSettings {
     int timeTicks = 0;
 
     float trailMaskInfluence = 1.0f;
-    float trailMaskScaleX = 1.0f;
-    float trailMaskScaleY = 1.0f;
+    Std140Vec2 trailMaskScale = toStd140(phys::Vec2<float>{1.0f, 1.0f});
     float _padding0 = 0.0f;
 
-    phys::Vec2<float> trailMaskPosition = phys::Vec2<float>{0.0f, 0.0f};
+    Std140Vec2 trailMaskPosition = toStd140(phys::Vec2<float>{0.0f, 0.0f});
     int trailMaskIsInverted = false;
     float _padding1;
 
-    phys::Vec4<float> mouseInputs = phys::Vec4<float>{0.0f, 0.0f, 0.0f, 0.0f}; // x, y, leftClick, rightClick
+    Std140Vec4 mouseInputs = toStd140(phys::Vec4<float>{0.0f, 0.0f, 0.0f, 0.0f}); // x, y, leftClick, rightClick
 };
 static_assert(sizeof(UniversalShaderSettings) % 16 == 0, "UniversalShaderSettings size must be multiple of 16 for std140");
     
@@ -45,13 +70,13 @@ struct alignas(16) SlimeSettings {
     int reactToAudio = false;
     int angleBassReaction = 0;
 
-    phys::Vec4<float> slimeColor0 = phys::Vec4<float>{0.0f, 1.0f, 1.0f, 1.0f};
-    phys::Vec4<float> slimeColor1 = phys::Vec4<float>{0.0f, 1.0f, 1.0f, 1.0f};
-    phys::Vec4<float> slimeColor2 = phys::Vec4<float>{0.0f, 1.0f, 1.0f, 1.0f};
-    phys::Vec4<float> particleColor0 = phys::Vec4<float>{1.0f, 0.0f, 0.0f, 1.0f};
-    phys::Vec4<float> particleColor1 = phys::Vec4<float>{0.0f, 1.0f, 0.0f, 1.0f};
-    phys::Vec4<float> particleColor2 = phys::Vec4<float>{0.0f, 0.0f, 1.0f, 1.0f};
-    phys::Vec4<float> collisionColor = phys::Vec4<float>{1.0f, 1.0f, 1.0f, 1.0f};
+    Std140Vec4 slimeColor0 = toStd140(phys::Vec4<float>{0.0f, 1.0f, 1.0f, 1.0f});
+    Std140Vec4 slimeColor1 = toStd140(phys::Vec4<float>{0.0f, 1.0f, 1.0f, 1.0f});
+    Std140Vec4 slimeColor2 = toStd140(phys::Vec4<float>{0.0f, 1.0f, 1.0f, 1.0f});
+    Std140Vec4 particleColor0 = toStd140(phys::Vec4<float>{1.0f, 0.0f, 0.0f, 1.0f});
+    Std140Vec4 particleColor1 = toStd140(phys::Vec4<float>{0.0f, 1.0f, 0.0f, 1.0f});
+    Std140Vec4 particleColor2 = toStd140(phys::Vec4<float>{0.0f, 0.0f, 1.0f, 1.0f});
+    Std140Vec4 collisionColor = toStd140(phys::Vec4<float>{1.0f, 1.0f, 1.0f, 1.0f});
 
     float velocityBiasX = 0.0f;
     float velocityBiasY = 0.0f;
