@@ -66,6 +66,7 @@ void Simulation::simulateStep() {
 	particleBehaviourProgram_.dispatchCompute(appState_->numParticles / 8, (GLuint)1, 1);	//move Slime Particles
 
 	trailMapController_.bindToTextureUnit(16);	//move back to texture unit 16 for use in fragment shader 
+	trailMapController_.moveTrailMask();
 }
 
 void Simulation::updateParticleParameters(int newNumParticles, int newTextureWidth, int newTextureHeight) {

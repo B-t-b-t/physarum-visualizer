@@ -7,7 +7,7 @@
 #include <optional>
 #include <string>
 
-
+#include "trail_mask_animation.h"  // for TrailMaskAnimation
 #include "../application_state.h"
 #include "../graphics/font_atlas.h"
 #include "../graphics/texture.h"
@@ -27,6 +27,8 @@ struct TrailMaskProperties {
         float strength{1.0f};
         phys::Vec2<float> position{0.0f, 0.0f};
         phys::Vec2<float> scale{1.0f, 1.0f};    //external user defined scale
+
+        std::optional<TrailMaskAnimation> animation = std::nullopt;
 
         bool isInverted{false};
 };
@@ -50,6 +52,9 @@ public:
         float strength{1.0f};
         phys::Vec2<float> position{0.0f, 0.0f};
         phys::Vec2<float> scale{1.0f, 1.0f};    //external user defined scale
+        
+        std::optional<TrailMaskAnimation> animation = std::nullopt;
+
         bool isInverted{false};
 
         TrailMask() = delete;   //only allow construction with at least a name and type
@@ -63,6 +68,8 @@ public:
 
         void createTextureFromImage(std::filesystem::path pictureFilePath, ApplicationState* appState);
         void createTextureFromText(FontAtlas& fontAtlas, FilePaths* paths, ApplicationState* appState);
+
+        bool hasReachedDest(ApplicationState* appState) const;
 
         /**
          * @brief Generates a key for use in maps based on its type and name.

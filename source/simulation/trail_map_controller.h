@@ -29,6 +29,7 @@ public:
     ~TrailMapController();
     
     void bindToTextureUnit(GLuint textureUnit);
+    void moveTrailMask();
     
     void editTrailMask(const std::string& key, TrailMask newData);
     void deleteTrailMask(const std::string& key);
@@ -54,7 +55,6 @@ public:
     ApplicationState* appState_ = nullptr;
 
     FontAtlas fontAtlas_;
-
 };
 
 #endif // TRAIL_MAP_CONTROLLER_H

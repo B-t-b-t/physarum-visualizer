@@ -17,6 +17,9 @@ TrailMask::TrailMask(std::string nameIn, TrailMaskType typeIn, TrailMaskProperti
     strength = propertiesIn.strength;
     position = propertiesIn.position;
     scale = propertiesIn.scale;
+
+    if(propertiesIn.animation) { animation = propertiesIn.animation; }
+
     isInverted = propertiesIn.isInverted;
 }
 
@@ -29,6 +32,9 @@ TrailMask::TrailMask(const TrailMask& other) {
     strength = other.strength;
     position = other.position;
     scale = other.scale;
+
+    animation = other.animation;
+
     aspectRatioCorrection_ = other.aspectRatioCorrection_;
     isInverted = other.isInverted;
 }
@@ -43,6 +49,9 @@ TrailMask& TrailMask::operator=(const TrailMask& other) {
         strength = other.strength;
         position = other.position;
         scale = other.scale;
+
+        animation = other.animation;
+
         aspectRatioCorrection_ = other.aspectRatioCorrection_;
         isInverted = other.isInverted;
     }
@@ -58,6 +67,9 @@ TrailMask::TrailMask(TrailMask&& other) {
     strength = std::move(other.strength);
     position = std::move(other.position);
     scale = std::move(other.scale);
+
+    animation = std::move(other.animation);
+
     aspectRatioCorrection_ = std::move(other.aspectRatioCorrection_);
     isInverted = std::move(other.isInverted);
 }
@@ -72,6 +84,9 @@ TrailMask& TrailMask::operator=(TrailMask&& other) {
         strength = std::move(other.strength);
         position = std::move(other.position);
         scale = std::move(other.scale);
+
+        animation = std::move(other.animation);
+
         aspectRatioCorrection_ = std::move(other.aspectRatioCorrection_);
         isInverted = std::move(other.isInverted);
     }
@@ -121,6 +136,16 @@ void TrailMask::createTextureFromText(FontAtlas& fontAtlas, FilePaths* paths, Ap
         textTexture->createTexture(text, fontAtlas);
         texture = std::move(textTexture);
     }
+}
+
+bool TrailMask::hasReachedDest(ApplicationState* appState) const {
+    
+    if(animation) {
+        return animation.value().hasReachedDest(appState->universalShaderSettings.trailMaskPosition, appState->universalShaderSettings.trailMaskScaleX, appState->universalShaderSettings.trailMaskScaleY);
+    } else {
+        return true;    //if there's no movement, it has "reached" its destination by default
+    }
+
 }
 
 std::string TrailMask::makeKey(const TrailMaskType type, const std::string& name) {

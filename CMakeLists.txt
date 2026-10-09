@@ -254,6 +254,7 @@ set(MY_HEADER_FILES
     source/simulation/scene.h
     source/simulation/scene_controller.h
     source/simulation/simulation.h
+    source/simulation/trail_mask_animation.h
     source/simulation/trail_map_controller.h
     source/simulation/trail_mask.h
     source/ui/ui_helpers.h
@@ -311,6 +312,7 @@ set(MY_SOURCE_FILES
     source/simulation/scene.cpp
     source/simulation/scene_controller.cpp
     source/simulation/simulation.cpp
+    source/simulation/trail_mask_animation.cpp
     source/simulation/trail_map_controller.cpp
     source/simulation/trail_mask.cpp
     source/ui/ui_helpers.cpp

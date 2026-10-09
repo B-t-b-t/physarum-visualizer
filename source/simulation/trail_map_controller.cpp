@@ -1,5 +1,6 @@
 #include "trail_map_controller.h"
 
+#include <cmath>                // for std::abs
 #include <filesystem>
 #include <fstream>
 #include <iostream>
@@ -111,6 +112,17 @@ bool TrailMapController::loadEntriesFromToml() {
         float scaleX = toml::find_or<float>(entry, "scale", 0, 1.0f);
         float scaleY = toml::find_or<float>(entry, "scale", 1, 1.0f);
 
+        int animationType = toml::find_or<int>(entry, "animationType", 0);
+        double positionVelocityX = toml::find_or<double>(entry, "positionVelocity", 0, 0.0f);
+        double positionVelocityY = toml::find_or<double>(entry, "positionVelocity", 1, 0.0f);
+        float positionStartX = toml::find_or<float>(entry, "positionStart", 0, 0.0f);
+        float positionStartY = toml::find_or<float>(entry, "positionStart", 1, 0.0f);
+        float positionEndX = toml::find_or<float>(entry, "positionEnd", 0, 0.0f);
+        float positionEndY = toml::find_or<float>(entry, "positionEnd", 1, 0.0f);
+        double scaleVelocity = toml::find_or<double>(entry, "scaleVelocity", 0.0f);
+        float scaleStart = toml::find_or<float>(entry, "scaleStart", 1.0f);
+        float scaleEnd = toml::find_or<float>(entry, "scaleEnd", 1.0f);
+
         //create entry
         std::string key = TrailMask::makeKey(TrailMaskType::TEXT, name);
 
@@ -121,6 +133,18 @@ bool TrailMapController::loadEntriesFromToml() {
             phys::Vec2{positionX, positionY},
             phys::Vec2{scaleX, scaleY}
         };
+
+        switch (animationType) {
+            case 0:
+                properties.animation = std::nullopt; // None
+                break;
+            case 1:
+                properties.animation = TrailMaskAnimation{phys::Vec2{positionVelocityX, positionVelocityY}, phys::Vec2{positionStartX, positionStartY}, phys::Vec2{positionEndX, positionEndY}};
+                break;
+            case 2:
+                properties.animation = TrailMaskAnimation{scaleVelocity, scaleStart, scaleEnd};
+                break;
+        }
 
         trailMasks_.try_emplace(key, TrailMask{ name, TrailMaskType::TEXT, properties });
     }
@@ -144,6 +168,17 @@ bool TrailMapController::loadEntriesFromToml() {
         float scaleX = toml::find_or<float>(entry, "scale", 0, 1.0f);
         float scaleY = toml::find_or<float>(entry, "scale", 1, 1.0f);
 
+        int animationType = toml::find_or<int>(entry, "animationType", 0);
+        double positionVelocityX = toml::find_or<double>(entry, "positionVelocity", 0, 0.0f);
+        double positionVelocityY = toml::find_or<double>(entry, "positionVelocity", 1, 0.0f);
+        float positionStartX = toml::find_or<float>(entry, "positionStart", 0, 0.0f);
+        float positionStartY = toml::find_or<float>(entry, "positionStart", 1, 0.0f);
+        float positionEndX = toml::find_or<float>(entry, "positionEnd", 0, 0.0f);
+        float positionEndY = toml::find_or<float>(entry, "positionEnd", 1, 0.0f);
+        double scaleVelocity = toml::find_or<double>(entry, "scaleVelocity", 0.0f);
+        float scaleStart = toml::find_or<float>(entry, "scaleStart", 1.0f);
+        float scaleEnd = toml::find_or<float>(entry, "scaleEnd", 1.0f);
+
         //create entry
         std::string key = TrailMask::makeKey(TrailMaskType::IMAGE, name);
 
@@ -154,6 +189,18 @@ bool TrailMapController::loadEntriesFromToml() {
             phys::Vec2{positionX, positionY},
             phys::Vec2{scaleX, scaleY}
         };
+
+        switch (animationType) {
+            case 0:
+                properties.animation = std::nullopt; // None
+                break;
+            case 1:
+                properties.animation = TrailMaskAnimation{phys::Vec2{positionVelocityX, positionVelocityY}, phys::Vec2{positionStartX, positionStartY}, phys::Vec2{positionEndX, positionEndY}};
+                break;
+            case 2:
+                properties.animation = TrailMaskAnimation{scaleVelocity, scaleStart, scaleEnd};
+                break;
+        }
 
         trailMasks_.try_emplace(key, TrailMask{ name, TrailMaskType::IMAGE, properties});
     }
@@ -187,35 +234,59 @@ bool TrailMapController::saveToToml() {
     toml::array textEntries;
     toml::array imageEntries;
 
-    constexpr float epsilon = 1e-6f;
+    constexpr float EPSILON = 1e-6f;
 
     for(const auto& [key, trailMask] : trailMasks_) {
-        //images without any additional data are discovered from the image directory and don't need
-        //to be saved. Text masks must always be saved.
-        if((trailMask.type == TrailMaskType::IMAGE && !trailMask.timeSlot) || trailMask.type == TrailMaskType::EMPTY) {
+        
+        if(trailMask.type == TrailMaskType::EMPTY) {
             continue;
         }
 
         //values in toml file are saved in reverse order from this code
         toml::value entry{toml::table{}};
         
-        if(std::abs(trailMask.scale.x - 1.0f) > epsilon 
-        || std::abs(trailMask.scale.y - 1.0f) > epsilon) {
+        if(trailMask.animation) {
+            if(trailMask.animation.value().hasTranslation()) {
+                entry["positionEnd"] = toml::array{
+                    trailMask.animation.value().positionEnd().x,
+                    trailMask.animation.value().positionEnd().y
+                };
+                entry["positionStart"] = toml::array{
+                    trailMask.animation.value().positionStart().x,
+                    trailMask.animation.value().positionStart().y
+                };
+                entry["positionVelocity"] = toml::array{
+                    trailMask.animation.value().positionVelocity().x,
+                    trailMask.animation.value().positionVelocity().y
+                };
+                entry["animationType"] = 1;
+            } else if(trailMask.animation.value().hasScaling()) {
+                entry["scaleEnd"] = trailMask.animation.value().scaleEnd();
+                entry["scaleStart"] = trailMask.animation.value().scaleStart();
+                entry["scaleVelocity"] = trailMask.animation.value().scaleVelocity();
+                entry["animationType"] = 2;
+            }
+        } else {
+            entry["animationType"] = 0;
+        }
+
+        if(std::abs(trailMask.scale.x - 1.0f) > EPSILON 
+        || std::abs(trailMask.scale.y - 1.0f) > EPSILON) {
             entry["scale"] = toml::array{
                 trailMask.scale.x,
                 trailMask.scale.y
             };
         }
         
-        if(std::abs(trailMask.position.x) > epsilon 
-        || std::abs(trailMask.position.y) > epsilon) {
+        if(std::abs(trailMask.position.x) > EPSILON 
+        || std::abs(trailMask.position.y) > EPSILON) {
             entry["position"] = toml::array{
                 trailMask.position.x,
                 trailMask.position.y
             };
         }
         
-        if(std::abs(trailMask.strength - 1.0f) > epsilon) { entry["strength"] = trailMask.strength; }
+        if(std::abs(trailMask.strength - 1.0f) > EPSILON) { entry["strength"] = trailMask.strength; }
 
         if(trailMask.timeSlot) {
             entry["end"] = toml::offset_datetime(trailMask.timeSlot->end);
@@ -293,6 +364,17 @@ void TrailMapController::bindToTextureUnit(GLuint textureUnit) {
     glBindTexture(GL_TEXTURE_2D, trailMask->second.texture->getID());
 }
 
+void TrailMapController::moveTrailMask() {
+    TrailMask& trailMask = trailMasks_.at(activeTrailMaskKey_);
+    //move until destination is reached
+    if(trailMask.animation.has_value() && !trailMask.hasReachedDest(appState_)) {
+        appState_->universalShaderSettings.trailMaskPosition.x += (double)trailMask.animation.value().positionVelocity().x;
+        appState_->universalShaderSettings.trailMaskPosition.y += (double)trailMask.animation.value().positionVelocity().y;
+        appState_->universalShaderSettings.trailMaskScaleX += trailMask.animation.value().scaleVelocity() * appState_->universalShaderSettings.trailMaskScaleX;
+        appState_->universalShaderSettings.trailMaskScaleY += trailMask.animation.value().scaleVelocity() * appState_->universalShaderSettings.trailMaskScaleY;
+    }
+}
+
 void TrailMapController::editTrailMask(const std::string& key, TrailMask newData) {
     if(!trailMasks_.contains(key)) {
         return;
@@ -305,6 +387,7 @@ void TrailMapController::editTrailMask(const std::string& key, TrailMask newData
     trailMask.strength = newData.strength;
     trailMask.position = newData.position;
     trailMask.scale = newData.scale;
+    trailMask.animation = newData.animation;
     trailMask.isInverted = newData.isInverted;
 
     if(trailMask.type == TrailMaskType::TEXT && trailMask.text != newData.text) {
@@ -344,6 +427,12 @@ void TrailMapController::onNotify(const UserEvent event) {
             appState_->universalShaderSettings.trailMaskScaleX = trailMask.scale.x * trailMask.getAspectRatioCorrection().x * globalScale_.x;
             appState_->universalShaderSettings.trailMaskScaleY = trailMask.scale.y * trailMask.getAspectRatioCorrection().y * globalScale_.y;
             appState_->universalShaderSettings.trailMaskIsInverted = trailMask.isInverted;
+
+            if(trailMask.animation) {
+                appState_->universalShaderSettings.trailMaskPosition += trailMask.animation.value().positionStart();
+                appState_->universalShaderSettings.trailMaskScaleX *= trailMask.animation.value().scaleStart();
+                appState_->universalShaderSettings.trailMaskScaleY *= trailMask.animation.value().scaleStart();
+            }
 
             break;
         }

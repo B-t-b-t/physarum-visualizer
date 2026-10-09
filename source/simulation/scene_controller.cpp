@@ -96,20 +96,50 @@ void SceneController::applyScene(const std::string& sceneName) {
     if (scenes_.contains(sceneName)) {
         activeScene_ = sceneName;
         appState_->usedSceneName = sceneName;
-        scenes_.at(sceneName).applyRandomPresets(appState_);
+        bool trailMaskWasSelected = scenes_.at(sceneName).applyRandomPresets(appState_);
         notify(UserEvent{EventType::BEHAVIOR_PRESET_APPLY, appState_->usedBehaviorPresetName});
         notify(UserEvent{EventType::COLOR_PRESET_APPLY, appState_->usedColorPresetName});
-        notify(UserEvent{EventType::IMAGE_PRESET_APPLY, appState_->usedTrailMaskName}); //IMAGE_PREEST_APPLY and TEXT_PRESET_APPLY result in same outcome in TrailMapController
+        if(trailMaskWasSelected) {
+            notify(UserEvent{EventType::IMAGE_PRESET_APPLY, appState_->usedTrailMaskName}); //IMAGE_PREEST_APPLY and TEXT_PRESET_APPLY result in same outcome in TrailMapController
+        }
         std::cout << "Applied scene: " << sceneName << std::endl;
     }
 }
 
-void SceneController::loadRandomScene() {
-    if (!scenes_.empty()) {
-        auto it = scenes_.begin();
-        std::advance(it, rand() % (int)scenes_.size());
-        applyScene(it->first);
+bool SceneController::isActiveTrailMaskAnimating() const {
+    if (appState_->trailMasks == nullptr ||
+        appState_->usedTrailMaskName.empty()) {
+        return false;
     }
+
+    const auto trailMask = appState_->trailMasks->find(
+        appState_->usedTrailMaskName);
+
+    if (trailMask == appState_->trailMasks->end()) {
+        std::cerr << "Active trail mask '"
+                  << appState_->usedTrailMaskName
+                  << "' no longer exists" << std::endl;
+        return false;
+    }
+
+    return trailMask->second.animation.has_value() &&
+           !trailMask->second.hasReachedDest(appState_);
+}
+
+void SceneController::loadRandomScene() {
+    if (scenes_.empty()) {
+        return;
+    }
+
+    if (isActiveTrailMaskAnimating()) {
+        //keep current scene, but allow scene associated behavior/color presets to be switched.
+        applyScene(activeScene_);
+        return;
+    }
+
+    auto it = scenes_.begin();
+    std::advance(it, rand() % static_cast<int>(scenes_.size()));
+    applyScene(it->first);
 }
 
 void SceneController::autoSwitchScenes(uint64_t timeInSeconds) {

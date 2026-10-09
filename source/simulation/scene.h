@@ -8,13 +8,13 @@
 #include "../preset_types.h"
 #include "../simulation/trail_mask.h"
 
-struct ApplicationState;    // Forward declaration of ApplicationState
+class ApplicationState;    // Forward declaration of ApplicationState
 
 class Scene {
 public:
     explicit Scene(std::string name);
 
-    void applyRandomPresets(ApplicationState* appState);
+    bool applyRandomPresets(ApplicationState* appState);
 
     const std::string& getName() const { return name_; }
 

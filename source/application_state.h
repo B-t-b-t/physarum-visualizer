@@ -13,8 +13,8 @@
 
 struct AudioDeviceInfo;	//forward declaration of AudioDeviceInfo struct
 struct Parameters;	//forward declaration of Parameters struct
-struct Scene;	//forward declaration of Scene struct
-struct TrailMask;	//forward declaration of TrailMask struct
+class Scene;	//forward declaration of Scene struct
+class TrailMask;	//forward declaration of TrailMask struct
 struct BehaviorPreset;	//forward declaration of Preset struct
 struct ColorPreset;	//forward declaration of ColorPreset struct
 

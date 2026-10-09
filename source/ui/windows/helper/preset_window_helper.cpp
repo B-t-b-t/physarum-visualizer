@@ -172,6 +172,15 @@ namespace PresetWindowHelper {
             static float strength = 1.0f;
             static phys::Vec2 position{0.0f, 0.0f};
             static phys::Vec2 scale{1.0f, 1.0f};
+            
+            static int animationType{0};
+            static phys::Vec2<double> positionVelocity{0.0, 0.0};
+            static phys::Vec2 positionStart{0.0f, 0.0f};
+            static phys::Vec2 positionEnd{0.0f, 0.0f};
+            static double scaleVelocity{0.0};
+            static float scaleStart{1.0f};
+            static float scaleEnd{1.0f};
+
             static bool linkScale = true;
             static bool isInverted = false;
 
@@ -184,8 +193,20 @@ namespace PresetWindowHelper {
                 strength = trailMask.strength;
                 position = trailMask.position;
                 scale = trailMask.scale;
+
+                animationType = trailMask.animation.has_value();
+                if(animationType) { animationType = trailMask.animation.value().hasTranslation() ? 1 : 2; }
+                
+                positionVelocity = animationType == 1 ? trailMask.animation.value().positionVelocity() : phys::Vec2<double>{0.0f, 0.0f};
+                positionStart = animationType == 1 ? trailMask.animation.value().positionStart() : phys::Vec2{0.0f, 0.0f};
+                positionEnd = animationType == 1 ? trailMask.animation.value().positionEnd() : phys::Vec2{0.0f, 0.0f};
+
+                scaleVelocity = animationType == 2 ? trailMask.animation.value().scaleVelocity() : 0.0f;
+                scaleStart = animationType == 2 ? trailMask.animation.value().scaleStart() : 1.0f;
+                scaleEnd = animationType == 2 ? trailMask.animation.value().scaleEnd() : 1.0f;
+
                 isInverted = trailMask.isInverted;
-        
+
                 //if no time slot exists, the start and end time shows the times of the last edited item by design
                 //so that editing is more convenient for the user
                 if(trailMask.timeSlot) {
@@ -213,6 +234,34 @@ namespace PresetWindowHelper {
             ImGui::LinkSliderFloat("Height", &scale.y, 0.1f, 10.0f);
             ImGui::LinkEnd();
 
+            ImGui::Text("Animation Type: ");
+            ImGui::SameLine();
+            ImGui::RadioButton("None", &animationType, 0);
+            ImGui::SameLine();
+            ImGui::RadioButton("Translation", &animationType, 1);
+            ImGui::SameLine();
+            ImGui::RadioButton("Scaling", &animationType, 2);
+
+            switch (animationType) {
+                case 0: { }  // None
+                break;
+                case 1: {   // Translation
+                    ImGui::InputDouble("Position Horizontal Velocity", &positionVelocity.x, 0.001, 0.01);
+                    ImGui::InputDouble("Position Vertical Velocity", &positionVelocity.y, 0.001, 0.01);
+                    ImGui::SliderFloat("Start Position Horizontal", &positionStart.x, -1.0f, 1.0f);
+                    ImGui::SliderFloat("Start Position Vertical", &positionStart.y, -1.0f, 1.0f);
+                    ImGui::SliderFloat("End Position Horizontal", &positionEnd.x, -1.0f, 1.0f);
+                    ImGui::SliderFloat("End Position Vertical", &positionEnd.y, -1.0f, 1.0f);
+                }
+                break;
+                case 2: {   // Scaling
+                    ImGui::InputDouble("Scale Velocity", &scaleVelocity, 0.01, 0.1);
+                    ImGui::SliderFloat("Start Scale", &scaleStart, 0.1f, 10.0f);
+                    ImGui::SliderFloat("End Scale", &scaleEnd, 0.1f, 10.0f);
+                }
+                break;
+            }
+
             ImGui::Checkbox("Invert", &isInverted);
 
             ImGui::Separator();
@@ -228,6 +277,18 @@ namespace PresetWindowHelper {
 
                 if(editTimeSlot) {
                     properties.timeSlot = TimeSlot{timeSlotStart, timeSlotEnd};
+                }
+
+                switch (animationType) {
+                    case 0:
+                        properties.animation = std::nullopt; // None
+                        break;
+                    case 1:
+                        properties.animation = TrailMaskAnimation{positionVelocity, positionStart, positionEnd};
+                        break;
+                    case 2:
+                        properties.animation = TrailMaskAnimation{scaleVelocity, scaleStart, scaleEnd};
+                        break;
                 }
 
                 presetWindow->notify(UserEvent{ EventType::IMAGE_PRESET_EDIT, TrailMask{trailMask.name, TrailMaskType::IMAGE, properties}});
@@ -328,6 +389,14 @@ namespace PresetWindowHelper {
             static bool timeSlotIsValid = true;
             static bool stringsEmpty = false;
 
+            static int animationType{0};
+            static phys::Vec2<double> positionVelocity{0.0, 0.0};
+            static phys::Vec2 positionStart{0.0f, 0.0f};
+            static phys::Vec2 positionEnd{0.0f, 0.0f};
+            static double scaleVelocity{0.0};
+            static float scaleStart{1.0f};
+            static float scaleEnd{1.0f};
+
             if(ImGui::IsWindowAppearing()) {
                 name = trailMask.name;
                 textToEdit = trailMask.text;
@@ -340,6 +409,17 @@ namespace PresetWindowHelper {
                 isInverted = trailMask.isInverted;
                 timeSlotIsValid = true;
                 stringsEmpty = false;
+
+                animationType = trailMask.animation.has_value();
+                if(animationType) { animationType = trailMask.animation.value().hasTranslation() ? 1 : 2; }
+                
+                positionVelocity = animationType == 1 ? trailMask.animation.value().positionVelocity() : phys::Vec2<double>{0.0f, 0.0f};
+                positionStart = animationType == 1 ? trailMask.animation.value().positionStart() : phys::Vec2{0.0f, 0.0f};
+                positionEnd = animationType == 1 ? trailMask.animation.value().positionEnd() : phys::Vec2{0.0f, 0.0f};
+
+                scaleVelocity = animationType == 2 ? trailMask.animation.value().scaleVelocity() : 0.0f;
+                scaleStart = animationType == 2 ? trailMask.animation.value().scaleStart() : 1.0f;
+                scaleEnd = animationType == 2 ? trailMask.animation.value().scaleEnd() : 1.0f;
 
                 //if no time slot exists, the start and end time shows the times of the last edited item by design
                 //so that editing is more convenient for the user
@@ -367,6 +447,35 @@ namespace PresetWindowHelper {
             ImGui::LinkSliderFloat("Width", &scale.x, 0.1f, 10.0f);
             ImGui::LinkSliderFloat("Height", &scale.y, 0.1f, 10.0f);
             ImGui::LinkEnd();
+
+            ImGui::Text("Animation Type: ");
+            ImGui::SameLine();
+            ImGui::RadioButton("None", &animationType, 0);
+            ImGui::SameLine();
+            ImGui::RadioButton("Translation", &animationType, 1);
+            ImGui::SameLine();
+            ImGui::RadioButton("Scaling", &animationType, 2);
+
+            switch (animationType) {
+                case 0: { }  // None
+                break;
+                case 1: {   // Translation
+                    ImGui::InputDouble("Position Horizontal Velocity", &positionVelocity.x, 0.001, 0.01);
+                    ImGui::InputDouble("Position Vertical Velocity", &positionVelocity.y, 0.001, 0.01);
+                    ImGui::SliderFloat("Start Position Horizontal", &positionStart.x, -1.0f, 1.0f);
+                    ImGui::SliderFloat("Start Position Vertical", &positionStart.y, -1.0f, 1.0f);
+                    ImGui::SliderFloat("End Position Horizontal", &positionEnd.x, -1.0f, 1.0f);
+                    ImGui::SliderFloat("End Position Vertical", &positionEnd.y, -1.0f, 1.0f);
+                }
+                break;
+                case 2: {   // Scaling
+                    ImGui::InputDouble("Scale Velocity", &scaleVelocity, 0.01, 0.1);
+                    ImGui::SliderFloat("Start Scale", &scaleStart, 0.1f, 10.0f);
+                    ImGui::SliderFloat("End Scale", &scaleEnd, 0.1f, 10.0f);
+                }
+                break;
+            }
+
             ImGui::Checkbox("Invert", &isInverted);
 
             ImGui::Separator();
@@ -393,6 +502,18 @@ namespace PresetWindowHelper {
 
                     if(editTimeSlot) {
                         properties.timeSlot = timeSlot;
+                    }
+
+                    switch (animationType) {
+                        case 0:
+                            properties.animation = std::nullopt; // None
+                            break;
+                        case 1:
+                            properties.animation = TrailMaskAnimation{positionVelocity, positionStart, positionEnd};
+                            break;
+                        case 2:
+                            properties.animation = TrailMaskAnimation{scaleVelocity, scaleStart, scaleEnd};
+                            break;
                     }
 
                     presetWindow->notify(UserEvent{EventType::TEXT_PRESET_EDIT, TrailMask{name, TrailMaskType::TEXT, properties}});

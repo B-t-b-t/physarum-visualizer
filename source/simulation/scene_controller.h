@@ -38,6 +38,8 @@ private:
     void loadFromToml();
     bool saveToToml();
 
+    bool isActiveTrailMaskAnimating() const;
+
     std::filesystem::path tomlFilePath_;
     ApplicationState* appState_;
     std::map<std::string, Scene> scenes_;
