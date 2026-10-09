@@ -50,14 +50,20 @@ struct TimeSlot {
     }
 };
 
+/**
+ * @brief Measures and logs the elapsed time for a specific code section.
+ * 
+ * This class uses RAII to automatically measure the time from its construction to destruction.
+ * The elapsed time is printed to the standard output along with the caller's description.
+ * 
+ */
 class TimeDebugMeasurment {
 public:
+    
     TimeDebugMeasurment(const std::string& caller) : start_{std::chrono::high_resolution_clock::now()}, caller_{caller} {}
-
     ~TimeDebugMeasurment() {
         auto now = std::chrono::high_resolution_clock::now();
         double elapsed = std::chrono::duration<double, std::milli>(now - start_).count();
-
         std::cout << " Elapsed time for " << caller_ << ": " << elapsed << " ms\n";
     }
 
