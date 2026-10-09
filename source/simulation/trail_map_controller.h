@@ -31,7 +31,7 @@ public:
     void bindToTextureUnit(GLuint textureUnit);
     void moveTrailMask();
     
-    void editTrailMask(const std::string& key, TrailMask newData);
+    void editTrailMask(const std::string& key, TrailMaskData props);
     void deleteTrailMask(const std::string& key);
     void onNotify(const UserEvent event) override;
     

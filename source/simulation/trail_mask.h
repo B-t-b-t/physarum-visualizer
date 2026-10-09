@@ -14,30 +14,7 @@
 #include "../utility/filepaths.h"  // for FilePaths
 #include "../utility/time_handling.h"  // for TimeSlot
 #include "../utility/vector_math.h"    // for phys::Vec2
-
-/**
- * @brief Properties of a trail mask.
- * 
- * Used only for the constructor of TrailMask, so when defining only some properties, the user isn't constrained by the order of the constructor parameters.
- */
-struct TrailMaskProperties {
-        std::string text{""};
-        std::optional<TimeSlot> timeSlot = std::nullopt;
-
-        float strength{1.0f};
-        phys::Vec2<float> position{0.0f, 0.0f};
-        phys::Vec2<float> scale{1.0f, 1.0f};    //external user defined scale
-
-        std::optional<TrailMaskAnimation> animation = std::nullopt;
-
-        bool isInverted{false};
-};
-
-enum class TrailMaskType {
-    IMAGE,
-    TEXT,
-    EMPTY       //makes it possible for the user to have "no" trail mask selected (TODO: find better solution)
-};
+#include "trail_mask_properties.h"  // for TrailMaskProperties
 
 class TrailMask {
 public:

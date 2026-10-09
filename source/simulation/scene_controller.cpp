@@ -74,14 +74,14 @@ void SceneController::onNotify(const UserEvent event) {
         }
         break;
         case EventType::IMAGE_PRESET_DELETE: {
-            std::string presetToDelete = std::get<TrailMask>(event.payload).name;
+            std::string presetToDelete = std::get<TrailMaskData>(event.payload).name;
             for (auto& [sceneName, scene] : scenes_) {
                 scene.removeAssociatedImage(presetToDelete);
             }
         }
         break;
         case EventType::TEXT_PRESET_DELETE: {
-            std::string presetToDelete = std::get<TrailMask>(event.payload).name;
+            std::string presetToDelete = std::get<TrailMaskData>(event.payload).name;
             for (auto& [sceneName, scene] : scenes_) {
                 scene.removeAssociatedText(presetToDelete);
             }

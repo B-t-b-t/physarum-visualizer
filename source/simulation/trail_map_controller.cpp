@@ -375,23 +375,23 @@ void TrailMapController::moveTrailMask() {
     }
 }
 
-void TrailMapController::editTrailMask(const std::string& key, TrailMask newData) {
+void TrailMapController::editTrailMask(const std::string& key, TrailMaskData newData) {
     if(!trailMasks_.contains(key)) {
         return;
     }
 
     TrailMask& trailMask = trailMasks_.at(key);
 
-    trailMask.timeSlot = newData.timeSlot;
+    trailMask.timeSlot = newData.properties.timeSlot;
 
-    trailMask.strength = newData.strength;
-    trailMask.position = newData.position;
-    trailMask.scale = newData.scale;
-    trailMask.animation = newData.animation;
-    trailMask.isInverted = newData.isInverted;
+    trailMask.strength = newData.properties.strength;
+    trailMask.position = newData.properties.position;
+    trailMask.scale = newData.properties.scale;
+    trailMask.animation = newData.properties.animation;
+    trailMask.isInverted = newData.properties.isInverted;
 
-    if(trailMask.type == TrailMaskType::TEXT && trailMask.text != newData.text) {
-        trailMask.text = newData.text;
+    if(trailMask.type == TrailMaskType::TEXT && trailMask.text != newData.properties.text) {
+        trailMask.text = newData.properties.text;
         trailMask.createTextureFromText(fontAtlas_, paths_, appState_);
     }
 
@@ -438,11 +438,11 @@ void TrailMapController::onNotify(const UserEvent event) {
             break;
         }
         case EventType::TEXT_PRESET_CREATE:
-        {   TrailMask data = std::get<TrailMask>(event.payload);
-            std::string key = TrailMask::makeKey(TrailMaskType::TEXT, data.name);
+        {   TrailMaskData data = std::get<TrailMaskData>(event.payload);
+            std::string key = TrailMask::makeKey(data.type, data.name);
 
             //not inserted if the key already exists
-            const auto& [iter, inserted] = trailMasks_.try_emplace(key, data);
+            const auto& [iter, inserted] = trailMasks_.try_emplace(key, data.name, data.type, data.properties);
             if(inserted) {
                 iter->second.createTextureFromText(fontAtlas_, paths_, appState_);
             }
@@ -451,14 +451,14 @@ void TrailMapController::onNotify(const UserEvent event) {
         case EventType::IMAGE_PRESET_EDIT:
         case EventType::TEXT_PRESET_EDIT:
         {
-            TrailMask newData = std::get<TrailMask>(event.payload);
-            editTrailMask(newData.makeKey(), newData);
+            TrailMaskData newData = std::get<TrailMaskData>(event.payload);
+            editTrailMask(TrailMask::makeKey(newData.type, newData.name), newData);
             break;
         }
         case EventType::TEXT_PRESET_DELETE:
         {
-            TrailMask data = std::get<TrailMask>(event.payload);
-            deleteTrailMask(data.makeKey());
+            TrailMaskData data = std::get<TrailMaskData>(event.payload);
+            deleteTrailMask(TrailMask::makeKey(data.type, data.name));
             break;
         }
         default:

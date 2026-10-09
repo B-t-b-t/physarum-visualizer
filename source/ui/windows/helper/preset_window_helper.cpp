@@ -13,7 +13,7 @@
 #include "../../../application_state.h"
 #include "../../../preset_types.h"
 #include "../../../simulation/trail_map_controller.h"
-#include "../../../simulation/trail_mask.h"
+#include "../../../simulation/trail_mask_properties.h"
 #include "../../../../external/imgui_stdlib.h"
 
 namespace PresetWindowHelper {
@@ -291,7 +291,7 @@ namespace PresetWindowHelper {
                         break;
                 }
 
-                presetWindow->notify(UserEvent{ EventType::IMAGE_PRESET_EDIT, TrailMask{trailMask.name, TrailMaskType::IMAGE, properties}});
+                presetWindow->notify(UserEvent{ EventType::IMAGE_PRESET_EDIT, TrailMaskData{trailMask.name, TrailMaskType::IMAGE, properties}});
                 presetWindow->notify(UserEvent{EventType::IMAGE_PRESET_APPLY});
 
                 ImGui::CloseCurrentPopup();
@@ -358,7 +358,7 @@ namespace PresetWindowHelper {
                         .timeSlot = editTimeSlot ? std::optional<TimeSlot>{timeSlot} : std::nullopt
                     };
 
-                    presetWindow->notify(UserEvent{EventType::TEXT_PRESET_CREATE, TrailMask{name, TrailMaskType::TEXT, properties}});
+                    presetWindow->notify(UserEvent{EventType::TEXT_PRESET_CREATE, TrailMaskData{name, TrailMaskType::TEXT, properties}});
                     ImGui::CloseCurrentPopup();
                 }
             }
@@ -516,7 +516,7 @@ namespace PresetWindowHelper {
                             break;
                     }
 
-                    presetWindow->notify(UserEvent{EventType::TEXT_PRESET_EDIT, TrailMask{name, TrailMaskType::TEXT, properties}});
+                    presetWindow->notify(UserEvent{EventType::TEXT_PRESET_EDIT, TrailMaskData{name, TrailMaskType::TEXT, properties}});
                     presetWindow->notify(UserEvent{EventType::TEXT_PRESET_APPLY});
 
                     ImGui::CloseCurrentPopup();
@@ -533,7 +533,7 @@ namespace PresetWindowHelper {
 
             //Fontawesome: fa-solid fa-trash-can 
             if(ImGui::Button("\uf2ed Delete")) {
-                presetWindow->notify(UserEvent{EventType::TEXT_PRESET_DELETE, TrailMask{trailMask.name, trailMask.type}});
+                presetWindow->notify(UserEvent{EventType::TEXT_PRESET_DELETE, TrailMaskData{trailMask.name, trailMask.type}});
                 ImGui::CloseCurrentPopup();
             }
 
@@ -550,7 +550,7 @@ namespace PresetWindowHelper {
 
             //Fontawesome: fa-solid fa-trash-can 
             if (ImGui::Button("\uf2ed Delete")) {
-                presetWindow->notify(UserEvent{EventType::TEXT_PRESET_DELETE, TrailMask{trailMask.name, trailMask.type}});
+                presetWindow->notify(UserEvent{EventType::TEXT_PRESET_DELETE, TrailMaskData{trailMask.name, trailMask.type}});
                 ImGui::CloseCurrentPopup();
             }
             ImGui::SameLine();

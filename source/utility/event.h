@@ -12,7 +12,7 @@
 
 #include "time_handling.h"  // for TimeSlot
 #include "vector_math.h"  // for phys::Vec2
-#include "../simulation/trail_mask.h"  // for TrailMaskData
+#include "../simulation/trail_mask_properties.h"  // for TrailMaskData
 
 enum class EventType {
     FULLSCREEN_TOGGLE,
@@ -56,13 +56,27 @@ struct SceneEditData {
     std::vector<std::string> textPresetKeys;
 };
 
+/**
+ * @brief Has additional fields compared to TrailMaskProperties, because the receiver needs to know which TrailMask is being referred to by name and type.
+ * 
+ */
+struct TrailMaskData {
+    std::string name;
+    TrailMaskType type;
+    TrailMaskProperties properties;
+
+    //Constructor, because name and type are needed, properties are optional
+    TrailMaskData(std::string nameIn, TrailMaskType typeIn, TrailMaskProperties propertiesIn = {})
+        : name{nameIn}, type{typeIn}, properties{propertiesIn} { }
+};
+
 using EventPayload = std::variant<
     std::monostate,
     int,
     float,
     uint32_t,   //for AUDIO_HARDWARE_CHANGE using SDL_AudioDeviceID (uint32_t)
     std::string,
-    TrailMask,  //only allow TrailMask and not TrailMaskProperties, because the receiver additionally needs to know name and type to know which TrailMask is being referred to
+    TrailMaskData,
     NewCanvasData,
     SceneEditData
 >; 
