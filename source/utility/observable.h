@@ -20,6 +20,8 @@ class Observable {
     void removeObserverAll(Observer* observer);
     
     protected:
+
+    bool isObservedBy(const Observer* observer) const;
     
     typedef std::list<Observer*> ObserverList;
     std::unordered_map<EventType, ObserverList> observers_{};

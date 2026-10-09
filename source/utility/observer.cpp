@@ -6,7 +6,9 @@
 #include "observable.h"
 
 Observer::~Observer() {
-    for (auto* obs : observable_) {
+    // removeObserverAll() edits observable_, so work on a copy.
+    const std::list<Observable*> observables = observable_;
+    for (auto* obs : observables) {
         obs->removeObserverAll(this);
     }
 }
@@ -14,7 +16,9 @@ Observer::~Observer() {
 void Observer::addObservable(Observable* observable) {
     assert((observable != nullptr) && "Observable is NULL");
 
-    if(observable != nullptr) {
+    //avoid adding the same observable multiple times
+    if(observable != nullptr
+        && std::find(observable_.begin(), observable_.end(), observable) == observable_.end()) {
         observable_.push_back(observable);
     }
 }
