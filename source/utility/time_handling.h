@@ -50,4 +50,20 @@ struct TimeSlot {
     }
 };
 
+class TimeDebugMeasurment {
+public:
+    TimeDebugMeasurment(const std::string& caller) : start_{std::chrono::high_resolution_clock::now()}, caller_{caller} {}
+
+    ~TimeDebugMeasurment() {
+        auto now = std::chrono::high_resolution_clock::now();
+        double elapsed = std::chrono::duration<double, std::milli>(now - start_).count();
+
+        std::cout << " Elapsed time for " << caller_ << ": " << elapsed << " ms\n";
+    }
+
+private:
+    std::chrono::high_resolution_clock::time_point start_;
+    std::string caller_;
+};
+
 #endif // TIME_HANDLING_H
