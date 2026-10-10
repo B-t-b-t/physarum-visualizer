@@ -244,6 +244,7 @@ set(MY_HEADER_FILES
     source/graphics/bloom.h
     source/graphics/font_atlas.h
     source/graphics/framebuffer.h
+    source/graphics/graphics_debug_tools.h
     source/graphics/renderer.h
     source/graphics/shader.h
     source/graphics/shader_program.h
@@ -302,6 +303,7 @@ set(MY_SOURCE_FILES
     source/graphics/bloom.cpp
     source/graphics/font_atlas.cpp
     source/graphics/framebuffer.cpp
+    source/graphics/graphics_debug_tools.cpp
     source/graphics/renderer.cpp
     source/graphics/shader.cpp
     source/graphics/shader_program.cpp
