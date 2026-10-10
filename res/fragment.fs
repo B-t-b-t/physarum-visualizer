@@ -126,7 +126,7 @@ void main() {
 
     // Modern bloom: add upsampled bloom texture
 	if(bloomEnabled == 1 && bloomIntensity > 0.0) {
-		vec3 bloomRGB = texture(upSample1, TexCoord).rgb;// * bloomWeights[0];
+		vec3 bloomRGB = texture(bloomTexture, TexCoord).rgb;// * bloomWeights[0];
 		//bloomRGB += texture(upSample2, TexCoord).rgb * bloomWeights[1];
 		//bloomRGB += texture(upSample3, TexCoord).rgb * bloomWeights[2];
 		//bloomRGB += texture(upSample4, TexCoord).rgb * bloomWeights[3];
@@ -140,7 +140,7 @@ void main() {
          	vec3 screenBlend = hdr + bloomRGB - (hdr * bloomRGB);
          	hdr = mix(hdr, screenBlend, (bloomIntensity + bloomBassReaction));
 		} else if(bloomBlendMode == 2) {
-        	// Method 3: Soft additive (Uncharted/COD style)
+        	// Method 3: Soft additive
         	vec3 softAdd = hdr + bloomRGB * (bloomIntensity + bloomBassReaction) * (1.0 - hdr);
         	hdr = mix(hdr, softAdd, (bloomIntensity	 + bloomBassReaction));
 		}
@@ -284,3 +284,46 @@ void main() {
 		if(debugTextureMaskSelector == 15) {FragColor = vec4(texture(trailMask, TexCoord));}
 	}
 }
+/*
+Interesting Soft Additive Bloom implementation?
+
+vec3 toneMap(vec3 hdr) {
+	if(toneMappingMode == 0) {
+		// reinhard tone mapping
+		return hdr / (hdr + vec3(1.0));
+	} else if(toneMappingMode == 1) {
+		// exposure tone mapping
+		return vec3(1.0) - exp(-hdr * exposure);
+	} else if(toneMappingMode == 2) {
+		// ACES tone mapping
+		const float a = 2.51f;
+		const float b = 0.03f;
+		const float c = 2.43f;
+		const float d = 0.59f;
+		const float e = 0.14f;
+		return clamp((hdr * (a * hdr + b)) / (hdr * (c * hdr + d) + e), 0.0, 1.0);
+	}
+
+	return vec3(0.0);
+}
+
+vec3 softLight(vec3 base, vec3 blend) {
+	vec3 low = 2.0 * base * blend + base * base * (1.0 - 2.0 * blend);
+	vec3 high = sqrt(base) * (2.0 * blend - 1.0) + 2.0 * base * (1.0 - blend);
+	return mix(low, high, step(vec3(0.5), base));
+}
+
+
+	//tone mapping
+	vec3 tone = toneMap(hdr);
+
+
+	vec3 bloomTone = toneMap(max(bloomRGB * brightnessBoost, vec3(0.0)));
+	float styleGain = clamp(bloomGain, 0.0, 1.0);
+
+	//soft additive blend mode
+	if(bloomBlendMode == 2) {
+		tone = mix(tone, softLight(tone, bloomTone), styleGain);
+	}
+
+*/

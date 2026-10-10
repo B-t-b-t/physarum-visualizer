@@ -6,7 +6,7 @@ layout(rgba32f, binding = 1) uniform image2D texTrailNonDiffused;
 layout(r32ui, binding = 2) uniform uimage2D newTexParticles;
 layout(r32ui, binding = 3) uniform uimage2D oldTexParticles;
 layout(rgba32f, binding = 4) uniform image2D texCollisions;
-layout(binding = 5) uniform sampler2D texTrailMask;  //sampler2D because of read only
+layout(binding = 16) uniform sampler2D texTrailMask;  //sampler2D because of read only
 
 layout(std140, binding = 0) uniform UniversalShaderSettings {
     int textureWidth;

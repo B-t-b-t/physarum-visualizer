@@ -60,8 +60,8 @@ Renderer& Renderer::operator=(Renderer&& rhs) noexcept {
 
 void Renderer::draw() {
 	// Bind main textures for fragment shader (these should always be bound)
-	bloomEffect_.bindBloomTextures(texTrail_.getID(), texTrailNonDiffused_.getID(), newTexParticles_.getID(), oldTexParticles_.getID(), texCollisions_.getID());
-
+  
+    bloomEffect_.bindBloomTextures(texTrail_.getID(), texTrailNonDiffused_.getID(), newTexParticles_.getID(), oldTexParticles_.getID(), texCollisions_.getID());
     //------------------------------------------------------
     // Bloom Post-Processing
     if(appState_->fragmentShaderSettings.bloomEnabled) {
