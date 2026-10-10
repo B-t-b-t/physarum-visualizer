@@ -43,7 +43,7 @@ public:
         TrailMask(TrailMask&&);
         TrailMask& operator=(TrailMask&&);
 
-        void createTextureFromImage(std::filesystem::path pictureFilePath, ApplicationState* appState);
+        bool createTextureFromImage(std::filesystem::path pictureFilePath, ApplicationState* appState);
         void createTextureFromText(FontAtlas& fontAtlas, FilePaths* paths, ApplicationState* appState);
 
         bool hasReachedDest(ApplicationState* appState) const;

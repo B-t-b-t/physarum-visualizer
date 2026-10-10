@@ -93,40 +93,47 @@ TrailMask& TrailMask::operator=(TrailMask&& other) {
     return *this;
 }
 
-void TrailMask::createTextureFromImage(std::filesystem::path pictureFilePath, ApplicationState* appState) {
-    if(type == TrailMaskType::IMAGE) {
-        SDL_Surface* loadedImage = loadImageFromFile(pictureFilePath);
+bool TrailMask::createTextureFromImage(std::filesystem::path pictureFilePath, ApplicationState* appState) {
+    if(type != TrailMaskType::IMAGE) {
+        return false;
+    }
 
-        TextureProperties properties;
-        properties.width = loadedImage->w;
-        properties.height = loadedImage->h;
-        properties.wrapX = TextureWrap::CLAMP_TO_BORDER;
-        properties.wrapY = TextureWrap::CLAMP_TO_BORDER;
-        properties.minFilter = TextureMinFilter::LINEAR;
-        properties.magFilter = TextureMagFilter::LINEAR;
-        properties.generateMipmaps = false;
+    SDL_Surface* loadedImage = loadImageFromFile(pictureFilePath);
+    if(!loadedImage) {
+        return false;
+    }
 
-        Texture tempTexture(properties, loadedImage->pixels, TextureDataFormat::RGBA, TextureDataType::UBYTE, loadedImage->pitch);
-        
-        texture = std::make_unique<Texture>(std::move(tempTexture));
+    TextureProperties properties;
+    properties.width = loadedImage->w;
+    properties.height = loadedImage->h;
+    properties.wrapX = TextureWrap::CLAMP_TO_BORDER;
+    properties.wrapY = TextureWrap::CLAMP_TO_BORDER;
+    properties.minFilter = TextureMinFilter::LINEAR;
+    properties.magFilter = TextureMagFilter::LINEAR;
+    properties.generateMipmaps = false;
 
-        SDL_DestroySurface(loadedImage);
+    Texture tempTexture(properties, loadedImage->pixels, TextureDataFormat::RGBA, TextureDataType::UBYTE, loadedImage->pitch);
+    
+    texture = std::make_unique<Texture>(std::move(tempTexture));
 
-        int texWidth = texture->getWidth();
-        int texHeight = texture->getHeight();
-        float sizeRatio = texWidth / (float) texHeight;
-        float canvasRatio = appState->universalShaderSettings.textureWidth / (float) appState->universalShaderSettings.textureHeight;
+    SDL_DestroySurface(loadedImage);
 
-        if(sizeRatio > 1.0f) {     //wider than tall
-            if(sizeRatio > canvasRatio) {
-                aspectRatioCorrection_.y *= canvasRatio / sizeRatio;
-            } else {
-                aspectRatioCorrection_.x *= sizeRatio / canvasRatio;
-            }
-        } else if(sizeRatio < 1.0f) {   // taller than wide
+    int texWidth = texture->getWidth();
+    int texHeight = texture->getHeight();
+    float sizeRatio = texWidth / (float) texHeight;
+    float canvasRatio = appState->universalShaderSettings.textureWidth / (float) appState->universalShaderSettings.textureHeight;
+
+    if(sizeRatio > 1.0f) {     //wider than tall
+        if(sizeRatio > canvasRatio) {
+            aspectRatioCorrection_.y *= canvasRatio / sizeRatio;
+        } else {
             aspectRatioCorrection_.x *= sizeRatio / canvasRatio;
         }
+    } else if(sizeRatio < 1.0f) {   // taller than wide
+        aspectRatioCorrection_.x *= sizeRatio / canvasRatio;
     }
+
+    return true;
 }
 
 void TrailMask::createTextureFromText(FontAtlas& fontAtlas, FilePaths* paths, ApplicationState* appState) {

@@ -210,22 +210,25 @@ bool TrailMapController::loadEntriesFromToml() {
 
 void TrailMapController::createAllTrailMaskTextures() {
     //load textures
-    for(auto& [key, trailMask] : trailMasks_) {
-        switch(trailMask.type) {
+    for(auto it = trailMasks_.begin(); it != trailMasks_.end();) {
+        switch(it->second.type) {
             case TrailMaskType::IMAGE: {
                 std::filesystem::path filePath{""};
                 filePath += paths_->pictureDir;
-                filePath /= trailMask.name;
+                filePath /= it->second.name;
                 filePath += paths_->pictureFileExtension;
-                trailMask.createTextureFromImage(filePath, appState_);
+                bool success = it->second.createTextureFromImage(filePath, appState_);
+                if(!success) { it = trailMasks_.erase(it); continue;}   //skips over ++it at end of loop
             }                
                 break;
             case TrailMaskType::TEXT:
-                trailMask.createTextureFromText(fontAtlas_, paths_, appState_);
+                it->second.createTextureFromText(fontAtlas_, paths_, appState_);
                 break;
             default:
                 break;
         }
+
+        ++it;
     }
 }
 
