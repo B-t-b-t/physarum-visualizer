@@ -8,11 +8,19 @@ FrameBuffer::FrameBuffer() {
 }
 
 FrameBuffer::FrameBuffer(FrameBuffer&& rhs) {
+    //delete this framebuffer before taking ownership of the new one
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    glDeleteFramebuffers(1, &framebufferID_);
+
     this->framebufferID_ = rhs.framebufferID_;
     rhs.framebufferID_ = 0;
 }
 
 FrameBuffer& FrameBuffer::operator=(FrameBuffer&& rhs) {
+    //delete this framebuffer before taking ownership of the new one
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    glDeleteFramebuffers(1, &framebufferID_);
+    
     this->framebufferID_ = rhs.framebufferID_;
     rhs.framebufferID_ = 0;
 
