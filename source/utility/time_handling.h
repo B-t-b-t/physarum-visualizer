@@ -2,6 +2,7 @@
 #define TIME_HANDLING_H
 
 #include <chrono>
+#include <iostream>
 
 struct TimeSlot {
     std::chrono::system_clock::time_point start{};
