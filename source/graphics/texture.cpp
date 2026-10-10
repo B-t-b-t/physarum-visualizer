@@ -120,6 +120,10 @@ void Texture::ensureValidProperties(TextureProperties* properties, void* data, T
 				*dataFormat = TextureDataFormat::RGBA;
 				*dataType = TextureDataType::FLOAT;
 				break;
+			case TexelFormat::RGBA16F:
+				*dataFormat = TextureDataFormat::RGBA;
+				*dataType = TextureDataType::FLOAT;
+				break;
 			case TexelFormat::R_UINT:
 				*dataFormat = TextureDataFormat::R;
 				*dataType = TextureDataType::UINT;

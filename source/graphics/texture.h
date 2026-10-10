@@ -33,6 +33,7 @@ enum class TextureMagFilter {
 // Internal data format used by the texture for it's texels
 enum class TexelFormat {
 	RGBA32F = GL_RGBA32F,	//32-bit floating point RGBA
+	RGBA16F = GL_RGBA16F,	//16-bit floating point RGBA
 	R_UINT = GL_R32UI		//32-bit unsigned integer R
 };
 
