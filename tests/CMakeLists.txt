@@ -9,11 +9,17 @@ include(Catch)
 include(CTest)
 
 set(TEST_SOURCE_FILES
+unit/simulation/test_trail_mask_animation.cpp
+${CMAKE_SOURCE_DIR}/source/simulation/trail_mask_animation.cpp
+
 #Observer Pattern Tests
 unit/test_observer_pattern.cpp
 ${CMAKE_SOURCE_DIR}/source/utility/event.cpp
 ${CMAKE_SOURCE_DIR}/source/utility/observable.cpp
 ${CMAKE_SOURCE_DIR}/source/utility/observer.cpp
+#Vector Math Tests
+unit/utility/test_vector_math.cpp
+${CMAKE_SOURCE_DIR}/source/utility/vector_math.cpp
 #Parameter Parser Tests
 unit/test_parameter_parser.cpp
 ${CMAKE_SOURCE_DIR}/source/utility/parameter_parser.cpp
