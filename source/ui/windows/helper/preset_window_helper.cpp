@@ -174,10 +174,9 @@ namespace PresetWindowHelper {
             static phys::Vec2 scale{1.0f, 1.0f};
             
             static int animationType{0};
-            static phys::Vec2<double> positionVelocity{0.0, 0.0};
+            static float animationTime{0.0};
             static phys::Vec2 positionStart{0.0f, 0.0f};
             static phys::Vec2 positionEnd{0.0f, 0.0f};
-            static double scaleVelocity{0.0};
             static float scaleStart{1.0f};
             static float scaleEnd{1.0f};
 
@@ -197,11 +196,10 @@ namespace PresetWindowHelper {
                 animationType = trailMask.animation.has_value();
                 if(animationType) { animationType = trailMask.animation.value().hasTranslation() ? 1 : 2; }
                 
-                positionVelocity = animationType == 1 ? trailMask.animation.value().positionVelocity() : phys::Vec2<double>{0.0f, 0.0f};
+                animationTime = animationType ? trailMask.animation.value().animationTime() : 0.0f;
                 positionStart = animationType == 1 ? trailMask.animation.value().positionStart() : phys::Vec2{0.0f, 0.0f};
                 positionEnd = animationType == 1 ? trailMask.animation.value().positionEnd() : phys::Vec2{0.0f, 0.0f};
 
-                scaleVelocity = animationType == 2 ? trailMask.animation.value().scaleVelocity() : 0.0f;
                 scaleStart = animationType == 2 ? trailMask.animation.value().scaleStart() : 1.0f;
                 scaleEnd = animationType == 2 ? trailMask.animation.value().scaleEnd() : 1.0f;
 
@@ -246,18 +244,17 @@ namespace PresetWindowHelper {
                 case 0: { }  // None
                 break;
                 case 1: {   // Translation
-                    ImGui::InputDouble("Position Horizontal Velocity", &positionVelocity.x, 0.001, 0.01);
-                    ImGui::InputDouble("Position Vertical Velocity", &positionVelocity.y, 0.001, 0.01);
                     ImGui::SliderFloat("Start Position Horizontal", &positionStart.x, -1.0f, 1.0f);
                     ImGui::SliderFloat("Start Position Vertical", &positionStart.y, -1.0f, 1.0f);
                     ImGui::SliderFloat("End Position Horizontal", &positionEnd.x, -1.0f, 1.0f);
                     ImGui::SliderFloat("End Position Vertical", &positionEnd.y, -1.0f, 1.0f);
+                    ImGui::InputFloat("Animation Time", &animationTime, 0.1, 0.1);
                 }
                 break;
                 case 2: {   // Scaling
-                    ImGui::InputDouble("Scale Velocity", &scaleVelocity, 0.01, 0.1);
                     ImGui::SliderFloat("Start Scale", &scaleStart, 0.1f, 10.0f);
                     ImGui::SliderFloat("End Scale", &scaleEnd, 0.1f, 10.0f);
+                    ImGui::InputFloat("Animation Time", &animationTime, 0.1, 0.1);
                 }
                 break;
             }
@@ -284,10 +281,10 @@ namespace PresetWindowHelper {
                         properties.animation = std::nullopt; // None
                         break;
                     case 1:
-                        properties.animation = TrailMaskAnimation{positionVelocity, positionStart, positionEnd};
+                        properties.animation = TrailMaskAnimation{positionStart, positionEnd, animationTime};
                         break;
                     case 2:
-                        properties.animation = TrailMaskAnimation{scaleVelocity, scaleStart, scaleEnd};
+                        properties.animation = TrailMaskAnimation{scaleStart, scaleEnd, animationTime};
                         break;
                 }
 
@@ -390,10 +387,9 @@ namespace PresetWindowHelper {
             static bool stringsEmpty = false;
 
             static int animationType{0};
-            static phys::Vec2<double> positionVelocity{0.0, 0.0};
+            static float animationTime{0.0f};
             static phys::Vec2 positionStart{0.0f, 0.0f};
             static phys::Vec2 positionEnd{0.0f, 0.0f};
-            static double scaleVelocity{0.0};
             static float scaleStart{1.0f};
             static float scaleEnd{1.0f};
 
@@ -413,11 +409,10 @@ namespace PresetWindowHelper {
                 animationType = trailMask.animation.has_value();
                 if(animationType) { animationType = trailMask.animation.value().hasTranslation() ? 1 : 2; }
                 
-                positionVelocity = animationType == 1 ? trailMask.animation.value().positionVelocity() : phys::Vec2<double>{0.0f, 0.0f};
+                animationTime = animationType ? trailMask.animation.value().animationTime() : 0.0f;
                 positionStart = animationType == 1 ? trailMask.animation.value().positionStart() : phys::Vec2{0.0f, 0.0f};
                 positionEnd = animationType == 1 ? trailMask.animation.value().positionEnd() : phys::Vec2{0.0f, 0.0f};
 
-                scaleVelocity = animationType == 2 ? trailMask.animation.value().scaleVelocity() : 0.0f;
                 scaleStart = animationType == 2 ? trailMask.animation.value().scaleStart() : 1.0f;
                 scaleEnd = animationType == 2 ? trailMask.animation.value().scaleEnd() : 1.0f;
 
@@ -460,18 +455,17 @@ namespace PresetWindowHelper {
                 case 0: { }  // None
                 break;
                 case 1: {   // Translation
-                    ImGui::InputDouble("Position Horizontal Velocity", &positionVelocity.x, 0.001, 0.01);
-                    ImGui::InputDouble("Position Vertical Velocity", &positionVelocity.y, 0.001, 0.01);
                     ImGui::SliderFloat("Start Position Horizontal", &positionStart.x, -1.0f, 1.0f);
                     ImGui::SliderFloat("Start Position Vertical", &positionStart.y, -1.0f, 1.0f);
                     ImGui::SliderFloat("End Position Horizontal", &positionEnd.x, -1.0f, 1.0f);
                     ImGui::SliderFloat("End Position Vertical", &positionEnd.y, -1.0f, 1.0f);
+                    ImGui::InputFloat("Animation Time", &animationTime, 0.1, 0.1);
                 }
                 break;
                 case 2: {   // Scaling
-                    ImGui::InputDouble("Scale Velocity", &scaleVelocity, 0.01, 0.1);
                     ImGui::SliderFloat("Start Scale", &scaleStart, 0.1f, 10.0f);
                     ImGui::SliderFloat("End Scale", &scaleEnd, 0.1f, 10.0f);
+                    ImGui::InputFloat("Animation Time", &animationTime, 0.1, 0.1);
                 }
                 break;
             }
@@ -509,10 +503,10 @@ namespace PresetWindowHelper {
                             properties.animation = std::nullopt; // None
                             break;
                         case 1:
-                            properties.animation = TrailMaskAnimation{positionVelocity, positionStart, positionEnd};
+                            properties.animation = TrailMaskAnimation{positionStart, positionEnd, animationTime};
                             break;
                         case 2:
-                            properties.animation = TrailMaskAnimation{scaleVelocity, scaleStart, scaleEnd};
+                            properties.animation = TrailMaskAnimation{scaleStart, scaleEnd, animationTime};
                             break;
                     }
 

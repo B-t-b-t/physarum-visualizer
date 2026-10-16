@@ -113,13 +113,11 @@ bool TrailMapController::loadEntriesFromToml() {
         float scaleY = toml::find_or<float>(entry, "scale", 1, 1.0f);
 
         int animationType = toml::find_or<int>(entry, "animationType", 0);
-        double positionVelocityX = toml::find_or<double>(entry, "positionVelocity", 0, 0.0f);
-        double positionVelocityY = toml::find_or<double>(entry, "positionVelocity", 1, 0.0f);
+        float animationTime = toml::find_or<float>(entry, "animationTime", 0.0f);
         float positionStartX = toml::find_or<float>(entry, "positionStart", 0, 0.0f);
         float positionStartY = toml::find_or<float>(entry, "positionStart", 1, 0.0f);
         float positionEndX = toml::find_or<float>(entry, "positionEnd", 0, 0.0f);
         float positionEndY = toml::find_or<float>(entry, "positionEnd", 1, 0.0f);
-        double scaleVelocity = toml::find_or<double>(entry, "scaleVelocity", 0.0f);
         float scaleStart = toml::find_or<float>(entry, "scaleStart", 1.0f);
         float scaleEnd = toml::find_or<float>(entry, "scaleEnd", 1.0f);
 
@@ -139,10 +137,10 @@ bool TrailMapController::loadEntriesFromToml() {
                 properties.animation = std::nullopt; // None
                 break;
             case 1:
-                properties.animation = TrailMaskAnimation{phys::Vec2{positionVelocityX, positionVelocityY}, phys::Vec2{positionStartX, positionStartY}, phys::Vec2{positionEndX, positionEndY}};
+                properties.animation = TrailMaskAnimation{phys::Vec2{positionStartX, positionStartY}, phys::Vec2{positionEndX, positionEndY}, animationTime};
                 break;
             case 2:
-                properties.animation = TrailMaskAnimation{scaleVelocity, scaleStart, scaleEnd};
+                properties.animation = TrailMaskAnimation{scaleStart, scaleEnd, animationTime};
                 break;
         }
 
@@ -169,13 +167,11 @@ bool TrailMapController::loadEntriesFromToml() {
         float scaleY = toml::find_or<float>(entry, "scale", 1, 1.0f);
 
         int animationType = toml::find_or<int>(entry, "animationType", 0);
-        double positionVelocityX = toml::find_or<double>(entry, "positionVelocity", 0, 0.0f);
-        double positionVelocityY = toml::find_or<double>(entry, "positionVelocity", 1, 0.0f);
+        float animationTime = toml::find_or<float>(entry, "animationTime", 0.0f);
         float positionStartX = toml::find_or<float>(entry, "positionStart", 0, 0.0f);
         float positionStartY = toml::find_or<float>(entry, "positionStart", 1, 0.0f);
         float positionEndX = toml::find_or<float>(entry, "positionEnd", 0, 0.0f);
         float positionEndY = toml::find_or<float>(entry, "positionEnd", 1, 0.0f);
-        double scaleVelocity = toml::find_or<double>(entry, "scaleVelocity", 0.0f);
         float scaleStart = toml::find_or<float>(entry, "scaleStart", 1.0f);
         float scaleEnd = toml::find_or<float>(entry, "scaleEnd", 1.0f);
 
@@ -195,10 +191,10 @@ bool TrailMapController::loadEntriesFromToml() {
                 properties.animation = std::nullopt; // None
                 break;
             case 1:
-                properties.animation = TrailMaskAnimation{phys::Vec2{positionVelocityX, positionVelocityY}, phys::Vec2{positionStartX, positionStartY}, phys::Vec2{positionEndX, positionEndY}};
+                properties.animation = TrailMaskAnimation{phys::Vec2{positionStartX, positionStartY}, phys::Vec2{positionEndX, positionEndY}, animationTime};
                 break;
             case 2:
-                properties.animation = TrailMaskAnimation{scaleVelocity, scaleStart, scaleEnd};
+                properties.animation = TrailMaskAnimation{scaleStart, scaleEnd, animationTime};
                 break;
         }
 
@@ -258,15 +254,12 @@ bool TrailMapController::saveToToml() {
                     trailMask.animation.value().positionStart().x,
                     trailMask.animation.value().positionStart().y
                 };
-                entry["positionVelocity"] = toml::array{
-                    trailMask.animation.value().positionVelocity().x,
-                    trailMask.animation.value().positionVelocity().y
-                };
+                entry["animationTime"] = trailMask.animation.value().animationTime();
                 entry["animationType"] = 1;
             } else if(trailMask.animation.value().hasScaling()) {
                 entry["scaleEnd"] = trailMask.animation.value().scaleEnd();
                 entry["scaleStart"] = trailMask.animation.value().scaleStart();
-                entry["scaleVelocity"] = trailMask.animation.value().scaleVelocity();
+                entry["animationTime"] = trailMask.animation.value().animationTime();
                 entry["animationType"] = 2;
             }
         } else {

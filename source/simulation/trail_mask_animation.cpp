@@ -3,29 +3,32 @@
 #include <iostream>
 
 //Constructor for translation
-TrailMaskAnimation::TrailMaskAnimation(phys::Vec2<double> positionVelocity, phys::Vec2<float> startPos, phys::Vec2<float> endPos) {
+TrailMaskAnimation::TrailMaskAnimation(phys::Vec2<float> startPos, phys::Vec2<float> endPos, float animationTime) {
     animationType_ = AnimationType::Translation;
-    this->positionVelocity_ = positionVelocity;
+    animationTime_ = animationTime;
     positionStart_ = startPos;
     positionEnd_ = endPos;
+    phys::Vec2<float> directionVector_ = endPos - startPos;
+    positionVelocity_ = phys::Vec2<double>{directionVector_.x / (animationTime_ * 60), directionVector_.y / (animationTime_ * 60)};     // velocity per frame assuming 60 FPS
 }
 
 //Constructor for scaling
-TrailMaskAnimation::TrailMaskAnimation(double scaleVelocity, float scaleStart, float scaleEnd) {
+TrailMaskAnimation::TrailMaskAnimation(float scaleStart, float scaleEnd, float animationTime) {
     animationType_ = AnimationType::Scaling;
-    scaleVelocity_ = scaleVelocity;
+    animationTime_ = animationTime;
     scaleStart_ = scaleStart;
     scaleEnd_ = scaleEnd;
+    scaleVelocity_ = (scaleEnd_ - scaleStart_) / static_cast<double>(animationTime_ * 60);     // velocity per frame assuming 60 FPS
 }
 
-bool TrailMaskAnimation::hasReachedDest(phys::Vec2<float> trailMaskPosition, phys::Vec2<float> trailMaskScale) const {
+bool TrailMaskAnimation::hasReachedDest(const phys::Vec2<float> trailMaskPosition, const phys::Vec2<float> trailMaskScale) const {
     bool reachedDestination = false;
     constexpr float EPSILON = 0.01f;
     
     switch (animationType_) {
         case AnimationType::Translation: {
-            reachedDestination = phys::VecMath<float>::abs(trailMaskPosition - positionEnd_) < phys::Vec2<float>{EPSILON, EPSILON};
-            return reachedDestination;
+            float newDistance = phys::VecMath<float>::distance(trailMaskPosition, positionEnd_);
+            return newDistance < 2 * phys::VecMath<double>::length(positionVelocity_);
         }
         break;
         case AnimationType::Scaling: {

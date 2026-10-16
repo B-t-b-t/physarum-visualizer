@@ -9,7 +9,7 @@ TEST_CASE("Test hasReachedDestination", "[trail_mask_animation]") {
         phys::Vec2<float> start{0.1f, 0.0f};
         phys::Vec2<float> end{1.0f, 0.0f};
 
-        TrailMaskAnimation animation{velocity, start, end};
+        TrailMaskAnimation animation{start, end, 10.0f};
         phys::Vec2<float> scale{1.0f, 1.0f};
 
         // start position
@@ -22,7 +22,7 @@ TEST_CASE("Test hasReachedDestination", "[trail_mask_animation]") {
         current_position = end;
         REQUIRE(animation.hasReachedDest(current_position, scale));
         // slightly past the end position
-        current_position = phys::Vec2<float>{1.001f, 0.0f};
+        current_position = phys::Vec2<float>{1.004f, 0.0f};
         REQUIRE_FALSE(animation.hasReachedDest(current_position, scale));
         // false y positions
         current_position = phys::Vec2<float>{0.0f, 1.0f};
