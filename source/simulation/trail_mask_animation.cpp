@@ -23,7 +23,6 @@ TrailMaskAnimation::TrailMaskAnimation(float scaleStart, float scaleEnd, float a
 
 bool TrailMaskAnimation::hasReachedDest(const phys::Vec2<float> trailMaskPosition, const phys::Vec2<float> trailMaskScale) const {
     bool reachedDestination = false;
-    constexpr float EPSILON = 0.01f;
     
     switch (animationType_) {
         case AnimationType::Translation: {
@@ -32,8 +31,13 @@ bool TrailMaskAnimation::hasReachedDest(const phys::Vec2<float> trailMaskPositio
         }
         break;
         case AnimationType::Scaling: {
-            reachedDestination = std::abs(trailMaskScale.x - scaleEnd_) < EPSILON
-                              || std::abs(trailMaskScale.y - scaleEnd_) < EPSILON;
+            if(scaleVelocity_ > 0) {
+                reachedDestination = trailMaskScale.x >= scaleEnd_ && trailMaskScale.y >= scaleEnd_;
+            } else if(scaleVelocity_ < 0) {
+                reachedDestination = trailMaskScale.x <= scaleEnd_ && trailMaskScale.y <= scaleEnd_;
+            } else {
+                reachedDestination = true; // no scaling, end animation
+            }
             return reachedDestination;
         }
         break;

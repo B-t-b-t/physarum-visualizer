@@ -5,6 +5,7 @@
 #include <fstream>
 #include <iostream>
 #include <iterator>             // for next
+#include <memory>
 
 #include <toml.hpp>
 
@@ -28,12 +29,23 @@ TrailMapController::TrailMapController(FilePaths* paths, GLuint textureUnit, App
     loadEntriesFromDirectory();   //load remaining images from the directory (duplicates with TOML entries get ignored)
     createAllTrailMaskTextures();
 
-    trailMasks_.try_emplace("Empty._None_", TrailMask{"_None_", TrailMaskType::EMPTY});
+    auto& emptyMask = trailMasks_.try_emplace(kEmptyTrailMaskKey, "_None_", TrailMaskType::EMPTY).first->second;
+    TextureProperties emptyTextureProperties;
+    emptyTextureProperties.width = 1;
+    emptyTextureProperties.height = 1;
+    emptyTextureProperties.generateMipmaps = false;
+    emptyTextureProperties.minFilter = TextureMinFilter::NEAREST;
+    emptyTextureProperties.magFilter = TextureMagFilter::NEAREST;
+    const float blackPixel[4] = {0.0f, 0.0f, 0.0f, 0.0f};
+    emptyMask.texture = std::make_unique<Texture>(
+        emptyTextureProperties, blackPixel, TextureDataFormat::RGBA,
+        TextureDataType::FLOAT, sizeof(blackPixel));
 
-    activeTrailMaskKey_ = trailMasks_.find("Empty._None_")->first;
-
+    activeTrailMaskKey_ = kEmptyTrailMaskKey;
     appState_->trailMasks = &trailMasks_;
     appState_->usedTrailMaskName = activeTrailMaskKey_;
+    appState_->universalShaderSettings.trailMaskInfluence = 0.0f;
+    appState_->universalShaderSettings.trailMaskIsInverted = false;
 }
 
 TrailMapController::TrailMapController(TrailMapController&& other) {
@@ -344,10 +356,6 @@ void TrailMapController::loadEntriesFromDirectory() {
 }
 
 void TrailMapController::bindToTextureUnit(GLuint textureUnit) { 
-    if(trailMasks_.at(activeTrailMaskKey_).type == TrailMaskType::EMPTY) {
-        return;
-    }
-
     textureUnit_ = textureUnit;
 
     const auto trailMask = trailMasks_.find(activeTrailMaskKey_);
@@ -414,15 +422,14 @@ void TrailMapController::onNotify(const UserEvent event) {
             activeTrailMaskKey_ = appState_->usedTrailMaskName;
             TrailMask& trailMask = trailMasks_.at(activeTrailMaskKey_);
 
-            if(trailMask.texture != nullptr) {
-                glActiveTexture(GL_TEXTURE0 + textureUnit_);
-                glBindTexture(GL_TEXTURE_2D, trailMask.texture->getID());
-            }
-            appState_->universalShaderSettings.trailMaskInfluence = trailMask.strength + globalStrength_;
+            bindToTextureUnit(textureUnit_);
+            const bool isEmpty = trailMask.type == TrailMaskType::EMPTY;
+            appState_->universalShaderSettings.trailMaskInfluence =
+                isEmpty ? 0.0f : trailMask.strength + globalStrength_;
             appState_->universalShaderSettings.trailMaskPosition = toStd140(trailMask.position + globalPosition_);
             appState_->universalShaderSettings.trailMaskScale.x = trailMask.scale.x * trailMask.getAspectRatioCorrection().x * globalScale_.x;
             appState_->universalShaderSettings.trailMaskScale.y = trailMask.scale.y * trailMask.getAspectRatioCorrection().y * globalScale_.y;
-            appState_->universalShaderSettings.trailMaskIsInverted = trailMask.isInverted;
+            appState_->universalShaderSettings.trailMaskIsInverted = isEmpty ? false : trailMask.isInverted;
 
             if(trailMask.animation) {
                 appState_->universalShaderSettings.trailMaskPosition.x += trailMask.animation.value().positionStart().x;

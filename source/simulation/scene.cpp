@@ -1,6 +1,8 @@
 #include "scene.h"
 
+#include <cstdlib>
 #include <iostream>
+#include <iterator>
 
 #include "../application_state.h"
 #include "../utility/time_handling.h"
@@ -119,55 +121,21 @@ bool Scene::applyRandomPresets(ApplicationState* appState) {
         appState->usedColorPresetName = selectedKey;
     }
 
-    //randomly select a trail mask
-    //give each image and text an equal chance to get selected
     length = associatedImages_.size() + associatedTexts_.size();
-    if(length > 0) {
-        bool isValid = true;
-        size_t attempts = 0;
-
-        if (appState->trailMasks->at(appState->usedTrailMaskName)
-                .hasReachedDest(appState)) {
-            do {
-                attempts++;
-                randomIndex = static_cast<long int>(
-                    static_cast<size_t>(rand()) % length);
-
-                if (randomIndex <
-                    static_cast<long int>(associatedImages_.size())) {
-                    selectedKey =
-                        std::next(associatedImages_.begin(), randomIndex)->first;
-
-                    if (associatedImages_.at(selectedKey)->timeSlot) {
-                        isValid =
-                            associatedImages_.at(selectedKey)->timeSlot->isNow();
-                    }
-
-                    isValid &= associatedImages_.at(selectedKey)->type !=
-                               TrailMaskType::EMPTY;
-                } else {
-                    selectedKey = std::next(
-                        associatedTexts_.begin(),
-                        randomIndex -
-                            static_cast<long int>(associatedImages_.size()))
-                        ->first;
-
-                    if (associatedTexts_.at(selectedKey)->timeSlot) {
-                        isValid =
-                            associatedTexts_.at(selectedKey)->timeSlot->isNow();
-                    }
-
-                    isValid &= associatedTexts_.at(selectedKey)->type !=
-                               TrailMaskType::EMPTY;
-                }
-            } while (!isValid && attempts < length);
-
-            if (isValid) {
-                appState->usedTrailMaskName = selectedKey;
-                return true;
-            }
-        }
+    if(length == 0 || !appState->trailMasks->at(appState->usedTrailMaskName)
+                           .hasReachedDest(appState)) {
+        return false;
     }
 
-    return false;
+    randomIndex = static_cast<long int>(static_cast<size_t>(rand()) % length);
+    const auto& selected = randomIndex < static_cast<long int>(associatedImages_.size())
+        ? *std::next(associatedImages_.begin(), randomIndex)
+        : *std::next(associatedTexts_.begin(),
+                     randomIndex - static_cast<long int>(associatedImages_.size()));
+    const TrailMask& mask = *selected.second;
+
+    appState->usedTrailMaskName = mask.timeSlot && !mask.timeSlot->isNow()
+        ? kEmptyTrailMaskKey
+        : selected.first;
+    return true;
 }

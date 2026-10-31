@@ -16,6 +16,8 @@
 #include "../utility/vector_math.h"    // for phys::Vec2
 #include "trail_mask_properties.h"  // for TrailMaskProperties
 
+inline constexpr char kEmptyTrailMaskKey[] = "Empty._None_";
+
 class TrailMask {
 public:
         std::string name;
